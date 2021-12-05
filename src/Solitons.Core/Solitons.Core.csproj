@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Solitons.Core</PackageId>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Solitons</RootNamespace>
+    <Authors>Alexey Evlampiev</Authors>
+    <Company>Solitons</Company>
+    <Description>Common utilities and abstractions</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+    <RunAnalyzers>false</RunAnalyzers>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <PackageIcon>Logo.png</PackageIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="[5.0.0,)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Tables\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Extensions.Numbers.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Extensions.Numbers.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions.Numbers.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Extensions.Numbers.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Text\RegexPatterns.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegexPatterns.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Web\HttpRequestHeaders.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HttpRequestHeaders.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Extensions.Numbers.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Extensions.Numbers.generated.cs</LastGenOutput>
+    </None>
+    <None Update="Text\RegexPatterns.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RegexPatterns.generated.cs</LastGenOutput>
+    </None>
+    <None Update="Web\HttpRequestHeaders.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HttpRequestHeaders.generated.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

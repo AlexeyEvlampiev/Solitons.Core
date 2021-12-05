@@ -1,0 +1,982 @@
+﻿namespace Solitons
+{
+	using System;
+    using System.Diagnostics;
+    using System.Runtime.CompilerServices;
+
+	public static partial class Extensions
+	{ 
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int32 ThrowIfOutOfRange(this System.Int32 self, System.Int32 min, System.Int32 max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int32 ThrowIfArgumentOutOfRange(this System.Int32 self, System.Int32 min, System.Int32 max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int32 ThrowIfLessThan(this System.Int32 self, System.Int32 min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int32 ThrowIfArgumentLessThan(this System.Int32 self, System.Int32 min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int32 ThrowIfGreaterThan(this System.Int32 self, System.Int32 max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int32 ThrowIfArgumentGreaterThan(this System.Int32 self, System.Int32 max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Byte ThrowIfOutOfRange(this System.Byte self, System.Byte min, System.Byte max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Byte ThrowIfArgumentOutOfRange(this System.Byte self, System.Byte min, System.Byte max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Byte ThrowIfLessThan(this System.Byte self, System.Byte min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Byte ThrowIfArgumentLessThan(this System.Byte self, System.Byte min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Byte ThrowIfGreaterThan(this System.Byte self, System.Byte max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Byte ThrowIfArgumentGreaterThan(this System.Byte self, System.Byte max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int64 ThrowIfOutOfRange(this System.Int64 self, System.Int64 min, System.Int64 max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int64 ThrowIfArgumentOutOfRange(this System.Int64 self, System.Int64 min, System.Int64 max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int64 ThrowIfLessThan(this System.Int64 self, System.Int64 min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int64 ThrowIfArgumentLessThan(this System.Int64 self, System.Int64 min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int64 ThrowIfGreaterThan(this System.Int64 self, System.Int64 max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int64 ThrowIfArgumentGreaterThan(this System.Int64 self, System.Int64 max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Decimal ThrowIfOutOfRange(this System.Decimal self, System.Decimal min, System.Decimal max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Decimal ThrowIfArgumentOutOfRange(this System.Decimal self, System.Decimal min, System.Decimal max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Decimal ThrowIfLessThan(this System.Decimal self, System.Decimal min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Decimal ThrowIfArgumentLessThan(this System.Decimal self, System.Decimal min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Decimal ThrowIfGreaterThan(this System.Decimal self, System.Decimal max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Decimal ThrowIfArgumentGreaterThan(this System.Decimal self, System.Decimal max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Single ThrowIfOutOfRange(this System.Single self, System.Single min, System.Single max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Single ThrowIfArgumentOutOfRange(this System.Single self, System.Single min, System.Single max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Single ThrowIfLessThan(this System.Single self, System.Single min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Single ThrowIfArgumentLessThan(this System.Single self, System.Single min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Single ThrowIfGreaterThan(this System.Single self, System.Single max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Single ThrowIfArgumentGreaterThan(this System.Single self, System.Single max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Double ThrowIfOutOfRange(this System.Double self, System.Double min, System.Double max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Double ThrowIfArgumentOutOfRange(this System.Double self, System.Double min, System.Double max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Double ThrowIfLessThan(this System.Double self, System.Double min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Double ThrowIfArgumentLessThan(this System.Double self, System.Double min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Double ThrowIfGreaterThan(this System.Double self, System.Double max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Double ThrowIfArgumentGreaterThan(this System.Double self, System.Double max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.TimeSpan ThrowIfOutOfRange(this System.TimeSpan self, System.TimeSpan min, System.TimeSpan max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.TimeSpan ThrowIfArgumentOutOfRange(this System.TimeSpan self, System.TimeSpan min, System.TimeSpan max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.TimeSpan ThrowIfLessThan(this System.TimeSpan self, System.TimeSpan min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.TimeSpan ThrowIfArgumentLessThan(this System.TimeSpan self, System.TimeSpan min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.TimeSpan ThrowIfGreaterThan(this System.TimeSpan self, System.TimeSpan max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.TimeSpan ThrowIfArgumentGreaterThan(this System.TimeSpan self, System.TimeSpan max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTime ThrowIfOutOfRange(this System.DateTime self, System.DateTime min, System.DateTime max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTime ThrowIfArgumentOutOfRange(this System.DateTime self, System.DateTime min, System.DateTime max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTime ThrowIfLessThan(this System.DateTime self, System.DateTime min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTime ThrowIfArgumentLessThan(this System.DateTime self, System.DateTime min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTime ThrowIfGreaterThan(this System.DateTime self, System.DateTime max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTime ThrowIfArgumentGreaterThan(this System.DateTime self, System.DateTime max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTimeOffset ThrowIfOutOfRange(this System.DateTimeOffset self, System.DateTimeOffset min, System.DateTimeOffset max, Func<Exception> errorFactory)
+		{
+			if(self < min || self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTimeOffset ThrowIfArgumentOutOfRange(this System.DateTimeOffset self, System.DateTimeOffset min, System.DateTimeOffset max, string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min || self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTimeOffset ThrowIfLessThan(this System.DateTimeOffset self, System.DateTimeOffset min, Func<Exception> errorFactory)
+		{
+			if(self < min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTimeOffset ThrowIfArgumentLessThan(this System.DateTimeOffset self, System.DateTimeOffset min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self < min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTimeOffset ThrowIfGreaterThan(this System.DateTimeOffset self, System.DateTimeOffset max, Func<Exception> errorFactory)
+		{
+			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns><paramref name="self"/></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.DateTimeOffset ThrowIfArgumentGreaterThan(this System.DateTimeOffset self, System.DateTimeOffset max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}  		
+	}
+}

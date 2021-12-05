@@ -1,0 +1,17 @@
+﻿<#@ template language="C#" inherits="RuntimeJsonTemplate"  linePragmas="false"  #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+{
+	<#= "boolean" #>: <#= 1==1 #>,
+	<#= "int" #>: <#= 123 #>,
+	"nullInt": <#= new int?() #>,
+	<#= "double" #>: <#= Math.PI #>,
+	<#= "timeSpan" #>: <#= TimeSpan.FromSeconds(220) #>,
+	<#= "nullableTimeSpan" #>: <#= new TimeSpan?(TimeSpan.FromSeconds(220)) #>,
+	"object": <#= new { number = 123, text = "Hello"}  #>,
+	"array": <#= new object[]{123, "text", DateTime.Now} #>,
+	"map": <#= new Dictionary<string,object>(){ ["number"]=123, ["text"]="Text", ["object"]=new { number = 123, text = "Hello"} } #> ,
+	"multiLine": <#= new StringBuilder("line 1").AppendLine().AppendLine("line 2") #>
+}
