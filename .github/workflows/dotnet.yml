@@ -2,15 +2,20 @@ name: .NET
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ develop ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+     projectpath: ./src/Solitons.Core/Solitons.Core.csproj
+     buildconfiguration: release
+     outputpath: pkgout
+     runId: ${{github.run_id}}
+     nugetsource: https://api.nuget.org/v3/index.json
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -20,6 +25,18 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore --configuration ${buildconfiguration}
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      env:
+       AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
+      run: dotnet test --no-build --verbosity normal   
+    - name: Pack
+      env:
+       versionsuffix: 'alpha.${{env.runId}}'
+      run: dotnet pack ${projectpath} --configuration ${buildconfiguration} --output ${outputpath} --version-suffix ${versionsuffix} --no-build --no-restore
+    - name: Push
+      env:
+       NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+      run: dotnet nuget push ${outputpath}/*.nupkg --api-key ${NUGET_API_KEY} --source ${nugetsource} --skip-duplicate
+
+     
