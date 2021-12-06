@@ -3,13 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Solitons.Collections.Specialized
 {
     /// <summary>
-    /// 
+    ///  A collection of interdependent <see cref="ProjectActivity"/> items sorted by the item's longest duration variant.
+    /// <para>Computed properties:</para>
+    /// <list type="bullet">
+    /// <item>
+    /// <see cref="CriticalPath"/>
+    /// </item>
+    /// </list>
     /// </summary>
     public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
     {
@@ -18,12 +22,12 @@ namespace Solitons.Collections.Specialized
 
 
         /// <summary>
-        /// 
+        /// Collections aggregate critical path.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<ProjectActivity> CriticalPath => _project
                 .Select(activity => activity.CriticalPath)
-                .OrderByDescending(path => path.Sum(a => a.EffortInDays))
+                .OrderByDescending(criticalPath => criticalPath.Sum(a => a.EffortInDays))
                 .Take(1)
                 .SelectMany(path => path);
 
@@ -71,16 +75,20 @@ namespace Solitons.Collections.Specialized
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public ProjectActivity Add(string id, int effortInDays, IEnumerable<ProjectActivity> dependencies)
         {
-            dependencies
-                .ThrowIfNullArgument(nameof(dependencies))
-                .Skip(_project.Contains)
-                .ForEach(a=> throw new ArgumentOutOfRangeException($"{a.Id} dependency does not belong to this project.", nameof(dependencies)));
-
             var activity = new ProjectActivity(
-                id.ThrowIfNullOrWhiteSpaceArgument(nameof(id)),
-                effortInDays.ThrowIfArgumentOutOfRange(1, int.MaxValue, nameof(effortInDays)),
-                _project.AsEnumerable(),
-                dependencies.ThrowIfNullArgument(nameof(dependencies)));
+                id
+                    .ThrowIfNullOrWhiteSpaceArgument(nameof(id)),
+                effortInDays
+                    .ThrowIfArgumentLessThan(0, nameof(effortInDays)),
+                dependencies
+                    .ThrowIfNullArgument(nameof(dependencies))
+                    .Do(dependency=>
+                    {
+                        if (_project.Contains(dependency) == false)
+                            throw new ArgumentOutOfRangeException($"{dependency.Id} dependency does not belong to this project.",
+                                nameof(dependencies));
+                    })
+                    .ToList());
 
             _project.Add(activity);
 

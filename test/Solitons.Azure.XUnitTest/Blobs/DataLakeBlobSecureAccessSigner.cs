@@ -14,7 +14,7 @@ namespace Solitons.Azure.Blobs
     {
         private readonly BlobContainerClient _container;
 
-        private DataLakeBlobSecureAccessSigner(BlobContainerClient container) : base(MyDomain.Instance)
+        private DataLakeBlobSecureAccessSigner(BlobContainerClient container) : base(MyDomainContext.Instance)
         {
             _container = container ?? throw new ArgumentNullException(nameof(container));
         }

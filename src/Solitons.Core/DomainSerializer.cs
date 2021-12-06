@@ -10,19 +10,19 @@ namespace Solitons
         sealed record SerializationKey(Type DtoType, string ContentType);
         sealed record DeserializationKey(Guid TypeId, string ContentType);
 
-        private readonly Dictionary<SerializationKey, IDataContractSerializer> _serializers = new();
-        private readonly Dictionary<DeserializationKey, IDataContractSerializer> _deserializers = new();
+        private readonly Dictionary<SerializationKey, IDataTransferObjectSerializer> _serializers = new();
+        private readonly Dictionary<DeserializationKey, IDataTransferObjectSerializer> _deserializers = new();
         private readonly Dictionary<Guid, Type> _dtoTypeById = new();
         private readonly Dictionary<Guid, string[]> _supportedContentTypes = new();
-        private readonly Dictionary<Guid, IDataContractSerializer> _defaultSerializers = new();
+        private readonly Dictionary<Guid, IDataTransferObjectSerializer> _defaultSerializers = new();
 
-        private DomainSerializer(Domain domain)
+        private DomainSerializer(DomainContext domainContext)
         {
-            var dtoTypes = domain.GetDataTransferObjectTypes();
+            var dtoTypes = domainContext.GetDataTransferObjectTypes();
             foreach (var type in dtoTypes)
             {
                 _dtoTypeById.Add(type.GUID, type);
-                var attributes = domain.GetDataTransferAttributes(type);
+                var attributes = domainContext.GetDataTransferAttributes(type);
                 var defaultSerializer = attributes
                     .Where(a => a.IsDefault)
                     .Select(a => a.Serializer)
@@ -41,7 +41,7 @@ namespace Solitons
             }
         }
 
-        public static IDomainSerializer Create(Domain domain) => new DomainSerializer(domain);
+        public static IDomainSerializer Create(DomainContext domainContext) => new DomainSerializer(domainContext);
 
         private bool CanSerialize(object dto, string contentType) =>
             _serializers.ContainsKey(new SerializationKey(dto.GetType(), contentType));
@@ -96,25 +96,25 @@ namespace Solitons
                 : Array.Empty<string>();
         }
 
-        private string Serialize(object dto, string contentType)
+        private string Serialize(object obj, string contentType)
         {
-            if (_serializers.TryGetValue(new SerializationKey(dto.GetType(), contentType), out var callback))
+            if (_serializers.TryGetValue(new SerializationKey(obj.GetType(), contentType), out var callback))
             {
-                return callback.Serialize(dto);
+                return callback.Serialize(obj);
             }
 
-            throw new NotSupportedException($"'{contentType}' content type is not suported for {dto.GetType()}");
+            throw new NotSupportedException($"'{contentType}' content type is not suported for {obj.GetType()}");
         }
 
-        public string Serialize(object dto, out string contentType)
+        public string Serialize(object obj, out string contentType)
         {
-            if(_defaultSerializers.TryGetValue(dto.GetType().GUID, out var serializer))
+            if(_defaultSerializers.TryGetValue(obj.GetType().GUID, out var serializer))
             {
                 contentType = serializer.ContentType;
-                return serializer.Serialize(dto);
+                return serializer.Serialize(obj);
             }
 
-            throw new ArgumentException($"Required a domain annotated DTO type. Actual: {dto.GetType()}");
+            throw new ArgumentException($"Required a domain annotated DTO type. Actual: {obj.GetType()}");
         }
 
         private object Deserialize(Guid typeId, string contentType, string content)
@@ -144,10 +144,10 @@ namespace Solitons
         }
 
         [DebuggerStepThrough]
-        string IDomainSerializer.Serialize(object dto, string contentType)
+        string IDomainSerializer.Serialize(object obj, string contentType)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            return Serialize(dto, contentType);
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            return Serialize(obj, contentType);
         }
 
         [DebuggerStepThrough]

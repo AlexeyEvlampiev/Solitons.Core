@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Solitons.Common;
 using Solitons.Queues;
 using Solitons.Web;
@@ -12,38 +11,63 @@ using Solitons.Web;
 namespace Solitons
 {
     /// <summary>
-    /// 
+    /// Provides domain services based on types discovered in the scoped assemblies.
+    /// <para>See domain type annotations:</para>
+    /// <list type="bullet">
+    /// <item>
+    /// <description>Data contracts: <see cref="DataTransferObjectAttribute"/>, <see cref="IDataTransferObjectMetadata"/></description>
+    /// </item>
+    /// <item>
+    /// <description>Url query parameter: <see cref="Solitons.Web.QueryParameterAttribute"/></description>
+    /// </item>
+    /// </list>
     /// </summary>
-    public abstract partial class Domain : IEnumerable<Assembly>
+    public abstract partial class DomainContext : IEnumerable<Assembly>
     {
+        #region Private Fields
+
         private readonly Type[] _types;
         private readonly HashSet<Assembly> _assemblies;
-        private readonly Lazy<IEnumerable<RoleSetAttribute>> _roleSets;
-        private readonly Lazy<IDomainSerializer> _serializer;
-        private readonly Lazy<Dictionary<Type, IWebQueryConverter>> _webQueryConverterByRestApiAttributeType;
-        private readonly Lazy<Dictionary<Type, DbTransactionAttribute[]>> _dbTransactionsByType;
-        private readonly Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>> _sasPermissions;
-        private readonly Lazy<Dictionary<Type, DataTransferObjectAttribute[]>> _dataTransferObjectTypes;
-        private readonly Dictionary<Type, DataTransferObjectAttribute[]> _externalDtoTypes = new();
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<IEnumerable<RoleSetAttribute>> _roleSets;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<IDomainSerializer> _serializer;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<Dictionary<Type, IWebQueryConverter>> _webQueryConverterByRestApiAttributeType;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<Dictionary<Type, DbTransactionAttribute[]>> _dbTransactionsByType;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>> _sasPermissions;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<Dictionary<Type, DataTransferObjectAttribute[]>> _dataTransferObjectTypes;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Dictionary<Type, DataTransferObjectAttribute[]> _externalDtoTypes = new();
+        #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Domain"/> class.
+        /// Initializes a new instance of the <see cref="DomainContext"/> class.
         /// </summary>
-        /// <param name="assemblies">The assemblies.</param>
+        /// <param name="assemblies">Domain type assemblies.</param>
         /// <exception cref="System.ArgumentException">Domain assembly list is required - assemblies</exception>
-        protected Domain(IEnumerable<Assembly> assemblies)
+        protected DomainContext(IEnumerable<Assembly> assemblies)
         {
             if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
             _assemblies = assemblies
                 .ThrowIfNullArgument(nameof(assemblies))
-                .Union(typeof(Domain).Assembly.ToEnumerable())
+                .Union(typeof(DomainContext).Assembly.ToEnumerable())
                 .ToHashSet();
             _types = _assemblies
                 .SelectMany(a=> a.GetTypes())
                 .ToArray();
             if (_types.Length == 0)
-                throw new ArgumentException($"Domain assembly list is required", nameof(assemblies));
+                throw new ArgumentException($"Domain assembly list is empty.", nameof(assemblies));
             _roleSets = new Lazy<IEnumerable<RoleSetAttribute>>(DiscoverRoleSets);
             _webQueryConverterByRestApiAttributeType = new Lazy<Dictionary<Type, IWebQueryConverter>>(()=> WebQueryConverter.Discover(_types));
             _dbTransactionsByType = new Lazy<Dictionary<Type, DbTransactionAttribute[]>>(()=> DbTransactionAttribute.Discover(_types));
@@ -53,15 +77,46 @@ namespace Solitons
         }
 
         /// <summary>
+        /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assembly.
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static DomainContext CreateGenericContext(Assembly assembly) =>
+            new GenericDomainContext(assembly
+                .ThrowIfNullArgument(nameof(assembly))
+                .ToEnumerable());
+
+        /// <summary>
+        /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assemblies.
+        /// </summary>
+        /// <param name="assemblies"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static DomainContext CreateGenericContext(params Assembly[] assemblies) =>
+            new GenericDomainContext(assemblies
+                .ThrowIfNullArgument(nameof(assemblies)));
+
+        /// <summary>
+        /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assemblies.
+        /// </summary>
+        /// <param name="assemblies"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static DomainContext CreateGenericContext(IEnumerable<Assembly> assemblies) =>
+            new GenericDomainContext(assemblies
+                .ThrowIfNullArgument(nameof(assemblies)));
+
+        /// <summary>
         /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="type"></param>
         [DebuggerStepThrough]
-        protected void RegisterExternalDto<T>(Type type) where T : IDataContractSerializer, new()
+        protected void RegisterDataTransferObject<T>(Type type) where T : IDataTransferObjectSerializer, new()
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
-            RegisterExternalDto(type, new DataTransferObjectMetadata<T>());
+            RegisterDataTransferObject(type, new DataTransferObjectMetadata<T>());
         }
 
         /// <summary>
@@ -70,14 +125,19 @@ namespace Solitons
         /// <param name="type"></param>
         /// <param name="metadata"></param>
         [DebuggerStepThrough]
-        protected void RegisterExternalDto(Type type, IDataTransferObjectMetadata metadata)
+        protected void RegisterDataTransferObject(Type type, IDataTransferObjectMetadata metadata)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (metadata == null) throw new ArgumentNullException(nameof(metadata));
-            RegisterExternalDto(type, new []{metadata});
+            RegisterDataTransferObject(type, new []{metadata});
         }
 
-        protected void RegisterExternalDto(Type type, params IDataTransferObjectMetadata[] metadata)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="metadata"></param>
+        protected void RegisterDataTransferObject(Type type, params IDataTransferObjectMetadata[] metadata)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             if ((metadata?.Length ?? 0) == 0) throw new ArgumentException($"Metadata collection is required.", nameof(metadata));
@@ -115,7 +175,7 @@ namespace Solitons
         /// Gets the role sets.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<RoleSetAttribute> GetRoleSets() => _roleSets.Value;
+        public IEnumerable<RoleSetAttribute> GetRoles() => _roleSets.Value;
 
         public IEnumerable<T> GetSecureAccessSignatureDeclarations<T>() where T : ISecureAccessSignatureMetadata
         {
@@ -127,8 +187,17 @@ namespace Solitons
             return Enumerable.Empty<T>();
         }
 
+        /// <summary>
+        /// Gets an instance of the <see cref="IDomainSerializer"/> class assembled by this <see cref="DomainContext"/> object.
+        /// </summary>
+        /// <returns></returns>
         public IDomainSerializer GetSerializer() => _serializer.Value;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public IWebQueryConverter GetWebQueryConverter<T>() where T : IHttpTriggerMetadata
         {
             if (_webQueryConverterByRestApiAttributeType.Value.TryGetValue(typeof(T), out var converter))
@@ -221,15 +290,17 @@ namespace Solitons
                 transientStorage.ThrowIfNullArgument(nameof(transientStorage)), 
                 GetSerializer());
 
-
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => $"Assemblies: {_assemblies.Select(a => a.GetName().Name).Join()}.";
     }
 
-    public abstract partial class Domain
+    public abstract partial class DomainContext
     {
         sealed record DataTransferObjectMetadata<T> : IDataTransferObjectMetadata
-            where T : IDataContractSerializer, new()
+            where T : IDataTransferObjectSerializer, new()
         {
             public Type SerializerType => typeof(T);
             public bool IsDefault => false;

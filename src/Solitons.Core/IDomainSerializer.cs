@@ -2,27 +2,72 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 
 namespace Solitons
 {
     /// <summary>
-    /// 
+    /// Represents a domain- specific serializer. 
     /// </summary>
     public partial interface IDomainSerializer
     {
+        /// <summary>
+        /// Determines whether this instance can serialize objects of the specified type, applying the specified content type serialization rules.
+        /// </summary>
+        /// <param name="type">Target object type</param>
+        /// <param name="contentType">Target content type</param>
+        /// <returns><c>true</c> if the serialization is supported and <c>false</c> otherwise.</returns>
         bool CanSerialize(Type type, string contentType);
 
-        bool CanSerialize(Type type, out string contentType);
+        /// <summary>
+        /// Determines whether this instance can serialize objects of the specified type.
+        /// Passes back the default content type value via the <paramref name="defaultContentType"/> output parameter.
+        /// </summary>
+        /// <param name="type">Target object type</param>
+        /// <param name="defaultContentType">Default content type</param>
+        /// <returns><c>true</c> if the serialization is supported and <c>false</c> otherwise.</returns>
+        bool CanSerialize(Type type, out string defaultContentType);
 
+        /// <summary>
+        /// Determines whether this instance can deserialize objects of the specified type id (<see cref="Type.GUID"/>), applying the specified content type serialization rules.
+        /// </summary>
+        /// <param name="typeId">Target object type id (<see cref="Type.GUID"/>)</param>
+        /// <param name="contentType">Target content type</param>
+        /// <returns><c>true</c> if the serialization is supported and <c>false</c> otherwise.</returns>
+        /// <seealso cref="GuidAttribute"/>
         bool CanDeserialize(Guid typeId, string contentType);
 
+        /// <summary>
+        /// Gets all content types supported by this serialize for object of the specified type id (<see cref="Type.GUID"/>).
+        /// </summary>
+        /// <param name="typeId">Target type id (<see cref="Type.GUID"/>)</param>
+        /// <returns>Supported content types</returns>
+        /// <seealso cref="GuidAttribute"/>
         IEnumerable<string> GetSupportedContentTypes(Guid typeId);
 
-        string Serialize(object dto, string contentType);
+        /// <summary>
+        /// Returns a string representation of the specified object, encoded according to the specified content type rules.
+        /// </summary>
+        /// <param name="obj">Object to serialize</param>
+        /// <param name="contentType">Target content type such as application/json</param>
+        /// <returns>Objects string representation</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="obj"/></exception>
+        /// <exception cref="ArgumentException"><paramref name="contentType"/></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        string Serialize(object obj, string contentType);
 
-        string Serialize(object dto, out string contentType);
+        /// <summary>
+        /// Returns a string representation of the specified object.
+        /// Passes back the applied by default content type via the <paramref name="defaultContentType"/> output parameter.
+        /// </summary>
+        /// <param name="obj">Object to serialize</param>
+        /// <param name="defaultContentType">The applied content type</param>
+        /// <returns>Objects string representation</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="obj"/></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        string Serialize(object obj, out string defaultContentType);
 
         object Deserialize(Guid typeId, string contentType, string content);
 
@@ -142,11 +187,11 @@ namespace Solitons
         /// </summary>
         /// <param name="assembly"></param>
         /// <returns></returns>
-        /// <seealso cref="Domain.GetSerializer"/>
+        /// <seealso cref="DomainContext.GetSerializer"/>
         [DebuggerStepThrough]
         public static IDomainSerializer FromAssemblies(Assembly assembly)
         {
-            var genericDomain = new GenericDomain(assembly.ToEnumerable());
+            var genericDomain = new GenericDomainContext(assembly.ToEnumerable());
             return genericDomain.GetSerializer();
         }
 
@@ -158,7 +203,7 @@ namespace Solitons
         [DebuggerStepThrough]
         public static IDomainSerializer FromAssemblies(params Assembly[] assemblies)
         {
-            var genericDomain = new GenericDomain(assemblies);
+            var genericDomain = new GenericDomainContext(assemblies);
             return genericDomain.GetSerializer();
         }
 
@@ -170,7 +215,7 @@ namespace Solitons
         [DebuggerStepThrough]
         public static IDomainSerializer FromAssemblies(IEnumerable<Assembly> assemblies)
         {
-            var genericDomain = new GenericDomain(assemblies);
+            var genericDomain = new GenericDomainContext(assemblies);
             return genericDomain.GetSerializer();
         }
     }

@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0-1.final" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -31,6 +32,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestDomainContextRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>TestDomainContextRtt.cs</LastGenOutput>
+    </None>
     <None Update="Text\Json\AutoCorrectedJsonTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>AutoCorrectedJsonTemplate.cs</LastGenOutput>
@@ -50,6 +55,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="TestDomainContextRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TestDomainContextRtt.tt</DependentUpon>
+    </Compile>
     <Compile Update="Text\Json\AutoCorrectedJsonTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

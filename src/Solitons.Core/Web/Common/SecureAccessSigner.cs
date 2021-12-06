@@ -148,14 +148,14 @@ namespace Solitons.Web.Common
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="domain"></param>
-        protected SecureAccessSigner(Domain domain)
+        /// <param name="domainContext"></param>
+        protected SecureAccessSigner(DomainContext domainContext)
         {
-            if (domain == null) throw new ArgumentNullException(nameof(domain));
-            _propertyAttributes = domain
+            if (domainContext == null) throw new ArgumentNullException(nameof(domainContext));
+            _propertyAttributes = domainContext
                 .GetSecureAccessSignatureDeclarations<T>() 
                 .ToDictionary(sas=> sas.TargetProperty);
-            _typeProperties = domain
+            _typeProperties = domainContext
                 .GetTypes()
                 .Select(t=> KeyValuePair.Create(t, t.GetProperties(BindingFlags.Public|BindingFlags.Instance|BindingFlags.GetProperty)))
                 .ToDictionary();

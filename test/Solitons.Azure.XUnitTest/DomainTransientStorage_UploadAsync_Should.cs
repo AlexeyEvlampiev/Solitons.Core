@@ -23,7 +23,7 @@ namespace Solitons.Azure
         public DomainTransientStorage_UploadAsync_Should()
         {
             _transientStorage = new TransientAzureBlobContainerStorage(Host.StorageConnectionString);
-            _domainTransientStorage = TestDomain.Instance.CreateDomainTransientStorage(_transientStorage);
+            _domainTransientStorage = TestDomainContext.Instance.CreateDomainTransientStorage(_transientStorage);
         }
 
         [Fact]

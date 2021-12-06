@@ -7,12 +7,12 @@ namespace Solitons.Common
     /// <summary>
     /// 
     /// </summary>
-    public sealed class BasicXmlDataContractSerializer : DataContractSerializer
+    public sealed class BasicXmlDataTransferObjectSerializer : DataTransferObjectSerializer
     {
         /// <summary>
         /// 
         /// </summary>
-        public BasicXmlDataContractSerializer() : base("application/xml")
+        public BasicXmlDataTransferObjectSerializer() : base("application/xml")
         {
         }
         protected override string Serialize(object obj)

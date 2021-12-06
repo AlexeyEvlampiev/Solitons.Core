@@ -14,12 +14,12 @@ namespace Solitons.Queues
         private readonly IDomainTransientStorage _transientStorage;
         private readonly IQueueServiceProvider _provider;
 
-        public DomainQueue(Domain domain, IQueueServiceProvider provider, ITransientStorage transientStorage)
+        public DomainQueue(DomainContext domainContext, IQueueServiceProvider provider, ITransientStorage transientStorage)
         {
-            if (domain == null) throw new ArgumentNullException(nameof(domain));
+            if (domainContext == null) throw new ArgumentNullException(nameof(domainContext));
             if (provider == null) throw new ArgumentNullException(nameof(provider));
             if (transientStorage == null) throw new ArgumentNullException(nameof(transientStorage));
-           var serializer = domain.GetSerializer();
+           var serializer = domainContext.GetSerializer();
             _provider = provider.AsQueueServiceProvider();
             _transientStorage = new DomainTransientStorage(transientStorage, serializer);
         }

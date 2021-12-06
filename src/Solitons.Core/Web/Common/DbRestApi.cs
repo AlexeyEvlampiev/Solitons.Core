@@ -16,12 +16,12 @@ namespace Solitons.Web.Common
         private readonly IWebQueryConverter _webQueryConverter;
 
 
-        protected DbRestApi(Domain domain)
+        protected DbRestApi(DomainContext domainContext)
         {
-            if (domain == null) throw new ArgumentNullException(nameof(domain));
-            _httpTriggers = domain.GetHttpTriggers<THttpTrigger, TDbTransaction>();
-            _webQueryConverter = domain.GetWebQueryConverter<THttpTrigger>();
-            Serializer = domain.GetSerializer();
+            if (domainContext == null) throw new ArgumentNullException(nameof(domainContext));
+            _httpTriggers = domainContext.GetHttpTriggers<THttpTrigger, TDbTransaction>();
+            _webQueryConverter = domainContext.GetWebQueryConverter<THttpTrigger>();
+            Serializer = domainContext.GetSerializer();
         }
 
 
@@ -58,7 +58,7 @@ namespace Solitons.Web.Common
     public abstract class DbRestApi<TDbTransaction> : DbRestApi<IHttpTriggerMetadata, TDbTransaction>
         where TDbTransaction : IDbTransactionMetadata
     {
-        protected DbRestApi(Domain domain) : base(domain)
+        protected DbRestApi(DomainContext domainContext) : base(domainContext)
         {
         }
     }

@@ -23,7 +23,7 @@ namespace Solitons
         /// <summary>
         /// Creates a new <see cref="DataTransferObjectAttribute"/> marker indicating that the target class can be serialized with <see cref="System.Text.Json.JsonSerializer"/>.
         /// </summary>
-        public DataTransferObjectAttribute() : this(typeof(BasicJsonDataContractSerializer))
+        public DataTransferObjectAttribute() : this(typeof(BasicJsonDataTransferObjectSerializer))
         {
             
         }
@@ -35,8 +35,8 @@ namespace Solitons
         public DataTransferObjectAttribute(Type serializerType)
         {
             SerializerType = serializerType ?? throw new ArgumentNullException(nameof(serializerType));
-            if (false == typeof(IDataContractSerializer).IsAssignableFrom(serializerType))
-                throw new ArgumentException($"{serializerType} does not implement {typeof(IDataContractSerializer)}");
+            if (false == typeof(IDataTransferObjectSerializer).IsAssignableFrom(serializerType))
+                throw new ArgumentException($"{serializerType} does not implement {typeof(IDataTransferObjectSerializer)}");
         }
 
 
@@ -46,8 +46,8 @@ namespace Solitons
             if (other == null) throw new ArgumentNullException(nameof(other));
             TargetType = type;
             SerializerType = other.SerializerType ?? throw new ArgumentException($"{nameof(other.SerializerType)} is null", nameof(other));
-            if (false == typeof(IDataContractSerializer).IsAssignableFrom(SerializerType))
-                throw new ArgumentException($"{SerializerType} does not implement {typeof(IDataContractSerializer)}");
+            if (false == typeof(IDataTransferObjectSerializer).IsAssignableFrom(SerializerType))
+                throw new ArgumentException($"{SerializerType} does not implement {typeof(IDataTransferObjectSerializer)}");
         }
 
         internal static Dictionary<Type, DataTransferObjectAttribute[]> Discover(
@@ -57,7 +57,7 @@ namespace Solitons
             if (domainTypes == null) throw new ArgumentNullException(nameof(domainTypes));
             externalTypes ??= new Dictionary<Type, DataTransferObjectAttribute[]>();
 
-            var serializers = new Dictionary<Type, IDataContractSerializer>();
+            var serializers = new Dictionary<Type, IDataTransferObjectSerializer>();
 
             var allAttributes = externalTypes
                 .SelectMany(pair => pair.Value)
@@ -69,7 +69,10 @@ namespace Solitons
                     }
                     else
                     {
-                        external.Serializer = (IDataContractSerializer)Activator.CreateInstance(external.SerializerType);
+                        instance = ((IDataTransferObjectSerializer) Activator.CreateInstance(external.SerializerType))
+                            .ThrowIfNull(()=> new InvalidOperationException($"{external.SerializerType} could not be instantiated."))
+                            .AsDataTransferObjectSerializer();
+                        external.Serializer = instance;
                         serializers.Add(external.SerializerType, external.Serializer);
                     }
 
@@ -103,14 +106,14 @@ namespace Solitons
                 list.Count(a => a.IsDefault)
                     .ThrowIfOutOfRange(1, 1, 
                         () => new InvalidOperationException(
-                            new StringBuilder($"Exactly one of the applied {typeof(DataTransferObjectAttribute)} attributes is required be have {nameof(IDataTransferObjectMetadata.IsDefault)} set to true.")
+                            new StringBuilder($"Exactly one of the applied {typeof(DataTransferObjectAttribute)} attributes is required to have {nameof(IDataTransferObjectMetadata.IsDefault)} set to true.")
                                 .Append($" See {domainType} declaration.")
                                 .ToString()));
 
                 foreach (var attribute in list)
                 {
                     var serializer = serializers
-                        .GetOrAdd(attribute.SerializerType, ()=> (IDataContractSerializer)Activator
+                        .GetOrAdd(attribute.SerializerType, ()=> (IDataTransferObjectSerializer)Activator
                             .CreateInstance(attribute.SerializerType));
                     attribute.Serializer = serializer;
                 }
@@ -123,7 +126,7 @@ namespace Solitons
                 .ToDictionary(group => group.Key, group => group.ToArray());
         }
 
-        internal IDataContractSerializer Serializer { get; private set; }
+        internal IDataTransferObjectSerializer Serializer { get; private set; }
 
 
         internal Type TargetType { get; }
@@ -131,10 +134,6 @@ namespace Solitons
         public Type SerializerType { get; }
 
         public bool IsDefault { get; set; }
-
-
-
-
 
 
 

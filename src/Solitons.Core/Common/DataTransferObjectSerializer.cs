@@ -3,9 +3,9 @@ using System.Diagnostics;
 
 namespace Solitons.Common
 {
-    public abstract class DataContractSerializer : IDataContractSerializer
+    public abstract class DataTransferObjectSerializer : IDataTransferObjectSerializer
     {
-        protected DataContractSerializer(string contentType)
+        protected DataTransferObjectSerializer(string contentType)
         {
             ContentType = contentType;
         }
@@ -17,14 +17,14 @@ namespace Solitons.Common
         protected abstract object Deserialize(string content, Type targetType);
 
         [DebuggerStepThrough]
-        string IDataContractSerializer.Serialize(object obj)
+        string IDataTransferObjectSerializer.Serialize(object obj)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             return Serialize(obj);
         }
 
         [DebuggerStepThrough]
-        object IDataContractSerializer.Deserialize(string content, Type targetType)
+        object IDataTransferObjectSerializer.Deserialize(string content, Type targetType)
         {
             return Deserialize(
                 content.ThrowIfNullArgument(nameof(content)), 

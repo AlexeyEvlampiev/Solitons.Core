@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Solitons;
 
 namespace Solitons.Collections.Specialized
 {
@@ -11,24 +10,20 @@ namespace Solitons.Collections.Specialized
     /// </summary>
     public sealed class ProjectActivity
     {
-        private readonly List<ProjectActivity> _dependencies = new();
-        private readonly IEnumerable<ProjectActivity> _project;
+        private readonly List<ProjectActivity> _dependencies;
 
         internal ProjectActivity(
             string id, 
             int effortInDays,
-            IEnumerable<ProjectActivity> project,
-            IEnumerable<ProjectActivity> dependencies)
+            List<ProjectActivity> dependencies)
         {
             Debug.Assert(!id.IsNullOrWhiteSpace());
-            Debug.Assert(effortInDays >= 0 && effortInDays <= int.MaxValue);
-            Debug.Assert(project != null);
+            Debug.Assert(effortInDays >= 0);
             Debug.Assert(dependencies != null);
 
             Id = id;
             EffortInDays = effortInDays;
-            _project = project;
-            _dependencies.AddRange(dependencies);
+            _dependencies = dependencies;
 
         }
 
@@ -44,7 +39,7 @@ namespace Solitons.Collections.Specialized
 
 
         /// <summary>
-        /// 
+        /// Activity critical path.
         /// </summary>
         /// <returns></returns>
         public Stack<ProjectActivity> CriticalPath
@@ -56,12 +51,12 @@ namespace Solitons.Collections.Specialized
                 criticalPath.Push(this);
 
                 _dependencies
-                .Select(dependency => dependency.CriticalPath)
-                .OrderByDescending(path => path.Sum(a => a.EffortInDays))
-                .Take(1)
-                .SelectMany(p => p)
-                .Reverse()
-                .ForEach(activity => criticalPath.Push(activity));
+                    .Select(dependency => dependency.CriticalPath)
+                    .OrderByDescending(path => path.Sum(a => a.EffortInDays))
+                    .Take(1)
+                    .SelectMany(p => p)
+                    .Reverse()
+                    .ForEach(activity => criticalPath.Push(activity));
 
                 return criticalPath;
             }
@@ -73,8 +68,17 @@ namespace Solitons.Collections.Specialized
         /// <returns></returns>
         public override string ToString() => Id;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode() => Id.ToUpper().GetHashCode();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if(obj == null) return false;
