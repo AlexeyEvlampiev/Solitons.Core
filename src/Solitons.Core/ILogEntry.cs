@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Solitons
 {
-    public interface ILogEntry
+    public interface ILogEntry  
     {
         LogLevel Level { get; }
 

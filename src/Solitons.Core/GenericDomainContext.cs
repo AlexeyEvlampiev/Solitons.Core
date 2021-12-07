@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Solitons
@@ -7,6 +8,11 @@ namespace Solitons
     {
         public GenericDomainContext(IEnumerable<Assembly> assemblies) 
             : base(assemblies)
+        {
+        }
+
+        public GenericDomainContext(IEnumerable<Type> types)
+            : base(types)
         {
 
         }

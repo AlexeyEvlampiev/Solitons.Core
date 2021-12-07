@@ -11,6 +11,7 @@ namespace Solitons
     /// <summary>
     /// Represents a domain- specific serializer. 
     /// </summary>
+    /// <seealso cref="DomainContext"/>
     public partial interface IDomainSerializer
     {
         /// <summary>
@@ -23,12 +24,12 @@ namespace Solitons
 
         /// <summary>
         /// Determines whether this instance can serialize objects of the specified type.
-        /// Passes back the default content type value via the <paramref name="defaultContentType"/> output parameter.
+        /// Passes back the default content type value via the <paramref name="contentType"/> output parameter.
         /// </summary>
         /// <param name="type">Target object type</param>
-        /// <param name="defaultContentType">Default content type</param>
+        /// <param name="contentType">Default content type</param>
         /// <returns><c>true</c> if the serialization is supported and <c>false</c> otherwise.</returns>
-        bool CanSerialize(Type type, out string defaultContentType);
+        bool CanSerialize(Type type, out string contentType);
 
         /// <summary>
         /// Determines whether this instance can deserialize objects of the specified type id (<see cref="Type.GUID"/>), applying the specified content type serialization rules.
@@ -69,13 +70,15 @@ namespace Solitons
         /// <exception cref="NotSupportedException"></exception>
         string Serialize(object obj, out string defaultContentType);
 
+        /// <summary>
+        /// Returns an object deserialized from the given string representation.
+        /// </summary>
+        /// <param name="typeId">Target type id (<see cref="Type.GUID"/>)</param>
+        /// <param name="contentType">Inputs content type</param>
+        /// <param name="content">Objects string representation</param>
+        /// <returns>Deserialized object</returns>
         object Deserialize(Guid typeId, string contentType, string content);
 
-        [DebuggerStepThrough]
-        public IEnumerable<string> GetSupportedContentTypes(Type dtoType) => 
-            GetSupportedContentTypes(dtoType
-                .ThrowIfNullArgument(nameof(dtoType))
-                .GUID);
     }
 
     public partial interface IDomainSerializer
@@ -92,15 +95,15 @@ namespace Solitons
                    CanDeserialize(receipt.DtoTypeId, receipt.ContentType);
         }
 
-        
+
 
 
         /// <summary>
-        /// 
+        /// Determines whether a given object can be serialized with this serializer.
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="dto">Object the serialize</param>
         /// <param name="contentType"></param>
-        /// <returns></returns>
+        /// <returns><c>true</c> if the serialization is supported and <c>false</c> otherwise.</returns>
         [DebuggerStepThrough]
         public bool CanSerialize(object dto, string contentType) =>
             dto is not null &&
@@ -108,11 +111,11 @@ namespace Solitons
             CanSerialize(dto.GetType(), contentType);
 
         /// <summary>
-        /// 
+        /// Determines whether a given object can be serialized with this serializer.
         /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="contentType"></param>
-        /// <returns></returns>
+        /// <param name="dto">Object the serialize</param>
+        /// <param name="contentType">Default content type</param>
+        /// <returns><c>true</c> if the serialization is supported and <c>false</c> otherwise.</returns>
         [DebuggerStepThrough]
         public bool CanSerialize(object dto, out string contentType)
         {
@@ -126,16 +129,13 @@ namespace Solitons
         }
 
         /// <summary>
-        /// 
+        /// Serializes the specified object to a self-contained binary structure.   
         /// </summary>
-        /// <param name="dto"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public bool CanSerialize(object dto) => CanSerialize(dto, out var _);
-
-        [DebuggerStepThrough]
-        public byte[] Pack(object dto) => Pack(dto, out var _);
-
+        /// <param name="dto">Object to pack</param>
+        /// <param name="contentType">Applied encoding</param>
+        /// <returns>Self-contained binary structure</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
         [DebuggerStepThrough]
         public byte[] Pack(object dto, out string contentType)
         {
@@ -145,7 +145,15 @@ namespace Solitons
             throw new NotSupportedException($"{dto.GetType()}");
         }
 
-
+        /// <summary>
+        /// Serializes the specified object to a self-contained binary structure.   
+        /// </summary>
+        /// <param name="dto">Object to pack</param>
+        /// <param name="contentType">Required encoding</param>
+        /// <returns>Self-contained binary structure</returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
         public byte[] Pack(object dto, string contentType)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
@@ -155,12 +163,17 @@ namespace Solitons
             {
                 ["Body"] = base64,
                 ["ContentType"] = contentType,
-                ["Schema"] = dto.GetType().GUID.ToString("N"),
+                ["SchemaId"] = dto.GetType().GUID.ToString("N"),
             };
             return JsonSerializer.SerializeToUtf8Bytes(envelop);
         }
 
 
+        /// <summary>
+        /// Deserializes the given self-contained binary structure to a .NET object.
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         public object Unpack(byte[] bytes)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
@@ -169,7 +182,7 @@ namespace Solitons
                 .ThrowIfNull(()=> new ArgumentException("Invalid content", nameof(bytes)));
             if (envelop.TryGetValue("Body", out var base64) &&
                 envelop.TryGetValue("ContentType", out var contentType) &&
-                envelop.TryGetValue("Schema", out var schema) &&
+                envelop.TryGetValue("SchemaId", out var schema) &&
                 Guid.TryParse(schema, out var typeId))
             {
                 var content = Convert
@@ -207,6 +220,7 @@ namespace Solitons
             return genericDomain.GetSerializer();
         }
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -218,5 +232,41 @@ namespace Solitons
             var genericDomain = new GenericDomainContext(assemblies);
             return genericDomain.GetSerializer();
         }
+
+        [DebuggerStepThrough]
+        public static IDomainSerializer FromTypes(Type type)
+        {
+            var genericDomain = new GenericDomainContext(type
+                .ThrowIfNullArgument(nameof(type))
+                .ToEnumerable());
+            return genericDomain.GetSerializer();
+        }
+
+        [DebuggerStepThrough]
+        public static IDomainSerializer FromTypes(params Type[] types) 
+        {
+            var genericDomain = new GenericDomainContext(types
+                .ThrowIfNullArgument(nameof(types)));
+            return genericDomain.GetSerializer();
+        }
+
+        [DebuggerStepThrough]
+        public static IDomainSerializer FromTypes(IEnumerable<Type> types)
+        {
+            var genericDomain = new GenericDomainContext(types
+                .ThrowIfNullArgument(nameof(types)));
+            return genericDomain.GetSerializer();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dtoType"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public IEnumerable<string> GetSupportedContentTypes(Type dtoType) =>
+            GetSupportedContentTypes(dtoType
+                .ThrowIfNullArgument(nameof(dtoType))
+                .GUID);
     }
 }

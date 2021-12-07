@@ -16,6 +16,7 @@ namespace Solitons
     public static partial class Extensions
     {
 
+
         /// <summary>
         /// 
         /// </summary>

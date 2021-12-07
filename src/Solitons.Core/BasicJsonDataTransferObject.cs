@@ -17,6 +17,6 @@ namespace Solitons
     {
         [DebuggerStepThrough]
         public static T ConvertTo<T>(this string self) where T : BasicJsonDataTransferObject =>
-            IBasicJsonDataTransferObject.Parse<T>(self);
+            IBasicJsonDataTransferObject.FromJson<T>(self);
     }
 }

@@ -16,6 +16,9 @@
     <RunAnalyzers>false</RunAnalyzers>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <PackageProjectUrl>https://github.com/AlexeyEvlampiev/Solitons.Core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AlexeyEvlampiev/Solitons.Core</RepositoryUrl>
+    <PackageIcon>Solitons.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,6 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\Solitons.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

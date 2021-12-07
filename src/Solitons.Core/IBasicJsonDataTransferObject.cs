@@ -10,7 +10,7 @@ namespace Solitons
         [DebuggerNonUserCode]
         public string ToJsonString() => JsonSerializer.Serialize(this, this.GetType());
 
-        public static T Parse<T>(string jsonString) where T : IBasicJsonDataTransferObject
+        public static T FromJson<T>(string jsonString) where T : IBasicJsonDataTransferObject
         {
             var obj = JsonSerializer.Deserialize<T>(jsonString);
             if (obj is IDeserializationCallback callback)

@@ -56,25 +56,41 @@ namespace Solitons
         /// </summary>
         /// <param name="assemblies">Domain type assemblies.</param>
         /// <exception cref="System.ArgumentException">Domain assembly list is required - assemblies</exception>
-        protected DomainContext(IEnumerable<Assembly> assemblies)
+        [DebuggerStepThrough]
+        protected DomainContext(IEnumerable<Assembly> assemblies) : this(assemblies
+            .ThrowIfNullArgument(nameof(assemblies))
+            .SelectMany(a=> a.GetTypes()))
         {
-            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
-            _assemblies = assemblies
-                .ThrowIfNullArgument(nameof(assemblies))
-                .Union(typeof(DomainContext).Assembly.ToEnumerable())
-                .ToHashSet();
-            _types = _assemblies
-                .SelectMany(a=> a.GetTypes())
+
+        }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DomainContext"/> class.
+        /// </summary>
+        /// <param name="types">Domain types</param>
+        protected DomainContext(IEnumerable<Type> types)
+        {
+            var typesArray = types
+                .ThrowIfNullArgument(nameof(types))
+                .Where(MatchDomainTypeCriteria)
                 .ToArray();
-            if (_types.Length == 0)
-                throw new ArgumentException($"Domain assembly list is empty.", nameof(assemblies));
+            if (typesArray.Length == 0)
+                throw new ArgumentException($"There are no types in the given collection that match the domain type criteria.", nameof(types));
+
+            _types = typesArray;
+            _assemblies = typesArray
+                .Select(t=> t.Assembly)
+                .ToHashSet();
+            
             _roleSets = new Lazy<IEnumerable<RoleSetAttribute>>(DiscoverRoleSets);
-            _webQueryConverterByRestApiAttributeType = new Lazy<Dictionary<Type, IWebQueryConverter>>(()=> WebQueryConverter.Discover(_types));
-            _dbTransactionsByType = new Lazy<Dictionary<Type, DbTransactionAttribute[]>>(()=> DbTransactionAttribute.Discover(_types));
-            _sasPermissions = new Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>>(()=> BlobSecureAccessSignatureMetadata.Discover(_types));
-            _dataTransferObjectTypes = new Lazy<Dictionary<Type, DataTransferObjectAttribute[]>>(() => DataTransferObjectAttribute.Discover(_types, _externalDtoTypes));
+            _webQueryConverterByRestApiAttributeType = new Lazy<Dictionary<Type, IWebQueryConverter>>(() => WebQueryConverter.Discover(_types));
+            _dbTransactionsByType = new Lazy<Dictionary<Type, DbTransactionAttribute[]>>(() => DbTransactionAttribute.Discover(_types));
+            _sasPermissions = new Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>>(() => BlobSecureAccessSignatureMetadata.Discover(_types));
+            _dataTransferObjectTypes = new Lazy<Dictionary<Type, DataTransferObjectAttribute[]>>(() => DataTransferObjectAttribute.Discover(_types));
             _serializer = new Lazy<IDomainSerializer>(() => DomainSerializer.Create(this));
         }
+
 
         /// <summary>
         /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assembly.
@@ -295,6 +311,8 @@ namespace Solitons
         /// </summary>
         /// <returns></returns>
         public override string ToString() => $"Assemblies: {_assemblies.Select(a => a.GetName().Name).Join()}.";
+
+        private static bool MatchDomainTypeCriteria(Type type) => type.IsAbstract == false && type.IsCOMObject == false;
     }
 
     public abstract partial class DomainContext

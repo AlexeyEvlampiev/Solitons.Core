@@ -50,86 +50,82 @@ namespace Solitons
                 throw new ArgumentException($"{SerializerType} does not implement {typeof(IDataTransferObjectSerializer)}");
         }
 
-        internal static Dictionary<Type, DataTransferObjectAttribute[]> Discover(
-            IEnumerable<Type> domainTypes, 
-            Dictionary<Type, DataTransferObjectAttribute[]> externalTypes)
+        internal static DataTransferObjectAttribute[] Discover(Type type, IDictionary<Type, IDataTransferObjectSerializer> serializers)
         {
-            if (domainTypes == null) throw new ArgumentNullException(nameof(domainTypes));
-            externalTypes ??= new Dictionary<Type, DataTransferObjectAttribute[]>();
-
-            var serializers = new Dictionary<Type, IDataTransferObjectSerializer>();
-
-            var allAttributes = externalTypes
-                .SelectMany(pair => pair.Value)
-                .Select(external =>
-                {
-                    if (serializers.TryGetValue(external.SerializerType, out var instance))
-                    {
-                        external.Serializer = instance;
-                    }
-                    else
-                    {
-                        instance = ((IDataTransferObjectSerializer) Activator.CreateInstance(external.SerializerType))
-                            .ThrowIfNull(()=> new InvalidOperationException($"{external.SerializerType} could not be instantiated."))
-                            .AsDataTransferObjectSerializer();
-                        external.Serializer = instance;
-                        serializers.Add(external.SerializerType, external.Serializer);
-                    }
-
-                    return external;
-                })
+            var attributes = type
+                .GetCustomAttributes()
+                .OfType<IDataTransferObjectMetadata>()
+                .Select(metadata => new DataTransferObjectAttribute(metadata, type))
                 .ToList();
-
-            var list = new List<DataTransferObjectAttribute>();
-            foreach (var domainType in domainTypes)
+            if (typeof(IBasicJsonDataTransferObject).IsAssignableFrom(type))
+                attributes.Add(new DataTransferObjectAttribute(typeof(BasicJsonDataTransferObjectSerializer)));
+            if (typeof(IBasicXmlDataTransferObject).IsAssignableFrom(type))
+                attributes.Add(new DataTransferObjectAttribute(typeof(BasicXmlDataTransferObjectSerializer)));
+            attributes = attributes
+                .GroupBy(a => a.SerializerType)
+                .Select(serializerGroup => serializerGroup
+                    .OrderBy(a => a.IsDefault ? 0 : 1)
+                    .First())
+                .ToList();
+            foreach (var attribute in attributes)
             {
-                if(domainType.IsAbstract)continue;
-                list.Clear();
-                list.AddRange(domainType
-                    .GetCustomAttributes()
-                    .OfType<IDataTransferObjectMetadata>()
-                    .Select(metadata=> new DataTransferObjectAttribute(metadata, domainType)));
-                if(list.Count == 0)continue;
-
-                if (IsDefined(domainType, typeof(GuidAttribute)) == false)
+                IDataTransferObjectSerializer CreateInstance()
                 {
-                    throw new InvalidOperationException(
-                        new StringBuilder($"Missing {typeof(GuidAttribute)}.")
-                            .Append($" See {domainType} type declaration.")
-                            .ToString());
-                }
-                if (list.Count  == 1)
-                {
-                    list[0].IsDefault = true;
+                    return ((IDataTransferObjectSerializer)Activator.CreateInstance(attribute.SerializerType))
+                        .ThrowIfNull(() => new InvalidOperationException($"{attribute.SerializerType} could not be instantiated."))
+                        .AsDataTransferObjectSerializer();
                 }
 
-                list.Count(a => a.IsDefault)
-                    .ThrowIfOutOfRange(1, 1, 
-                        () => new InvalidOperationException(
-                            new StringBuilder($"Exactly one of the applied {typeof(DataTransferObjectAttribute)} attributes is required to have {nameof(IDataTransferObjectMetadata.IsDefault)} set to true.")
-                                .Append($" See {domainType} declaration.")
-                                .ToString()));
-
-                foreach (var attribute in list)
-                {
-                    var serializer = serializers
-                        .GetOrAdd(attribute.SerializerType, ()=> (IDataTransferObjectSerializer)Activator
-                            .CreateInstance(attribute.SerializerType));
-                    attribute.Serializer = serializer;
-                }
-
-                allAttributes.AddRange(list);
+                attribute.Serializer = serializers.GetOrAdd(attribute.SerializerType, CreateInstance);
             }
 
-            return allAttributes
-                .GroupBy(att => att.TargetType)
-                .ToDictionary(group => group.Key, group => group.ToArray());
+            attributes
+                .GroupBy(a=> a.Serializer.ContentType)
+                .Where(grp=> grp.Count() > 1)
+                .ForEach(grp =>
+                {
+                    var error = new StringBuilder("Ambiguous Data Transfer Object declaration.");
+                    error.Append($" Discovered conflicting '{grp.Key}' content type serialization handlers declared on {type}.");
+                    throw new InvalidOperationException(error.ToString());
+                });
+
+            if (attributes.Count == 0) return Array.Empty<DataTransferObjectAttribute>();
+            var defaultSerializersCount = attributes.Count(a => a.IsDefault);
+            if (defaultSerializersCount == 0)
+            {
+                attributes[0].IsDefault = true;
+            }
+            else if(defaultSerializersCount > 1)
+            {
+                var error = new StringBuilder("Invalid Data Transfer Object declaration.");
+                error.Append($" Discovered multiple default serializers declared on {type}.");
+                throw new InvalidOperationException(error.ToString());
+            }
+
+            return attributes  
+                .Do(a=> a.TargetType = type)
+                .ToArray();
+        }
+
+        internal static Dictionary<Type, DataTransferObjectAttribute[]> Discover(IEnumerable<Type> types)
+        {
+            var serializers = new Dictionary<Type, IDataTransferObjectSerializer>();
+            var result = types
+                .ThrowIfNullArgument(nameof(types))
+                .Select(t => new
+                {
+                    DtoType = t,
+                    Attributes = Discover(t, serializers)
+                })
+                .Where(i => i.Attributes.Length > 0)
+                .ToDictionary(i => i.DtoType, i => i.Attributes);
+            return result;
         }
 
         internal IDataTransferObjectSerializer Serializer { get; private set; }
 
 
-        internal Type TargetType { get; }
+        internal Type TargetType { get; set; }
 
         public Type SerializerType { get; }
 

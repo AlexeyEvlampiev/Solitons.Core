@@ -38,7 +38,7 @@ namespace Solitons
                 return await UploadAsync(memory, expiresAfter, cancellation);
             }
 
-            if (false == _serializer.CanSerialize(dto))
+            if (false == _serializer.CanSerialize(dto, out _))
                 throw new ArgumentException($"{dto.GetType()} does not belong to the underlined domain.");
 
             var dtoBytes = _serializer
