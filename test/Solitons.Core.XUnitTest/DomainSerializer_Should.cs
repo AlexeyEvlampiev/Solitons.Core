@@ -1,56 +1,199 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
+using Solitons.Common;
 using Xunit;
 
 namespace Solitons
 {
     public class DomainSerializer_Should
     {
-        [Guid("32209525-9afd-4d32-bbe8-0f277b5d86e3")]
-        public sealed class BasicXmlDataTransferTestObject : IBasicXmlDataTransferObject
+        const string TestTypeId = "32209525-9afd-4d32-bbe8-0f277b5d86e3";
+
+        [Guid(TestTypeId)]
+        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer))]
+        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer))]
+        public sealed class PlainPocoDto
+        {
+            [XmlAttribute("Text"), JsonPropertyName("text")]
+            public string Text { get; set; }
+        }
+
+        [Guid(TestTypeId)]
+        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer))]
+        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer))]
+        public sealed class MixedPocoDto : IBasicXmlDataTransferObject, IBasicJsonDataTransferObject
+        {
+            [XmlAttribute("Text"), JsonPropertyName("text")]
+            public string Text { get; set; }
+        }
+
+
+
+        [Guid(TestTypeId)]
+        public sealed class XmlOnlyDto : IBasicXmlDataTransferObject
         {
             [XmlAttribute("Text")]
             public string Text { get; set; }
         }
 
 
-        [Guid("32209525-9afd-4d32-bbe8-0f277b5d86e3")]
-        public sealed class BasicJsonDataTransferTestObject : IBasicJsonDataTransferObject
+        [Guid(TestTypeId)]
+        public sealed class JsonOnlyDto : IBasicJsonDataTransferObject
         {
-            [XmlAttribute("Text")]
+            [JsonPropertyName("text")]
             public string Text { get; set; }
+        }
+
+        [Guid(TestTypeId)]
+        public sealed class BasicDto : IBasicJsonDataTransferObject, IBasicXmlDataTransferObject
+        {
+            [XmlAttribute("Text"), JsonPropertyName("text")]
+            public string Text { get; set; }
+        }
+
+
+
+        [Guid(TestTypeId)]
+        public sealed class XmlFirstDto : BasicXmlDataTransferObject, IBasicJsonDataTransferObject { }
+
+        [Guid(TestTypeId)]
+        public sealed class JsonFirstDto : BasicJsonDataTransferObject, IBasicXmlDataTransferObject { }
+
+        [Guid(TestTypeId)]
+        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer), IsDefault = true)]
+        public sealed class ExplitXmlPreferenceDto : BasicJsonDataTransferObject { }
+
+        [Guid(TestTypeId)]
+        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer), IsDefault = true)]
+        public sealed class ExplitJsonPreferenceDto : BasicXmlDataTransferObject { }
+
+        [Theory]
+        [InlineData(typeof(XmlOnlyDto),"application/xml", "application/json")]
+        [InlineData(typeof(JsonOnlyDto), "application/json", "application/xml")]
+        public void BasicContentSpecificDto(Type dtoType, string supportedContentType, string notSupportedContentType)
+        {
+            dynamic instance = Activator.CreateInstance(dtoType);
+            Assert.NotNull(instance);
+            instance.Text = "This is a test";
+
+            var serializer = IDomainSerializer.FromTypes(((object)instance).GetType());
+
+            Assert.True(serializer.CanSerialize((object)instance, out var contentType));
+            Assert.Equal(supportedContentType, contentType);
+            Assert.True(serializer.CanSerialize(instance, contentType));
+            Assert.True(serializer.CanDeserialize(instance.GetType().GUID, contentType));
+
+            Assert.False(serializer.CanSerialize(instance, notSupportedContentType));
+
+
+            var content = serializer.Serialize(instance, contentType);
+            var clone = serializer.Deserialize(instance.GetType().GUID, supportedContentType, content);
+            Assert.Equal("This is a test", clone.Text);
+
+            var package = serializer.Pack(instance, out contentType);
+            Assert.Equal(supportedContentType, contentType);
+            clone = serializer.Unpack(package);
+            Assert.Equal("This is a test", clone.Text);
+
+            Assert.Throws<NotSupportedException>(()=> serializer.Serialize(instance, notSupportedContentType));
+            Assert.Throws<NotSupportedException>(() => serializer.Pack(instance, notSupportedContentType));
         }
 
         [Fact]
-        public void SupportBasicXmlDataTransferObjects()
+        public void SupportBasicMultiContentDto()
         {
-            var xmlOnlyObj = new BasicXmlDataTransferTestObject()
+            var instance = new BasicDto()
             {
                 Text = "This is a test"
             };
 
-            var serializer = IDomainSerializer.FromTypes(xmlOnlyObj.GetType());
+            var serializer = IDomainSerializer.FromTypes(instance.GetType());
+            var supportedContentTypes = serializer.GetSupportedContentTypes(instance.GetType()).ToHashSet();
 
-            Assert.True(serializer.CanSerialize(xmlOnlyObj, out var contentType));
-            Assert.Equal("application/xml", contentType);
-            Assert.True(serializer.CanSerialize(xmlOnlyObj, contentType));
-            Assert.True(serializer.CanDeserialize(xmlOnlyObj.GetType().GUID, contentType));
+            Assert.Equal(2, supportedContentTypes.Count);
+            Assert.True(supportedContentTypes.Contains("application/xml"));
+            Assert.True(supportedContentTypes.Contains("application/json"));
 
-            Assert.False(serializer.CanSerialize(xmlOnlyObj, "application/json"));
-
-
-            var xml = serializer.Serialize(xmlOnlyObj, contentType);
-            var clone = (BasicXmlDataTransferTestObject)serializer.Deserialize(xmlOnlyObj.GetType().GUID, "application/xml", xml);
-            Assert.Equal("This is a test", clone.Text);
-
-            var package = serializer.Pack(xmlOnlyObj, out contentType);
-            Assert.Equal("application/xml", contentType);
-            clone = (BasicXmlDataTransferTestObject)serializer.Unpack(package);
-            Assert.Equal("This is a test", clone.Text);
+            foreach (var contentType in supportedContentTypes)
+            {
+                Assert.True(serializer.CanSerialize(instance, contentType));
+                Assert.True(serializer.CanDeserialize(instance.GetType().GUID, contentType));
 
 
+                var content = serializer.Serialize(instance, contentType);
+                var clone = (BasicDto)serializer.Deserialize(instance.GetType().GUID, contentType, content);
+                Assert.Equal("This is a test", clone.Text);
+
+                var package = serializer.Pack(instance, contentType);
+                Assert.Equal(contentType, contentType);
+                clone = (BasicDto)serializer.Unpack(package);
+                Assert.Equal("This is a test", clone.Text);
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(PlainPocoDto))]
+        [InlineData(typeof(MixedPocoDto))]
+        public void SupportPocoDto(Type dtoType)
+        {
+            dynamic instance = Activator.CreateInstance(dtoType);
+            Assert.NotNull(instance);
+            instance.Text = "This is a test";
+
+            var serializer = IDomainSerializer.FromTypes(dtoType);
+            var supportedContentTypes = serializer.GetSupportedContentTypes(dtoType).ToHashSet();
+
+            Assert.Equal(2, supportedContentTypes.Count);
+            Assert.True(supportedContentTypes.Contains("application/xml"));
+            Assert.True(supportedContentTypes.Contains("application/json"));
+
+            foreach (var contentType in supportedContentTypes)
+            {
+                Assert.True(serializer.CanSerialize(instance, contentType));
+                Assert.True(serializer.CanDeserialize(instance.GetType().GUID, contentType));
+
+
+                var content = serializer.Serialize(instance, contentType);
+                var clone = serializer.Deserialize(instance.GetType().GUID, contentType, content);
+                Assert.Equal("This is a test", clone.Text);
+
+                var package = serializer.Pack(instance, contentType);
+                Assert.Equal(contentType, contentType);
+                clone = serializer.Unpack(package);
+                Assert.Equal("This is a test", clone.Text);
+            }
         }
 
 
+        
+
+        [Fact]
+        public void RespectXmlFirstRequirement()
+        {
+            var target = IDomainSerializer.FromTypes(typeof(XmlFirstDto));
+            Assert.True(target.CanSerialize(typeof(XmlFirstDto), out var contentType));
+            Assert.Equal("application/xml", contentType, StringComparer.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void RespectJsonFirstRequirement()
+        {
+            var target = IDomainSerializer.FromTypes(typeof(JsonFirstDto));
+            Assert.True(target.CanSerialize(typeof(JsonFirstDto), out var contentType));
+            Assert.Equal("application/json", contentType, StringComparer.OrdinalIgnoreCase);
+        }
+
+        [Theory]
+        [InlineData(typeof(ExplitXmlPreferenceDto), "application/xml")]
+        [InlineData(typeof(ExplitJsonPreferenceDto), "application/json")]
+        public void RespectExplisitSerializationPreference(Type dtoType, string expectedDefaultContentType)
+        {
+            var target = IDomainSerializer.FromTypes(dtoType);
+            Assert.True(target.CanSerialize(dtoType, out var contentType));
+            Assert.Equal(expectedDefaultContentType, contentType, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }

@@ -11,8 +11,8 @@ namespace Solitons.Azure
     // ReSharper disable once InconsistentNaming
     public sealed class DomainTransientStorage_UploadAsync_Should
     {
-        [DataTransferObject, Guid("671ccf85-260c-4045-bcb1-45a5c1d86011")]
-        sealed record Dto(string Text);
+        [Guid("671ccf85-260c-4045-bcb1-45a5c1d86011")]
+        sealed record Dto(string Text) : IBasicJsonDataTransferObject;
 
         public sealed record NotDto(string Text);
 

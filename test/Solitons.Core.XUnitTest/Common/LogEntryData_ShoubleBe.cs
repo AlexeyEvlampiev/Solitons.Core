@@ -28,7 +28,7 @@ namespace Solitons.Common
             };
 
             var xml = entry.ToJsonString();
-            var copy = IBasicJsonDataTransferObject.FromJson<LogEntryData>(xml);
+            var copy = IBasicJsonDataTransferObject.Parse<LogEntryData>(xml);
 
             Assert.Equal(entry.Properties, copy.Properties);
 

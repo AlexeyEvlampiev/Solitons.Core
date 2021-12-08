@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Solitons
 {
-    sealed class RelayLogEntry : ILogEntry
+    sealed class LogEntryProxy : ILogEntry
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly ILogEntry _innerEntry;
 
-        public RelayLogEntry(ILogEntry innerEntry)
+        public LogEntryProxy(ILogEntry innerEntry)
         {
             _innerEntry = innerEntry ?? throw new ArgumentNullException(nameof(innerEntry));
         }
@@ -29,11 +31,13 @@ namespace Solitons
             return _innerEntry.GetProperty(name);
         }
 
-
+        [DebuggerStepThrough]
         public override string ToString() => _innerEntry.ToString();
 
+        [DebuggerStepThrough]
         public override bool Equals(object? obj) => _innerEntry.Equals(obj);
 
+        [DebuggerStepThrough]
         public override int GetHashCode() => _innerEntry.GetHashCode();
     }
 }

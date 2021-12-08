@@ -11,7 +11,7 @@ namespace Solitons
         [DebuggerStepThrough]
         public sealed override string ToString() => this.ToXmlString();
 
-        protected static T Parse<T>(string xmlString) where T : BasicXmlDataTransferObject, new() => IBasicXmlDataTransferObject.FromXml<T>(xmlString);
+        protected static T Parse<T>(string xmlString) where T : BasicXmlDataTransferObject, new() => IBasicXmlDataTransferObject.Parse<T>(xmlString);
     }
 
     /// <summary>
@@ -27,6 +27,6 @@ namespace Solitons
         /// <returns></returns>
         [DebuggerStepThrough]
         public static T ConvertTo<T>(this string self) where T : BasicXmlDataTransferObject, new() =>
-            IBasicXmlDataTransferObject.FromXml<T>(self);
+            IBasicXmlDataTransferObject.Parse<T>(self);
     }
 }

@@ -1,16 +1,39 @@
-﻿using System;
+﻿using Solitons.Common;
+using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text.Json;
 
 namespace Solitons
 {
-    public interface IBasicJsonDataTransferObject : IBasicDataTransferObject
+    /// <summary>
+    /// A marker interface automatically adding the <see cref="ToJsonString"/> method to implementing types.
+    /// </summary>
+    /// <remarks>
+    /// Implies an implicit <see cref="DataTransferObjectAttribute"/> decoration.
+    /// </remarks>
+    /// <seealso cref="Parse{T}(string)"/>
+    /// <seealso cref="Parse(string, Type)"/>
+    /// <seealso cref="DataTransferObjectAttribute"/>
+    /// <seealso cref="BasicXmlDataTransferObject"/>
+    /// <seealso cref="BasicJsonDataTransferObjectSerializer"/>
+    public interface IBasicJsonDataTransferObject 
     {
+        /// <summary>
+        /// Converts this instance to its JSON- string representation.
+        /// </summary>
+        /// <returns>The JSON- string object representation</returns>
         [DebuggerNonUserCode]
         public string ToJsonString() => JsonSerializer.Serialize(this, this.GetType());
 
-        public static T FromJson<T>(string jsonString) where T : IBasicJsonDataTransferObject
+        /// <summary>
+        /// Deserializes the JSON to the specified .NET type.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to deserialize to.</typeparam>
+        /// <param name="jsonString">The JSON to deserialize.</param>
+        /// <returns>The JSON- deserialized object.</returns>
+        [DebuggerNonUserCode]
+        public static T Parse<T>(string jsonString) where T : IBasicJsonDataTransferObject
         {
             var obj = JsonSerializer.Deserialize<T>(jsonString);
             if (obj is IDeserializationCallback callback)
@@ -18,7 +41,14 @@ namespace Solitons
             return (T)obj;
         }
 
-        internal static object Parse(string jsonString, Type returnType)
+        /// <summary>
+        /// Deserializes the JSON to the specified .NET type.
+        /// </summary>
+        /// <param name="jsonString">The JSON to deserialize.</param>
+        /// <param name="returnType">The type of the object to deserialize to.</param>
+        /// <returns>The JSON- deserialized object.</returns>
+        [DebuggerStepThrough]
+        public static object Parse(string jsonString, Type returnType)
         {
             var obj = JsonSerializer.Deserialize(jsonString,returnType);
             if (obj is IDeserializationCallback callback)
@@ -29,6 +59,11 @@ namespace Solitons
 
     public static partial class Extensions
     {
+        /// <summary>
+        /// Converts this instance to its JSON- string representation.
+        /// </summary>
+        /// <param name="self">The object to serialize</param>
+        /// <returns>The JSON- string object representation</returns>
         [DebuggerStepThrough]
         public static string ToJsonString(this IBasicJsonDataTransferObject self) => self.ToJsonString();
     }

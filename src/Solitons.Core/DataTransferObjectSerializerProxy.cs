@@ -5,6 +5,7 @@ namespace Solitons
 {
     sealed class DataTransferObjectSerializerProxy : IDataTransferObjectSerializer
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly IDataTransferObjectSerializer _innerSerializer;
 
         private DataTransferObjectSerializerProxy(IDataTransferObjectSerializer innerSerializer)

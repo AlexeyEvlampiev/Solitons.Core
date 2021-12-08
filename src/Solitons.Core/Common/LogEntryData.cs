@@ -12,8 +12,7 @@ namespace Solitons.Common
     /// <summary>
     /// 
     /// </summary>
-    [Guid("d6dcaaac-c0b7-42fd-b5c9-b879c08accc2"), DataTransferObject]
-    [XmlRoot("LogEntry")]
+    [Guid("d6dcaaac-c0b7-42fd-b5c9-b879c08accc2")]    
     public sealed class LogEntryData : BasicJsonDataTransferObject,
         ILogEntry
     {

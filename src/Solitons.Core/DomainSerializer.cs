@@ -2,46 +2,74 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Solitons
 {
     sealed class DomainSerializer : IDomainSerializer
     {
+        //TODO: Change record to struct
         sealed record SerializationKey(Type DtoType, string ContentType);
+
+        //TODO: Change record to struct
         sealed record DeserializationKey(Guid TypeId, string ContentType);
 
+        #region Private Fields
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<SerializationKey, IDataTransferObjectSerializer> _serializers = new();
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<DeserializationKey, IDataTransferObjectSerializer> _deserializers = new();
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Guid, Type> _dtoTypeById = new();
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Guid, string[]> _supportedContentTypes = new();
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Guid, IDataTransferObjectSerializer> _defaultSerializers = new();
+        #endregion
 
         private DomainSerializer(DomainContext domainContext)
         {
             var dtoTypes = domainContext.GetDataTransferObjectTypes();
-            foreach (var type in dtoTypes)
+            foreach (var type in dtoTypes.Keys)
             {
-                _dtoTypeById.Add(type.GUID, type);
-                var attributes = domainContext.GetDataTransferAttributes(type);
-                var defaultSerializer = attributes
-                    .Where(a => a.IsDefault)
-                    .Select(a => a.Serializer)
-                    .Single();
-                _defaultSerializers.Add(type.GUID, defaultSerializer);
+                if (_dtoTypeById.ContainsKey(type.GUID))
+                {
+                    var duplicate = _dtoTypeById[type.GUID];
+                    throw new InvalidOperationException(new StringBuilder("Data Transfer Object type id conflict.")
+                        .Append($" See types {duplicate} and {type}.")
+                        .Append($" Make sure that all Data Transfer Objects are uniquely annotated with {typeof(GuidAttribute)}.")
+                        .ToString());
+                }
 
-                _supportedContentTypes.Add(type.GUID, attributes
-                    .Select(a=> a.Serializer.ContentType)
-                    .ToArray());
+                _dtoTypeById.Add(type.GUID, type);
+                var attributes = dtoTypes[type];
+
+                var contentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var attribute in attributes)
                 {
-                    var serializer = attribute.Serializer;
+                    var serializer = domainContext.GetDataTransferObjectSerializer(attribute.SerializerType);
+                    if(false == contentTypes.Add(serializer.ContentType))
+                    {
+                        throw new InvalidOperationException($"Duplicate content type declarations. See {type}");
+                    }
                     _serializers.Add(new SerializationKey(type, serializer.ContentType), serializer);
                     _deserializers.Add(new DeserializationKey(type.GUID, serializer.ContentType), serializer);
+                    if (attribute.IsDefault)
+                    {
+                        _defaultSerializers.Add(type.GUID, serializer);
+                    }
                 }
+                _supportedContentTypes.Add(type.GUID, contentTypes.ToArray());
             }
         }
 
-        public static IDomainSerializer Create(DomainContext domainContext) => new DomainSerializer(domainContext);
+        internal static IDomainSerializer Create(DomainContext domainContext) => new DomainSerializer(domainContext);
 
         private bool CanSerialize(object dto, string contentType) =>
             _serializers.ContainsKey(new SerializationKey(dto.GetType(), contentType));
