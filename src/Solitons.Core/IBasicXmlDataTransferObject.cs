@@ -11,7 +11,7 @@ namespace Solitons
     /// A marker interface automatically adding the <see cref="ToXmlString"/> method to implementing types.
     /// </summary>
     /// <remarks>
-    /// Implies an implicit <see cref="DataTransferObjectAttribute"/> decoration.
+    /// Implies an implicit <see cref="DataTransferObjectAttribute"/> declaration.
     /// </remarks>
     /// <seealso cref="Parse{T}(string)"/>
     /// <seealso cref="Parse(string, Type)"/>
@@ -24,14 +24,18 @@ namespace Solitons
         /// Converts this instance to its XML- string representation.
         /// </summary>
         /// <returns>The XML- string object representation</returns>
-        [DebuggerNonUserCode]
+        [DebuggerStepThrough]
         public string ToXmlString()
         {
+            var callback = this as ISerializationCallback;
             var serializer = new XmlSerializer(GetType());
             using var writer = new StringWriter();
+            callback?.OnSerializing(null);
             serializer.Serialize(writer, this);
             writer.Flush();
-            return writer.ToString();
+            var xml = writer.ToString();
+            callback?.OnSerialized(null);
+            return xml;
         }
 
         /// <summary>

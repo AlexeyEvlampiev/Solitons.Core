@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Security.Claims;
 
 namespace Solitons.Web
 {
@@ -11,6 +12,9 @@ namespace Solitons.Web
 
         string Method { get; }
         Version ClientVersion { get; }
+
+        ClaimsPrincipal Caller { get; }
+
         IEnumerable<string> QueryParameterNames { get; }
         IPAddress IPAddress { get; }
         IEnumerable<string> GetQueryParameterValues(string name);

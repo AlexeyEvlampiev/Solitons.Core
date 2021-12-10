@@ -36,7 +36,7 @@ namespace Solitons.Common
         public IsolationLevel IsolationLevel { get; }
         public TimeSpan OperationTimeout { get; }
 
-        public T AsRestApi<T>() where T : IHttpTriggerMetadata => TargetType.GetCustomAttributes().OfType<T>().SingleOrDefault();
+        public T AsRestApi<T>() where T : IHttpEventArgsMetadata => TargetType.GetCustomAttributes().OfType<T>().SingleOrDefault();
 
 
         public string CSharpMethod { get; init; } = null;

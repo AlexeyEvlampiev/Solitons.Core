@@ -17,14 +17,21 @@ namespace Solitons
     /// <seealso cref="DataTransferObjectAttribute"/>
     /// <seealso cref="BasicXmlDataTransferObject"/>
     /// <seealso cref="BasicJsonDataTransferObjectSerializer"/>
-    public interface IBasicJsonDataTransferObject 
+    public interface IBasicJsonDataTransferObject
     {
         /// <summary>
         /// Converts this instance to its JSON- string representation.
         /// </summary>
         /// <returns>The JSON- string object representation</returns>
-        [DebuggerNonUserCode]
-        public string ToJsonString() => JsonSerializer.Serialize(this, this.GetType());
+        [DebuggerStepThrough]
+        public string ToJsonString()
+        {
+            var callback = this as ISerializationCallback;
+            callback?.OnSerializing(null);
+            var json = JsonSerializer.Serialize(this, this.GetType());
+            callback?.OnSerialized(null);
+            return json;
+        }
 
         /// <summary>
         /// Deserializes the JSON to the specified .NET type.
@@ -37,7 +44,7 @@ namespace Solitons
         {
             var obj = JsonSerializer.Deserialize<T>(jsonString);
             if (obj is IDeserializationCallback callback)
-                callback.OnDeserialization(typeof(IBasicJsonDataTransferObject));
+                callback.OnDeserialization(null);
             return (T)obj;
         }
 
@@ -52,7 +59,7 @@ namespace Solitons
         {
             var obj = JsonSerializer.Deserialize(jsonString,returnType);
             if (obj is IDeserializationCallback callback)
-                callback.OnDeserialization(typeof(IBasicJsonDataTransferObject));
+                callback.OnDeserialization(null);
             return obj;
         }
     }

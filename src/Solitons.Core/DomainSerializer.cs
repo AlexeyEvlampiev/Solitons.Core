@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Solitons.Web;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -31,11 +32,14 @@ namespace Solitons
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Guid, IDataTransferObjectSerializer> _defaultSerializers = new();
+
+        private readonly Dictionary<HttpEventArgsAttribute, Type> _httpEventArgs;
         #endregion
 
         private DomainSerializer(DomainContext domainContext)
         {
             var dtoTypes = domainContext.GetDataTransferObjectTypes();
+            
             foreach (var type in dtoTypes.Keys)
             {
                 if (_dtoTypeById.ContainsKey(type.GUID))
@@ -187,6 +191,14 @@ namespace Solitons
                 typeId.ThrowIfEmptyArgument(nameof(typeId)), 
                 contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)), 
                 content);
+        }
+
+        public DomainWebRequest AsDomainWebRequest(IWebRequest request)
+        {
+            if (request is null) throw new ArgumentNullException(nameof(request));
+
+
+            throw new NotImplementedException();
         }
     }
 }

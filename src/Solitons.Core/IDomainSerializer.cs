@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Solitons.Web;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -79,6 +80,12 @@ namespace Solitons
         /// <returns>Deserialized object</returns>
         object Deserialize(Guid typeId, string contentType, string content);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        DomainWebRequest AsDomainWebRequest(IWebRequest request);
     }
 
     public partial interface IDomainSerializer

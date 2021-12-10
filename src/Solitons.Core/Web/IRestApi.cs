@@ -27,12 +27,5 @@ namespace Solitons.Web
             return result ?? IWebResponse.Create(HttpStatusCode.NotFound);
         }
 
-        [DebuggerStepThrough]
-        public static IRestApi Join(IEnumerable<IRestApi> scopes) => new UnionRestApi(scopes.ThrowIfNullArgument(nameof(scopes)));
-
-        [DebuggerStepThrough]
-        public static IRestApi Join(params IRestApi[] scopes) => Join(scopes
-            .ThrowIfNullArgument(nameof(scopes))
-            .AsEnumerable());
     }
 }

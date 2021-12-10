@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
+using Moq;
 using Solitons.Common;
+using Solitons.Web;
 using Xunit;
 
 namespace Solitons
@@ -69,6 +72,7 @@ namespace Solitons
         [Guid(TestTypeId)]
         [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer), IsDefault = true)]
         public sealed class ExplitJsonPreferenceDto : BasicXmlDataTransferObject { }
+
 
         [Theory]
         [InlineData(typeof(XmlOnlyDto),"application/xml", "application/json")]
@@ -194,6 +198,6 @@ namespace Solitons
             var target = IDomainSerializer.FromTypes(dtoType);
             Assert.True(target.CanSerialize(dtoType, out var contentType));
             Assert.Equal(expectedDefaultContentType, contentType, StringComparer.OrdinalIgnoreCase);
-        }
+        }        
     }
 }

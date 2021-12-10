@@ -1,13 +1,18 @@
-﻿using System.Diagnostics;
+﻿using Solitons.Common;
+using System.Diagnostics;
 
 namespace Solitons
 {
     /// <summary>
-    /// XML- first Data Transfer Object. When used as a base class, ensures that the overriden <see cref="object.ToString"/> returns objects xml representation only.
+    /// XML- first Data Transfer Object. When used as a base class, ensures that the overriden <see cref="object.ToString"/> returns objects xml representation.
     /// 
     /// </summary>
-    public abstract class BasicXmlDataTransferObject : IBasicXmlDataTransferObject
+    public abstract class BasicXmlDataTransferObject : SerializationCallback, IBasicXmlDataTransferObject
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [DebuggerStepThrough]
         public sealed override string ToString() => this.ToXmlString();
 

@@ -78,7 +78,6 @@
 
   <ItemGroup>
     <Folder Include="Blobs\" />
-    <Folder Include="Cloud\" />
     <Folder Include="Queues\" />
     <Folder Include="Tables\" />
     <Folder Include="Web\Common\" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace Solitons.Common
 {
@@ -20,15 +21,22 @@ namespace Solitons.Common
         string IDataTransferObjectSerializer.Serialize(object obj)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-            return Serialize(obj);
+            var callback = obj as ISerializationCallback;
+            callback?.OnSerializing(this);
+            var content = Serialize(obj);
+            callback?.OnSerialized(this);
+            return content;
         }
 
         [DebuggerStepThrough]
         object IDataTransferObjectSerializer.Deserialize(string content, Type targetType)
         {
-            return Deserialize(
+            var obj = Deserialize(
                 content.ThrowIfNullArgument(nameof(content)), 
                 targetType.ThrowIfNullArgument(nameof(targetType)));
+            if(obj is IDeserializationCallback callback)
+                callback.OnDeserialization(this);
+            return obj;
         }
     }
 }

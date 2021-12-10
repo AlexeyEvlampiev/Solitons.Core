@@ -13,7 +13,7 @@ namespace Solitons.Web
     /// 
     /// </summary>
     [AttributeUsage(AttributeTargets.Class|AttributeTargets.Struct, Inherited = true, AllowMultiple = true)]
-    public abstract class HttpTriggerAttribute : Attribute, IHttpTriggerMetadata
+    public abstract class HttpTriggerAttribute : Attribute, IHttpEventArgsMetadata
     {
         private readonly Regex _uriRegex;
         private readonly Regex _versionRegex;
@@ -101,7 +101,7 @@ namespace Solitons.Web
                 });
         }
 
-        public static IEnumerable<IHttpTriggerMetadata> Discover(IEnumerable<Type> types)
+        public static IEnumerable<IHttpEventArgsMetadata> Discover(IEnumerable<Type> types)
         {
             if (types == null) throw new ArgumentNullException(nameof(types));
             var result =

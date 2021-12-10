@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Security.Claims;
 
 namespace Solitons.Web
 {
@@ -39,6 +40,8 @@ namespace Solitons.Web
 
         public IEnumerable<string> QueryParameterNames => _innerRequest.QueryParameterNames.EmptyIfNull();
         public IPAddress IPAddress => _innerRequest.IPAddress;
+
+        public ClaimsPrincipal Caller => _innerRequest.Caller;
 
         public IEnumerable<string> GetQueryParameterValues(string name) => _innerRequest.GetQueryParameterValues(name).EmptyIfNull();
     }

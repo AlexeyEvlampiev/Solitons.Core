@@ -2,48 +2,36 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Solitons.Web
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class QueryParameterAttribute : Attribute
     {
-        private TypeConverter _converter;
-
+        private readonly Regex _regex;
         public QueryParameterAttribute(string name, string parameterNamePattern)
         {
             ParameterName = name;
-            ParameterNamePattern = parameterNamePattern;
+            _regex = new Regex($"[?&](?<key>(?:(?i){parameterNamePattern}))=(?-i)(?<value>[^&]+)");
         }
 
-        public string ParameterNamePattern { get; }
-        public object ParameterName { get;  }
 
-        internal PropertyInfo TargetProperty { get; private set; }
+        public object ParameterName { get;  }
 
         public bool IsRequired { get; init; }
 
-
-        internal object GetValue(IWebRequest request)
+        public bool TryGetValue(string url, out string value)
         {
-            return _converter.ConvertFrom(request);
+            var match = _regex.Match(url);
+            if (match.Success)
+            {
+                value = match.Groups["value"].Value;
+                return true;
+            }
+            value = null;
+            return false;
         }
 
-        public static QueryParameterAttribute Get(PropertyInfo property)
-        {
-            var result = property?.GetCustomAttribute<QueryParameterAttribute>();
-            if (result is null) return null;
-            var basicTypes = new HashSet<Type>(){typeof(bool), typeof(string)};
-            result.TargetProperty = property;
-            if (basicTypes.Contains(property.PropertyType))
-            {
-                result._converter = new ScalarQueryParameterTypeConverter(property.PropertyType, result.ParameterNamePattern);
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-            return result;
-        }
     }
 }

@@ -8,25 +8,25 @@ using System.Threading.Tasks;
 namespace Solitons.Web.Common
 {
     public abstract class DbRestApi<THttpTrigger, TDbTransaction> : RestApi
-        where THttpTrigger : IHttpTriggerMetadata
+        where THttpTrigger : IHttpEventArgsMetadata
         where TDbTransaction : IDbTransactionMetadata
     {
 
         private readonly Dictionary<THttpTrigger, TDbTransaction> _httpTriggers;
-        private readonly IWebQueryConverter _webQueryConverter;
+        private readonly IHttpEventArgsConverter _webQueryConverter;
 
 
         protected DbRestApi(DomainContext domainContext)
         {
             if (domainContext == null) throw new ArgumentNullException(nameof(domainContext));
             _httpTriggers = domainContext.GetHttpTriggers<THttpTrigger, TDbTransaction>();
-            _webQueryConverter = domainContext.GetWebQueryConverter<THttpTrigger>();
+            //_webQueryConverter = domainContext.GetHttoEventArgsConverter<THttpTrigger>();
             Serializer = domainContext.GetSerializer();
         }
 
 
         protected abstract Task<IWebResponse> ExecAsync(
-            IHttpTriggerMetadata trigger,
+            IHttpEventArgsMetadata trigger,
             IDbTransactionMetadata handler, 
             object webQuery, 
             IWebRequest request, 
@@ -48,14 +48,14 @@ namespace Solitons.Web.Common
                 })
                 .SelectMany(pair =>
                 {
-                    var webQuery = _webQueryConverter.ToDataTransferObject(request);
+                    var webQuery = _webQueryConverter.Convert(request);
                     var (trigger, handler) = (pair.Key, pair.Value);
                     return ExecAsync(trigger, handler, webQuery, request, logger, cancellation);
                 });
         }
     }
 
-    public abstract class DbRestApi<TDbTransaction> : DbRestApi<IHttpTriggerMetadata, TDbTransaction>
+    public abstract class DbRestApi<TDbTransaction> : DbRestApi<IHttpEventArgsMetadata, TDbTransaction>
         where TDbTransaction : IDbTransactionMetadata
     {
         protected DbRestApi(DomainContext domainContext) : base(domainContext)
