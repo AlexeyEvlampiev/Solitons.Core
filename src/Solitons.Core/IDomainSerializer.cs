@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Solitons
 {
@@ -85,7 +86,7 @@ namespace Solitons
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        DomainWebRequest AsDomainWebRequest(IWebRequest request);
+        Task<DomainWebRequest> AsDomainWebRequestAsync(IWebRequest request);
     }
 
     public partial interface IDomainSerializer

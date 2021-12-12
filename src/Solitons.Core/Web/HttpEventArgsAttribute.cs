@@ -56,6 +56,8 @@ namespace Solitons.Web
 
         public string MethodRegexp { get; }
 
+        public Type PayloadType { get; set; }
+
         [DebuggerNonUserCode]
         bool IHttpEventArgsMetadata.IsMethodMatch(string method) => _methodRegex.IsMatch(method ?? String.Empty);
 

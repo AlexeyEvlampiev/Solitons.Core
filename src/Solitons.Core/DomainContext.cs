@@ -163,7 +163,7 @@ namespace Solitons
         internal IReadOnlyDictionary<Type, DataTransferObjectAttribute[]> GetDataTransferObjectTypes() => 
             new ReadOnlyDictionary<Type, DataTransferObjectAttribute[]>(_dataTransferObjectTypes.Value);
 
-        internal IReadOnlyDictionary<HttpEventArgsAttribute, Type> GetHttpEventArgs() =>
+        internal IReadOnlyDictionary<HttpEventArgsAttribute, Type> GetHttpEventArgsTypes() =>
             new ReadOnlyDictionary<HttpEventArgsAttribute, Type>(_httpEventArgTypes.Value); 
 
         private DataTransferObjectAttribute[] DiscoverDataTransferObjectAttributes(Type type)

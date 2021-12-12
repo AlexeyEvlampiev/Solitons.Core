@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Security.Claims;
 
@@ -17,6 +18,8 @@ namespace Solitons.Web
 
         IEnumerable<string> QueryParameterNames { get; }
         IPAddress IPAddress { get; }
+        string ContentType { get; }
+
         IEnumerable<string> GetQueryParameterValues(string name);
 
         [DebuggerStepThrough]
@@ -24,5 +27,6 @@ namespace Solitons.Web
 
         [DebuggerStepThrough]
         static IWebRequest Wrap(IWebRequest request) => WebRequestProxy.Wrap(request);
+        Stream GetBody();
     }
 }

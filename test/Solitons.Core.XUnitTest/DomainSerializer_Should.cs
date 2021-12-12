@@ -1,8 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Moq;
 using Solitons.Common;
@@ -13,69 +17,13 @@ namespace Solitons
 {
     public class DomainSerializer_Should
     {
-        const string TestTypeId = "32209525-9afd-4d32-bbe8-0f277b5d86e3";
-
-        [Guid(TestTypeId)]
-        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer))]
-        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer))]
-        public sealed class PlainPocoDto
-        {
-            [XmlAttribute("Text"), JsonPropertyName("text")]
-            public string Text { get; set; }
-        }
-
-        [Guid(TestTypeId)]
-        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer))]
-        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer))]
-        public sealed class MixedPocoDto : IBasicXmlDataTransferObject, IBasicJsonDataTransferObject
-        {
-            [XmlAttribute("Text"), JsonPropertyName("text")]
-            public string Text { get; set; }
-        }
+        const string TestDtoTypeId = "32209525-9afd-4d32-bbe8-0f277b5d86e3";
 
 
-
-        [Guid(TestTypeId)]
-        public sealed class XmlOnlyDto : IBasicXmlDataTransferObject
-        {
-            [XmlAttribute("Text")]
-            public string Text { get; set; }
-        }
-
-
-        [Guid(TestTypeId)]
-        public sealed class JsonOnlyDto : IBasicJsonDataTransferObject
-        {
-            [JsonPropertyName("text")]
-            public string Text { get; set; }
-        }
-
-        [Guid(TestTypeId)]
-        public sealed class BasicDto : IBasicJsonDataTransferObject, IBasicXmlDataTransferObject
-        {
-            [XmlAttribute("Text"), JsonPropertyName("text")]
-            public string Text { get; set; }
-        }
-
-
-
-        [Guid(TestTypeId)]
-        public sealed class XmlFirstDto : BasicXmlDataTransferObject, IBasicJsonDataTransferObject { }
-
-        [Guid(TestTypeId)]
-        public sealed class JsonFirstDto : BasicJsonDataTransferObject, IBasicXmlDataTransferObject { }
-
-        [Guid(TestTypeId)]
-        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer), IsDefault = true)]
-        public sealed class ExplitXmlPreferenceDto : BasicJsonDataTransferObject { }
-
-        [Guid(TestTypeId)]
-        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer), IsDefault = true)]
-        public sealed class ExplitJsonPreferenceDto : BasicXmlDataTransferObject { }
 
 
         [Theory]
-        [InlineData(typeof(XmlOnlyDto),"application/xml", "application/json")]
+        [InlineData(typeof(XmlOnlyDto), "application/xml", "application/json")]
         [InlineData(typeof(JsonOnlyDto), "application/json", "application/xml")]
         public void BasicContentSpecificDto(Type dtoType, string supportedContentType, string notSupportedContentType)
         {
@@ -102,7 +50,7 @@ namespace Solitons
             clone = serializer.Unpack(package);
             Assert.Equal("This is a test", clone.Text);
 
-            Assert.Throws<NotSupportedException>(()=> serializer.Serialize(instance, notSupportedContentType));
+            Assert.Throws<NotSupportedException>(() => serializer.Serialize(instance, notSupportedContentType));
             Assert.Throws<NotSupportedException>(() => serializer.Pack(instance, notSupportedContentType));
         }
 
@@ -172,7 +120,7 @@ namespace Solitons
         }
 
 
-        
+
 
         [Fact]
         public void RespectXmlFirstRequirement()
@@ -198,6 +146,67 @@ namespace Solitons
             var target = IDomainSerializer.FromTypes(dtoType);
             Assert.True(target.CanSerialize(dtoType, out var contentType));
             Assert.Equal(expectedDefaultContentType, contentType, StringComparer.OrdinalIgnoreCase);
-        }        
+        }
+
+        [Guid(TestDtoTypeId)]
+        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer))]
+        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer))]
+        public sealed class PlainPocoDto
+        {
+            [XmlAttribute("Text"), JsonPropertyName("text")]
+            public string Text { get; set; }
+        }
+
+        [Guid(TestDtoTypeId)]
+        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer))]
+        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer))]
+        public sealed class MixedPocoDto : IBasicXmlDataTransferObject, IBasicJsonDataTransferObject
+        {
+            [XmlAttribute("Text"), JsonPropertyName("text")]
+            public string Text { get; set; }
+        }
+
+
+
+        [Guid(TestDtoTypeId)]
+        public sealed class XmlOnlyDto : IBasicXmlDataTransferObject
+        {
+            [XmlAttribute("Text")]
+            public string Text { get; set; }
+        }
+
+
+        [Guid(TestDtoTypeId)]
+        public sealed class JsonOnlyDto : IBasicJsonDataTransferObject
+        {
+            [JsonPropertyName("text")]
+            public string Text { get; set; }
+        }
+
+        [Guid(TestDtoTypeId)]
+        public sealed class BasicDto : IBasicJsonDataTransferObject, IBasicXmlDataTransferObject
+        {
+            [XmlAttribute("Text"), JsonPropertyName("text")]
+            public string Text { get; set; }
+        }
+
+
+
+        [Guid(TestDtoTypeId)]
+        public sealed class XmlFirstDto : BasicXmlDataTransferObject, IBasicJsonDataTransferObject { }
+
+        [Guid(TestDtoTypeId)]
+        public sealed class JsonFirstDto : BasicJsonDataTransferObject, IBasicXmlDataTransferObject { }
+
+        [Guid(TestDtoTypeId)]
+        [DataTransferObject(typeof(BasicXmlDataTransferObjectSerializer), IsDefault = true)]
+        public sealed class ExplitXmlPreferenceDto : BasicJsonDataTransferObject { }
+
+        [Guid(TestDtoTypeId)]
+        [DataTransferObject(typeof(BasicJsonDataTransferObjectSerializer), IsDefault = true)]
+        public sealed class ExplitJsonPreferenceDto : BasicXmlDataTransferObject { }
+
+
+
     }
 }

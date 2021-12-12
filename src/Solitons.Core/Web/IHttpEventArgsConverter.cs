@@ -9,18 +9,28 @@ namespace Solitons.Web
     /// 
     /// </summary>
     public partial interface IHttpEventArgsConverter
+    {        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        object Convert(IWebRequest request, out IHttpEventArgsMetadata metadata);
+    }
+
+
+    public partial interface IHttpEventArgsConverter
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        object Convert(IWebRequest request);
-    }
+        [DebuggerStepThrough]
+        public object Convert(IWebRequest request) => Convert(request, out _);
 
-
-    public partial interface IHttpEventArgsConverter
-    {
         /// <summary>
         /// 
         /// </summary>

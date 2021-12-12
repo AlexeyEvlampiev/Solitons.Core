@@ -77,6 +77,7 @@ namespace Solitons.Web
         public Type TargetType { get; private set; }
         public string MethodRegexp { get; }
 
+        public Type PayloadType => throw new NotImplementedException();
 
         [DebuggerStepThrough]
         public static IEnumerable<HttpTriggerAttribute> Discover(Assembly assemblies) =>

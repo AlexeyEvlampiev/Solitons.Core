@@ -7,6 +7,8 @@ namespace Solitons.Web
 {
     public interface IHttpEventArgsMetadata 
     {
+        Type PayloadType { get; }
+
         bool IsUriMatch(string requestUri);
         bool IsVersionMatch(string version);
         bool IsMethodMatch(string method);

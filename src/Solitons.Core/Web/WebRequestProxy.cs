@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Security.Claims;
 
@@ -28,7 +29,15 @@ namespace Solitons.Web
         public override string ToString() => _innerRequest.ToString();
 
         [DebuggerStepThrough]
-        public override bool Equals(object? obj) => _innerRequest.Equals(obj);
+        public override bool Equals(object? obj)
+        {
+            if(obj is WebRequestProxy other)
+            {
+                return _innerRequest.Equals(other._innerRequest);
+            }
+
+            return _innerRequest.Equals(obj);
+        }
 
         [DebuggerStepThrough]
         public override int GetHashCode() => _innerRequest.GetHashCode();
@@ -39,10 +48,15 @@ namespace Solitons.Web
         public Version ClientVersion => _innerRequest.ClientVersion.ThrowIfNull(() => new NullReferenceException($"{_innerRequest.GetType()}.{nameof(ClientVersion)} is null."));
 
         public IEnumerable<string> QueryParameterNames => _innerRequest.QueryParameterNames.EmptyIfNull();
-        public IPAddress IPAddress => _innerRequest.IPAddress;
+        public IPAddress IPAddress => _innerRequest.IPAddress.ThrowIfNull(()=> new NullReferenceException($"{_innerRequest.GetType()}.{nameof(IPAddress)} is null."));
 
-        public ClaimsPrincipal Caller => _innerRequest.Caller;
+        public ClaimsPrincipal Caller => _innerRequest.Caller.ThrowIfNull(() => new NullReferenceException($"{_innerRequest.GetType()}.{nameof(Caller)} is null."));
+
+        public string ContentType => _innerRequest.ContentType;
 
         public IEnumerable<string> GetQueryParameterValues(string name) => _innerRequest.GetQueryParameterValues(name).EmptyIfNull();
+
+        [DebuggerStepThrough]
+        public Stream GetBody() => _innerRequest.GetBody();
     }
 }

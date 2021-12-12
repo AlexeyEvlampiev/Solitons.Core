@@ -38,7 +38,7 @@ namespace Solitons.Web
             IAsyncLogger logger,
             CancellationToken cancellation)
         {
-            var domainWebRequest = _serializer.AsDomainWebRequest(request);
+            var domainWebRequest = await _serializer.AsDomainWebRequestAsync(request);
             if (domainWebRequest == null)
                 return IWebResponse.Create(HttpStatusCode.NotFound);
 
