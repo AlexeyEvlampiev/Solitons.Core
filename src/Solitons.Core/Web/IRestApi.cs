@@ -12,10 +12,10 @@ namespace Solitons.Web
 {
     public interface IRestApi
     {
-        IObservable<IWebResponse> GetResponses(IWebRequest request, IAsyncLogger logger, CancellationToken cancellation);
+        IObservable<WebResponse> GetResponses(IWebRequest request, IAsyncLogger logger, CancellationToken cancellation);
         
 
-        public async Task<IWebResponse> ProcessAsync(IWebRequest request, IAsyncLogger logger, CancellationToken cancellation)
+        public async Task<WebResponse> ProcessAsync(IWebRequest request, IAsyncLogger logger, CancellationToken cancellation)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
             if (logger == null) throw new ArgumentNullException(nameof(logger));
@@ -24,7 +24,7 @@ namespace Solitons.Web
                 .Where(response=> response is not null)
                 .FirstOrDefaultAsync()
                 .ToTask(cancellation);
-            return result ?? IWebResponse.Create(HttpStatusCode.NotFound);
+            return result ?? WebResponse.Create(HttpStatusCode.NotFound);
         }
 
     }

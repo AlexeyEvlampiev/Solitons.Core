@@ -17,7 +17,7 @@ namespace Solitons.Web
         }
 
 
-        public object ParameterName { get;  }
+        public string ParameterName { get;  }
 
         public bool IsRequired { get; init; }
 

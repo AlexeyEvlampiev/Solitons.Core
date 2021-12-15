@@ -1,19 +1,16 @@
-﻿using System;
+﻿using Solitons.Text;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
-using Solitons.Common;
-using Solitons.Text;
+using System.Threading.Tasks;
 
-namespace Solitons.Web
+namespace Solitons.Web.Common
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class|AttributeTargets.Struct, Inherited = true, AllowMultiple = true)]
-    public sealed class HttpEventArgsAttribute : Attribute, IHttpEventArgsMetadata
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = true, AllowMultiple = true)]
+    public abstract class HttpEventArgsAttribute : Attribute, IHttpEventArgsAttribute
     {
         private readonly Regex _uriRegex;
         private readonly Regex _versionRegex;
@@ -26,20 +23,20 @@ namespace Solitons.Web
         /// <param name="methodRegexp"></param>
         /// <param name="uriRegexp"></param>
         /// <exception cref="NotSupportedException"></exception>
-        public HttpEventArgsAttribute(
+        protected HttpEventArgsAttribute(
             string versionRegexp,
-            string methodRegexp,            
+            string methodRegexp,
             string uriRegexp)
         {
             VersionRegexp = versionRegexp.ThrowIfNullOrWhiteSpaceArgument(nameof(versionRegexp));
-            MethodRegexp = methodRegexp.ThrowIfNullOrWhiteSpaceArgument(nameof(methodRegexp));            
+            MethodRegexp = methodRegexp.ThrowIfNullOrWhiteSpaceArgument(nameof(methodRegexp));
             uriRegexp = uriRegexp
                 .ThrowIfNullOrWhiteSpaceArgument(nameof(uriRegexp))
                 .Replace(new Regex(@"rgx:(\w+)"), match =>
                 {
                     return match.Groups[1].Value.ToLower() switch
                     {
-                        "uuid"=> RegexPatterns.Uuid.LooseWithoutBrakets,
+                        "uuid" => RegexPatterns.Uuid.LooseWithoutBrakets,
                         "guid" => RegexPatterns.Uuid.LooseWithoutBrakets,
                         _ => throw new NotSupportedException(match.Value)
                     };
@@ -49,24 +46,38 @@ namespace Solitons.Web
             _uriRegex = new Regex(uriRegexp, RegexOptions.IgnoreCase);
             _versionRegex = new Regex(VersionRegexp, RegexOptions.IgnoreCase);
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string VersionRegexp { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string UriRegexp { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string MethodRegexp { get; }
 
-        public Type PayloadType { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Type PayloadObjectType { get; set; }
+
+        public Type ResponseObjectType { get; set; }
 
         [DebuggerNonUserCode]
-        bool IHttpEventArgsMetadata.IsMethodMatch(string method) => _methodRegex.IsMatch(method ?? String.Empty);
+        bool IHttpEventArgsAttribute.IsMethodMatch(string method) => _methodRegex.IsMatch(method ?? String.Empty);
 
         [DebuggerNonUserCode]
-        bool IHttpEventArgsMetadata.IsUriMatch(string requestUri) => _uriRegex.IsMatch(requestUri ?? string.Empty);
+        bool IHttpEventArgsAttribute.IsUriMatch(string requestUri) => _uriRegex.IsMatch(requestUri ?? string.Empty);
 
         [DebuggerNonUserCode]
-        bool IHttpEventArgsMetadata.IsVersionMatch(string version) => _versionRegex.IsMatch(version ?? String.Empty);
+        bool IHttpEventArgsAttribute.IsVersionMatch(string version) => _versionRegex.IsMatch(version ?? String.Empty);
 
-        Match IHttpEventArgsMetadata.MatchUri(string requestUri) => _uriRegex.Match(requestUri ?? String.Empty);
+        Match IHttpEventArgsAttribute.MatchUri(string requestUri) => _uriRegex.Match(requestUri ?? String.Empty);
     }
 }

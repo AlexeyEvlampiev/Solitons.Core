@@ -1,4 +1,5 @@
-﻿using Solitons.Web;
+﻿using Solitons.Security;
+using Solitons.Web;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -86,7 +87,11 @@ namespace Solitons
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<DomainWebRequest> AsDomainWebRequestAsync(IWebRequest request);
+        ///<exception cref="ClaimNotFoundException"></exception>
+        ///<exception cref="QueryParameterNotFoundException"></exception>
+        ///<exception cref="ArgumentException"></exception>
+        ///<exception cref="ArgumentNullException"></exception>
+        Task<WebRequest> AsDomainWebRequestAsync(IWebRequest request);
     }
 
     public partial interface IDomainSerializer
@@ -103,8 +108,25 @@ namespace Solitons
                    CanDeserialize(receipt.DtoTypeId, receipt.ContentType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="contentType"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public bool CanDeserialize(Type type, string contentType) => CanDeserialize(type.GUID, contentType);
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="contentType"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public object Deserialize(Type type, string contentType, string content) => Deserialize(type.GUID, contentType, content);
 
         /// <summary>
         /// Determines whether a given object can be serialized with this serializer.

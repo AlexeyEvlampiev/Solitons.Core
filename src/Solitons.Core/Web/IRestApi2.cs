@@ -9,6 +9,6 @@ namespace Solitons.Web
 {
     public interface IRestApi2
     {
-        IWebResponse ProcessAsync(IWebRequest request, CancellationToken cancellationToken);
+        WebResponse ProcessAsync(IWebRequest request, CancellationToken cancellationToken);
     }
 }

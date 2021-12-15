@@ -15,7 +15,7 @@ namespace Solitons.Web
         /// <param name="logger"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task<IWebResponse> InvokeAsync(
+        Task<WebResponse> InvokeAsync(
             IWebRequest request, 
             IAsyncLogger logger, 
             CancellationToken cancellation);

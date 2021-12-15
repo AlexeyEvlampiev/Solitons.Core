@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Solitons.Common;
+using Solitons.Data;
 using Solitons.Queues;
 using Solitons.Web;
 
@@ -27,7 +28,7 @@ namespace Solitons
     /// </item>
     /// </list>
     /// </summary>
-    public abstract partial class DomainContext : IEnumerable<Assembly>
+    public abstract partial class DomainContext
     {
         #region Private Fields
 
@@ -53,7 +54,10 @@ namespace Solitons
         private readonly Lazy<Dictionary<Type, DataTransferObjectAttribute[]>> _dataTransferObjectTypes;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<Dictionary<HttpEventArgsAttribute, Type>> _httpEventArgTypes;
+        private readonly Lazy<Dictionary<IDatabaseExternalTriggerArgsAttribute, Type>> _dbCommandArgTypes;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<Dictionary<BasicHttpEventArgsAttribute, Type>> _httpEventArgTypes;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Type, IDataTransferObjectSerializer> _specializedSerializersBySerializerType = new Dictionary<Type, IDataTransferObjectSerializer>();
@@ -72,6 +76,19 @@ namespace Solitons
         protected DomainContext(IEnumerable<Assembly> assemblies) : this(assemblies
             .ThrowIfNullArgument(nameof(assemblies))
             .SelectMany(a=> a.GetTypes()))
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assembly"></param>
+        [DebuggerStepThrough]
+        protected DomainContext(Assembly assembly) : this(assembly
+           .ThrowIfNullArgument(nameof(assembly))
+            .ToEnumerable()
+           .SelectMany(a => a.GetTypes()))
         {
 
         }
@@ -103,7 +120,8 @@ namespace Solitons
                 .Select(type=> KeyValuePair.Create(type, DiscoverDataTransferObjectAttributes(type)))
                 .Where(pair=>pair.Value.Any())
                 .ToDictionary());
-            _httpEventArgTypes = new Lazy<Dictionary<HttpEventArgsAttribute, Type>>(() => throw new NotImplementedException());
+            _dbCommandArgTypes = new Lazy<Dictionary<IDatabaseExternalTriggerArgsAttribute, Type>>(()=> IDatabaseExternalTriggerArgsAttribute.Discover(_types));
+            _httpEventArgTypes = new Lazy<Dictionary<BasicHttpEventArgsAttribute, Type>>(() => throw new NotImplementedException());
             _serializer = new Lazy<IDomainSerializer>(() => DomainSerializer.Create(this));
         }
 
@@ -163,8 +181,8 @@ namespace Solitons
         internal IReadOnlyDictionary<Type, DataTransferObjectAttribute[]> GetDataTransferObjectTypes() => 
             new ReadOnlyDictionary<Type, DataTransferObjectAttribute[]>(_dataTransferObjectTypes.Value);
 
-        internal IReadOnlyDictionary<HttpEventArgsAttribute, Type> GetHttpEventArgsTypes() =>
-            new ReadOnlyDictionary<HttpEventArgsAttribute, Type>(_httpEventArgTypes.Value); 
+        public IReadOnlyDictionary<BasicHttpEventArgsAttribute, Type> GetHttpEventArgsTypes() =>
+            new ReadOnlyDictionary<BasicHttpEventArgsAttribute, Type>(_httpEventArgTypes.Value); 
 
         private DataTransferObjectAttribute[] DiscoverDataTransferObjectAttributes(Type type)
         {
@@ -315,16 +333,15 @@ namespace Solitons
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public IHttpEventArgsConverter GetHttoEventArgsConverter() => _httpEventArgsConverter.Value;
+        public IHttpEventArgsConverter GetHttpEventArgsConverter() => _httpEventArgsConverter.Value;
 
-        public IEnumerable<T> GetDbCommands<T>() where T : DbTransactionAttribute
+        public IReadOnlyDictionary<Type, T> GetDbCommandArgs<T>() where T : IDatabaseExternalTriggerArgsAttribute
         {
-            if (_dbTransactionsByType.Value.TryGetValue(typeof(T), out var transactions))
-            {
-                return transactions.OfType<T>();
-            }
-
-            return Enumerable.Empty<T>();
+            var allCommands = _dbCommandArgTypes.Value;
+            var subset =  allCommands.Keys
+                .OfType<T>()
+                .ToDictionary(key=> allCommands[key], key => key);
+            return new ReadOnlyDictionary<Type, T>(subset);
         }
 
         private IEnumerable<RoleSetAttribute> DiscoverRoleSets()
@@ -350,11 +367,10 @@ namespace Solitons
             return serializer;
         }
 
-        IEnumerator<Assembly> IEnumerable<Assembly>.GetEnumerator() => _assemblies.AsEnumerable().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => _assemblies.GetEnumerator();
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<Type> GetTypes() => _types.AsEnumerable();
 
         /// <summary>
@@ -363,7 +379,17 @@ namespace Solitons
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public IEnumerable<T> GetHttpTriggers<T>() where T : IHttpEventArgsMetadata => HttpTriggerAttribute.Discover(_types).OfType<T>();
+        public IEnumerable<T> GetHttpTriggers<T>() where T : IHttpEventArgsAttribute => IHttpEventArgsAttribute.Discover(_types).OfType<T>();
+
+        [DebuggerStepThrough]
+        public IWebServer BuildWebServer(
+            IHttpEventListener handler) => new WebServer(this, handler.ThrowIfNullArgument(nameof(handler)).ToEnumerable());
+
+        public IWebServer BuildWebServer(
+            IEnumerable<IHttpEventListener> listeners) 
+        {
+            return new WebServer(this, listeners);
+        }
 
 
         /// <summary>
@@ -374,12 +400,12 @@ namespace Solitons
         /// <returns></returns>
         [DebuggerStepThrough]
         public Dictionary<THttpTrigger, TDbTransaction> GetHttpTriggers<THttpTrigger, TDbTransaction>() 
-            where THttpTrigger : IHttpEventArgsMetadata
+            where THttpTrigger : IHttpEventArgsAttribute
             where TDbTransaction : IDbTransactionMetadata
         {
             var pairs =
                 from t in _types
-                let webAction = HttpTriggerAttribute.Get(t).OfType<THttpTrigger>().SingleOrDefault()
+                let webAction = IHttpEventArgsAttribute.Get(t).OfType<THttpTrigger>().SingleOrDefault()
                 let dbTransaction = DbTransactionAttribute.Get(t).OfType<TDbTransaction>().SingleOrDefault()
                 where webAction is not null && dbTransaction is not null
                 select KeyValuePair.Create(webAction, dbTransaction);

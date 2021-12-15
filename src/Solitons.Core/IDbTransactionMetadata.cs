@@ -20,6 +20,6 @@ namespace Solitons
 
         TimeSpan OperationTimeout { get; }
 
-        public T AsRestApi<T>() where T : IHttpEventArgsMetadata;
+        public T AsRestApi<T>() where T : IHttpEventArgsAttribute;
     }
 }

@@ -13,12 +13,18 @@ namespace Solitons.Web
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DomainWebRequest : IWebRequest
+    public sealed class WebRequest : IWebRequest
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly IWebRequest _innerRequest;
 
-        internal DomainWebRequest(IWebRequest request, object httpEventArgs, object messageBody)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="httpEventArgs"></param>
+        /// <param name="messageBody"></param>
+        internal WebRequest(IWebRequest request, object httpEventArgs, object messageBody)
         {
             _innerRequest = WebRequestProxy.Wrap( request.ThrowIfNullArgument(nameof(request)));
             HttpEventArgs = httpEventArgs.ThrowIfNullArgument(nameof(httpEventArgs));            
@@ -48,6 +54,8 @@ namespace Solitons.Web
         public IPAddress IPAddress => _innerRequest.IPAddress;
 
         public string ContentType => _innerRequest.ContentType;
+
+        public IEnumerable<string> Accept => _innerRequest.Accept;
 
         [DebuggerStepThrough]
         public Stream GetBody() => _innerRequest.GetBody();

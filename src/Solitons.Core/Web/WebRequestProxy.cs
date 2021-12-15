@@ -54,6 +54,8 @@ namespace Solitons.Web
 
         public string ContentType => _innerRequest.ContentType;
 
+        public IEnumerable<string> Accept => _innerRequest.Accept;
+
         public IEnumerable<string> GetQueryParameterValues(string name) => _innerRequest.GetQueryParameterValues(name).EmptyIfNull();
 
         [DebuggerStepThrough]

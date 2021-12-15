@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
+using System.Xml.Serialization;
 using Solitons.Common;
 
 namespace Solitons
@@ -31,7 +33,12 @@ namespace Solitons
         /// <param name="serializerType"></param>
         public DataTransferObjectAttribute(Type serializerType)
         {
+            if(serializerType == typeof(JsonSerializer))
+                serializerType = typeof(BasicJsonDataTransferObjectSerializer);
+            if (serializerType == typeof(XmlSerializer))
+                serializerType = typeof(BasicXmlDataTransferObjectSerializer);
             SerializerType = serializerType ?? throw new ArgumentNullException(nameof(serializerType));
+            
             if (false == typeof(IDataTransferObjectSerializer).IsAssignableFrom(serializerType))
                 throw new ArgumentException($"{serializerType} does not implement {typeof(IDataTransferObjectSerializer)}");
         }

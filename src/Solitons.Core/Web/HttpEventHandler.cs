@@ -33,14 +33,14 @@ namespace Solitons.Web
         }
 
 
-        public async Task<IWebResponse> InvokeAsync(
+        public async Task<WebResponse> InvokeAsync(
             IWebRequest request,
             IAsyncLogger logger,
             CancellationToken cancellation)
         {
             var domainWebRequest = await _serializer.AsDomainWebRequestAsync(request);
             if (domainWebRequest == null)
-                return IWebResponse.Create(HttpStatusCode.NotFound);
+                return WebResponse.Create(HttpStatusCode.NotFound);
 
             logger = logger
                 .WithProperty("httpEventArgs", domainWebRequest.HttpEventArgs.GetType().ToString());
@@ -53,7 +53,7 @@ namespace Solitons.Web
             if (handler is null)
             {
                 _callback.OnFoundNoRoutes(domainWebRequest, logger);
-                return IWebResponse.Create(HttpStatusCode.NotFound);
+                return WebResponse.Create(HttpStatusCode.NotFound);
             }
 
 
@@ -61,7 +61,7 @@ namespace Solitons.Web
             if (response is null)
             {
                 _callback.OnNullResponseObject(domainWebRequest, logger);
-                return IWebResponse.Create(HttpStatusCode.NotFound);
+                return WebResponse.Create(HttpStatusCode.NotFound);
             }
 
             return response;

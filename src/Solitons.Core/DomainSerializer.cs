@@ -37,7 +37,7 @@ namespace Solitons
 
         private DomainSerializer(DomainContext context)
         {
-            _converter = context.GetHttoEventArgsConverter();
+            _converter = context.GetHttpEventArgsConverter();
 
             var dtoTypes = context.GetDataTransferObjectTypes();
             
@@ -198,22 +198,22 @@ namespace Solitons
                 content);
         }
 
-        public async Task<DomainWebRequest> AsDomainWebRequestAsync(IWebRequest request)
+        public async Task<WebRequest> AsDomainWebRequestAsync(IWebRequest request)
         {
             if(request is null) return null;
-            var httpEventArgs =_converter.Convert(request, out IHttpEventArgsMetadata httpEventArgsMetadata);
+            var httpEventArgs =_converter.Convert(request, out IHttpEventArgsAttribute httpEventArgsMetadata);
             if(httpEventArgs is null)
                 return null;
 
-            var payloadType = httpEventArgsMetadata.PayloadType;
+            var payloadType = httpEventArgsMetadata.PayloadObjectType;
             if(payloadType is null)
             {
-                return new DomainWebRequest(request, httpEventArgs, null);
+                return new WebRequest(request, httpEventArgs, null);
             }
             
             if(payloadType == typeof(Stream))
             {
-                return new DomainWebRequest(request, httpEventArgs, request.GetBody());
+                return new WebRequest(request, httpEventArgs, request.GetBody());
             }
 
             if(_metadata.TryGetValue(payloadType.GUID, out var metadata))
@@ -223,7 +223,7 @@ namespace Solitons
                     using var reader = new StreamReader(request.GetBody());
                     var content = await reader.ReadToEndAsync();
                     var payload = value.Serializer.Deserialize(content, metadata.DtoType);
-                    return new DomainWebRequest(request,httpEventArgs, payload);
+                    return new WebRequest(request,httpEventArgs, payload);
                 }
 
                 var supportedContentTypesCsv = metadata.SupportedContentTypes.Join();

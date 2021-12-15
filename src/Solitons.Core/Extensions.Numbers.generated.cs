@@ -13,6 +13,17 @@
 		/// <param name="self"></param>
 		/// <param name="min"></param>
 		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.Int32 self, System.Int32 min, System.Int32 max) => (self >= min && self <= max);
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
 		/// <param name="errorFactory"></param>
 		/// <returns><paramref name="self"/></returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -115,6 +126,17 @@
 			return self;
 		}  
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.Byte self, System.Byte min, System.Byte max) => (self >= min && self <= max);
+
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -229,6 +251,17 @@
 		/// <param name="self"></param>
 		/// <param name="min"></param>
 		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.Int64 self, System.Int64 min, System.Int64 max) => (self >= min && self <= max);
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
 		/// <param name="errorFactory"></param>
 		/// <returns><paramref name="self"/></returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -331,6 +364,17 @@
 			return self;
 		}  
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.Decimal self, System.Decimal min, System.Decimal max) => (self >= min && self <= max);
+
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -445,6 +489,17 @@
 		/// <param name="self"></param>
 		/// <param name="min"></param>
 		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.Single self, System.Single min, System.Single max) => (self >= min && self <= max);
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
 		/// <param name="errorFactory"></param>
 		/// <returns><paramref name="self"/></returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -547,6 +602,17 @@
 			return self;
 		}  
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.Double self, System.Double min, System.Double max) => (self >= min && self <= max);
+
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -661,6 +727,17 @@
 		/// <param name="self"></param>
 		/// <param name="min"></param>
 		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.TimeSpan self, System.TimeSpan min, System.TimeSpan max) => (self >= min && self <= max);
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
 		/// <param name="errorFactory"></param>
 		/// <returns><paramref name="self"/></returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -769,6 +846,17 @@
 		/// <param name="self"></param>
 		/// <param name="min"></param>
 		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.DateTime self, System.DateTime min, System.DateTime max) => (self >= min && self <= max);
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
 		/// <param name="errorFactory"></param>
 		/// <returns><paramref name="self"/></returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -871,6 +959,17 @@
 			return self;
 		}  
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsBetween(this System.DateTimeOffset self, System.DateTimeOffset min, System.DateTimeOffset max) => (self >= min && self <= max);
+
+
 		/// <summary>
 		/// 
 		/// </summary>

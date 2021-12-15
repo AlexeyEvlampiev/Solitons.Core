@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Solitons.Web.Common
 {
     public abstract class DbRestApi<THttpTrigger, TDbTransaction> : RestApi
-        where THttpTrigger : IHttpEventArgsMetadata
+        where THttpTrigger : IHttpEventArgsAttribute
         where TDbTransaction : IDbTransactionMetadata
     {
 
@@ -25,8 +25,8 @@ namespace Solitons.Web.Common
         }
 
 
-        protected abstract Task<IWebResponse> ExecAsync(
-            IHttpEventArgsMetadata trigger,
+        protected abstract Task<WebResponse> ExecAsync(
+            IHttpEventArgsAttribute trigger,
             IDbTransactionMetadata handler, 
             object webQuery, 
             IWebRequest request, 
@@ -35,7 +35,7 @@ namespace Solitons.Web.Common
 
         protected IDomainSerializer Serializer { get; }
 
-        protected sealed override IObservable<IWebResponse> GetResponses(IWebRequest request, IAsyncLogger logger, CancellationToken cancellation)
+        protected sealed override IObservable<WebResponse> GetResponses(IWebRequest request, IAsyncLogger logger, CancellationToken cancellation)
         {
             return _httpTriggers
                 .ToObservable()
@@ -55,7 +55,7 @@ namespace Solitons.Web.Common
         }
     }
 
-    public abstract class DbRestApi<TDbTransaction> : DbRestApi<IHttpEventArgsMetadata, TDbTransaction>
+    public abstract class DbRestApi<TDbTransaction> : DbRestApi<IHttpEventArgsAttribute, TDbTransaction>
         where TDbTransaction : IDbTransactionMetadata
     {
         protected DbRestApi(DomainContext domainContext) : base(domainContext)

@@ -36,7 +36,7 @@ namespace Solitons.Common
         public IsolationLevel IsolationLevel { get; }
         public TimeSpan OperationTimeout { get; }
 
-        public T AsRestApi<T>() where T : IHttpEventArgsMetadata => TargetType.GetCustomAttributes().OfType<T>().SingleOrDefault();
+        public T AsRestApi<T>() where T : IHttpEventArgsAttribute => TargetType.GetCustomAttributes().OfType<T>().SingleOrDefault();
 
 
         public string CSharpMethod { get; init; } = null;
@@ -72,11 +72,5 @@ namespace Solitons.Common
                 .ToDictionary(grp => grp.Key, grp => grp.ToArray());
         }
 
-
-        public IEnumerable<HttpTriggerAttribute> GetRestApiTriggers()
-        {
-            return HttpTriggerAttribute.Get(
-                TargetType.ThrowIfNull(()=> new InvalidOperationException($"{nameof(TargetType)} is not set.")));
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Solitons.Security;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -18,11 +19,11 @@ namespace Solitons.Web
             TypeConverter TypeConverter,
             Attribute[] Attributes);
         sealed record HttpEventArgsEntry(
-            IHttpEventArgsMetadata HttpEventArgsMetadata,
+            IHttpEventArgsAttribute HttpEventArgsMetadata,
             Type HttpEventArgsType,
             RequestBoundField[] WebBoundFields);
 
-        private readonly Dictionary<IHttpEventArgsMetadata, HttpEventArgsEntry> _entries;
+        private readonly Dictionary<IHttpEventArgsAttribute, HttpEventArgsEntry> _entries;
 
 
         internal HttpEventArgsConverter(IEnumerable<Type> types)
@@ -36,26 +37,23 @@ namespace Solitons.Web
 
             var typeConverters = new Dictionary<Type, TypeConverter>();
 
+
             _entries =
                 (from type in types
-                 from httpEventArgsAtt in type.GetCustomAttributes().OfType<IHttpEventArgsMetadata>()
+                 from httpEventArgsAtt in type.GetCustomAttributes().OfType<IHttpEventArgsAttribute>()
                  where httpEventArgsAtt != null
-                 from p in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                 let att = p.GetCustomAttributes()
-                     .Where(a => webPropertyAttributeTypes.Contains(a.GetType()))
-                     .ToList()
-                 where att.Count > 0
-                 let converter = typeConverters.GetOrAdd(p.PropertyType, ()=> TypeDescriptor.GetConverter(p.PropertyType))
-                 let webProperty = new RequestBoundField(p, converter, att.ToArray())
-                 group webProperty by new
-                 {
-                     HttpEventArgsType = type,
-                     HttpEventArgsMetadata = httpEventArgsAtt
-                 } into grp
+                 let webProperties = 
+                    from p in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                     let att = p.GetCustomAttributes()
+                         .Where(a => webPropertyAttributeTypes.Contains(a.GetType()))
+                         .ToList()
+                     where att.Count > 0
+                    let converter = typeConverters.GetOrAdd(p.PropertyType, ()=> TypeDescriptor.GetConverter(p.PropertyType))
+                    select new RequestBoundField(p, converter, att.ToArray())
                  select new HttpEventArgsEntry(
-                     grp.Key.HttpEventArgsMetadata,
-                     grp.Key.HttpEventArgsType,
-                     grp.ToArray())
+                     httpEventArgsAtt,
+                     type,
+                     webProperties.ToArray())
                 ).ToDictionary(i => i.HttpEventArgsMetadata);
 
             _entries.Values
@@ -77,7 +75,7 @@ namespace Solitons.Web
 
 
 
-        public object Convert(IWebRequest request, out IHttpEventArgsMetadata metadata)
+        public object Convert(IWebRequest request, out IHttpEventArgsAttribute metadata)
         {
             metadata = null;
             if (request == null) throw new ArgumentNullException(nameof(request));
@@ -136,7 +134,7 @@ namespace Solitons.Web
                         }
                         else if (att.IsRequired)
                         {
-                            throw new InvalidOperationException($"{property.Name} property is required.");
+                            throw new QueryParameterNotFoundException(att.ParameterName, $"{property.Name} property is required.");
                         }
                     });
                 attributes
@@ -150,7 +148,7 @@ namespace Solitons.Web
                         if (valueString.IsNullOrWhiteSpace())
                         {
                             if (att.IsRequired)
-                                throw new InvalidOperationException($"{property.Name} property is required.");
+                                throw new ClaimNotFoundException(att.ClaimTypeName);
                         }
                         else
                         {

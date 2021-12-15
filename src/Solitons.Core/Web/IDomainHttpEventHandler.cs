@@ -9,7 +9,7 @@ namespace Solitons.Web
 {
     public interface IDomainHttpEventHandler
     {
-        bool CanProcess(DomainWebRequest domainWebRequest);
-        Task<DomainWebResponse> InvokeAsync(DomainWebRequest domainWebRequest, IAsyncLogger logger, CancellationToken cancellation);
+        bool CanProcess(WebRequest domainWebRequest);
+        Task<WebResponse> InvokeAsync(WebRequest domainWebRequest, IAsyncLogger logger, CancellationToken cancellation);
     }
 }

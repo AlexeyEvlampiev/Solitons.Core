@@ -1,5 +1,6 @@
 ﻿using Moq;
 using Solitons.Cloud;
+using Solitons.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,13 +103,13 @@ namespace Solitons.Web
             webRequestMock.SetupGet(r => r.Method).Returns("PUT");
             webRequestMock.SetupGet(r => r.Caller).Returns(new ClaimsPrincipal(caller));
 
-            Assert.Throws<InvalidOperationException>(()=> target.Convert(webRequestMock.Object));
+            Assert.Throws<ClaimNotFoundException>(()=> target.Convert(webRequestMock.Object));
         }
 
 
 
         [Guid("bbd464a1-ce5a-444e-9a7a-947d932913b0")]
-        [HttpEventArgs(@".*", "put|post", "/products/(?<id>rgx:guid)/orders")]
+        [BasicHttpEventArgs(@".*", "put|post", "/products/(?<id>rgx:guid)/orders")]
         [TargetQueue("orders")]
         public sealed class CustomerOrderRequestHttpEventArgs :
             BasicJsonDataTransferObject,

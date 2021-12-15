@@ -1,0 +1,77 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Scripts\Deployment\script000-initialization.sql" />
+    <None Remove="Scripts\Drop\script000-dropall.sql" />
+    <None Remove="Scripts\PreDeployment\script000-initialization.sql" />
+    <None Remove="Scripts\Stubs\case000.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Deployment\script000-initialization.sql" />
+    <EmbeddedResource Include="Scripts\Drop\script000-dropall.sql" />
+    <EmbeddedResource Include="Scripts\PreDeployment\script000-initialization.sql" />
+    <EmbeddedResource Include="Scripts\Stubs\case000.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dbup-postgresql" Version="4.5.0" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.1.0" />
+    <PackageReference Include="Npgsql" Version="6.0.1" />
+    <PackageReference Include="Polly" Version="7.2.2" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Solitons.Core\Solitons.Core.csproj" />
+    <ProjectReference Include="..\Solitons.Samples.Domain\Solitons.Samples.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Commands.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Commands.generated.cs</LastGenOutput>
+    </None>
+    <None Update="Scripts\PostDeployment\RegisterSuperuser.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>RegisterSuperuser.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Commands.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Commands.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Scripts\PostDeployment\RegisterSuperuser.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegisterSuperuser.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

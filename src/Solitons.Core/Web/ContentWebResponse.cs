@@ -2,17 +2,15 @@
 
 namespace Solitons.Web
 {
-    public record ContentWebResponse : IWebResponse
+    public class ContentWebResponse : WebResponse
     {
         private const string DefaultContentType = "text/plain";
-        public ContentWebResponse(HttpStatusCode statusCode, string content, string contentType = DefaultContentType)
+        internal ContentWebResponse(HttpStatusCode statusCode, string content, string contentType = DefaultContentType) : base(statusCode)
         {
-            StatusCode = statusCode;
             Content = content ?? string.Empty;
             ContentType = contentType.DefaultIfNullOrWhiteSpace(DefaultContentType);
         }
 
-        public HttpStatusCode StatusCode { get; }
         public string Content { get; }
         public string ContentType { get; }
     }

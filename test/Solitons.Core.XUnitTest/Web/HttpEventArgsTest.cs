@@ -14,7 +14,7 @@ namespace Solitons.Web
     public class HttpEventArgsTest
     {
         [Guid("bbd464a1-ce5a-444e-9a7a-947d932913b0")]
-        [HttpEventArgs(@".*","put|post","/products/(?<id>rgx:guid)/orders")]
+        [BasicHttpEventArgs(@".*","put|post","/products/(?<id>rgx:guid)/orders")]
         [TargetQueue("orders")]
         public sealed class CustomerOrderRequestData : 
             BasicJsonDataTransferObject, 

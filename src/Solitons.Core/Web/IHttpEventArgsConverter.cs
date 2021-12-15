@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Solitons.Security;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -9,7 +10,7 @@ namespace Solitons.Web
     /// 
     /// </summary>
     public partial interface IHttpEventArgsConverter
-    {        
+    {
 
         /// <summary>
         /// 
@@ -17,7 +18,11 @@ namespace Solitons.Web
         /// <param name="request"></param>
         /// <param name="metadata"></param>
         /// <returns></returns>
-        object Convert(IWebRequest request, out IHttpEventArgsMetadata metadata);
+        ///<exception cref="ClaimNotFoundException"></exception>
+        ///<exception cref="QueryParameterNotFoundException"></exception>
+        ///<exception cref="ArgumentException"></exception>
+        ///<exception cref="ArgumentNullException"></exception>
+        object Convert(IWebRequest request, out IHttpEventArgsAttribute metadata);
     }
 
 
@@ -28,6 +33,10 @@ namespace Solitons.Web
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        ///<exception cref="ClaimNotFoundException"></exception>
+        ///<exception cref="QueryParameterNotFoundException"></exception>
+        ///<exception cref="ArgumentException"></exception>
+        ///<exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
         public object Convert(IWebRequest request) => Convert(request, out _);
 

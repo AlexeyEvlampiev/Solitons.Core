@@ -14,10 +14,12 @@ namespace Solitons.Web
         string Method { get; }
         Version ClientVersion { get; }
 
+        IEnumerable<string> Accept { get; }
+
         ClaimsPrincipal Caller { get; }
 
         IEnumerable<string> QueryParameterNames { get; }
-        IPAddress IPAddress { get; }
+        IPAddress? IPAddress { get; }
         string ContentType { get; }
 
         IEnumerable<string> GetQueryParameterValues(string name);

@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Common\" />
     <Folder Include="Tables\" />
   </ItemGroup>
 

@@ -142,7 +142,7 @@ namespace Solitons
         }
 
         [Guid(TestDtoTypeId)]
-        [HttpEventArgs(@".*", "put", "/products/(?<id>rgx:guid)/orders")]
+        [BasicHttpEventArgs(@".*", "put", "/products/(?<id>rgx:guid)/orders")]
         public sealed class CustomerOrderRequestHttpEventArgs :
             BasicJsonDataTransferObject,
             IBasicXmlDataTransferObject
@@ -169,7 +169,7 @@ namespace Solitons
         }
 
         [Guid(TestDtoTypeId)]
-        [HttpEventArgs(@".*", "post", "/images/(?<id>rgx:guid)", PayloadType = typeof(Stream))]
+        [BasicHttpEventArgs(@".*", "post", "/images/(?<id>rgx:guid)", PayloadObjectType = typeof(Stream))]
         public sealed class ImageUploadHttpEventArgs
         {
             [Claim(ClaimTypes.NameIdentifier, IsRequired = true), JsonPropertyName("userId"), XmlAttribute("UserId")]
@@ -180,7 +180,7 @@ namespace Solitons
         }
 
         [Guid(TestDtoTypeId)]
-        [HttpEventArgs(@".*", "post", "/users/(?<id>rgx:guid)", PayloadType = typeof(UserAttributeData))]
+        [BasicHttpEventArgs(@".*", "post", "/users/(?<id>rgx:guid)", PayloadObjectType = typeof(UserAttributeData))]
         public sealed class UpdateUserHttpEventArgs : BasicJsonDataTransferObject
         {
             [Claim(ClaimTypes.NameIdentifier, IsRequired = true), JsonPropertyName("userId"), XmlAttribute("UserId")]

@@ -8,8 +8,8 @@ namespace Solitons.Web
 {
     public interface IHttpEventHandlerCallback
     {
-        void OnFoundMultipleRoutes(DomainWebRequest domainWebRequest, IAsyncLogger logger);
-        void OnFoundNoRoutes(DomainWebRequest domainWebRequest, IAsyncLogger logger);
-        void OnNullResponseObject(DomainWebRequest domainWebRequest, IAsyncLogger logger);
+        void OnFoundMultipleRoutes(WebRequest domainWebRequest, IAsyncLogger logger);
+        void OnFoundNoRoutes(WebRequest domainWebRequest, IAsyncLogger logger);
+        void OnNullResponseObject(WebRequest domainWebRequest, IAsyncLogger logger);
     }
 }
