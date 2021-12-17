@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Extensions;
 using Solitons.Samples.Domain;
-using System.Text.RegularExpressions;
 
 namespace Solitons.Samples.RestApi
 {
@@ -35,16 +34,15 @@ namespace Solitons.Samples.RestApi
         {
             _domainSerialzer = SampleDomainContext.GetOrCreate().GetSerializer();
         }
+
         public IResult ToAspNetResult(WebResponse response, IWebRequest request)
         {
             if (response is ObjectWebResponse objResponse)
             {
                 var body = objResponse.Object;
                 var supportedTypes = _domainSerialzer.GetSupportedContentTypes(body.GetType().GUID);
-                var accept = request.Accept.ToList();
                 var contentType = supportedTypes
-                    .Intersect(accept, StringComparer.OrdinalIgnoreCase)
-                    .FirstOrDefault();
+                    .FirstOrDefault(ct => request.Accepts(ct));
 
 
                 var content = contentType is null
@@ -94,17 +92,7 @@ namespace Solitons.Samples.RestApi
 
             public string ContentType => _request.ContentType;
 
-            public IEnumerable<string> Accept
-            {
-                get
-                {
-
-                    return _request.Headers.Accept
-                        .SelectMany(value => Regex.Split(value, @"\s*[,;]\s*"))
-                        .Where(s=> s.IsNullOrWhiteSpace() == false);
-                        
-                }
-            }
+            public string? Accept => _request.Headers?.Accept;
 
             public Stream GetBody()
             {

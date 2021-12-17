@@ -5,10 +5,10 @@ using System.Xml.Serialization;
 
 namespace Solitons.Samples.Domain.Contracts.RestApi
 {
-    [Guid("83a45c34-7569-4a18-bfd2-71ac94bec684"), XmlRoot("CustomerUpsertEventArgs")]
+    [Guid("83a45c34-7569-4a18-bfd2-71ac94bec684"), XmlRoot("Customer")]
     public sealed class CustomerData : BasicJsonDataTransferObject, IBasicXmlDataTransferObject
     {
-        [JsonPropertyName("oid"), XmlAttribute("CustomerGuid")]
+        [JsonPropertyName("oid"), XmlAttribute("Guid")]
         public Guid Guid { get; set; }
 
         [JsonPropertyName("id"), XmlAttribute("CustomerId")]

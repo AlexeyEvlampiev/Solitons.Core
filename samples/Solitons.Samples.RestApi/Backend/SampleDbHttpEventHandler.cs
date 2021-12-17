@@ -7,84 +7,98 @@ using Solitons.Web.Common;
 using System.Data;
 using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Security.Claims;
 
 namespace Solitons.Samples.RestApi.Backend
 {
-    public sealed class SampleDbHttpEventHandler : HttpEventListener
+    public sealed class SampleDbHttpEventHandler : HttpEventHandler
     {
         private readonly IReadOnlyDictionary<Type, SampleDbHttpTriggerAttribute> _commands;
-        private readonly IDomainSerializer _serializer;
-        private readonly AsyncPolicy _policy;
+        private readonly AsyncPolicy _retryPolicy;
         private readonly string _connectionString;
 
-        public SampleDbHttpEventHandler(string connectionString)
+        private SampleDbHttpEventHandler(string connectionString, SampleDomainContext context) 
+            : base(context.GetSerializer())
         {
-            var context = SampleDomainContext.GetOrCreate();
-            _commands = context.GetDbCommandArgs<SampleDbHttpTriggerAttribute>();
-            _serializer = context.GetSerializer();
+            _commands = context.GetDatabaseExternalTriggerArgs<SampleDbHttpTriggerAttribute>();
             _connectionString = connectionString;
-            _policy = Policy
-                .Handle<NpgsqlException>(ex=> ex.IsTransient)
+            _retryPolicy = Policy
+                .Handle<NpgsqlException>(ex => ex.IsTransient)
                 .RetryAsync(3);
         }
 
-        protected override bool CanProcess(WebRequest request)
-        {
-            var args = request?.HttpEventArgs;
-            if(args is null) return false;
-            return _commands.ContainsKey(args.GetType());
+        [DebuggerStepThrough]
+        public SampleDbHttpEventHandler(string connectionString) 
+            : this(connectionString, SampleDomainContext.GetOrCreate())
+        {            
+
         }
 
-        protected override async Task<WebResponse> ProcessAsync(WebRequest request, CancellationToken cancellation)
+
+        protected override async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
-            var args = request?.HttpEventArgs.ThrowIfNull(()=> new NullReferenceException($"{typeof(WebRequest)}.{nameof(request.HttpEventArgs)}"));
-            if (false == _commands.TryGetValue(args.GetType(), out var attribute))
+            var clone = principal
+                .ThrowIfNullArgument(nameof(principal))
+                .Clone();
+            var extended = (ClaimsIdentity)clone.Identity;
+            extended.AddClaim(new Claim(ClaimTypes.NameIdentifier, "00000000-0000-0000-0000-000000000001"));
+            return clone;
+        }
+
+        protected override async Task<WebResponse> GetResponseAsync(WebRequest request, IAsyncLogger logger, CancellationToken cancellation)
+        {
+            var httpEventArgs = request.HttpEventArgs
+                .ThrowIfNull(()=> new NullReferenceException($"{typeof(WebRequest)}.{nameof(request.HttpEventArgs)}"));
+
+            if (false == _commands.TryGetValue(httpEventArgs.GetType(), out var attribute))
                 return WebResponse.Create(System.Net.HttpStatusCode.NotFound);
 
-            if(attribute.ResponseObjectType is not null)
-            {
-                if (request.Accept.Contains("*/*"))
-                {
-                    Debug.WriteLine("Accept: */*");
-                }
-                else if (false == request.Accept.Any(contentType=> _serializer.CanSerialize(attribute.ResponseObjectType, contentType)))
-                {
-                    if (request.Accept.Any())
-                    {
-                        return WebResponse.Create(System.Net.HttpStatusCode.ExpectationFailed, "Expectation failed");
-                    }
-                }
-            }
-            var argsText = _serializer.Serialize(args, attribute.ProcedureArgsContentType);
+           
+            var caller = request.Caller;
+            var userIdClaim = caller.Claims.Where(c=> c.Type == ClaimTypes.NameIdentifier).FirstOrDefault();
+
+            if(userIdClaim is null || Guid.TryParse(userIdClaim.Value, out var userId) == false)
+                return WebResponse.Create(System.Net.HttpStatusCode.Unauthorized);
+
+            var argsText = Serializer.Serialize(httpEventArgs, attribute.ProcedureArgsContentType);
             var timeout = TimeSpan.Parse(attribute.DatabaseOperationTimeout);
             await using var connection = new NpgsqlConnection(_connectionString);
-            await using var command = new NpgsqlCommand($"SELECT status, content_type, content FROM api.{attribute.Procedure}(@http_args, @content_type, @content);");
+            await using var command = new NpgsqlCommand($@"
+                DO
+                $$
+                BEGIN
+                    PERFORM api.set_user_context('{userId}');
+                END;
+                $$;            
+                SELECT status, content_type, content FROM api.{attribute.Procedure}(@http_args, @content_type, @content);");
             command.Parameters.AddWithValue("http_args", NpgsqlTypes.NpgsqlDbType.Jsonb, argsText);
             command.Parameters.AddWithValue("content_type", attribute.ProcedurePayloadContentType);
             command.Parameters.AddWithValue("content", DBNull.Value);
             command.CommandTimeout = Convert.ToInt32(timeout.TotalSeconds);
             command.Connection = connection;
-            await connection.OpenAsync(cancellation);
-            await using var transaction = await connection.BeginTransactionAsync(attribute.IsolationLevel, cancellation);
-            await using var record = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
-            if (false == await record.ReadAsync())
-                throw new NotImplementedException();
-            var status = record.GetInt32("status");
-            var contentType = record.GetString("content_type");
-            var content = record.GetString("content");
-            record.Close();
-            await transaction.CommitAsync();
-            
 
-            if(attribute.ResponseObjectType is null || status >= 300)
+            return await _retryPolicy.ExecuteAsync(GetResponseAsync);
+
+            async Task<WebResponse> GetResponseAsync()
             {
-                return WebResponse.Create((System.Net.HttpStatusCode)status, content, contentType);
-            }
-            else
-            {
-                var dto = _serializer.Deserialize(attribute.ResponseObjectType, contentType, content);
-                return WebResponse.Create((System.Net.HttpStatusCode)status, dto);
-            }                      
+                await connection.OpenAsync(cancellation);
+                await using var transaction = await connection.BeginTransactionAsync(attribute.IsolationLevel, cancellation);
+                await using var record = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, cancellation);
+                if (false == await record.ReadAsync())
+                    throw new NotImplementedException();
+                var status = (System.Net.HttpStatusCode)record.GetInt32("status");
+                var contentType = record.GetString("content_type");
+                var content = record.GetString("content");
+                record.Close();
+                await transaction.CommitAsync();
+                var _ = connection.CloseAsync();
+
+
+                return WebResponse.Create(status, content, contentType);
+            }                                 
         }
+
+        protected override IHttpEventArgsAttribute? FindHttpEventArgsDescriptor(object httpEventArgs) => 
+            _commands.TryGetValue(httpEventArgs.GetType(), out var attribute) ? attribute : null;
     }
 }

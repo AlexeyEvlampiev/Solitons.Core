@@ -15,7 +15,19 @@ namespace Solitons
 {
     public static partial class Extensions
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsBetween(this HttpStatusCode self, int min, int max)
+        {
+            var code = (int)self;
+            return code >= min && code <= max;
+        }
 
         /// <summary>
         /// 

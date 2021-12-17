@@ -63,7 +63,7 @@ namespace Solitons
             };
 
             var serializer = IDomainSerializer.FromTypes(instance.GetType());
-            var supportedContentTypes = serializer.GetSupportedContentTypes(instance.GetType()).ToHashSet();
+            var supportedContentTypes = serializer.GetContentTypes(instance.GetType()).ToHashSet();
 
             Assert.Equal(2, supportedContentTypes.Count);
             Assert.True(supportedContentTypes.Contains("application/xml"));
@@ -96,7 +96,7 @@ namespace Solitons
             instance.Text = "This is a test";
 
             var serializer = IDomainSerializer.FromTypes(dtoType);
-            var supportedContentTypes = serializer.GetSupportedContentTypes(dtoType).ToHashSet();
+            var supportedContentTypes = serializer.GetContentTypes(dtoType).ToHashSet();
 
             Assert.Equal(2, supportedContentTypes.Count);
             Assert.True(supportedContentTypes.Contains("application/xml"));

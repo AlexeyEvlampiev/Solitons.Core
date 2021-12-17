@@ -1,10 +1,10 @@
 ﻿namespace Solitons.Samples.Database.Scripts.PostDeployment
 {
-    public partial class RegisterSuperuser
+    public partial class RegisterSuperuserRtt
     {
         private readonly IEnumerable<string> _emails;
 
-        public RegisterSuperuser(IEnumerable<string> emails)
+        public RegisterSuperuserRtt(IEnumerable<string> emails)
         {
             _emails = emails.ThrowIfNullArgument(nameof(emails));
         }

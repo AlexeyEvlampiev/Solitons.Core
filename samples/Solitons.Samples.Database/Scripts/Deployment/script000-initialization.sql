@@ -63,11 +63,39 @@ CREATE TABLE IF NOT EXISTS data.user
 
 
 
+CREATE OR REPLACE FUNCTION api.set_user_context(_user_object_id uuid)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+
+AS $$
+
+BEGIN
+	
+	SET ROLE sampledb_admin;
+END;
+$$;
 
 
--- FUNCTION: public.utcnow(jsonb, character varying, jsonb)
 
--- DROP FUNCTION public.utcnow(jsonb, character varying, jsonb);
+CREATE TABLE api.http_event
+(
+	PRIMARY KEY(object_id)
+	,dotnet_type varchar(1000)
+	,supported_content_types text[] NOT NULL
+	,version_regexp varchar(100) NOT NULL 
+	,method_regexp varchar(100) NOT NULL 
+	,url_template varchar(500) NOT NULL 
+	,payload_object_id uuid
+	,payload_dotnet_type varchar(1000)
+	,response_object_id uuid
+	,response_dotnet_type varchar(1000)
+) INHERITS(system.gcobject);
+
+CREATE TABLE api.http_trigger
+(
+	PRIMARY KEY(object_id)
+	,procedure varchar(1000) NOT NULL
+) INHERITS(api.http_event);
 
 CREATE OR REPLACE FUNCTION api.customer_get(
 	_args jsonb,

@@ -8,6 +8,7 @@ using Solitons.Samples.Database.Validators;
 Console.Title = Resources.ConsoleTitle;
 Console.WriteLine(Resources.AsciiArtHeader);
 
+
 var cli = new CommandLineApplication
 {
     Name = "sampledb",
@@ -58,6 +59,7 @@ cli.Command("upgrade", upgrade =>
                 upgradeOptions |= SampleDbUpgradeOptions.DropAllObjects;
             if (options.Stubs.HasValue())
                 upgradeOptions |= SampleDbUpgradeOptions.CreateStabRecords;
+            
             return SampleDb.Upgrade(options.ConnectionString.Value(), superuserEmails, upgradeOptions);
         }
         catch (Exception e)

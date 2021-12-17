@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Web
@@ -17,6 +18,7 @@ namespace Solitons.Web
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly IWebRequest _innerRequest;
+
 
         /// <summary>
         /// 
@@ -55,12 +57,31 @@ namespace Solitons.Web
 
         public string ContentType => _innerRequest.ContentType;
 
-        public IEnumerable<string> Accept => _innerRequest.Accept;
+        public string Accept => _innerRequest.Accept;
 
         [DebuggerStepThrough]
         public Stream GetBody() => _innerRequest.GetBody();
 
         [DebuggerStepThrough]
         public IEnumerable<string> GetQueryParameterValues(string name) => _innerRequest.GetQueryParameterValues(name);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool AcceptsAll => _innerRequest.AcceptsAll;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="contentType"></param>
+        /// <returns></returns>
+        public bool Accepts(string contentType) => _innerRequest.Accepts(contentType);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="contentTypes"></param>
+        /// <returns></returns>
+        public bool AcceptsAny(IEnumerable<string> contentTypes) => _innerRequest.AcceptsAny(contentTypes);
     }
 }

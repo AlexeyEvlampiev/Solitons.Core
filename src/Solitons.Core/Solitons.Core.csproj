@@ -43,6 +43,11 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Include="Data\Postgres\CreateRoleOptions.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateRoleOptions.tt</DependentUpon>
+    </None>
     <None Include="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -51,6 +56,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Data\Postgres\CreateRoleOptions.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateRoleOptions.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Data\Postgres\CreateRoleCommandRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateRoleCommandRtt.tt</DependentUpon>
+    </Compile>
     <Compile Update="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -69,6 +84,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Data\Postgres\CreateRoleOptions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CreateRoleOptions.generated.cs</LastGenOutput>
+    </None>
+    <None Update="Data\Postgres\CreateRoleCommandRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CreateRoleCommandRtt.cs</LastGenOutput>
+    </None>
     <None Update="Extensions.Numbers.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Extensions.Numbers.generated.cs</LastGenOutput>

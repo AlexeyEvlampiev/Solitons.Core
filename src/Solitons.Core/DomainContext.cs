@@ -34,6 +34,7 @@ namespace Solitons
 
         private readonly Type[] _types;
         private readonly HashSet<Assembly> _assemblies;
+        private readonly Lazy<Dictionary<Attribute, Type>> _typesByAttribute;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<IEnumerable<RoleSetAttribute>> _roleSets;
@@ -44,8 +45,6 @@ namespace Solitons
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<IHttpEventArgsConverter> _httpEventArgsConverter;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<Dictionary<Type, DbTransactionAttribute[]>> _dbTransactionsByType;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>> _sasPermissions;
@@ -111,10 +110,22 @@ namespace Solitons
             _assemblies = typesArray
                 .Select(t=> t.Assembly)
                 .ToHashSet();
-            
+
+            _typesByAttribute = new Lazy<Dictionary<Attribute, Type>>(() =>
+            {
+                var result = new Dictionary<Attribute, Type>();
+                foreach(var type in typesArray)
+                {
+                    foreach(var att in type.GetCustomAttributes())
+                    {
+                        result.Add(att, type);
+                    }
+                }
+                return result;
+            });
+
             _roleSets = new Lazy<IEnumerable<RoleSetAttribute>>(DiscoverRoleSets);
             _httpEventArgsConverter = new Lazy<IHttpEventArgsConverter>(() => new HttpEventArgsConverter(_types));
-            _dbTransactionsByType = new Lazy<Dictionary<Type, DbTransactionAttribute[]>>(() => DbTransactionAttribute.Discover(_types));
             _sasPermissions = new Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>>(() => BlobSecureAccessSignatureMetadata.Discover(_types));
             _dataTransferObjectTypes = new Lazy<Dictionary<Type, DataTransferObjectAttribute[]>>(() => _types
                 .Select(type=> KeyValuePair.Create(type, DiscoverDataTransferObjectAttributes(type)))
@@ -335,7 +346,7 @@ namespace Solitons
         [DebuggerStepThrough]
         public IHttpEventArgsConverter GetHttpEventArgsConverter() => _httpEventArgsConverter.Value;
 
-        public IReadOnlyDictionary<Type, T> GetDbCommandArgs<T>() where T : IDatabaseExternalTriggerArgsAttribute
+        public IReadOnlyDictionary<Type, T> GetDatabaseExternalTriggerArgs<T>() where T : IDatabaseExternalTriggerArgsAttribute
         {
             var allCommands = _dbCommandArgTypes.Value;
             var subset =  allCommands.Keys
@@ -383,10 +394,10 @@ namespace Solitons
 
         [DebuggerStepThrough]
         public IWebServer BuildWebServer(
-            IHttpEventListener handler) => new WebServer(this, handler.ThrowIfNullArgument(nameof(handler)).ToEnumerable());
+            IHttpEventHandler handler) => new WebServer(this, handler.ThrowIfNullArgument(nameof(handler)).ToEnumerable());
 
         public IWebServer BuildWebServer(
-            IEnumerable<IHttpEventListener> listeners) 
+            IEnumerable<IHttpEventHandler> listeners) 
         {
             return new WebServer(this, listeners);
         }
@@ -425,29 +436,6 @@ namespace Solitons
                 GetSerializer());
         
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="domainHttpEventHandlers"></param>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public IHttpEventHandler BuildHttpEventHandler(
-            IEnumerable<IDomainHttpEventHandler> domainHttpEventHandlers, 
-            IHttpEventHandlerCallback callback)
-        {
-            var handlersList = domainHttpEventHandlers
-                .ThrowIfNullArgument(nameof(domainHttpEventHandlers))
-                .ToList();
-
-            if(handlersList.Count == 0)
-                throw new ArgumentException($"Handlers collection is empty", nameof(domainHttpEventHandlers));
-
-            callback
-                .ThrowIfNullArgument(nameof(callback));
-
-            return new HttpEventHandler(this, handlersList, callback);
-        }
 
         /// <summary>
         /// 

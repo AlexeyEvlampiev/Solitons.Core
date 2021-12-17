@@ -16,15 +16,20 @@ namespace Solitons.Web
     sealed class WebServer : IWebServer
     {
         private readonly IDomainSerializer _serializer;
-        private readonly IObservable<IHttpEventListener> _listeners;
+        private readonly IObservable<IHttpEventHandler> _listeners;
+        private readonly IClaimsTransformation[] _claimsTransformations;
 
-        public WebServer(DomainContext context, IEnumerable<IHttpEventListener> listeners)
+        public WebServer(DomainContext context, IEnumerable<IHttpEventHandler> handlers)
         {
             context.ThrowIfNullArgument(nameof(context));
             _serializer = context.GetSerializer();
-            _listeners = listeners.ThrowIfNullArgument(nameof(listeners))
+            _listeners = handlers
+                .ThrowIfNullArgument(nameof(handlers))
                 .ToArray()
                 .ToObservable();
+            _claimsTransformations = handlers
+                .OfType<IClaimsTransformation>()
+                .ToArray();
         }
 
         [DebuggerStepThrough]
@@ -34,13 +39,20 @@ namespace Solitons.Web
             logger.ThrowIfNullArgument(nameof(logger));
             cancellation.ThrowIfCancellationRequested();
 
+            var caller = request.Caller;
+            foreach(var transform in _claimsTransformations)
+            {
+                caller = await transform.TransformAsync(caller);
+                cancellation.ThrowIfCancellationRequested();
+            }
+
             try
             {
                 var dtoRequest = await _serializer
                     .AsDomainWebRequestAsync(request);
                 if(dtoRequest is null) return WebResponse.Create(System.Net.HttpStatusCode.NotFound);
                 var response = await _listeners
-                    .SelectMany(listener=> listener.ToObservable(dtoRequest))
+                    .SelectMany(listener=> listener.ToObservable(dtoRequest, logger))
                     .LastOrDefaultAsync()
                     .ToTask(cancellation);
                 response ??= WebResponse.Create(HttpStatusCode.NotFound);

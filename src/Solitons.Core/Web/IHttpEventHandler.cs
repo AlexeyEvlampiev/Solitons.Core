@@ -1,4 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Solitons.Web
@@ -11,13 +14,9 @@ namespace Solitons.Web
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="webRequest"></param>
         /// <param name="logger"></param>
-        /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task<WebResponse> InvokeAsync(
-            IWebRequest request, 
-            IAsyncLogger logger, 
-            CancellationToken cancellation);
+        IObservable<WebResponse> ToObservable(WebRequest webRequest, IAsyncLogger logger);
     }
 }

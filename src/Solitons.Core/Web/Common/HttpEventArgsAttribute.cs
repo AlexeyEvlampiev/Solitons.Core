@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Solitons.Web.Common
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = true, AllowMultiple = true)]
     public abstract class HttpEventArgsAttribute : Attribute, IHttpEventArgsAttribute
     {

@@ -3,6 +3,7 @@ using Solitons.Web;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -41,7 +42,7 @@ namespace Solitons
         /// <param name="contentType">Target content type</param>
         /// <returns><c>true</c> if the serialization is supported and <c>false</c> otherwise.</returns>
         /// <seealso cref="GuidAttribute"/>
-        bool CanDeserialize(Guid typeId, string contentType);
+        bool CanDeserialize(Guid typeId, string contentType);        
 
         /// <summary>
         /// Gets all content types supported by this serialize for object of the specified type id (<see cref="Type.GUID"/>).
@@ -96,6 +97,64 @@ namespace Solitons
 
     public partial interface IDomainSerializer
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="responseObjectType"></param>
+        /// <param name="accept"></param>
+        /// <param name="contentType"></param>
+        /// <returns></returns>
+        public bool CanMeetExpectation(Type responseObjectType, string accept, out string contentType)
+        {
+            contentType = null;
+            if (responseObjectType is null)
+                return false;
+
+            if (accept.DefaultIfNullOrWhiteSpace("*/*").Contains("*/*", StringComparison.OrdinalIgnoreCase))
+                return true;
+            var contentTypes = GetContentTypes(responseObjectType) ?? Enumerable.Empty<string>();
+            contentType = contentTypes
+                .FirstOrDefault(ct => accept.Contains(ct, StringComparison.OrdinalIgnoreCase));
+            return !(contentType.IsNullOrWhiteSpace());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="responseObjectType"></param>
+        /// <param name="accept"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public bool CanMeetExpectation(Type responseObjectType, string accept) => CanMeetExpectation(responseObjectType, accept, out _);
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public IEnumerable<string> GetContentTypes(Type type) => GetSupportedContentTypes(type
+            .ThrowIfNullArgument(nameof(type))
+            .GUID);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public IEnumerable<string> GetSupportedContentTypes(object obj)
+        {
+            obj.ThrowIfNullArgument(nameof(obj));
+            if (obj is Guid guid)
+                return GetSupportedContentTypes(guid);
+            if (obj is Type type)
+                return GetSupportedContentTypes(type.GUID);
+            return GetSupportedContentTypes(obj.GetType().GUID);
+        }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -288,15 +347,5 @@ namespace Solitons
             return genericDomain.GetSerializer();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dtoType"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public IEnumerable<string> GetSupportedContentTypes(Type dtoType) =>
-            GetSupportedContentTypes(dtoType
-                .ThrowIfNullArgument(nameof(dtoType))
-                .GUID);
     }
 }

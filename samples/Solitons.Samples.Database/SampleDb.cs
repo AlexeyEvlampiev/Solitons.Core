@@ -2,6 +2,7 @@
 using DbUp.Engine;
 using DbUp.Helpers;
 using Npgsql;
+using Solitons.Data.Postgres;
 using Solitons.Samples.Database.Scripts.PostDeployment;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -9,8 +10,22 @@ using System.Text.RegularExpressions;
 namespace Solitons.Samples.Database
 {
     public class SampleDb
-    {
-  
+    {        
+        public static void CreateRoleWithLogin(
+            string connectionString, 
+            string roleName, 
+            string password, 
+            CreateRoleOptions options, 
+            int connectionLimit)
+        {
+            string sql = new CreateRoleCommandRtt(roleName, password,options,connectionLimit);
+            using var connection = new NpgsqlConnection(connectionString);
+            using var command = new NpgsqlCommand(sql.ToString(),connection);
+            connection.Open();
+            command.ExecuteNonQuery();
+        }
+
+
         public static int Upgrade(
             string connectionString,
             string[] superuserEmails,
@@ -84,7 +99,8 @@ namespace Solitons.Samples.Database
                 .LogTo(logger)
                 .LogScriptOutput()
                 .LogToNowhere()
-                .WithScript("Adding superuser account", new RegisterSuperuser(superuserEmails))
+                .WithScript("Adding superuser account", new RegisterSuperuserRtt(superuserEmails))
+                .WithScript("Registering HTTP triggers", new RegisterHttpTriggersRtt())
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsPostDeployment)
                 .Build());
 

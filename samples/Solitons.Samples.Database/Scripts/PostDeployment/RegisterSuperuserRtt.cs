@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace Solitons.Text
+namespace Solitons.Samples.Database.Scripts.PostDeployment
 {
     using System.Linq;
     using System.Text;
@@ -18,14 +18,15 @@ namespace Solitons.Text
     /// Class to produce the template output
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class SampleRuntimeTextTemplate : RuntimeTextTemplate
+    public partial class RegisterSuperuserRtt : Solitons.Text.Sql.PgRuntimeTextTemplate
     {
         /// <summary>
         /// Create the template output
         /// </summary>
         public override string TransformText()
         {
-            this.Write("Hello world!");
+            this.Write("INSERT INTO system.user(id) VALUES ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(EmailValues));
             return this.GenerationEnvironment.ToString();
         }
     }

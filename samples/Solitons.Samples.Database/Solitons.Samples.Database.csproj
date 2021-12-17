@@ -39,9 +39,13 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Commands.generated.cs</LastGenOutput>
     </None>
-    <None Update="Scripts\PostDeployment\RegisterSuperuser.tt">
+    <None Update="Scripts\PostDeployment\RegisterHttpTriggersRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>RegisterSuperuser.cs</LastGenOutput>
+      <LastGenOutput>RegisterHttpTriggersRtt.cs</LastGenOutput>
+    </None>
+    <None Update="Scripts\PostDeployment\RegisterSuperuserRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>RegisterSuperuserRtt.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -60,10 +64,15 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="Scripts\PostDeployment\RegisterSuperuser.cs">
+    <Compile Update="Scripts\PostDeployment\RegisterHttpTriggersRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>RegisterSuperuser.tt</DependentUpon>
+      <DependentUpon>RegisterHttpTriggersRtt.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Scripts\PostDeployment\RegisterSuperuserRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegisterSuperuserRtt.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 
