@@ -1,4 +1,4 @@
-﻿namespace Solitons.Data.Postgres
+﻿namespace Solitons.Security.Postgres
 {
 	using System;
 

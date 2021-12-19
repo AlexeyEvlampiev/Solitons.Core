@@ -2,8 +2,8 @@
 using DbUp.Engine;
 using DbUp.Helpers;
 using Npgsql;
-using Solitons.Data.Postgres;
 using Solitons.Samples.Database.Scripts.PostDeployment;
+using Solitons.Security.Postgres;
 using System.Reflection;
 using System.Text.RegularExpressions;
 

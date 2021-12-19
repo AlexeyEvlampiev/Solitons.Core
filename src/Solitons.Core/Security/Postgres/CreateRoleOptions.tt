@@ -13,7 +13,7 @@
 		new Option("Login","Determine whether a role is allowed to log in; that is, whether the role can be given as the initial session authorization name during client connection. A role having the LOGIN attribute can be thought of as a user. Roles without this attribute are useful for managing database privileges, but are not users in the usual sense of the word")
 	};
 #>
-namespace Solitons.Data.Postgres
+namespace Solitons.Security.Postgres
 {
 	using System;
 

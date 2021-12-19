@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Common\" />
+    <Folder Include="Data\Postgres\" />
     <Folder Include="Tables\" />
   </ItemGroup>
 
@@ -42,11 +43,6 @@
     <None Include="..\Solitons.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
-    </None>
-    <None Include="Data\Postgres\CreateRoleOptions.generated.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CreateRoleOptions.tt</DependentUpon>
     </None>
     <None Include="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
@@ -56,12 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Data\Postgres\CreateRoleOptions.generated.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CreateRoleOptions.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Data\Postgres\CreateRoleCommandRtt.cs">
+    <Compile Update="Security\Postgres\CreateRoleCommandRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>CreateRoleCommandRtt.tt</DependentUpon>
@@ -70,6 +61,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Extensions.Numbers.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Security\Postgres\CreateRoleOptions.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateRoleOptions.tt</DependentUpon>
     </Compile>
     <Compile Update="Text\RegexPatterns.generated.cs">
       <DesignTime>True</DesignTime>
@@ -84,11 +80,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\Postgres\CreateRoleOptions.tt">
+    <None Update="Security\Postgres\CreateRoleOptions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CreateRoleOptions.generated.cs</LastGenOutput>
     </None>
-    <None Update="Data\Postgres\CreateRoleCommandRtt.tt">
+    <None Update="Security\Postgres\CreateRoleCommandRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>CreateRoleCommandRtt.cs</LastGenOutput>
     </None>

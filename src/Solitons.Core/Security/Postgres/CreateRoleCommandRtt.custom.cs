@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Solitons.Data.Postgres
+namespace Solitons.Security.Postgres
 {
     public partial class CreateRoleCommandRtt
     {
