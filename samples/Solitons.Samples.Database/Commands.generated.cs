@@ -33,6 +33,77 @@
         /// </summary>
         public CommandOption Stubs { get; private set;}  
 
+    }     
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public sealed class ProvisionDbOptions
+    {
+        public ProvisionDbOptions(CommandLineApplication command)
+        {  
+            this.Host = command.Option("--host|-h", "Server name", CommandOptionType.SingleValue);  
+            this.Username = command.Option("--username|-u", "User name", CommandOptionType.SingleValue);  
+            this.Password = command.Option("--password|-p", "Password", CommandOptionType.SingleValue);  
+            this.Database = command.Option("--dbname|-db", "Name of the database to be created", CommandOptionType.SingleValue);  
+            this.DatabaseAdminPassword = command.Option("--dbadmin-password|-dap", "Database admin- password", CommandOptionType.SingleValue); 
+        }
+
+          
+        /// <summary>
+        /// Server name. --host|-h
+        /// </summary>
+        public CommandOption Host { get; private set;}   
+        /// <summary>
+        /// User name. --username|-u
+        /// </summary>
+        public CommandOption Username { get; private set;}   
+        /// <summary>
+        /// Password. --password|-p
+        /// </summary>
+        public CommandOption Password { get; private set;}   
+        /// <summary>
+        /// Name of the database to be created. --dbname|-db
+        /// </summary>
+        public CommandOption Database { get; private set;}   
+        /// <summary>
+        /// Database admin- password. --dbadmin-password|-dap
+        /// </summary>
+        public CommandOption DatabaseAdminPassword { get; private set;}  
+
+    }     
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public sealed class DeprovisionDbOptions
+    {
+        public DeprovisionDbOptions(CommandLineApplication command)
+        {  
+            this.Host = command.Option("--host|-h", "Server name", CommandOptionType.SingleValue);  
+            this.Username = command.Option("--username|-u", "User name", CommandOptionType.SingleValue);  
+            this.Password = command.Option("--password|-p", "Password", CommandOptionType.SingleValue);  
+            this.Database = command.Option("--dbname|-db", "Name of the database to be created", CommandOptionType.SingleValue); 
+        }
+
+          
+        /// <summary>
+        /// Server name. --host|-h
+        /// </summary>
+        public CommandOption Host { get; private set;}   
+        /// <summary>
+        /// User name. --username|-u
+        /// </summary>
+        public CommandOption Username { get; private set;}   
+        /// <summary>
+        /// Password. --password|-p
+        /// </summary>
+        public CommandOption Password { get; private set;}   
+        /// <summary>
+        /// Name of the database to be created. --dbname|-db
+        /// </summary>
+        public CommandOption Database { get; private set;}  
+
     } 
 
 }

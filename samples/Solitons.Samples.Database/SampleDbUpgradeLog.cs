@@ -1,19 +1,17 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using DbUp.Engine.Output;
-using Solitons;
 
 namespace Solitons.Samples.Database
 {
-    class SampleUpgradeLog : IUpgradeLog
+    class SampleDbUpgradeLog : IUpgradeLog
     {
         public sealed record LogEventArgs(TraceLevel Level, string Message);
         private readonly Subject<LogEventArgs> _logs = new();
 
 
-        public SampleUpgradeLog()
+        public SampleDbUpgradeLog()
         {
             _logs
                 .DistinctUntilChanged()

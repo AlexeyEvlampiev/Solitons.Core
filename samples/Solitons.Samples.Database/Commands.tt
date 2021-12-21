@@ -9,7 +9,18 @@
                 .Option("ConnectionString", "--connection", "Target database connection string", CommandOptionType.SingleValue)
                 .Option("Recreate", "--recreate|-rc", "Drop and recreate all the database objects", CommandOptionType.NoValue)
                 .Option("Superuser", "--superuser|-su", "Superuser email address", CommandOptionType.MultipleValue)
-                .Option("Stubs", "--with-stubs|-stubs", "Superuser email address", CommandOptionType.NoValue)
+                .Option("Stubs", "--with-stubs|-stubs", "Superuser email address", CommandOptionType.NoValue),
+        Command.Create("ProvisionDb")
+            .Option("Host", "--host|-h", "Server name", CommandOptionType.SingleValue)
+            .Option("Username", "--username|-u", "User name", CommandOptionType.SingleValue)
+            .Option("Password", "--password|-p", "Password", CommandOptionType.SingleValue)
+            .Option("Database", "--dbname|-db", "Name of the database to be created", CommandOptionType.SingleValue)
+            .Option("DatabaseAdminPassword", "--dbadmin-password|-dap", "Database admin- password", CommandOptionType.SingleValue),
+        Command.Create("DeprovisionDb")
+            .Option("Host", "--host|-h", "Server name", CommandOptionType.SingleValue)
+            .Option("Username", "--username|-u", "User name", CommandOptionType.SingleValue)
+            .Option("Password", "--password|-p", "Password", CommandOptionType.SingleValue)
+            .Option("Database", "--dbname|-db", "Name of the database to be created", CommandOptionType.SingleValue)
     };
 #>
 namespace Sample.DbUp

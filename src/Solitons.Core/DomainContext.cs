@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -8,7 +7,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml.Serialization;
 using Solitons.Common;
 using Solitons.Data;
 using Solitons.Queues;
@@ -36,8 +34,6 @@ namespace Solitons
         private readonly HashSet<Assembly> _assemblies;
         private readonly Lazy<Dictionary<Attribute, Type>> _typesByAttribute;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<IEnumerable<RoleSetAttribute>> _roleSets;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<IDomainSerializer> _serializer;
@@ -124,7 +120,6 @@ namespace Solitons
                 return result;
             });
 
-            _roleSets = new Lazy<IEnumerable<RoleSetAttribute>>(DiscoverRoleSets);
             _httpEventArgsConverter = new Lazy<IHttpEventArgsConverter>(() => new HttpEventArgsConverter(_types));
             _sasPermissions = new Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>>(() => BlobSecureAccessSignatureMetadata.Discover(_types));
             _dataTransferObjectTypes = new Lazy<Dictionary<Type, DataTransferObjectAttribute[]>>(() => _types
@@ -315,11 +310,7 @@ namespace Solitons
             return new DomainQueue(this, provider, transientStorage);
         }
 
-        /// <summary>
-        /// Gets the role sets.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<RoleSetAttribute> GetRoles() => _roleSets.Value;
+
 
         public IEnumerable<T> GetSecureAccessSignatureDeclarations<T>() where T : ISecureAccessSignatureMetadata
         {
@@ -353,17 +344,6 @@ namespace Solitons
                 .OfType<T>()
                 .ToDictionary(key=> allCommands[key], key => key);
             return new ReadOnlyDictionary<Type, T>(subset);
-        }
-
-        private IEnumerable<RoleSetAttribute> DiscoverRoleSets()
-        {
-            var roleSets =
-                from e in _types
-                where e.IsEnum
-                let att = RoleSetAttribute.Get(e)
-                where att != null
-                select att;
-            return roleSets.Distinct().ToArray().AsEnumerable();
         }
 
 

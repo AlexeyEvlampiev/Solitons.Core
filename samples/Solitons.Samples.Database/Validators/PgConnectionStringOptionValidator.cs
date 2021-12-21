@@ -31,5 +31,29 @@ namespace Solitons.Samples.Database.Validators
             }
             return ValidationResult.Success;
         }
+
+        public static bool IsValidConnectionString(string connectionString, out string comment)
+        {
+            var policy = Policy
+                .Handle<NpgsqlException>(ex => ex.IsTransient)
+                .WaitAndRetry(5, attempt => TimeSpan.FromMilliseconds(200));
+            try
+            {
+                using var connection = new NpgsqlConnection(connectionString);
+                policy.Execute(connection.Open);
+                comment = null;
+                return true;
+            }
+            catch (NpgsqlException e)
+            {
+                comment = e.Message;
+            }
+            catch (Exception e)
+            {
+                comment = $"Invalid postgres connection string. Error: {e.Message}";
+            }
+
+            return false;
+        }
     }
 }

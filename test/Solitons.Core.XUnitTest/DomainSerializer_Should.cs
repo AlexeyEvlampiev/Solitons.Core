@@ -1,16 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Runtime.InteropServices;
-using System.Security.Claims;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Moq;
 using Solitons.Common;
-using Solitons.Web;
 using Xunit;
 
 namespace Solitons

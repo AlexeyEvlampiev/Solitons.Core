@@ -3,26 +3,58 @@ using DbUp.Engine;
 using DbUp.Helpers;
 using Npgsql;
 using Solitons.Samples.Database.Scripts.PostDeployment;
-using Solitons.Security.Postgres;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Solitons.Data.Postgres;
+using Solitons.Security.Postgres;
 
 namespace Solitons.Samples.Database
 {
-    public class SampleDb
-    {        
-        public static void CreateRoleWithLogin(
-            string connectionString, 
-            string roleName, 
-            string password, 
-            CreateRoleOptions options, 
-            int connectionLimit)
+    public static class SampleDb
+    {
+        public static void DeprovisionDatabase(string rootConnectionString, string databaseName)
         {
-            string sql = new CreateRoleCommandRtt(roleName, password,options,connectionLimit);
-            using var connection = new NpgsqlConnection(connectionString);
-            using var command = new NpgsqlCommand(sql.ToString(),connection);
+            var csBuilder = new NpgsqlConnectionStringBuilder(rootConnectionString)
+            {
+                Timeout = 300
+            };
+
+            using var connection = new NpgsqlConnection(csBuilder.ConnectionString);
             connection.Open();
-            command.ExecuteNonQuery();
+            DropDatabaseScriptRtt.Execute(connection, databaseName);
+            DropRolesByPrefixScriptRtt.Execute(connection, $"{databaseName}");
+        }
+
+        public static void ProvisionDatabase(string rootConnectionString, string databaseName)
+        {
+            var csBuilder = new NpgsqlConnectionStringBuilder(rootConnectionString)
+            {
+                Timeout = 300
+            };
+
+            using (var connection = new NpgsqlConnection(csBuilder.ConnectionString))
+            {
+                connection.Open();
+                CreatePgRolesScriptRtt.Execute(connection, databaseName, options=> options
+                    .WithLogin("public_api")
+                    .WithLogin("private_api")
+                    .WithGroupRole("prospect")
+                    .WithGroupRole("customer")
+                    .WithMembership("public_api", "prospect")
+                    .WithMembership("public_api", "customer"));
+                CreateDbScriptRtt.Execute(connection, databaseName);
+            }
+            
+            csBuilder.Database = databaseName;
+            using (var connection = new NpgsqlConnection(csBuilder.ConnectionString))
+            {
+                connection.Open();
+                CreateExtensionsScriptRtt.Execute(connection, databaseName, extensions => extensions
+                    .With("hstore")
+                    .With("pgcrypto")
+                    .With("postgis")
+                    .With("pg_trgm"));
+            }
         }
 
 
@@ -60,7 +92,7 @@ namespace Solitons.Samples.Database
             string[] superuserEmails,
             SampleDbUpgradeOptions options)
         {
-            var logger = new SampleUpgradeLog();
+            var logger = new SampleDbUpgradeLog();
             Queue<UpgradeEngine> queue = new ();
 
             if (options.HasFlag(SampleDbUpgradeOptions.DropAllObjects))

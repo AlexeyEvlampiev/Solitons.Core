@@ -35,7 +35,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Common\" />
-    <Folder Include="Data\Postgres\" />
     <Folder Include="Tables\" />
   </ItemGroup>
 
@@ -52,20 +51,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Security\Postgres\CreateRoleCommandRtt.cs">
+    <Compile Update="Data\Postgres\CreateDbScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>CreateRoleCommandRtt.tt</DependentUpon>
+      <DependentUpon>CreateDbScriptRtt.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Data\Postgres\CreateExtensionsScriptRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateExtensionsScriptRtt.tt</DependentUpon>
     </Compile>
     <Compile Update="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Extensions.Numbers.tt</DependentUpon>
     </Compile>
-    <Compile Update="Security\Postgres\CreateRoleOptions.generated.cs">
+    <Compile Update="Security\Postgres\CreatePgRolesScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>CreateRoleOptions.tt</DependentUpon>
+      <DependentUpon>CreatePgRolesScriptRtt.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Security\Postgres\DropRolesByPrefixScriptRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DropRolesByPrefixScriptRtt.tt</DependentUpon>
     </Compile>
     <Compile Update="Text\RegexPatterns.generated.cs">
       <DesignTime>True</DesignTime>
@@ -80,17 +89,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Security\Postgres\CreateRoleOptions.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>CreateRoleOptions.generated.cs</LastGenOutput>
-    </None>
-    <None Update="Security\Postgres\CreateRoleCommandRtt.tt">
+    <None Update="Data\Postgres\CreateDbScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>CreateRoleCommandRtt.cs</LastGenOutput>
+      <LastGenOutput>CreateDbScriptRtt.cs</LastGenOutput>
+    </None>
+    <None Update="Data\Postgres\CreateExtensionsScriptRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CreateExtensionsScriptRtt.cs</LastGenOutput>
     </None>
     <None Update="Extensions.Numbers.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Extensions.Numbers.generated.cs</LastGenOutput>
+    </None>
+    <None Update="Security\Postgres\CreatePgRolesScriptRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CreatePgRolesScriptRtt.cs</LastGenOutput>
+    </None>
+    <None Update="Security\Postgres\DropRolesByPrefixScriptRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>DropRolesByPrefixScriptRtt.cs</LastGenOutput>
     </None>
     <None Update="Text\RegexPatterns.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

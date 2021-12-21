@@ -6,7 +6,6 @@ using Solitons.Web;
 using Solitons.Web.Common;
 using System.Data;
 using System.Diagnostics;
-using System.Reactive.Linq;
 using System.Security.Claims;
 
 namespace Solitons.Samples.RestApi.Backend
@@ -60,7 +59,7 @@ namespace Solitons.Samples.RestApi.Backend
             if(userIdClaim is null || Guid.TryParse(userIdClaim.Value, out var userId) == false)
                 return WebResponse.Create(System.Net.HttpStatusCode.Unauthorized);
 
-            var argsText = Serializer.Serialize(httpEventArgs, attribute.ProcedureArgsContentType);
+            var argsText = Serializer.Serialize(httpEventArgs, attribute.ProcedureEventArgsContentType);
             var timeout = TimeSpan.Parse(attribute.DatabaseOperationTimeout);
             await using var connection = new NpgsqlConnection(_connectionString);
             await using var command = new NpgsqlCommand($@"

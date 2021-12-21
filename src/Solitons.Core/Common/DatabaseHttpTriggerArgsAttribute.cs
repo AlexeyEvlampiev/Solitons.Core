@@ -2,7 +2,6 @@
 using Solitons.Web.Common;
 using System;
 using System.Data;
-using System.Xml;
 
 namespace Solitons.Common
 {
@@ -15,7 +14,7 @@ namespace Solitons.Common
         {
             Procedure = procedure;
             IsolationLevel = IsolationLevel.ReadCommitted;
-            ProcedureArgsContentType = "application/json";
+            ProcedureEventArgsContentType = "application/json";
             ProcedurePayloadContentType = "application/json";
         }
 
@@ -39,8 +38,9 @@ namespace Solitons.Common
 
 
 
-        public string ProcedureArgsContentType { get; set; }
+        public string ProcedureEventArgsContentType { get; set; }
 
         public string ProcedurePayloadContentType { get; set; }
+        public string Authorize { get; set; }
     }
 }

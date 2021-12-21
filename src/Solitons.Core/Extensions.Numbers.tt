@@ -5,7 +5,16 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".generated.cs" #>
 <# 
-	var types = new []{ typeof(int), typeof(byte), typeof(long), typeof(decimal), typeof(float), typeof(double), typeof(TimeSpan), typeof(DateTime) , typeof(DateTimeOffset) };
+	var types = new []{ 
+	typeof(int), 
+	typeof(byte), 
+	typeof(long), 
+	typeof(decimal), 
+	typeof(float), 
+	typeof(double), 
+	typeof(TimeSpan), 
+	typeof(DateTime) , 
+	typeof(DateTimeOffset) };
 #>
 namespace Solitons
 {

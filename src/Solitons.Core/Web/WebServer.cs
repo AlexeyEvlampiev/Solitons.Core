@@ -7,7 +7,6 @@ using System.Net;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 

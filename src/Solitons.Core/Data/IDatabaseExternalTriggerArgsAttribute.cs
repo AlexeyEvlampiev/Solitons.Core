@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Solitons.Data
 {
@@ -15,11 +13,13 @@ namespace Solitons.Data
 
         TimeSpan Timeout { get; }
 
-        string ProcedureArgsContentType { get; }
+        string ProcedureEventArgsContentType { get; }
 
         string ProcedurePayloadContentType { get; }
 
         Type PayloadObjectType { get; }
+
+        string Authorize { get; }
     }
 
     public partial interface IDatabaseExternalTriggerArgsAttribute

@@ -4,6 +4,8 @@ using Sample.DbUp;
 using Solitons;
 using Solitons.Samples.Database;
 using Solitons.Samples.Database.Validators;
+using Solitons.Samples.Domain;
+using Solitons.Security.Postgres;
 
 Console.Title = Resources.ConsoleTitle;
 Console.WriteLine(Resources.AsciiArtHeader);
@@ -23,6 +25,73 @@ cli.OnExecute(() =>
     return 1;
 });
 
+cli.Command("provision", provisionDb =>
+{
+    provisionDb.Description = "Provisions an empty sampledb with required roles and extensions created.";
+    var options = new ProvisionDbOptions(provisionDb);
+    options.Username.IsRequired(false, "Username is required.");
+    options.Password.IsRequired(false, "Password is required.");
+    provisionDb.OnExecute(() =>
+    {
+        var databaseName = options.Database.HasValue() ? options.Database.Value() : "sampledb";
+        var host = options.Host.HasValue() ? options.Host.Value() : "localhost";
+        var csBuilder = new NpgsqlConnectionStringBuilder("Server=localhost;Database=postgres;Port=5432;User Id=postgres;Password=password;")
+        {
+            Host = host,
+            Database = "postgres",
+            Username = options.Username.Value(),
+            Password = options.Password.Value(), 
+            Timeout = 300
+        };
+
+        if (false == PgConnectionStringOptionValidator.IsValidConnectionString(
+                csBuilder.ConnectionString,
+                out var comment))
+        {
+            ConsoleColor.Red.AsForegroundColor(()=> Console.WriteLine($@"Postgres connection failed. {comment}"));
+            return 1;
+        }
+
+        SampleDb.ProvisionDatabase(csBuilder.ConnectionString, databaseName ?? "sampledb");
+        return 0;
+    });
+});
+
+cli.Command("deprovision", deprovisionDb =>
+{
+    deprovisionDb.Description = "Drops the database and all its associated roles.";
+    var options = new ProvisionDbOptions(deprovisionDb);
+    options.Username.IsRequired(false, "Username is required.");
+    options.Password.IsRequired(false, "Password is required.");
+    deprovisionDb.OnExecute(() =>
+    {
+        var databaseName = options.Database.HasValue() ? options.Database.Value() : "sampledb";
+        var host = options.Host.HasValue() ? options.Host.Value() : "localhost";
+        var csBuilder = new NpgsqlConnectionStringBuilder("Server=localhost;Database=postgres;Port=5432;User Id=postgres;Password=password;")
+        {
+            Host = host,
+            Database = "postgres",
+            Username = options.Username.Value(),
+            Password = options.Password.Value()
+        };
+
+        if (false == PgConnectionStringOptionValidator.IsValidConnectionString(
+                csBuilder.ConnectionString,
+                out var comment))
+        {
+            ConsoleColor.Red.AsForegroundColor(() => Console.WriteLine($@"Postgres connection failed. {comment}"));
+            return 1;
+        }
+
+        var proceed = Prompt.GetYesNo($"Are you sure you want to deprovision the {databaseName} database?",
+            defaultAnswer: false,
+            promptColor: ConsoleColor.Yellow);
+        if (proceed == false) return 0;
+
+        SampleDb.DeprovisionDatabase(csBuilder.ConnectionString, databaseName ?? "sampledb");
+        return 0;
+    });
+});
 
 cli.Command("upgrade", upgrade =>
 {
