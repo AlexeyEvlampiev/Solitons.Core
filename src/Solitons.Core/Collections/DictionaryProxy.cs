@@ -4,10 +4,19 @@ using System.Diagnostics;
 
 namespace Solitons.Collections
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     public abstract class DictionaryProxy<TKey, TValue> : IDictionary<TKey, TValue>
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly IDictionary<TKey, TValue> _innerDictionary;
 
+        /// <summary>
+        /// 
+        /// </summary>
         [DebuggerStepThrough]
         protected DictionaryProxy() : this(new Dictionary<TKey, TValue>())
         {
@@ -39,7 +48,14 @@ namespace Solitons.Collections
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _innerDictionary.GetEnumerator();
 
         [DebuggerStepThrough]
-        public override bool Equals(object? obj) => _innerDictionary.Equals(obj);
+        public override bool Equals(object? obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is DictionaryProxy<TKey, TValue> other)
+                return _innerDictionary.Equals(other._innerDictionary);
+            return _innerDictionary.Equals(obj);
+        }
 
         [DebuggerStepThrough]
         public override int GetHashCode() => _innerDictionary.GetHashCode();

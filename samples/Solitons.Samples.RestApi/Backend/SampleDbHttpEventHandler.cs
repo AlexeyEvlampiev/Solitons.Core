@@ -1,25 +1,25 @@
 ﻿using Npgsql;
 using Polly;
 using Solitons.Samples.Domain;
-using Solitons.Samples.Domain.Contracts;
 using Solitons.Web;
 using Solitons.Web.Common;
 using System.Data;
 using System.Diagnostics;
 using System.Security.Claims;
+using Solitons.Common;
 
 namespace Solitons.Samples.RestApi.Backend
 {
     public sealed class SampleDbHttpEventHandler : HttpEventHandler
     {
-        private readonly IReadOnlyDictionary<Type, SampleDbHttpTriggerAttribute> _commands;
+        private readonly IReadOnlyDictionary<Type, DatabaseHttpTriggerArgsAttribute> _commands;
         private readonly AsyncPolicy _retryPolicy;
         private readonly string _connectionString;
 
         private SampleDbHttpEventHandler(string connectionString, SampleDomainContext context) 
             : base(context.GetSerializer())
         {
-            _commands = context.GetDatabaseExternalTriggerArgs<SampleDbHttpTriggerAttribute>();
+            _commands = context.GetDatabaseExternalTriggerArgs<DatabaseHttpTriggerArgsAttribute>();
             _connectionString = connectionString;
             _retryPolicy = Policy
                 .Handle<NpgsqlException>(ex => ex.IsTransient)

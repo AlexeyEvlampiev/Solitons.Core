@@ -22,7 +22,7 @@ REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA api FROM PUBLIC;
 
 CREATE DOMAIN data.natural_key AS varchar(150) CHECK(VALUE ~ '^\S.*\S$');
 
-CREATE DOMAIN data.email AS varchar(150)
+CREATE DOMAIN system.email AS varchar(150)
   CHECK ( value ~ '^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$' );
 
 CREATE TYPE data.loglevel AS ENUM ('critical', 'error', 'warning', 'info', 'verbose'); 
@@ -37,28 +37,31 @@ CREATE TABLE system.gcobject(
 COMMENT ON TABLE system.gcobject IS 'GC- managed entry';
 
 
+
+
 CREATE TABLE IF NOT EXISTS system.user
 (
-	id data.email NOT NULL PRIMARY KEY
-	,UNIQUE (object_id)
+	email system.email NOT NULL UNIQUE
+	,organization_object_id uuid NOT NULL
+	,PRIMARY KEY(object_id)
 ) INHERITS(system.gcobject);
 
 
 CREATE TYPE api.content_result AS (status int, content_type text, content text);
 
-CREATE TABLE IF NOT EXISTS data.customer
+CREATE TABLE IF NOT EXISTS data.organization
 (
 	PRIMARY KEY(object_id)
 	,id data.natural_key NOT NULL UNIQUE
-	,email data.email NOT NULL UNIQUE
+	,email system.email NOT NULL UNIQUE
 ) INHERITS(system.gcobject);
 
 
 CREATE TABLE IF NOT EXISTS data.user
-(
-	PRIMARY KEY(object_id)
-	,id data.email NOT NULL
-	,customer_object_id uuid NOT NULL REFERENCES data.customer(object_id)
+(	
+	email system.email NOT NULL UNIQUE
+	,organization_object_id uuid NOT NULL REFERENCES data.organization(object_id)
+	,PRIMARY KEY(object_id)
 ) INHERITS(system.user);
 
 

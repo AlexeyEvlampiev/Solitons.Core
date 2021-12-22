@@ -5,7 +5,7 @@ namespace Solitons.Azure
 {
     class MyDomainContext : DomainContext
     {
-        private static readonly Lazy<MyDomainContext> _lazyInstance = new Lazy<MyDomainContext>(() => new MyDomainContext());
+        private static readonly Lazy<MyDomainContext> _lazyInstance = new(() => new MyDomainContext());
 
         public static DomainContext Instance => _lazyInstance.Value;
 

@@ -8,7 +8,7 @@ namespace Solitons.Collections.Specialized
 {
     public static class CsvCollection
     {
-        public static CsvCollection<string> Create() => new CsvCollection<string>();
+        public static CsvCollection<string> Create() => new();
 
         public static CsvCollection<string> Create(string value)
         {

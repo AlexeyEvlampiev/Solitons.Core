@@ -15,7 +15,7 @@ namespace Solitons.Web.Common
     /// </summary>
     public abstract class SecureAccessSigner : ISecureAccessSigner
     {
-        private readonly Regex _queryRegex = new Regex("(?:[?].*$)|(?:[/]$)");
+        private readonly Regex _queryRegex = new("(?:[?].*$)|(?:[/]$)");
         protected abstract IEnumerable<PropertyInfo> GetProperties(Type type);
         protected abstract TypeConverter GetConverter(PropertyInfo property);
         protected abstract ISecureAccessSignatureMetadata GetAttribute(PropertyInfo property);

@@ -3,9 +3,8 @@ using Npgsql;
 using Sample.DbUp;
 using Solitons;
 using Solitons.Samples.Database;
+using Solitons.Samples.Database.Models;
 using Solitons.Samples.Database.Validators;
-using Solitons.Samples.Domain;
-using Solitons.Security.Postgres;
 
 Console.Title = Resources.ConsoleTitle;
 Console.WriteLine(Resources.AsciiArtHeader);
@@ -101,7 +100,8 @@ cli.Command("upgrade", upgrade =>
     options.ConnectionString.IsRequired(false, "ADO.NET PostgreSQL connection string is required");
     options.ConnectionString.Validators.Add(new PgConnectionStringOptionValidator());
     options.Superuser.IsRequired(true);
-    options.Superuser.Validators.Add(new EmailValidator());
+    options.Superuser.Validators.Add(new SuperuserSettingsValidator());
+    options.Superuser.Description += $" ({SuperuserSettings.GetTemplate()})";
     upgrade.OnExecute(() =>
     {
         var connection = new NpgsqlConnectionStringBuilder(options.ConnectionString.Value());
@@ -111,7 +111,10 @@ cli.Command("upgrade", upgrade =>
         WriteLine(@"Database:", connection.Database);
         WriteLine(@"Username:", connection.Username);
 
-        var superuserEmails = options.Superuser.Values.ToArray();
+        var superuserSettings = options.Superuser
+            .Values
+            .Select(SuperuserSettings.Parse)
+            .ToArray();
         Console.WriteLine();
         if (options.Recreate.HasValue())
         {
@@ -129,7 +132,7 @@ cli.Command("upgrade", upgrade =>
             if (options.Stubs.HasValue())
                 upgradeOptions |= SampleDbUpgradeOptions.CreateStabRecords;
             
-            return SampleDb.Upgrade(options.ConnectionString.Value(), superuserEmails, upgradeOptions);
+            return SampleDb.Upgrade(options.ConnectionString.Value(), superuserSettings, upgradeOptions);
         }
         catch (Exception e)
         {

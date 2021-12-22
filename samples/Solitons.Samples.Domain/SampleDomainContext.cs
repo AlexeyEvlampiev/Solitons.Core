@@ -4,22 +4,20 @@ namespace Solitons.Samples.Domain
 {
     public class SampleDomainContext : DomainContext
     {
-        private static readonly WeakReference<SampleDomainContext> Singleton = new WeakReference<SampleDomainContext>(new SampleDomainContext());
-
         [DebuggerStepThrough]
-        private SampleDomainContext() 
+        private SampleDomainContext()
             : base(typeof(SampleDomainContext).Assembly)
         {
+            ApiVersion = Version.Parse("1.0");
+
         }
 
+        /// <summary>
+        /// Gets the current API version
+        /// </summary>
+        public Version ApiVersion { get; }
+
         [DebuggerStepThrough]
-        public static SampleDomainContext GetOrCreate()
-        {
-            if(Singleton.TryGetTarget(out var context))
-                return context;
-            var instance = new SampleDomainContext();
-            Singleton.SetTarget(instance);
-            return instance; ;
-        }
+        public static SampleDomainContext GetOrCreate() => GetOrCreate(()=> new SampleDomainContext());
     }
 }

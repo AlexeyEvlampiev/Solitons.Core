@@ -1,14 +1,16 @@
-﻿namespace Solitons.Samples.Database.Scripts.PostDeployment
+﻿using Solitons.Samples.Database.Models;
+
+namespace Solitons.Samples.Database.Scripts.PostDeployment
 {
     public partial class RegisterSuperuserRtt
     {
-        private readonly IEnumerable<string> _emails;
+        private readonly IEnumerable<SuperuserSettings> _settings;
 
-        public RegisterSuperuserRtt(IEnumerable<string> emails)
+        public RegisterSuperuserRtt(IEnumerable<SuperuserSettings> emails)
         {
-            _emails = emails.ThrowIfNullArgument(nameof(emails));
+            _settings = emails.ThrowIfNullArgument(nameof(emails));
         }
 
-        public string EmailValues => _emails.Select(e=> $"('{e}')").Join();
+        public string ValuesCsv => _settings.Select(e=> $"('{e.Email}', '{e.UrganizationId}'::uuid)").Join();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -34,6 +35,8 @@ namespace Solitons
         private readonly HashSet<Assembly> _assemblies;
         private readonly Lazy<Dictionary<Attribute, Type>> _typesByAttribute;
 
+        private static readonly ConcurrentDictionary<Type, WeakReference> WeakReferences = new();
+
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<IDomainSerializer> _serializer;
@@ -55,10 +58,10 @@ namespace Solitons
         private readonly Lazy<Dictionary<BasicHttpEventArgsAttribute, Type>> _httpEventArgTypes;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Dictionary<Type, IDataTransferObjectSerializer> _specializedSerializersBySerializerType = new Dictionary<Type, IDataTransferObjectSerializer>();
+        private readonly Dictionary<Type, IDataTransferObjectSerializer> _specializedSerializersBySerializerType = new();
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Regex _jsonLikeRegex = new Regex(@"(?i)\bjson\b");
+        private readonly Regex _jsonLikeRegex = new(@"(?i)\bjson\b");
 
         #endregion
 
@@ -424,6 +427,31 @@ namespace Solitons
         public override string ToString() => $"Assemblies: {_assemblies.Select(a => a.GetName().Name).Join()}.";
 
         private static bool MatchDomainTypeCriteria(Type type) => type.IsAbstract == false && type.IsCOMObject == false;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="factory"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerStepThrough]
+        protected static T GetOrCreate<T>(Func<T> factory) where T : DomainContext
+        {
+            if (factory == null) throw new ArgumentNullException(nameof(factory));
+
+            [DebuggerStepThrough]
+            T Create() => factory
+                .Invoke()
+                .ThrowIfNull(() => new NullReferenceException($"{typeof(T)} factory returned null."));
+
+            var reference = WeakReferences.GetOrAdd(typeof(T), ()=> new WeakReference(Create()));
+
+            var instance = reference.Target;
+            if (instance is null)
+                reference.Target = instance = Create();
+            return (T)instance;
+        }
     }
 
     public abstract partial class DomainContext

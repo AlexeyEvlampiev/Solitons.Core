@@ -29,7 +29,7 @@ namespace Solitons
         /// <returns></returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Queue<T> ToQueue<T>(this IEnumerable<T> self) =>
-            new Queue<T>(self ?? throw new ArgumentNullException(nameof(self)));
+            new(self ?? throw new ArgumentNullException(nameof(self)));
 
 
         [DebuggerStepThrough]

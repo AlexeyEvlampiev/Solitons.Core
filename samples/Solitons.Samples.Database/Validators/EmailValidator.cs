@@ -4,12 +4,13 @@ using McMaster.Extensions.CommandLineUtils;
 using McMaster.Extensions.CommandLineUtils.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using Solitons.Text;
 
 namespace Solitons.Samples.Database.Validators
 {
     public sealed class EmailValidator : IOptionValidator
     {
-        private readonly Regex _regex = new Regex(@"^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$");
+        private readonly Regex _regex = new(RegexPatterns.Email);
         public ValidationResult? GetValidationResult(CommandOption option, ValidationContext context)
         {
             if (option.HasValue())

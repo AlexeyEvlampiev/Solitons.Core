@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Security;
 
 namespace Solitons
 {
@@ -469,7 +470,7 @@ namespace Solitons
         /// <param name="variable">The name of the environment variable.</param>
         /// <returns>The value of the environment variable specified by variable, or null if the environment variable is not found.</returns>
         /// <exception cref="ArgumentNullException">variable is null</exception>
-        /// <exception cref="System.Security.SecurityException">The caller does not have the required permission to perform this operation.</exception>
+        /// <exception cref="SecurityException">The caller does not have the required permission to perform this operation.</exception>
         string? GetEnvironmentVariable(string variable);
 
 
@@ -485,7 +486,7 @@ namespace Solitons
         /// </returns>
         /// <exception cref="ArgumentNullException">variable is null.</exception>
         /// <exception cref="ArgumentException">target is not a valid <see cref="EnvironmentVariableTarget"/> value.</exception>
-        /// <exception cref="System.Security.SecurityException">The caller does not have the required permission to perform this operation.</exception>
+        /// <exception cref="SecurityException">The caller does not have the required permission to perform this operation.</exception>
         string? GetEnvironmentVariable(string variable, EnvironmentVariableTarget target);
 
         /*
@@ -690,26 +691,9 @@ public static void SetEnvironmentVariable(string variable, string? value, Enviro
         /// <summary>
         /// 
         /// </summary>
-        public static IEnvironment System => new SysEnvironment();
+        [DebuggerNonUserCode]
+        public static IEnvironment System => SysEnvironment.Instance;
     }
+    
 
-    sealed class SysEnvironment : IEnvironment
-    {
-        [DebuggerNonUserCode]
-        public string CommandLine => Environment.CommandLine;
-
-        public string CurrentDirectory 
-        {
-            [DebuggerNonUserCode]
-            get => Environment.CurrentDirectory;
-            [DebuggerNonUserCode]
-            set => Environment.CurrentDirectory = value; 
-        }
-
-        [DebuggerNonUserCode]
-        public string GetEnvironmentVariable(string variable) => Environment.GetEnvironmentVariable(variable);
-
-        [DebuggerNonUserCode]
-        public string GetEnvironmentVariable(string variable, EnvironmentVariableTarget target) => Environment.GetEnvironmentVariable(variable, target);
-    }
 }

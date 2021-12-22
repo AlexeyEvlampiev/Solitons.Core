@@ -10,6 +10,10 @@ namespace Solitons.Text
         /// <summary>
         /// 
         /// </summary>
+        public const string Email = @"^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="T">Enumeration type</typeparam>
         /// <param name="values"></param>
         /// <param name="ignoreCase"></param>

@@ -19,7 +19,7 @@ namespace Solitons.Text
         private bool _endsWithNewline;
         private IFormatProvider _formatProvider;
         private Dictionary<string, object> _session;
-        private readonly object _syncObject = new object();
+        private readonly object _syncObject = new();
         #endregion
 
         protected RuntimeTextTemplate()

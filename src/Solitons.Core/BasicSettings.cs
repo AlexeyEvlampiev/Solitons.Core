@@ -7,10 +7,16 @@ using System.Text.RegularExpressions;
 
 namespace Solitons
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class BasicSettings
     {
         private readonly Lazy<Dictionary<BasicSettingAttribute, PropertyInfo>> _properties;
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected BasicSettings()
         {
             _properties =
@@ -39,6 +45,11 @@ namespace Solitons
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
         protected virtual void SetProperty(PropertyInfo property, string value)
         {
             var converter = TypeDescriptor.GetConverter(property.PropertyType);
@@ -46,6 +57,13 @@ namespace Solitons
             property.SetValue(this, propertyValue);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
         protected virtual bool Equals(PropertyInfo property, object lhs, object rhs)
         {
             if (lhs is null && rhs is null) return true;
@@ -146,6 +164,11 @@ namespace Solitons
             return settings;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public sealed override bool Equals(object? obj)
         {
             if (obj is null) return false;
@@ -165,6 +188,19 @@ namespace Solitons
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        protected static string GetTemplate<T>() where T : BasicSettings
+        {
+            var metadata = BasicSettingAttribute.DiscoverProperties(typeof(T));
+            return metadata.Keys
+                .Select(att => $"{att.Name}={{{att.Name}}}")
+                .Join(";");
         }
     }
 

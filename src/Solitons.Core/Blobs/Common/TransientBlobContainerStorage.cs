@@ -221,7 +221,7 @@ namespace Solitons.Blobs.Common
         {
             private const string Postfix = "704938aaf52643fc9b60ede209c23ca5";
             private readonly Regex _receiptRegex = new(@$"^(?<blob>[^@\s]+)@(?<container>(?<date>\d{{12}}){Postfix})$");
-            private readonly Regex _containerNameRegex = new Regex($@"^(?<date>\d{{12}}){Postfix}$");
+            private readonly Regex _containerNameRegex = new($@"^(?<date>\d{{12}}){Postfix}$");
 
             [DebuggerNonUserCode]
             public NamingService()

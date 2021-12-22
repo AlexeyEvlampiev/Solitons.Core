@@ -12,8 +12,8 @@ namespace Solitons.Web.Common
     public abstract class SecureAccessSignatureService : ISecureAccessSignatureService
     {
         private readonly IClock _clock;
-        private readonly Regex _queryStringRegex = new Regex("[?]?(?<query>.+?)&sig=(?<sign>[^&]+)");
-        private readonly Regex _queryParameterRegex = new Regex(@"[?&]?(?<key>\w+)=(?<value>[^&]+)");
+        private readonly Regex _queryStringRegex = new("[?]?(?<query>.+?)&sig=(?<sign>[^&]+)");
+        private readonly Regex _queryParameterRegex = new(@"[?&]?(?<key>\w+)=(?<value>[^&]+)");
 
 
         [DebuggerNonUserCode]

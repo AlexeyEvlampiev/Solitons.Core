@@ -8,8 +8,8 @@
         Command.Create("Upgrade")
                 .Option("ConnectionString", "--connection", "Target database connection string", CommandOptionType.SingleValue)
                 .Option("Recreate", "--recreate|-rc", "Drop and recreate all the database objects", CommandOptionType.NoValue)
-                .Option("Superuser", "--superuser|-su", "Superuser email address", CommandOptionType.MultipleValue)
-                .Option("Stubs", "--with-stubs|-stubs", "Superuser email address", CommandOptionType.NoValue),
+                .Option("Superuser", "--superuser|-su", "Superuser settings string", CommandOptionType.MultipleValue)
+                .Option("Stubs", "--with-stubs|-stubs", "Include stabs", CommandOptionType.NoValue),
         Command.Create("ProvisionDb")
             .Option("Host", "--host|-h", "Server name", CommandOptionType.SingleValue)
             .Option("Username", "--username|-u", "User name", CommandOptionType.SingleValue)

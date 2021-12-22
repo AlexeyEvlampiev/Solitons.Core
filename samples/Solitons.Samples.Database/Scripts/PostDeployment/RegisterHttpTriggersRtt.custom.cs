@@ -1,5 +1,5 @@
-﻿using Solitons.Samples.Domain;
-using Solitons.Samples.Domain.Contracts;
+﻿using Solitons.Common;
+using Solitons.Samples.Domain;
 
 namespace Solitons.Samples.Database.Scripts.PostDeployment
 {
@@ -8,7 +8,7 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
         public RegisterHttpTriggersRtt()
         {
             var context = SampleDomainContext.GetOrCreate();
-            var triggers = context.GetDatabaseExternalTriggerArgs<SampleDbHttpTriggerAttribute>();
+            var triggers = context.GetDatabaseExternalTriggerArgs<DatabaseHttpTriggerArgsAttribute>();
         }
     }
 }

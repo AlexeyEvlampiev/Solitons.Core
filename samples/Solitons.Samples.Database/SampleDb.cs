@@ -6,15 +6,16 @@ using Solitons.Samples.Database.Scripts.PostDeployment;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Solitons.Data.Postgres;
+using Solitons.Samples.Database.Models;
 using Solitons.Security.Postgres;
 
 namespace Solitons.Samples.Database
 {
     public static class SampleDb
     {
-        public static void DeprovisionDatabase(string rootConnectionString, string databaseName)
+        public static void DeprovisionDatabase(string masterConnectionString, string databaseName)
         {
-            var csBuilder = new NpgsqlConnectionStringBuilder(rootConnectionString)
+            var csBuilder = new NpgsqlConnectionStringBuilder(masterConnectionString)
             {
                 Timeout = 300
             };
@@ -60,7 +61,7 @@ namespace Solitons.Samples.Database
 
         public static int Upgrade(
             string connectionString,
-            string[] superuserEmails,
+            SuperuserSettings[] superuserSettings,
             SampleDbUpgradeOptions options)
         {
             connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString));
@@ -75,7 +76,7 @@ namespace Solitons.Samples.Database
 
             using var connection = new NpgsqlConnection(connectionString);
             connection.Open();
-            var steps = BuildUpgradeStepQueue(connectionString, superuserEmails, options);
+            var steps = BuildUpgradeStepQueue(connectionString, superuserSettings, options);
             while (steps.Count > 0)
             {
                 var step = steps.Dequeue();
@@ -89,7 +90,7 @@ namespace Solitons.Samples.Database
 
         private static Queue<UpgradeEngine> BuildUpgradeStepQueue(
             string connectionString, 
-            string[] superuserEmails,
+            SuperuserSettings[] superuserSettings,
             SampleDbUpgradeOptions options)
         {
             var logger = new SampleDbUpgradeLog();
@@ -131,7 +132,7 @@ namespace Solitons.Samples.Database
                 .LogTo(logger)
                 .LogScriptOutput()
                 .LogToNowhere()
-                .WithScript("Adding superuser account", new RegisterSuperuserRtt(superuserEmails))
+                .WithScript("Adding superuser account", new RegisterSuperuserRtt(superuserSettings))
                 .WithScript("Registering HTTP triggers", new RegisterHttpTriggersRtt())
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsPostDeployment)
                 .Build());

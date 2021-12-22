@@ -4,8 +4,18 @@ using System.Net;
 
 namespace Solitons
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public sealed class IpAddressComparer : Comparer<IPAddress>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public override int Compare(IPAddress? lhs, IPAddress? rhs)
         {
             if (lhs is null) throw new ArgumentNullException(nameof(lhs));

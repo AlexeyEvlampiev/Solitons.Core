@@ -3,4 +3,4 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-INSERT INTO system.user(id) VALUES <#= EmailValues #>
+INSERT INTO system.user(email, organization_object_id) VALUES <#= ValuesCsv #>

@@ -4,7 +4,6 @@ using Solitons.Samples.RestApi;
 using Solitons.Samples.RestApi.Backend;
 using System.Security.Claims;
 
-Math.Pow(1, 2);
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,11 +26,11 @@ var server = SampleDomainContext
 var logger = IAsyncLogger.Null;
 var converter = new AspNetMessageConverter();
 
-app.Map("/{**resource}", async (HttpRequest aspNetRequest, ClaimsPrincipal caller) =>
+app.Map("/{**eventArgs}", async (HttpRequest aspNetHttpRequest, ClaimsPrincipal caller) =>
 {
-    var request = converter.ToWebRequest(aspNetRequest, caller);
-    var result = await server.InvokeAsync(request, logger);
-    return converter.ToAspNetResult(result, request);
+    var webRequest = converter.ToWebRequest(aspNetHttpRequest, caller);
+    var webResponse = await server.InvokeAsync(webRequest, logger);
+    return converter.ToAspNetResult(webResponse, webRequest);
 });
 
 app.Run();

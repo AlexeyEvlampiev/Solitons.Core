@@ -19,8 +19,8 @@ namespace Solitons.Web.Common
 
         static UriParser()
         {
-            UriRegex = new(@"^(?<resource>[^?]+)?(?:\?(?<query>.+))?$");
-            QueryRegex = new(@"^[?]?(?:@param(?:&@param)*)?$"
+            UriRegex = new Regex(@"^(?<resource>[^?]+)?(?:\?(?<query>.+))?$");
+            QueryRegex = new Regex(@"^[?]?(?:@param(?:&@param)*)?$"
                 .Replace("@param", "(?<name>[^&=]+)=(?<value>[^&=]+)"));
         }
 

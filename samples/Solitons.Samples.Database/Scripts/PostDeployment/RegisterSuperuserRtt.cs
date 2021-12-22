@@ -25,8 +25,8 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
         /// </summary>
         public override string TransformText()
         {
-            this.Write("INSERT INTO system.user(id) VALUES ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(EmailValues));
+            this.Write("INSERT INTO system.user(email, organization_object_id) VALUES ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(ValuesCsv));
             return this.GenerationEnvironment.ToString();
         }
     }

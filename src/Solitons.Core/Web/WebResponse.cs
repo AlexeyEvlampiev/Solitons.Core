@@ -14,10 +14,10 @@ namespace Solitons.Web
 
         public HttpStatusCode Status { get; }
 
-        public static WebResponse Create(HttpStatusCode status) => new WebResponse(status);
+        public static WebResponse Create(HttpStatusCode status) => new(status);
 
-        public static ContentWebResponse Create(HttpStatusCode status, string content, string contentType = "text/plain") => new ContentWebResponse(status, content, contentType);
+        public static ContentWebResponse Create(HttpStatusCode status, string content, string contentType = "text/plain") => new(status, content, contentType);
 
-        public static ObjectWebResponse Create(HttpStatusCode status, object obj) => new ObjectWebResponse(status, obj);    
+        public static ObjectWebResponse Create(HttpStatusCode status, object obj) => new(status, obj);    
     }
 }

@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Common\" />
+    <Folder Include="Data\Postgres\Common\" />
     <Folder Include="Tables\" />
   </ItemGroup>
 
