@@ -26,7 +26,8 @@ namespace Solitons.Samples.Database
             DropRolesByPrefixScriptRtt.Execute(connection, $"{databaseName}");
         }
 
-        public static void ProvisionDatabase(string rootConnectionString, string databaseName)
+        public static void ProvisionDatabase(string rootConnectionString,
+            string databaseName)
         {
             var csBuilder = new NpgsqlConnectionStringBuilder(rootConnectionString)
             {

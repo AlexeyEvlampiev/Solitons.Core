@@ -10,13 +10,13 @@
                 .Option("Recreate", "--recreate|-rc", "Drop and recreate all the database objects", CommandOptionType.NoValue)
                 .Option("Superuser", "--superuser|-su", "Superuser settings string", CommandOptionType.MultipleValue)
                 .Option("Stubs", "--with-stubs|-stubs", "Include stabs", CommandOptionType.NoValue),
-        Command.Create("ProvisionDb")
+        Command.Create("Provision")
             .Option("Host", "--host|-h", "Server name", CommandOptionType.SingleValue)
             .Option("Username", "--username|-u", "User name", CommandOptionType.SingleValue)
             .Option("Password", "--password|-p", "Password", CommandOptionType.SingleValue)
             .Option("Database", "--dbname|-db", "Name of the database to be created", CommandOptionType.SingleValue)
-            .Option("DatabaseAdminPassword", "--dbadmin-password|-dap", "Database admin- password", CommandOptionType.SingleValue),
-        Command.Create("DeprovisionDb")
+            .Option("DatabaseAdminPassword", "--admin-password|-dap", "Database admin- password", CommandOptionType.SingleValue),
+        Command.Create("Deprovision")
             .Option("Host", "--host|-h", "Server name", CommandOptionType.SingleValue)
             .Option("Username", "--username|-u", "User name", CommandOptionType.SingleValue)
             .Option("Password", "--password|-p", "Password", CommandOptionType.SingleValue)

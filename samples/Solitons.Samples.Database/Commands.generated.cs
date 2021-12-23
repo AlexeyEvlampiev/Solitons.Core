@@ -38,15 +38,15 @@
     /// <summary>
     /// 
     /// </summary>
-    public sealed class ProvisionDbOptions
+    public sealed class ProvisionOptions
     {
-        public ProvisionDbOptions(CommandLineApplication command)
+        public ProvisionOptions(CommandLineApplication command)
         {  
             this.Host = command.Option("--host|-h", "Server name", CommandOptionType.SingleValue);  
             this.Username = command.Option("--username|-u", "User name", CommandOptionType.SingleValue);  
             this.Password = command.Option("--password|-p", "Password", CommandOptionType.SingleValue);  
             this.Database = command.Option("--dbname|-db", "Name of the database to be created", CommandOptionType.SingleValue);  
-            this.DatabaseAdminPassword = command.Option("--dbadmin-password|-dap", "Database admin- password", CommandOptionType.SingleValue); 
+            this.DatabaseAdminPassword = command.Option("--admin-password|-dap", "Database admin- password", CommandOptionType.SingleValue); 
         }
 
           
@@ -67,7 +67,7 @@
         /// </summary>
         public CommandOption Database { get; private set;}   
         /// <summary>
-        /// Database admin- password. --dbadmin-password|-dap
+        /// Database admin- password. --admin-password|-dap
         /// </summary>
         public CommandOption DatabaseAdminPassword { get; private set;}  
 
@@ -76,9 +76,9 @@
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DeprovisionDbOptions
+    public sealed class DeprovisionOptions
     {
-        public DeprovisionDbOptions(CommandLineApplication command)
+        public DeprovisionOptions(CommandLineApplication command)
         {  
             this.Host = command.Option("--host|-h", "Server name", CommandOptionType.SingleValue);  
             this.Username = command.Option("--username|-u", "User name", CommandOptionType.SingleValue);  

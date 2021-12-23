@@ -104,7 +104,7 @@ namespace Solitons
 
         protected static T Parse<T>(string input) where T : BasicSettings, new()
         {
-            if (input.IsNullOrWhiteSpace()) throw new ArgumentException($"Input string is required.", nameof(input));
+            if (input.IsNullOrWhiteSpace()) throw new ArgumentException($"Input string is required. {GetTemplate<T>()}", nameof(input));
 
             var settings = new T();
             input = settings.PreProcess(input);
@@ -143,7 +143,7 @@ namespace Solitons
                     }
                     else
                     {
-                        throw new FormatException($"Property name is missing at position {position}.");
+                        throw new FormatException($"Property name is missing at position {position}. {GetTemplate<T>()}");
                     }
                 }
                 else if(matchedAttributes.Count == 1)
@@ -154,7 +154,7 @@ namespace Solitons
                 }
                 else
                 {
-                    throw new FormatException($"Unexpected key. Key: {lhs}");
+                    throw new FormatException($"Unexpected key. Key: {lhs}. {GetTemplate<T>()}");
                 }
 
                 position++;
