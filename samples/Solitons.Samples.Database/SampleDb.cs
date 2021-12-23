@@ -5,7 +5,7 @@ using Npgsql;
 using Solitons.Samples.Database.Scripts.PostDeployment;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Solitons.Data.Postgres;
+using Solitons.Data;
 using Solitons.Samples.Database.Models;
 using Solitons.Security.Postgres;
 
@@ -13,49 +13,35 @@ namespace Solitons.Samples.Database
 {
     public static class SampleDb
     {
-        public static void DeprovisionDatabase(string masterConnectionString, string databaseName)
+        public static void DeprovisionDatabase(IDbConnectionFactory connectionFactory, string databaseName)
         {
-            var csBuilder = new NpgsqlConnectionStringBuilder(masterConnectionString)
-            {
-                Timeout = 300
-            };
-
-            using var connection = new NpgsqlConnection(csBuilder.ConnectionString);
-            connection.Open();
-            DropDatabaseScriptRtt.Execute(connection, databaseName);
-            DropRolesByPrefixScriptRtt.Execute(connection, $"{databaseName}");
+            using var provider = new PgSecurityManagementProvider(connectionFactory);
+            provider.DropRolesByPrefix($"{databaseName}_");
+            provider.DropDatabase(databaseName);
         }
 
-        public static void ProvisionDatabase(string rootConnectionString,
-            string databaseName)
+        public static void ProvisionDatabase(IDbConnectionFactory connectionFactory,
+            string databaseName,
+            string? adminPassword = null)
         {
-            var csBuilder = new NpgsqlConnectionStringBuilder(rootConnectionString)
-            {
-                Timeout = 300
-            };
-
-            using (var connection = new NpgsqlConnection(csBuilder.ConnectionString))
-            {
-                connection.Open();
-                CreatePgRolesScriptRtt.Execute(connection, databaseName, options=> options
-                    .WithLogin("public_api")
-                    .WithLogin("private_api")
+            using var manager = new PgSecurityManagementProvider(connectionFactory);
+            manager.ProvisionDatabase(databaseName,
+                roles => roles
+                    .WithLoginRole("public_api")
+                    .WithLoginRole("private_api")
                     .WithGroupRole("prospect")
                     .WithGroupRole("customer")
                     .WithMembership("public_api", "prospect")
-                    .WithMembership("public_api", "customer"));
-                CreateDbScriptRtt.Execute(connection, databaseName);
-            }
-            
-            csBuilder.Database = databaseName;
-            using (var connection = new NpgsqlConnection(csBuilder.ConnectionString))
-            {
-                connection.Open();
-                CreateExtensionsScriptRtt.Execute(connection, databaseName, extensions => extensions
+                    .WithMembership("public_api", "customer"),
+                extensions=> extensions
                     .With("hstore")
                     .With("pgcrypto")
                     .With("postgis")
                     .With("pg_trgm"));
+
+            if (false == adminPassword.IsNullOrWhiteSpace())
+            {
+                manager.ChangeRolePassword(databaseName, "admin", adminPassword);
             }
         }
 

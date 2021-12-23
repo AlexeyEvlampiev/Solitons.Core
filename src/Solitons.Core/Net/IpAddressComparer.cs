@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace Solitons
+namespace Solitons.Net
 {
     /// <summary>
     /// 

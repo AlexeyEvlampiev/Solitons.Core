@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Solitons.Net;
 
 namespace Solitons.Common
 {

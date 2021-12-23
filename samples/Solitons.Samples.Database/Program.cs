@@ -2,10 +2,10 @@
 using Npgsql;
 using Sample.DbUp;
 using Solitons;
+using Solitons.Data;
 using Solitons.Samples.Database;
 using Solitons.Samples.Database.Models;
 using Solitons.Samples.Database.Validators;
-using Solitons.Security.Postgres;
 
 Console.Title = Resources.ConsoleTitle;
 Console.WriteLine(Resources.AsciiArtHeader);
@@ -54,16 +54,8 @@ cli.Command("provision", provisionDb =>
             return 1;
         }
 
-        SampleDb.ProvisionDatabase(
-            csBuilder.ConnectionString, 
-            databaseName);
-
-        if (false == adminPassword.IsNullOrWhiteSpace())
-        {
-            using var provider = PgSecurityManagementProvider.Create(() => new NpgsqlConnection(csBuilder.ConnectionString));
-            provider.ChangeRolePassword(databaseName,"admin", adminPassword);
-        }
-        
+        var connectionBuilder = IDbConnectionFactory.CreateGeneric(csBuilder);
+        SampleDb.ProvisionDatabase(connectionBuilder, databaseName, adminPassword);
 
 
         return 0;
@@ -95,13 +87,14 @@ cli.Command("deprovision", deprovisionDb =>
             ConsoleColor.Red.AsForegroundColor(() => Console.WriteLine($@"Postgres connection failed. {comment}"));
             return 1;
         }
+        var connectionBuilder = IDbConnectionFactory.CreateGeneric(csBuilder);
 
         var proceed = Prompt.GetYesNo($"Are you sure you want to deprovision the {databaseName} database?",
             defaultAnswer: false,
             promptColor: ConsoleColor.Yellow);
         if (proceed == false) return 0;
 
-        SampleDb.DeprovisionDatabase(csBuilder.ConnectionString, databaseName ?? "sampledb");
+        SampleDb.DeprovisionDatabase(connectionBuilder, databaseName ?? "sampledb");
         return 0;
     });
 });
@@ -115,7 +108,7 @@ cli.Command("upgrade", upgrade =>
     options.ConnectionString.Validators.Add(new PgConnectionStringOptionValidator());
     options.Superuser.IsRequired(true);
     options.Superuser.Validators.Add(new SuperuserSettingsValidator());
-    options.Superuser.Description += $" ({SuperuserSettings.GetTemplate()})";
+    options.Superuser.Description += $" ({SuperuserSettings.GetSynopsis()})";
     upgrade.OnExecute(() =>
     {
         var connection = new NpgsqlConnectionStringBuilder(options.ConnectionString.Value());

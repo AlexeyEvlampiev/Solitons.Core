@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace Solitons.Data.Postgres
+namespace Solitons.Security.Postgres.Scripts
 {
     using System.Linq;
     using System.Text;
@@ -18,14 +18,14 @@ namespace Solitons.Data.Postgres
     /// Class to produce the template output
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class CreateDbScriptRtt : Solitons.Text.Sql.PgRuntimeTextTemplate
+    public partial class CreatePgDatabaseScriptRtt : Solitons.Text.Sql.PgRuntimeTextTemplate
     {
         /// <summary>
         /// Create the template output
         /// </summary>
         public override string TransformText()
         {
-            this.Write("\r\n");
+            this.Write("\r\nCREATE EXTENSION IF NOT EXISTS dblink SCHEMA public;\r\n");
  if(DatabaseExists){ 
             this.Write(" \r\nALTER DATABASE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(DatabaseName));

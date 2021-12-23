@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Diagnostics;
+using Solitons.Data;
+using Solitons.Security.Postgres.Scripts;
 
 namespace Solitons.Security.Postgres
 {
@@ -9,25 +11,19 @@ namespace Solitons.Security.Postgres
     /// </summary>
     public sealed class PgSecurityManagementProvider : IDisposable
     {
-        private readonly IDbConnection _connection;
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IDbConnection _postgresDbConnection;
 
         [DebuggerNonUserCode]
-        private PgSecurityManagementProvider(IDbConnection connection)
+        public PgSecurityManagementProvider(IDbConnectionFactory connectionFactory)
         {
-            _connection = connection;
+            connectionFactory.ThrowIfNullArgument(nameof(connectionFactory));
+            _connectionFactory = connectionFactory;
+            _postgresDbConnection = _connectionFactory.WithDatabase("postgres").CreateConnection();
+            _postgresDbConnection.Open();
         }
 
-        [DebuggerStepThrough]
-        public static PgSecurityManagementProvider Create(Func<IDbConnection> createConnection)
-        {
-            var connection = createConnection
-                .ThrowIfNullArgument(nameof(createConnection))
-                .Invoke()
-                .ThrowIfNull(
-                    () => new ArgumentException($"Connection factory returned null.", nameof(createConnection)));
-            connection.Open();
-            return new PgSecurityManagementProvider(connection);
-        }
+
 
         public static bool IsValidPassword(string password)
         {
@@ -41,12 +37,60 @@ namespace Solitons.Security.Postgres
         {
             roleName = GetRoleFullName(databaseName, roleName
                 .ThrowIfNullOrWhiteSpaceArgument(nameof(roleName)));
-            using var command = _connection.CreateCommand();
+            using var command = _postgresDbConnection.CreateCommand();
             command.CommandText = $"ALTER ROLE {roleName} WITH PASSWORD '{newPassword}'";
             command.ExecuteNonQuery();
         }
 
-        
+
+
+        public void ProvisionDatabase(
+            string databaseName, 
+            Action<IPgRoleBuilder> configRoles = null,
+            Action<IPgExtensionListBuilder> configExtensions = null)
+        {
+            var roles = new PgRoleBuilder();
+            var extensions = new PgExtensionListBuilder();
+
+            configRoles?.Invoke(roles);
+            roles.Assert();
+
+            configExtensions?.Invoke(extensions);
+
+            CreatePgRolesScriptRtt.Execute(_postgresDbConnection, databaseName, roles);
+            CreatePgDatabaseScriptRtt.Execute(_postgresDbConnection, databaseName);
+
+            using var dbConnection = _connectionFactory.WithDatabase(databaseName).CreateConnection();
+            dbConnection.Open();
+            CreateExtensionsScriptRtt.Execute(dbConnection, databaseName, extensions);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public void DropRolesByPrefix(string prefix)
+        {
+            if (prefix
+                .ThrowIfNullOrWhiteSpaceArgument(nameof(prefix))
+                .StartsWith("pg_"))
+            {
+                throw new ArgumentException($"Specified roles cannot be deleted.");
+            }
+            DropRolesByPrefixScriptRtt.Execute(_postgresDbConnection, prefix);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="databaseName"></param>
+        public void DropDatabase(string databaseName)
+        {
+            databaseName.ThrowIfNullOrWhiteSpaceArgument(nameof(databaseName));
+            DropDatabaseScriptRtt.Execute(_postgresDbConnection, databaseName);
+        }
 
         private string GetRoleFullName(string databaseName, string roleName)
         {
@@ -59,7 +103,7 @@ namespace Solitons.Security.Postgres
 
         void IDisposable.Dispose()
         {
-            _connection.Dispose();
+            _postgresDbConnection.Dispose();
         }
     }
 }

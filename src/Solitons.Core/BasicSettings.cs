@@ -104,7 +104,7 @@ namespace Solitons
 
         protected static T Parse<T>(string input) where T : BasicSettings, new()
         {
-            if (input.IsNullOrWhiteSpace()) throw new ArgumentException($"Input string is required. {GetTemplate<T>()}", nameof(input));
+            if (input.IsNullOrWhiteSpace()) throw new ArgumentException($"Input string is required. {GetSynopsis<T>()}", nameof(input));
 
             var settings = new T();
             input = settings.PreProcess(input);
@@ -143,7 +143,7 @@ namespace Solitons
                     }
                     else
                     {
-                        throw new FormatException($"Property name is missing at position {position}. {GetTemplate<T>()}");
+                        throw new FormatException($"Property name is missing at position {position}. {GetSynopsis<T>()}");
                     }
                 }
                 else if(matchedAttributes.Count == 1)
@@ -154,7 +154,7 @@ namespace Solitons
                 }
                 else
                 {
-                    throw new FormatException($"Unexpected key. Key: {lhs}. {GetTemplate<T>()}");
+                    throw new FormatException($"Unexpected key. Key: {lhs}. {GetSynopsis<T>()}");
                 }
 
                 position++;
@@ -195,7 +195,7 @@ namespace Solitons
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected static string GetTemplate<T>() where T : BasicSettings
+        protected static string GetSynopsis<T>() where T : BasicSettings
         {
             var metadata = BasicSettingAttribute.DiscoverProperties(typeof(T));
             return metadata.Keys

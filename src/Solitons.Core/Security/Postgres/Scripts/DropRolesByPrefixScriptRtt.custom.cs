@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Solitons.Security.Postgres
+namespace Solitons.Security.Postgres.Scripts
 {
     public partial class DropRolesByPrefixScriptRtt
     {
@@ -12,7 +12,7 @@ namespace Solitons.Security.Postgres
 
         public string RolePrefix { get; }
 
-        public static void Execute(IDbConnection connection, string prefix)
+        internal static void Execute(IDbConnection connection, string prefix)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
             if (prefix == null) throw new ArgumentNullException(nameof(prefix));

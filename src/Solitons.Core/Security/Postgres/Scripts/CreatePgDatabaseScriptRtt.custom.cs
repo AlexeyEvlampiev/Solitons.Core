@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Data;
 
-namespace Solitons.Data.Postgres
+namespace Solitons.Security.Postgres.Scripts
 {
-    public partial class CreateDbScriptRtt
+    public partial class CreatePgDatabaseScriptRtt
     {
-        private CreateDbScriptRtt(string databaseName, bool exists)
+        private CreatePgDatabaseScriptRtt(string databaseName, bool exists)
         {
             DatabaseName = databaseName;
             DatabaseExists = exists;
@@ -23,7 +23,7 @@ namespace Solitons.Data.Postgres
             using var command = connection.CreateCommand();
             command.CommandText = $"SELECT EXISTS(SELECT true FROM pg_database WHERE datname='{databaseName}');";
             var exists = (command.ExecuteScalar() ?? false).Equals(true);
-            command.CommandText = new CreateDbScriptRtt(databaseName, exists);
+            command.CommandText = new CreatePgDatabaseScriptRtt(databaseName, exists);
             command.ExecuteNonQuery();
             return (!exists);
         }

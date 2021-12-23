@@ -1,6 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming
 
 using System.Net;
+using Solitons.Net;
 using Xunit;
 
 namespace Solitons

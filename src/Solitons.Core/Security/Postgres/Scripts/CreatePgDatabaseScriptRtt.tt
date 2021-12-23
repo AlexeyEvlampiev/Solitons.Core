@@ -4,6 +4,7 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 
+CREATE EXTENSION IF NOT EXISTS dblink SCHEMA public;
 <# if(DatabaseExists){ #> 
 ALTER DATABASE <#= DatabaseName #> OWNER TO <#= DatabaseAdmin #>;
 

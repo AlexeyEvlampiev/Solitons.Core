@@ -26,6 +26,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\Postgres\Common\**" />
+    <EmbeddedResource Remove="Data\Postgres\Common\**" />
+    <None Remove="Data\Postgres\Common\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Reactive" Version="[5.0.0,)" />
   </ItemGroup>
 
@@ -35,7 +41,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Common\" />
-    <Folder Include="Data\Postgres\Common\" />
+    <Folder Include="Data\Postgres\" />
     <Folder Include="Tables\" />
   </ItemGroup>
 
@@ -52,27 +58,27 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Data\Postgres\CreateDbScriptRtt.cs">
+    <Compile Update="Security\Postgres\Scripts\CreatePgDatabaseScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>CreateDbScriptRtt.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Data\Postgres\CreateExtensionsScriptRtt.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CreateExtensionsScriptRtt.tt</DependentUpon>
+      <DependentUpon>CreatePgDatabaseScriptRtt.tt</DependentUpon>
     </Compile>
     <Compile Update="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Extensions.Numbers.tt</DependentUpon>
     </Compile>
-    <Compile Update="Security\Postgres\CreatePgRolesScriptRtt.cs">
+    <Compile Update="Security\Postgres\Scripts\CreateExtensionsScriptRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateExtensionsScriptRtt.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Security\Postgres\Scripts\CreatePgRolesScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>CreatePgRolesScriptRtt.tt</DependentUpon>
     </Compile>
-    <Compile Update="Security\Postgres\DropRolesByPrefixScriptRtt.cs">
+    <Compile Update="Security\Postgres\Scripts\DropRolesByPrefixScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>DropRolesByPrefixScriptRtt.tt</DependentUpon>
@@ -90,11 +96,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\Postgres\CreateDbScriptRtt.tt">
+    <None Update="Security\Postgres\Scripts\CreatePgDatabaseScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>CreateDbScriptRtt.cs</LastGenOutput>
+      <LastGenOutput>CreatePgDatabaseScriptRtt.cs</LastGenOutput>
     </None>
-    <None Update="Data\Postgres\CreateExtensionsScriptRtt.tt">
+    <None Update="Security\Postgres\Scripts\CreateExtensionsScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>CreateExtensionsScriptRtt.cs</LastGenOutput>
     </None>
@@ -102,11 +108,11 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Extensions.Numbers.generated.cs</LastGenOutput>
     </None>
-    <None Update="Security\Postgres\CreatePgRolesScriptRtt.tt">
+    <None Update="Security\Postgres\Scripts\CreatePgRolesScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>CreatePgRolesScriptRtt.cs</LastGenOutput>
     </None>
-    <None Update="Security\Postgres\DropRolesByPrefixScriptRtt.tt">
+    <None Update="Security\Postgres\Scripts\DropRolesByPrefixScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>DropRolesByPrefixScriptRtt.cs</LastGenOutput>
     </None>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Solitons.Data.Postgres
+namespace Solitons.Security.Postgres.Scripts
 {
     public sealed class DropDatabaseScriptRtt
     {

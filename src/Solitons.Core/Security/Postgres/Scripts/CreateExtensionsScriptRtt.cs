@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace Solitons.Data.Postgres
+namespace Solitons.Security.Postgres.Scripts
 {
     using System.Linq;
     using System.Text;
@@ -25,13 +25,12 @@ namespace Solitons.Data.Postgres
         /// </summary>
         public override string TransformText()
         {
-            this.Write("  \r\n");
  foreach(var schema in Schemas){ 
             this.Write("  \r\nCREATE SCHEMA IF NOT EXISTS ");
             this.Write(this.ToStringHelper.ToStringWithCulture(schema));
             this.Write(" AUTHORIZATION ");
             this.Write(this.ToStringHelper.ToStringWithCulture(DbAdminRole));
-            this.Write(";\r\n");
+            this.Write("; ");
  } 
             this.Write(" \r\n\r\n");
  foreach(var extension in this.Extensions){ 
@@ -39,9 +38,9 @@ namespace Solitons.Data.Postgres
             this.Write(this.ToStringHelper.ToStringWithCulture(extension));
             this.Write(" SCHEMA ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetSchema(extension)));
-            this.Write(";\r\n");
+            this.Write("; ");
  } 
-            this.Write(" \r\n");
+            this.Write(" ");
             return this.GenerationEnvironment.ToString();
         }
     }

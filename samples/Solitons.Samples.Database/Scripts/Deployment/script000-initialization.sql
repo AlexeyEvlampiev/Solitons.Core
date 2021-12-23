@@ -41,7 +41,7 @@ COMMENT ON TABLE system.gcobject IS 'GC- managed entry';
 
 CREATE TABLE IF NOT EXISTS system.user
 (
-	email system.email NOT NULL UNIQUE
+	email system.email NOT NULL UNIQUE	
 	,organization_object_id uuid NOT NULL
 	,PRIMARY KEY(object_id)
 ) INHERITS(system.gcobject);
@@ -61,8 +61,27 @@ CREATE TABLE IF NOT EXISTS data.user
 (	
 	email system.email NOT NULL UNIQUE
 	,organization_object_id uuid NOT NULL REFERENCES data.organization(object_id)
+	,app_rolname data.natural_key NOT NULL
+	,host_rolname data.natural_key NOT NULL CHECK(host_rolname = FORMAT('%s_%s', current_database(), app_rolname))
 	,PRIMARY KEY(object_id)
 ) INHERITS(system.user);
+
+
+CREATE OR REPLACE FUNCTION data.user_upsert(
+	_organization_object_id uuid, 
+	_email system.email, 
+	_rolname data.natural_key) RETURNS SETOF data.user 
+AS
+$$
+	INSERT INTO data.user(organization_object_id, email, app_rolname, host_rolname)	
+	VALUES (_organization_object_id, _email, _rolname, FORMAT('%s_%s', current_database(), _rolname))
+	RETURNING *;
+$$ LANGUAGE 'sql';
+
+
+
+
+
 
 
 
@@ -99,6 +118,7 @@ CREATE TABLE api.http_trigger
 	PRIMARY KEY(object_id)
 	,procedure varchar(1000) NOT NULL
 ) INHERITS(api.http_event);
+
 
 CREATE OR REPLACE FUNCTION api.customer_get(
 	_args jsonb,

@@ -16,6 +16,6 @@ namespace Solitons.Samples.Database.Models
             Parse<SuperuserSettings>(text);
 
         [DebuggerStepThrough]
-        public static string GetTemplate() => GetTemplate<SuperuserSettings>();
+        public static string GetSynopsis() => GetSynopsis<SuperuserSettings>();
     }
 }

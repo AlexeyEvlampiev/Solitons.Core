@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace Solitons.Security.Postgres
+namespace Solitons.Security.Postgres.Scripts
 {
     using System.Linq;
     using System.Text;
