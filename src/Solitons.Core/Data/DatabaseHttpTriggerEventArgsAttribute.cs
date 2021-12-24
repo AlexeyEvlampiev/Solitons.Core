@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Solitons.Common;
 
 namespace Solitons.Data
@@ -6,7 +7,8 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DatabaseHttpTriggerEventArgsAttribute : DatabaseHttpTriggerArgsAttribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public sealed class DatabaseHttpTriggerEventArgsAttribute : DbHttpTriggerEventArgsAttribute
     {
         /// <summary>
         /// 

@@ -8,14 +8,18 @@ namespace Solitons.Net
     /// <summary>
     /// 
     /// </summary>
-    public sealed class IpAddressRangeBasicSettings : BasicSettings
+    public sealed class IpAddressRangeBasicSettings : BasicSettings, IFormattable
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private IPAddress _end;
+
         /// <summary>
         /// 
         /// </summary>
         [DebuggerNonUserCode]
         public IpAddressRangeBasicSettings()
         {
+            Start = IPAddress.Loopback;
         }
 
         /// <summary>
@@ -23,7 +27,7 @@ namespace Solitons.Net
         /// </summary>
         /// <param name="address"></param>
         [DebuggerStepThrough]
-        public IpAddressRangeBasicSettings(IPAddress address) : this(address, address){}
+        public IpAddressRangeBasicSettings(IPAddress address) : this(address.ThrowIfNullArgument(nameof(address)), address){}
 
         /// <summary>
         /// 
@@ -32,6 +36,9 @@ namespace Solitons.Net
         /// <param name="end"></param>
         public IpAddressRangeBasicSettings(IPAddress start, IPAddress end)
         {
+            (start ??= end).ThrowIfNullArgument(nameof(start));
+            end ??= start;
+
             var comparer = new IpAddressComparer();
             if (comparer.Compare(end, start) >= 0)
             {
@@ -48,15 +55,25 @@ namespace Solitons.Net
         /// <summary>
         /// 
         /// </summary>
-        [BasicSetting("Start", IsRequired = true, Pattern = @"(?is)^start(?:-?address)$")]
+        [BasicSetting("Start", IsRequired = true, Pattern = @"(?is)^(?:start|from)(?:-?address)$")]
         public IPAddress Start { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        [BasicSetting("End", IsRequired = true, Pattern = @"(?is)^end(?:-?address)$")]
-        public IPAddress End { get; set; }
+        [BasicSetting("End", IsRequired = false, Pattern = @"(?is)^(?:end|till|to|untill)(?:-?address)$")]
+        public IPAddress End
+        {
+            get => _end ?? Start;
+            set => _end = value;
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
         public static IpAddressRangeBasicSettings Parse(string text)
         {
             text.ThrowIfNullOrWhiteSpaceArgument(nameof(text));
@@ -84,10 +101,25 @@ namespace Solitons.Net
         /// 
         /// </summary>
         /// <returns></returns>
-        public string GetSynopsis()
+        public static string GetSynopsis()
         {
             var template = GetSynopsis<IpAddressRangeBasicSettings>();
-            return $"{template} or {{start}}-{{end}} or {{address}}";
+            return $"{{start}}-{{end}} or {{address}} or {template}";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="formatProvider"></param>
+        /// <returns></returns>
+        public string ToString(string? format, IFormatProvider? formatProvider)
+        {
+            return format switch
+            {
+                "g" => _end is null ? Start.ToString() : $"{Start}-{End}",
+                _=> this.ToString()
+            };
         }
     }
 }

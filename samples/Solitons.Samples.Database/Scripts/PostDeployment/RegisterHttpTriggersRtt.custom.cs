@@ -8,7 +8,9 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
         public RegisterHttpTriggersRtt()
         {
             var context = SampleDomainContext.GetOrCreate();
-            var triggers = context.GetDatabaseExternalTriggerArgs<DatabaseHttpTriggerArgsAttribute>();
+            var triggers = context
+                .GetDatabaseExternalTriggerArgs<DbHttpTriggerEventArgsAttribute>();
+
         }
     }
 }

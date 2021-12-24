@@ -36,6 +36,11 @@ CREATE TABLE system.gcobject(
 );
 COMMENT ON TABLE system.gcobject IS 'GC- managed entry';
 
+CREATE OR REPLACE FUNCTION data.role_full_name(_name data.natural_key) RETURNS data.natural_key
+AS
+$$
+	SELECT FORMAT('%s_%s', current_database(), _name)::data.natural_key;
+$$ LANGUAGE 'sql' IMMUTABLE;
 
 
 
@@ -45,6 +50,21 @@ CREATE TABLE IF NOT EXISTS system.user
 	,organization_object_id uuid NOT NULL
 	,PRIMARY KEY(object_id)
 ) INHERITS(system.gcobject);
+
+
+
+CREATE MATERIALIZED VIEW data.mvw_role AS
+SELECT 
+	rolname AS full_name
+	,REGEXP_REPLACE(rolname, '^[^_]+[_]', '') AS name
+	,rolcanlogin AS is_login_role
+	,(NOT rolcanlogin) AS is_group_role
+FROM pg_catalog.pg_roles AS pgr
+WHERE pgr.rolname LIKE current_database()||'\_%'
+ORDER BY rolname;
+
+CREATE UNIQUE INDEX ux_mvw_role ON data.mvw_role (name);
+CREATE UNIQUE INDEX ux_mvw_full_name ON data.mvw_role (full_name);
 
 
 CREATE TYPE api.content_result AS (status int, content_type text, content text);
@@ -61,22 +81,60 @@ CREATE TABLE IF NOT EXISTS data.user
 (	
 	email system.email NOT NULL UNIQUE
 	,organization_object_id uuid NOT NULL REFERENCES data.organization(object_id)
-	,app_rolname data.natural_key NOT NULL
-	,host_rolname data.natural_key NOT NULL CHECK(host_rolname = FORMAT('%s_%s', current_database(), app_rolname))
+	,role_name data.natural_key NOT NULL
+	,role_full_name data.natural_key NOT NULL CHECK(role_full_name = data.role_full_name(role_name))
 	,PRIMARY KEY(object_id)
 ) INHERITS(system.user);
+
 
 
 CREATE OR REPLACE FUNCTION data.user_upsert(
 	_organization_object_id uuid, 
 	_email system.email, 
-	_rolname data.natural_key) RETURNS SETOF data.user 
+	_rolname data.natural_key DEFAULT(NULL)) RETURNS data.user 
 AS
 $$
-	INSERT INTO data.user(organization_object_id, email, app_rolname, host_rolname)	
-	VALUES (_organization_object_id, _email, _rolname, FORMAT('%s_%s', current_database(), _rolname))
-	RETURNING *;
-$$ LANGUAGE 'sql';
+DECLARE 
+	_host_rolname data.natural_key;
+	_user data.user;
+BEGIN
+	_rolname := COALESCE(_rolname, 'prospect');
+	
+	IF _organization_object_id IS NULL THEN
+		RAISE EXCEPTION 'Organization object ID is required.';
+	END IF;	
+	
+	IF NOT EXISTS(SELECT 1 FROM data.organization WHERE object_id = _organization_object_id) THEN
+		RAISE EXCEPTION 'Specified organization is not registered.';
+	END IF;
+
+	
+	IF _email IS NULL THEN
+		RAISE EXCEPTION 'User email is required.';
+	END IF;
+
+	
+	IF NOT EXISTS(SELECT 1 FROM data.mvw_role WHERE name = _rolname AND is_group_role) THEN
+		RAISE EXCEPTION '''%'' group role does not exist.', _rolname;
+	END IF;
+
+
+	INSERT INTO data.user(organization_object_id, email, role_name, role_full_name)	
+	SELECT _organization_object_id, _email, r.name, r.full_name
+	FROM data.mvw_role AS r
+	WHERE name = _rolname
+	ON CONFLICT(email) DO UPDATE SET 
+		role_name = EXCLUDED.role_name
+		,role_full_name = EXCLUDED.role_full_name
+	RETURNING * INTO _user;
+
+	IF _user IS NULL THEN
+		RAISE EXCEPTION 'Insert/update failed for ''%'' (role: ''%'')', _user, _rolname;
+	END IF;
+
+	RETURN _user;
+END;
+$$ LANGUAGE 'plpgsql';
 
 
 
@@ -96,6 +154,28 @@ BEGIN
 	SET ROLE sampledb_admin;
 END;
 $$;
+
+
+CREATE TABLE api.data_contract
+(
+	PRIMARY KEY(object_id)
+	,dotnet_type varchar(1000) UNIQUE
+) INHERITS(system.gcobject);
+
+
+CREATE TABLE api.data_contract_content_type
+(
+	data_contract_object_id uuid NOT NULL REFERENCES api.data_contract(object_id)
+	,content_type data.natural_key NOT NULL CHECK(content_type IN ('application/xml','application/json'))
+	,"schema" text CHECK(
+		CASE content_type
+			WHEN 'application/xml' THEN ("schema" IS NULL OR "schema"::xml IS NOT NULL)
+			WHEN 'application/json' THEN ("schema" IS NULL OR "schema"::json IS NOT NULL)
+			ELSE false
+		END)
+	,PRIMARY KEY(data_contract_object_id, content_type)
+);
+
 
 
 

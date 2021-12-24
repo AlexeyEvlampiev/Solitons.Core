@@ -234,5 +234,13 @@ namespace Solitons
 
             throw new InvalidOperationException($"{payloadType} is not a valid Data Transfer Object type.");
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public IEnumerable<Type> GetTypes() => _metadata.Values
+            .Select(v => v.DtoType);
     }
 }

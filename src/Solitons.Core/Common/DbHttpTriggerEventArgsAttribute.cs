@@ -5,11 +5,11 @@ using System.Data;
 
 namespace Solitons.Common
 {
-    public abstract class DatabaseHttpTriggerArgsAttribute : HttpEventArgsAttribute, IDatabaseExternalTriggerArgsAttribute
+    public abstract class DbHttpTriggerEventArgsAttribute : HttpEventArgsAttribute, IDatabaseExternalTriggerArgsAttribute
     {
         private TimeSpan _timout = TimeSpan.FromSeconds(30);
 
-        protected DatabaseHttpTriggerArgsAttribute(string versionRegexp, string methodRegexp, string uriRegexp, string procedure) 
+        protected DbHttpTriggerEventArgsAttribute(string versionRegexp, string methodRegexp, string uriRegexp, string procedure) 
             : base(versionRegexp, methodRegexp, uriRegexp)
         {
             Procedure = procedure;

@@ -27,7 +27,7 @@ cli.OnExecute(() =>
 
 cli.Command("provision", provisionDb =>
 {
-    provisionDb.Description = "Provisions an empty sampledb with required roles and extensions created.";
+    provisionDb.Description = "Provisions an empty sampledb with required roles and extensions.";
     var options = new ProvisionOptions(provisionDb);
     options.Username.IsRequired(false, "Username is required.");
     options.Password.IsRequired(false, "Password is required.");
@@ -46,9 +46,7 @@ cli.Command("provision", provisionDb =>
             Timeout = 300
         };
 
-        if (false == PgConnectionStringOptionValidator.IsValidConnectionString(
-                csBuilder.ConnectionString,
-                out var comment))
+        if (false == PgConnectionStringOptionValidator.IsValidConnectionString(csBuilder.ConnectionString, out var comment))
         {
             ConsoleColor.Red.AsForegroundColor(()=> Console.WriteLine($@"Postgres connection failed. {comment}"));
             return 1;

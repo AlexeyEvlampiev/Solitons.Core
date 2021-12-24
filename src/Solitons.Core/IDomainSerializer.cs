@@ -93,6 +93,9 @@ namespace Solitons
         ///<exception cref="ArgumentException"></exception>
         ///<exception cref="ArgumentNullException"></exception>
         Task<WebRequest> AsDomainWebRequestAsync(IWebRequest request);
+
+
+        IEnumerable<Type> GetTypes();
     }
 
     public partial interface IDomainSerializer

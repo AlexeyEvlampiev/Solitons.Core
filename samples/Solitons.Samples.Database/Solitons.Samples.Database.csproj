@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="Scripts\Deployment\script000-initialization.sql" />
     <None Remove="Scripts\Drop\script000-dropall.sql" />
+    <None Remove="Scripts\PostDeployment\script000-postdeployment.sql" />
     <None Remove="Scripts\PreDeployment\script000-initialization.sql" />
     <None Remove="Scripts\Stubs\case000.sql" />
   </ItemGroup>
@@ -17,6 +18,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Scripts\Deployment\script000-initialization.sql" />
     <EmbeddedResource Include="Scripts\Drop\script000-dropall.sql" />
+    <EmbeddedResource Include="Scripts\PostDeployment\script000-postdeployment.sql" />
     <EmbeddedResource Include="Scripts\PreDeployment\script000-initialization.sql" />
     <EmbeddedResource Include="Scripts\Stubs\case000.sql" />
   </ItemGroup>
@@ -38,6 +40,10 @@
     <None Update="Commands.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Commands.generated.cs</LastGenOutput>
+    </None>
+    <None Update="Scripts\PostDeployment\RegisterDataContractsSqlRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>RegisterDataContractsSqlRtt.cs</LastGenOutput>
     </None>
     <None Update="Scripts\PostDeployment\RegisterHttpTriggersRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -63,6 +69,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Scripts\PostDeployment\RegisterDataContractsSqlRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegisterDataContractsSqlRtt.tt</DependentUpon>
     </Compile>
     <Compile Update="Scripts\PostDeployment\RegisterHttpTriggersRtt.cs">
       <DesignTime>True</DesignTime>

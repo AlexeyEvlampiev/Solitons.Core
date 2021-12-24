@@ -12,14 +12,14 @@ namespace Solitons.Samples.RestApi.Backend
 {
     public sealed class SampleDbHttpEventHandler : HttpEventHandler
     {
-        private readonly IReadOnlyDictionary<Type, DatabaseHttpTriggerArgsAttribute> _commands;
+        private readonly IReadOnlyDictionary<Type, DbHttpTriggerEventArgsAttribute> _commands;
         private readonly AsyncPolicy _retryPolicy;
         private readonly string _connectionString;
 
         private SampleDbHttpEventHandler(string connectionString, SampleDomainContext context) 
             : base(context.GetSerializer())
         {
-            _commands = context.GetDatabaseExternalTriggerArgs<DatabaseHttpTriggerArgsAttribute>();
+            _commands = context.GetDatabaseExternalTriggerArgs<DbHttpTriggerEventArgsAttribute>();
             _connectionString = connectionString;
             _retryPolicy = Policy
                 .Handle<NpgsqlException>(ex => ex.IsTransient)

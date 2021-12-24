@@ -112,13 +112,14 @@ namespace Solitons.Samples.Database
                 .LogToNowhere()
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsDeployment)
                 .Build());
-
+            
             queue.Enqueue(DeployChanges.To
                 .PostgresqlDatabase(connectionString)
                 .JournalTo(new NullJournal())
                 .LogTo(logger)
                 .LogScriptOutput()
                 .LogToNowhere()
+                .WithScript("Registering Data Transfer Object contracts", new RegisterDataContractsSqlRtt())
                 .WithScript("Adding superuser account", new RegisterSuperuserRtt(superuserSettings))
                 .WithScript("Registering HTTP triggers", new RegisterHttpTriggersRtt())
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsPostDeployment)
