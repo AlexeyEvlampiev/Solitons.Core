@@ -18,7 +18,7 @@ namespace Solitons.Text.Json
     /// Class to produce the template output
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class SampleRuntimeJsonTemplate : RuntimeJsonTemplate
+    public partial class SampleRuntimeJsonTemplate : JsonRuntimeTextTemplate
     {
         /// <summary>
         /// Create the template output
@@ -30,24 +30,18 @@ namespace Solitons.Text.Json
             this.Write(": ");
             this.Write(this.ToStringHelper.ToStringWithCulture(1==1));
             this.Write(",\r\n\t");
-            this.Write(this.ToStringHelper.ToStringWithCulture("int"));
-            this.Write(": ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(123));
-            this.Write(",\r\n\t\"nullInt\": ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(new int?()));
-            this.Write(",\r\n\t");
             this.Write(this.ToStringHelper.ToStringWithCulture("double"));
-            this.Write(": ");
+            this.Write(": \"");
             this.Write(this.ToStringHelper.ToStringWithCulture(Math.PI));
-            this.Write(",\r\n\t");
+            this.Write("\",\r\n\t");
             this.Write(this.ToStringHelper.ToStringWithCulture("timeSpan"));
-            this.Write(": ");
+            this.Write(": \"");
             this.Write(this.ToStringHelper.ToStringWithCulture(TimeSpan.FromSeconds(220)));
-            this.Write(",\r\n\t");
+            this.Write("\",\r\n\t");
             this.Write(this.ToStringHelper.ToStringWithCulture("nullableTimeSpan"));
-            this.Write(": ");
+            this.Write(": \"");
             this.Write(this.ToStringHelper.ToStringWithCulture(new TimeSpan?(TimeSpan.FromSeconds(220))));
-            this.Write(",\r\n\t\"object\": ");
+            this.Write("\",\r\n\t\"object\": ");
             this.Write(this.ToStringHelper.ToStringWithCulture(new { number = 123, text = "Hello"}));
             this.Write(",\r\n\t\"array\": ");
             this.Write(this.ToStringHelper.ToStringWithCulture(new object[]{123, "text", DateTime.Now}));

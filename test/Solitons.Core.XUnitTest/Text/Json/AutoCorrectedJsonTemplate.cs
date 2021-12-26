@@ -18,7 +18,7 @@ namespace Solitons.Text.Json
     /// Class to produce the template output
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class AutoCorrectedJsonTemplate : RuntimeJsonTemplate
+    public partial class AutoCorrectedJsonTemplate : JsonRuntimeTextTemplate
     {
         /// <summary>
         /// Create the template output

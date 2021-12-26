@@ -5,7 +5,9 @@ using Npgsql;
 using Solitons.Samples.Database.Scripts.PostDeployment;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using DbUp.Support;
 using Solitons.Data;
+using Solitons.Data.Common.Postgres;
 using Solitons.Samples.Database.Models;
 using Solitons.Security.Postgres;
 
@@ -109,7 +111,10 @@ namespace Solitons.Samples.Database
                 .JournalToPostgresqlTable("system", "schemaversions")
                 .LogTo(logger)
                 .LogScriptOutput()
-                .LogToNowhere()
+                .WithScript("solitons.sql", new SolitonsPgScriptRtt(
+                    SolitonsPgScriptRttOptions.Logging, 
+                    "system"), 
+                    new SqlScriptOptions(){ RunGroupOrder = -1 })
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsDeployment)
                 .Build());
             

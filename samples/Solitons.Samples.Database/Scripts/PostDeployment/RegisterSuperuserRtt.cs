@@ -27,6 +27,8 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
         {
             this.Write("INSERT INTO system.user(email, organization_object_id) VALUES ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ValuesCsv));
+            this.Write("\r\nON CONFLICT(email) DO UPDATE SET \r\n\torganization_object_id = EXCLUDED.organizat" +
+                    "ion_object_id;");
             return this.GenerationEnvironment.ToString();
         }
     }

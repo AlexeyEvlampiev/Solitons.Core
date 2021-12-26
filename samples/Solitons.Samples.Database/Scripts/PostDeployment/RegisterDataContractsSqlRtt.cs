@@ -55,7 +55,8 @@ ON CONFLICT(object_id) DO UPDATE SET dotnet_type = EXCLUDED.dotnet_type;
 
 INSERT INTO api.data_contract_content_type(data_contract_object_id, content_type)
 SELECT object_id, content_type
-FROM tmp_content_type;
+FROM tmp_content_type
+ON CONFLICT(data_contract_object_id, content_type) DO NOTHING;
 ");
             return this.GenerationEnvironment.ToString();
         }

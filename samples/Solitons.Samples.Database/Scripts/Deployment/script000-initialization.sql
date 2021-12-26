@@ -20,13 +20,6 @@ CREATE EXTENSION IF NOT EXISTS hstore SCHEMA extensions;
 
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA api FROM PUBLIC;
 
-CREATE DOMAIN data.natural_key AS varchar(150) CHECK(VALUE ~ '^\S.*\S$');
-
-CREATE DOMAIN system.email AS varchar(150)
-  CHECK ( value ~ '^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$' );
-
-CREATE TYPE data.loglevel AS ENUM ('critical', 'error', 'warning', 'info', 'verbose'); 
-COMMENT ON DOMAIN data.natural_key IS 'Solitons Sample log levels';
 
 CREATE TABLE system.gcobject(
 	object_id uuid  NOT NULL  DEFAULT extensions.gen_random_uuid()
@@ -36,10 +29,10 @@ CREATE TABLE system.gcobject(
 );
 COMMENT ON TABLE system.gcobject IS 'GC- managed entry';
 
-CREATE OR REPLACE FUNCTION data.role_full_name(_name data.natural_key) RETURNS data.natural_key
+CREATE OR REPLACE FUNCTION data.role_full_name(_name system.natural_key) RETURNS system.natural_key
 AS
 $$
-	SELECT FORMAT('%s_%s', current_database(), _name)::data.natural_key;
+	SELECT FORMAT('%s_%s', current_database(), _name)::system.natural_key;
 $$ LANGUAGE 'sql' IMMUTABLE;
 
 
@@ -72,7 +65,7 @@ CREATE TYPE api.content_result AS (status int, content_type text, content text);
 CREATE TABLE IF NOT EXISTS data.organization
 (
 	PRIMARY KEY(object_id)
-	,id data.natural_key NOT NULL UNIQUE
+	,id system.natural_key NOT NULL UNIQUE
 	,email system.email NOT NULL UNIQUE
 ) INHERITS(system.gcobject);
 
@@ -81,8 +74,8 @@ CREATE TABLE IF NOT EXISTS data.user
 (	
 	email system.email NOT NULL UNIQUE
 	,organization_object_id uuid NOT NULL REFERENCES data.organization(object_id)
-	,role_name data.natural_key NOT NULL
-	,role_full_name data.natural_key NOT NULL CHECK(role_full_name = data.role_full_name(role_name))
+	,role_name system.natural_key NOT NULL
+	,role_full_name system.natural_key NOT NULL CHECK(role_full_name = data.role_full_name(role_name))
 	,PRIMARY KEY(object_id)
 ) INHERITS(system.user);
 
@@ -91,11 +84,11 @@ CREATE TABLE IF NOT EXISTS data.user
 CREATE OR REPLACE FUNCTION data.user_upsert(
 	_organization_object_id uuid, 
 	_email system.email, 
-	_rolname data.natural_key DEFAULT(NULL)) RETURNS data.user 
+	_rolname system.natural_key DEFAULT(NULL)) RETURNS data.user 
 AS
 $$
 DECLARE 
-	_host_rolname data.natural_key;
+	_host_rolname system.natural_key;
 	_user data.user;
 BEGIN
 	_rolname := COALESCE(_rolname, 'prospect');
@@ -166,7 +159,7 @@ CREATE TABLE api.data_contract
 CREATE TABLE api.data_contract_content_type
 (
 	data_contract_object_id uuid NOT NULL REFERENCES api.data_contract(object_id)
-	,content_type data.natural_key NOT NULL CHECK(content_type IN ('application/xml','application/json'))
+	,content_type system.natural_key NOT NULL CHECK(content_type IN ('application/xml','application/json'))
 	,"schema" text CHECK(
 		CASE content_type
 			WHEN 'application/xml' THEN ("schema" IS NULL OR "schema"::xml IS NOT NULL)
@@ -177,27 +170,87 @@ CREATE TABLE api.data_contract_content_type
 );
 
 
-
-
-CREATE TABLE api.http_event
+CREATE TABLE api.http_service 
 (
-	PRIMARY KEY(object_id)
-	,dotnet_type varchar(1000)
-	,supported_content_types text[] NOT NULL
-	,version_regexp varchar(100) NOT NULL 
-	,method_regexp varchar(100) NOT NULL 
-	,url_template varchar(500) NOT NULL 
-	,payload_object_id uuid
-	,payload_dotnet_type varchar(1000)
-	,response_object_id uuid
-	,response_dotnet_type varchar(1000)
-) INHERITS(system.gcobject);
+	PRIMARY KEY(object_id),
+	id system.natural_key NOT NULL UNIQUE,	
+	description text NOT NULL,
+	current_version system.version NOT NULL DEFAULT('1.0'),
+	host varchar(1000) NOT NULL DEFAULT('https://localhost:80') CHECK(host ~ '^https://\w')
+) INHERITS (system.gcobject);
 
-CREATE TABLE api.http_trigger
+CREATE OR REPLACE FUNCTION api.http_service_upsert(
+	_object_id uuid,
+	_id system.natural_key, 
+	_description text, 
+	_current_version system.version, 
+	_host varchar(1000)) RETURNS SETOF api.http_service AS
+$$
+BEGIN
+	PERFORM system.raise_exception_if_null_or_empty(_object_id, '_object_id');
+	PERFORM system.raise_exception_if_null(_id, '_id');
+	PERFORM system.raise_exception_if_null(_description, '_description');
+	PERFORM system.raise_exception_if_null(_current_version, '_current_version');
+	PERFORM system.raise_exception_if_null(_host, '_host');
+	RETURN QUERY
+	INSERT INTO api.http_service(object_id, id, description, current_version, host)
+	VALUES(_object_id, _id, _description, _current_version, _host)
+	ON CONFLICT(object_id) DO UPDATE SET
+		id = EXCLUDED.id, 
+		description = EXCLUDED.description, 
+		current_version = EXCLUDED.current_version, 
+		host = EXCLUDED.host
+	RETURNING *;
+END;
+$$ LANGUAGE 'plpgsql';	
+
+/*
+DROP DOMAIN public.version;
+CREATE DOMAIN public.version AS varchar(25) CHECK (value ~ '^\d+(\.\d+){0,3}$');
+select '3.2.1'::public.version;
+*/
+
+--SELECT * FROM api.http_service_upsert('10000000-0000-0000-0000-000000000000', 'id', 'description', '3.2.1', 'https://localhost');
+
+
+CREATE TABLE api.http_event_type
 (
-	PRIMARY KEY(object_id)
-	,procedure varchar(1000) NOT NULL
-) INHERITS(api.http_event);
+	PRIMARY KEY(object_id),
+	FOREIGN KEY(object_id) REFERENCES api.data_contract(object_id),
+	authorized_roles_csv varchar(1000) NOT NULL DEFAULT('admin'),
+	dontnet_event_args_type varchar(1000) NOT NULL,
+	service_verson_regexp varchar(100) NOT NULL,
+	http_methods_regexp varchar(100) NOT NULL,
+	url_regexp varchar(1000) NOT NULL,
+	request_body_data_contract_object_id uuid REFERENCES api.data_contract(object_id),
+	response_body_data_contract_object_id uuid REFERENCES api.data_contract(object_id)
+) INHERITS (system.gcobject);
+
+
+
+CREATE TABLE api.http_trigger 
+(
+	http_event_type_object_id uuid PRIMARY KEY REFERENCES api.http_event_type(object_id),
+	trigger_function varchar(1000) NOT NULL
+) ;
+
+CREATE TABLE api.http_service_event_type
+(
+	http_service_object_id uuid NOT NULL REFERENCES api.http_service(object_id),
+	http_event_type_object_id uuid NOT NULL REFERENCES api.http_event_type(object_id),
+	PRIMARY KEY(http_service_object_id, http_event_type_object_id)
+);
+
+
+CREATE TABLE api.http_trigger_queue
+(
+	id bigint NOT NULL GENERATED ALWAYS AS IDENTITY,
+	PRIMARY KEY(http_event_type_object_id),
+	http_event_type_object_id uuid NOT NULL REFERENCES api.http_trigger(http_event_type_object_id),
+	event_args json NOT NULL,
+	request_body text,
+	result api.content_result	
+) INHERITS (system.gcobject);
 
 
 CREATE OR REPLACE FUNCTION api.customer_get(

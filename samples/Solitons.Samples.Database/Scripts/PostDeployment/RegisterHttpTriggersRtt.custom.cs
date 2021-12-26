@@ -9,7 +9,7 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
         {
             var context = SampleDomainContext.GetOrCreate();
             var triggers = context
-                .GetDatabaseExternalTriggerArgs<DbHttpTriggerEventArgsAttribute>();
+                .GetDatabaseExternalTriggerArgs<DatabaseHttpTriggerEventArgsAttribute>();
 
         }
     }

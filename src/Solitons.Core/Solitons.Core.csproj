@@ -26,12 +26,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data\Postgres\Common\**" />
-    <EmbeddedResource Remove="Data\Postgres\Common\**" />
-    <None Remove="Data\Postgres\Common\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.Reactive" Version="[5.0.0,)" />
   </ItemGroup>
 
@@ -40,8 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Common\" />
-    <Folder Include="Data\Postgres\" />
     <Folder Include="Tables\" />
   </ItemGroup>
 
@@ -49,6 +41,11 @@
     <None Include="..\Solitons.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="Data\Common\Postgres\SolitonsPgScriptRttOptions.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SolitonsPgScriptRttOptions.tt</DependentUpon>
     </None>
     <None Include="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
@@ -58,6 +55,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Data\Common\Postgres\SolitonsPgScriptRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SolitonsPgScriptRtt.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Data\Common\Postgres\SolitonsPgScriptRttOptions.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SolitonsPgScriptRttOptions.tt</DependentUpon>
+    </Compile>
     <Compile Update="Security\Postgres\Scripts\CreatePgDatabaseScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -96,6 +103,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Data\Common\Postgres\SolitonsPgScriptRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>SolitonsPgScriptRtt.cs</LastGenOutput>
+    </None>
+    <None Update="Data\Common\Postgres\SolitonsPgScriptRttOptions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SolitonsPgScriptRttOptions.generated.cs</LastGenOutput>
+    </None>
     <None Update="Security\Postgres\Scripts\CreatePgDatabaseScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>CreatePgDatabaseScriptRtt.cs</LastGenOutput>

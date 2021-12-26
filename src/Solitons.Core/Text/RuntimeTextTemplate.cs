@@ -72,6 +72,7 @@ namespace Solitons.Text
             {
                 throw new ArgumentNullException(nameof(objectToConvert));
             }
+            if (objectToConvert is bool boolean) return boolean.ToString().ToLower();
             var t = objectToConvert.GetType();
             var method = t.GetMethod(nameof(ToString), new[] {
                 typeof(IFormatProvider)});

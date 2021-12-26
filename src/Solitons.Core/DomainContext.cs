@@ -27,7 +27,7 @@ namespace Solitons
     /// </item>
     /// </list>
     /// </summary>
-    public abstract partial class DomainContext
+    public abstract partial class DomainContext : IDomainContext
     {
         #region Private Fields
 
@@ -134,47 +134,6 @@ namespace Solitons
             _serializer = new Lazy<IDomainSerializer>(() => DomainSerializer.Create(this));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="types"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static DomainContext CreateGenericContext(params Type[] types) =>
-            new GenericDomainContext(types
-                .ThrowIfNullArgument(nameof(types)));
-
-        /// <summary>
-        /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assembly.
-        /// </summary>
-        /// <param name="assembly"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static DomainContext CreateGenericContext(Assembly assembly) =>
-            new GenericDomainContext(assembly
-                .ThrowIfNullArgument(nameof(assembly))
-                .ToEnumerable());
-
-        /// <summary>
-        /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assemblies.
-        /// </summary>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static DomainContext CreateGenericContext(params Assembly[] assemblies) =>
-            new GenericDomainContext(assemblies
-                .ThrowIfNullArgument(nameof(assemblies)));
-
-        /// <summary>
-        /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assemblies.
-        /// </summary>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static DomainContext CreateGenericContext(IEnumerable<Assembly> assemblies) =>
-            new GenericDomainContext(assemblies
-                .ThrowIfNullArgument(nameof(assemblies)));
-      
 
         /// <summary>
         /// 

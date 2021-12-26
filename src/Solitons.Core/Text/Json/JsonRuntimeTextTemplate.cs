@@ -10,7 +10,7 @@ namespace Solitons.Text.Json
     /// 
     /// </summary>
     /// <seealso cref="Solitons.Text.RuntimeTextTemplate" />
-    public abstract class RuntimeJsonTemplate : RuntimeTextTemplate
+    public abstract class JsonRuntimeTextTemplate : RuntimeTextTemplate
     {
         /// <summary>
         /// Converts the given object to a string applying the current culture.
@@ -22,9 +22,9 @@ namespace Solitons.Text.Json
             if (objectToConvert is null) return "null";
             if (objectToConvert is string str) return JsonSerializer.Serialize(str);
             if (objectToConvert is StringBuilder stringBuilder) return JsonSerializer.Serialize(stringBuilder.ToString());
-            if (objectToConvert is TimeSpan timeSpan) return XmlConvert.ToString(timeSpan).Quote();
-            if (objectToConvert is DateTime dateTime) return XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.Unspecified).Quote();
-            if (objectToConvert is DateTimeOffset dateTimeOffset) return XmlConvert.ToString(dateTimeOffset).Quote();
+            if (objectToConvert is TimeSpan timeSpan) return XmlConvert.ToString(timeSpan);
+            if (objectToConvert is DateTime dateTime) return XmlConvert.ToString(dateTime, XmlDateTimeSerializationMode.Unspecified);
+            if (objectToConvert is DateTimeOffset dateTimeOffset) return XmlConvert.ToString(dateTimeOffset);
             if (TrySerialize(objectToConvert, out var json)) return json;
             return base.ToStringWithCulture(objectToConvert);
         }

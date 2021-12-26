@@ -17,14 +17,14 @@ namespace Solitons
         [Fact]
         public void ThrowWhenDtoGuidIsMissing()
         {
-            var target = DomainContext.CreateGenericContext(typeof(MiddingGuidDto));
+            var target = IDomainContext.CreateGenericContext(typeof(MiddingGuidDto));
             Assert.Throws<InvalidOperationException>(() => target.GetSerializer());
         }
 
         [Fact]
         public void ThrowWhenFoundDuplicateTypeIds()
         {
-            var target = DomainContext.CreateGenericContext(
+            var target = IDomainContext.CreateGenericContext(
                 typeof(FirstDtoWithSameTypeId), 
                 typeof(SecondDtoWithSameTypeId));
             Assert.Throws<InvalidOperationException>(() => target.GetSerializer());

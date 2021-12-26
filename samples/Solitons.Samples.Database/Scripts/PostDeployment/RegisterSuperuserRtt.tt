@@ -4,3 +4,5 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 INSERT INTO system.user(email, organization_object_id) VALUES <#= ValuesCsv #>
+ON CONFLICT(email) DO UPDATE SET 
+	organization_object_id = EXCLUDED.organization_object_id;
