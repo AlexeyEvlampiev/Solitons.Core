@@ -106,15 +106,18 @@ namespace Solitons.Samples.Database
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsPreDeployment)
                 .Build());
 
+
+            var commonSql = new string[]
+            {
+                new CommonPgScriptRtt("system"),
+                new LoggingPgScriptRtt("system"),
+            }.Join(Environment.NewLine);
             queue.Enqueue(DeployChanges.To
                 .PostgresqlDatabase(connectionString)
                 .JournalToPostgresqlTable("system", "schemaversions")
                 .LogTo(logger)
                 .LogScriptOutput()
-                .WithScript("solitons.sql", new SolitonsPgScriptRtt(
-                    SolitonsPgScriptRttOptions.Logging, 
-                    "system"), 
-                    new SqlScriptOptions(){ RunGroupOrder = -1 })
+                .WithScript("common.sql", commonSql, new SqlScriptOptions(){ RunGroupOrder = -1 })
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsDeployment)
                 .Build());
             

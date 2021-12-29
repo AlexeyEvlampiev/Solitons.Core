@@ -18,74 +18,16 @@ namespace Solitons.Data.Common.Postgres
     /// Class to produce the template output
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class SolitonsPgScriptRtt : Solitons.Text.Sql.PgRuntimeTextTemplate
+    public partial class LoggingPgScriptRtt : Solitons.Text.Sql.PgRuntimeTextTemplate
     {
         /// <summary>
         /// Create the template output
         /// </summary>
         public override string TransformText()
         {
-            this.Write("\r\nCREATE DOMAIN ");
+            this.Write("CREATE TYPE   ");
             this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(".natural_key AS varchar(150) CHECK(VALUE ~ \'^\\S.*\\S$\');\r\nCREATE DOMAIN ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(".version AS varchar(25) CHECK (value ~ \'^\\d+(\\.\\d+){0,3}$\');\r\nCREATE DOMAIN ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(".email AS varchar(150) CHECK ( value ~ \'");
-            this.Write(this.ToStringHelper.ToStringWithCulture(EmailPattern));
-            this.Write("\');\r\nCREATE TYPE   ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(".log_level AS ENUM (\'critical\', \'error\', \'warning\', \'info\', \'verbose\'); \r\n\r\nCREAT" +
-                    "E OR REPLACE FUNCTION ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(@".raise_exception_if_null(arg anyelement, arg_name varchar(50)) RETURNS void AS
-$$
-BEGIN
-	IF arg IS NULL THEN
-		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
-	END IF;
-END;
-$$ LANGUAGE 'plpgsql' IMMUTABLE;
-
-
-
-CREATE OR REPLACE FUNCTION ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(@".raise_exception_if_null_or_empty(arg uuid, arg_name varchar(50)) RETURNS void AS
-$$
-BEGIN
-	IF NULLIF(arg, '00000000-0000-0000-0000-000000000000'::uuid) IS NULL THEN
-		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
-	END IF;
-END;
-$$ LANGUAGE 'plpgsql' IMMUTABLE;
-
-
-
-CREATE OR REPLACE FUNCTION ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(@".raise_exception_if_null_or_empty(arg text, arg_name varchar(50)) RETURNS void AS
-$$
-BEGIN
-	IF NULLIF(TRIM(txt), '') THEN
-		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
-	END IF;
-END;
-$$ LANGUAGE 'plpgsql' IMMUTABLE;
-
-
-
-CREATE OR REPLACE FUNCTION ");
-            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(@".try_cast(_in text, INOUT _out ANYELEMENT) AS
-$$
-BEGIN
-   EXECUTE FORMAT('SELECT %L::%s', $1, pg_typeof(_out)) INTO  _out;
-EXCEPTION WHEN others THEN
-   -- do nothing: _out already carries default
-END;
-$$ LANGUAGE 'plpgsql' IMMUTABLE;
-
+            this.Write(@".log_level AS ENUM ('critical', 'error', 'warning', 'info', 'verbose'); 
 
 CREATE TABLE IF NOT EXISTS system.log
 (
@@ -100,7 +42,7 @@ CREATE TABLE IF NOT EXISTS system.log
 	PRIMARY KEY(day_of_year, id)
 ) PARTITION BY HASH(day_of_year); ");
  for(int i = 1; i <= 365; ++i ){ var part = (i % 365).ToString("000"); 
-            this.Write("CREATE TABLE system.log_");
+            this.Write(" \r\nCREATE TABLE system.log_day");
             this.Write(this.ToStringHelper.ToStringWithCulture(part));
             this.Write(" PARTITION OF system.log FOR VALUES WITH (MODULUS 365, REMAINDER ");
             this.Write(this.ToStringHelper.ToStringWithCulture(part));

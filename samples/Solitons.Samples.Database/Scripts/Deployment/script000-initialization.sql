@@ -176,7 +176,8 @@ CREATE TABLE api.http_service
 	id system.natural_key NOT NULL UNIQUE,	
 	description text NOT NULL,
 	current_version system.version NOT NULL DEFAULT('1.0'),
-	host varchar(1000) NOT NULL DEFAULT('https://localhost:80') CHECK(host ~ '^https://\w')
+	authorized_roles text[],
+	base_address varchar(1000) NOT NULL DEFAULT('https://localhost:80') CHECK(base_address ~ '^https://\w')
 ) INHERITS (system.gcobject);
 
 CREATE OR REPLACE FUNCTION api.http_service_upsert(
@@ -184,17 +185,25 @@ CREATE OR REPLACE FUNCTION api.http_service_upsert(
 	_id system.natural_key, 
 	_description text, 
 	_current_version system.version, 
-	_host varchar(1000)) RETURNS SETOF api.http_service AS
+	_authorized_roles_csv text,
+	_base_address varchar(1000)) RETURNS SETOF api.http_service AS
 $$
+DECLARE
+	_authorized_roles text[];
 BEGIN
-	PERFORM system.raise_exception_if_null_or_empty(_object_id, '_object_id');
-	PERFORM system.raise_exception_if_null(_id, '_id');
-	PERFORM system.raise_exception_if_null(_description, '_description');
-	PERFORM system.raise_exception_if_null(_current_version, '_current_version');
-	PERFORM system.raise_exception_if_null(_host, '_host');
+	PERFORM system.raise_exception_if_null_or_empty_argument(_object_id, '_object_id');
+	PERFORM system.raise_exception_if_null_argument(_id, '_id');
+	PERFORM system.raise_exception_if_null_argument(_description, '_description');
+	PERFORM system.raise_exception_if_null_argument(_current_version, '_current_version');
+	PERFORM system.raise_exception_if_null_argument(_base_address, '_base_address');
+
+	SELECT ARRAY_AGG(TRIM(authorized.role)) INTO _authorized_roles
+	FROM regexp_split_to_table(_authorized_roles_csv, E'\\s*,\\s*') AS authorized(role)
+	WHERE authorized.role ~ '\S';
+
 	RETURN QUERY
-	INSERT INTO api.http_service(object_id, id, description, current_version, host)
-	VALUES(_object_id, _id, _description, _current_version, _host)
+	INSERT INTO api.http_service(object_id, id, description, current_version, authorized_roles, base_address)
+	VALUES(_object_id, _id, _description, _current_version, _authorized_roles, _base_address)
 	ON CONFLICT(object_id) DO UPDATE SET
 		id = EXCLUDED.id, 
 		description = EXCLUDED.description, 

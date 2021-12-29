@@ -55,10 +55,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Data\Common\Postgres\SolitonsPgScriptRtt.cs">
+    <Compile Update="Data\Common\Postgres\LoggingPgScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>SolitonsPgScriptRtt.tt</DependentUpon>
+      <DependentUpon>LoggingPgScriptRtt.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Data\Common\Postgres\CommonPgScriptRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CommonPgScriptRtt.tt</DependentUpon>
     </Compile>
     <Compile Update="Data\Common\Postgres\SolitonsPgScriptRttOptions.generated.cs">
       <DesignTime>True</DesignTime>
@@ -103,9 +108,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\Common\Postgres\SolitonsPgScriptRtt.tt">
+    <None Update="Data\Common\Postgres\LoggingPgScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SolitonsPgScriptRtt.cs</LastGenOutput>
+      <LastGenOutput>LoggingPgScriptRtt.cs</LastGenOutput>
+    </None>
+    <None Update="Data\Common\Postgres\CommonPgScriptRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CommonPgScriptRtt.cs</LastGenOutput>
     </None>
     <None Update="Data\Common\Postgres\SolitonsPgScriptRttOptions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

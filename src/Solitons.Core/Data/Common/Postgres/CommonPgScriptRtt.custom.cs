@@ -2,17 +2,15 @@
 
 namespace Solitons.Data.Common.Postgres
 {
-    public partial class SolitonsPgScriptRtt
+    public partial class CommonPgScriptRtt
     {
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="options"></param>
         /// <param name="schemaName"></param>
-        public SolitonsPgScriptRtt(SolitonsPgScriptRttOptions options, string schemaName = "public")
+        public CommonPgScriptRtt(string schemaName = "public")
         {
-            Options = options;
             SchemaName = schemaName.DefaultIfNullOrWhiteSpace("public");
         }
 
@@ -26,9 +24,5 @@ namespace Solitons.Data.Common.Postgres
         /// </summary>
         public string EmailPattern => RegexPatterns.Email;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public SolitonsPgScriptRttOptions Options { get; }
     }
 }

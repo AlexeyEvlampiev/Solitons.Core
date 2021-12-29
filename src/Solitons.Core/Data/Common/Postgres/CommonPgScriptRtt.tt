@@ -1,0 +1,52 @@
+﻿<#@ template language="C#" linePragmas="false" inherits="Solitons.Text.Sql.PgRuntimeTextTemplate" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+CREATE DOMAIN <#= SchemaName #>.natural_key AS varchar(150) CHECK(VALUE ~ '^\S.*\S$');
+CREATE DOMAIN <#= SchemaName #>.version AS varchar(25) CHECK (value ~ '^\d+(\.\d+){0,3}$');
+CREATE DOMAIN <#= SchemaName #>.email AS varchar(150) CHECK ( value ~ '<#= EmailPattern #>');
+
+CREATE OR REPLACE FUNCTION <#= SchemaName #>.raise_exception_if_null_argument(arg anyelement, arg_name varchar(50)) RETURNS void AS
+$$
+BEGIN
+	IF arg IS NULL THEN
+		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
+	END IF;
+END;
+$$ LANGUAGE 'plpgsql' IMMUTABLE;
+
+
+
+CREATE OR REPLACE FUNCTION <#= SchemaName #>.raise_exception_if_null_or_empty_argument(arg uuid, arg_name varchar(50)) RETURNS void AS
+$$
+BEGIN
+	IF NULLIF(arg, '00000000-0000-0000-0000-000000000000'::uuid) IS NULL THEN
+		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
+	END IF;
+END;
+$$ LANGUAGE 'plpgsql' IMMUTABLE;
+
+
+
+CREATE OR REPLACE FUNCTION <#= SchemaName #>.raise_exception_if_null_or_empty_argument(arg text, arg_name varchar(50)) RETURNS void AS
+$$
+BEGIN
+	IF NULLIF(TRIM(txt), '') THEN
+		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
+	END IF;
+END;
+$$ LANGUAGE 'plpgsql' IMMUTABLE;
+
+
+
+CREATE OR REPLACE FUNCTION <#= SchemaName #>.try_cast(_in text, INOUT _out ANYELEMENT) AS
+$$
+BEGIN
+   EXECUTE FORMAT('SELECT %L::%s', $1, pg_typeof(_out)) INTO  _out;
+EXCEPTION WHEN others THEN
+   -- do nothing: _out already carries default
+END;
+$$ LANGUAGE 'plpgsql' IMMUTABLE;
+
