@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Moq;
 using Xunit;
 
 namespace Solitons.Web
@@ -23,7 +24,12 @@ namespace Solitons.Web
             var startAddress = startAddressString?.Convert(IPAddress.Parse);
             var endAddress = endAddressString?.Convert(IPAddress.Parse);
 
-            ISecureAccessSignatureService target = new RSASecureAccessSignatureService(new System.Security.Cryptography.RSACryptoServiceProvider());
+            var clock = new Mock<IClock>();
+            clock.SetupGet(i => i.UtcNow).Returns(DateTimeOffset.Parse("2022-01-01"));
+
+            ISecureAccessSignatureService target = new RSASecureAccessSignatureService(
+                new System.Security.Cryptography.RSACryptoServiceProvider(), 
+                clock.Object);
             var signedQueryString = target.SignQueryString(queryString, startTime, expiryTime, startAddress, endAddress);
             Assert.True(target.IsGenuineQueryString(
                 signedQueryString, 

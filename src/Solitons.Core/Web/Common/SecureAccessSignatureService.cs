@@ -17,7 +17,7 @@ namespace Solitons.Web.Common
 
 
         [DebuggerNonUserCode]
-        public SecureAccessSignatureService() : this(IClock.System)
+        protected SecureAccessSignatureService() : this(IClock.System)
         {
 
         }
