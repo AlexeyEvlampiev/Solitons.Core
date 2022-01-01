@@ -6,9 +6,9 @@
 
 CREATE TEMPORARY TABLE tmp_data_contracts(
    object_id uuid NOT NULL,
-   dotnet_type varchar(150) NOT NULL );
+   name varchar(1000) NOT NULL);
 
-INSERT INTO tmp_data_contracts(object_id, dotnet_type) VALUES <# foreach(var type in DataContractTypes){ #> 
+INSERT INTO tmp_data_contracts(object_id, name) VALUES <# foreach(var type in DataContractTypes){ #> 
 ('<#= type.GUID #>'::uuid, '<#= type.FullName #>')<# if(type != DataContractTypes.Last())Write(","); } #> ;
 
 CREATE TEMPORARY TABLE tmp_content_type(
@@ -19,10 +19,10 @@ CREATE TEMPORARY TABLE tmp_content_type(
 INSERT INTO tmp_content_type(object_id, content_type, "schema") VALUES <# foreach(var entry in DataContractEntries){ #> 
 ('<#= entry.TypeId #>'::uuid, '<#= entry.ContentType #>', NULL)<# if(entry != DataContractEntries.Last())Write(","); } #> ;
 
-INSERT INTO api.data_contract(object_id, dotnet_type)
-SELECT object_id, dotnet_type
-FROM tmp_data_contracts
-ON CONFLICT(object_id) DO UPDATE SET dotnet_type = EXCLUDED.dotnet_type;
+INSERT INTO api.data_contract(object_id, name)
+SELECT object_id, name
+FROM tmp_data_contracts AS tmp
+ON CONFLICT(object_id) DO UPDATE SET name = EXCLUDED.name;
 
 
 INSERT INTO api.data_contract_content_type(data_contract_object_id, content_type)

@@ -57,6 +57,17 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql' IMMUTABLE;
 
+CREATE OR REPLACE FUNCTION ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
+            this.Write(@".raise_exception_if_empty_argument(arg uuid, arg_name varchar(50)) RETURNS void AS
+$$
+BEGIN
+	IF arg = '00000000-0000-0000-0000-000000000000'::uuid THEN
+		RAISE EXCEPTION '''%'' argument is empty.', COALESCE(arg_name, '?');
+	END IF;
+END;
+$$ LANGUAGE 'plpgsql' IMMUTABLE;
+
 
 
 CREATE OR REPLACE FUNCTION ");
@@ -64,7 +75,7 @@ CREATE OR REPLACE FUNCTION ");
             this.Write(@".raise_exception_if_null_or_empty_argument(arg text, arg_name varchar(50)) RETURNS void AS
 $$
 BEGIN
-	IF NULLIF(TRIM(txt), '') THEN
+	IF NULLIF(TRIM(arg), '') IS NULL THEN
 		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
 	END IF;
 END;
@@ -74,10 +85,25 @@ $$ LANGUAGE 'plpgsql' IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION ");
             this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
-            this.Write(".try_cast(_in text, INOUT _out ANYELEMENT) AS\r\n$$\r\nBEGIN\r\n   EXECUTE FORMAT(\'SELE" +
-                    "CT %L::%s\', $1, pg_typeof(_out)) INTO  _out;\r\nEXCEPTION WHEN others THEN\r\n   -- " +
-                    "do nothing: _out already carries default\r\nEND;\r\n$$ LANGUAGE \'plpgsql\' IMMUTABLE;" +
-                    "\r\n\r\n");
+            this.Write(@".try_cast(_in text, INOUT _out ANYELEMENT) AS
+$$
+BEGIN
+   EXECUTE FORMAT('SELECT %L::%s', $1, pg_typeof(_out)) INTO  _out;
+EXCEPTION WHEN others THEN
+   -- do nothing: _out already carries default
+END;
+$$ LANGUAGE 'plpgsql' IMMUTABLE;
+
+
+
+CREATE OR REPLACE FUNCTION ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
+            this.Write(".nullif_empty(_arg uuid) RETURNS uuid AS\r\n$$\r\n\tSELECT NULLIF(_arg, \'00000000-0000" +
+                    "-0000-0000-000000000000\'::uuid);\r\n$$ LANGUAGE \'sql\' IMMUTABLE;\r\n\r\n\r\nCREATE OR RE" +
+                    "PLACE FUNCTION ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
+            this.Write(".is_empty(_arg uuid) RETURNS bool AS\r\n$$\r\n\tSELECT (_arg = \'00000000-0000-0000-000" +
+                    "0-000000000000\'::uuid);\r\n$$ LANGUAGE \'sql\' IMMUTABLE;");
             return this.GenerationEnvironment.ToString();
         }
     }

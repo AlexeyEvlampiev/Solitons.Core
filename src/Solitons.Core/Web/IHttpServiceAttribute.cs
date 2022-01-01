@@ -23,6 +23,10 @@ namespace Solitons.Web
         /// </summary>
         string Description { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         Version CurrentVersion { get; }
+
     }
 }

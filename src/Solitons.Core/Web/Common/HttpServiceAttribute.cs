@@ -9,15 +9,16 @@ namespace Solitons.Web.Common
     /// <summary>
     /// 
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public abstract class HttpServiceAttribute : Attribute, IHttpServiceAttribute
     {
         private readonly Version _currentVersion;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="version"></param>
+        /// <param name="currentVersion"></param>
         protected HttpServiceAttribute(string id, Version currentVersion)
         {
             var attributes = GetType().GetCustomAttributes(false);

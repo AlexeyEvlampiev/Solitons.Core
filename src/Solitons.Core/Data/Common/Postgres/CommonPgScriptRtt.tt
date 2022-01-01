@@ -28,12 +28,21 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql' IMMUTABLE;
 
+CREATE OR REPLACE FUNCTION <#= SchemaName #>.raise_exception_if_empty_argument(arg uuid, arg_name varchar(50)) RETURNS void AS
+$$
+BEGIN
+	IF arg = '00000000-0000-0000-0000-000000000000'::uuid THEN
+		RAISE EXCEPTION '''%'' argument is empty.', COALESCE(arg_name, '?');
+	END IF;
+END;
+$$ LANGUAGE 'plpgsql' IMMUTABLE;
+
 
 
 CREATE OR REPLACE FUNCTION <#= SchemaName #>.raise_exception_if_null_or_empty_argument(arg text, arg_name varchar(50)) RETURNS void AS
 $$
 BEGIN
-	IF NULLIF(TRIM(txt), '') THEN
+	IF NULLIF(TRIM(arg), '') IS NULL THEN
 		RAISE EXCEPTION '''%'' argument is required', COALESCE(arg_name, '?');
 	END IF;
 END;
@@ -50,3 +59,15 @@ EXCEPTION WHEN others THEN
 END;
 $$ LANGUAGE 'plpgsql' IMMUTABLE;
 
+
+
+CREATE OR REPLACE FUNCTION <#= SchemaName #>.nullif_empty(_arg uuid) RETURNS uuid AS
+$$
+	SELECT NULLIF(_arg, '00000000-0000-0000-0000-000000000000'::uuid);
+$$ LANGUAGE 'sql' IMMUTABLE;
+
+
+CREATE OR REPLACE FUNCTION <#= SchemaName #>.is_empty(_arg uuid) RETURNS bool AS
+$$
+	SELECT (_arg = '00000000-0000-0000-0000-000000000000'::uuid);
+$$ LANGUAGE 'sql' IMMUTABLE;

@@ -8,4 +8,15 @@ ON CONFLICT(object_id) DO UPDATE SET
 SELECT FROM data.user_upsert(
 	'90b74b98-6ee7-491e-a555-71078545c020'
 	,'katherine@northwind.com',
-	'customer')
+	'customer');
+
+SELECT * FROM api.http_service_upsert(
+	'e725b5e0-de00-4b1b-8d61-72f244497979', 
+	'Public API', 
+	'Public API', 
+	'1.0',
+	'prospect, customer',
+	'https://localhost:1234');
+
+
+

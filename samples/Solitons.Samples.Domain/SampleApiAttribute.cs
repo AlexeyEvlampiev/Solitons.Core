@@ -9,6 +9,7 @@ namespace Solitons.Samples.Domain
     /// </summary>
     [Guid("bec9929a-0a9f-48a7-a92b-f184d5309d6e")]
     [Description("Sample API description goes here")]
+    [DisplayName("Sample API")]
     public sealed class SampleApiAttribute : HttpServiceAttribute
     {
         public static readonly Version CurrentVersion = Version.Parse("1.0");

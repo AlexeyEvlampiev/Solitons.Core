@@ -110,7 +110,7 @@ namespace Solitons.Samples.Database
             var commonSql = new string[]
             {
                 new CommonPgScriptRtt("system"),
-                new LoggingPgScriptRtt("system"),
+                new LoggingPgScriptRtt(LoggingPgScriptPartitioningOptions.ByYearQuarter,"system"),
             }.Join(Environment.NewLine);
             queue.Enqueue(DeployChanges.To
                 .PostgresqlDatabase(connectionString)

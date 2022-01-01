@@ -60,7 +60,32 @@ CREATE UNIQUE INDEX ux_mvw_role ON data.mvw_role (name);
 CREATE UNIQUE INDEX ux_mvw_full_name ON data.mvw_role (full_name);
 
 
-CREATE TYPE api.content_result AS (status int, content_type text, content text);
+CREATE OR REPLACE FUNCTION data.split_roles_csv_to_array(_roles_csv text) RETURNS text[] 
+AS
+$$
+DECLARE
+	_roles text[];
+	_non_existing_role varchar(150);
+BEGIN
+	SELECT ARRAY_AGG(DISTINCT TRIM(roles.name)) INTO _roles
+	FROM regexp_split_to_table(_roles_csv, E'\\s*,\\s*') AS roles(name)
+	WHERE roles.name ~ '\S';
+	
+	FOR _non_existing_role IN 
+		SELECT roles.name
+		FROM UNNEST(_roles) AS roles(name)
+		LEFT JOIN mvw_role AS dbrole ON dbrole.name = roles.name
+		WHERE dbrole.name IS NULL
+	LOOP
+		RAISE EXCEPTION '''%'' role does not.', _non_existing_role;
+	END LOOP;
+	
+	RETURN _roles;
+END;
+$$ LANGUAGE 'plpgsql';
+
+
+CREATE TYPE api.http_content_result AS (status int, content_type text, content text);
 
 CREATE TABLE IF NOT EXISTS data.organization
 (
@@ -152,8 +177,24 @@ $$;
 CREATE TABLE api.data_contract
 (
 	PRIMARY KEY(object_id)
-	,dotnet_type varchar(1000) UNIQUE
+	,name varchar(1000) UNIQUE
 ) INHERITS(system.gcobject);
+
+CREATE FUNCTION api.data_contract_upsert
+(
+	_object_id uuid,
+	_name varchar(1000)
+) RETURNS SETOF api.data_contract AS
+$$
+BEGIN
+	PERFORM system.raise_exception_if_null_or_empty_argument(_object_id, '_object_id');
+	PERFORM system.raise_exception_if_null_or_empty_argument(_name, '_name');
+	RETURN QUERY
+	INSERT INTO api.data_contract(object_id, name) VALUES
+	(_object_id, TRIM(_name))
+	ON CONFLICT(object_id) DO UPDATE SET name = EXCLUDED.name;
+END;
+$$ LANGUAGE 'plpgsql';
 
 
 CREATE TABLE api.data_contract_content_type
@@ -195,11 +236,9 @@ BEGIN
 	PERFORM system.raise_exception_if_null_argument(_id, '_id');
 	PERFORM system.raise_exception_if_null_argument(_description, '_description');
 	PERFORM system.raise_exception_if_null_argument(_current_version, '_current_version');
-	PERFORM system.raise_exception_if_null_argument(_base_address, '_base_address');
+	PERFORM system.raise_exception_if_null_argument(_base_address, '_base_address');		
 
-	SELECT ARRAY_AGG(TRIM(authorized.role)) INTO _authorized_roles
-	FROM regexp_split_to_table(_authorized_roles_csv, E'\\s*,\\s*') AS authorized(role)
-	WHERE authorized.role ~ '\S';
+	_authorized_roles := data.split_roles_csv_to_array(_authorized_roles_csv);
 
 	RETURN QUERY
 	INSERT INTO api.http_service(object_id, id, description, current_version, authorized_roles, base_address)
@@ -208,7 +247,8 @@ BEGIN
 		id = EXCLUDED.id, 
 		description = EXCLUDED.description, 
 		current_version = EXCLUDED.current_version, 
-		host = EXCLUDED.host
+		base_address = EXCLUDED.base_address,
+		authorized_roles = EXCLUDED.authorized_roles
 	RETURNING *;
 END;
 $$ LANGUAGE 'plpgsql';	
@@ -226,14 +266,68 @@ CREATE TABLE api.http_event_type
 (
 	PRIMARY KEY(object_id),
 	FOREIGN KEY(object_id) REFERENCES api.data_contract(object_id),
-	authorized_roles_csv varchar(1000) NOT NULL DEFAULT('admin'),
-	dontnet_event_args_type varchar(1000) NOT NULL,
-	service_verson_regexp varchar(100) NOT NULL,
-	http_methods_regexp varchar(100) NOT NULL,
+	authorized_roles text[] CHECK (authorized_roles IS NULL OR array_length(authorized_roles, 1) > 0),
+	service_verson_regexp varchar(100) NOT NULL CHECK(service_verson_regexp ~ '\S+'),
+	http_methods_regexp varchar(100) NOT NULL CHECK(http_methods_regexp ~ '\S+'),
 	url_regexp varchar(1000) NOT NULL,
 	request_body_data_contract_object_id uuid REFERENCES api.data_contract(object_id),
-	response_body_data_contract_object_id uuid REFERENCES api.data_contract(object_id)
+	response_body_data_contract_object_id uuid REFERENCES api.data_contract(object_id),
+	CHECK(NOT system.is_empty(object_id))
 ) INHERITS (system.gcobject);
+
+
+
+CREATE OR REPLACE FUNCTION api.http_event_type_upsert(
+	_object_id uuid,
+	_authorized_roles_csv text,
+	_service_verson_regexp varchar(100),
+	_http_methods_regexp varchar(100),
+	_url_regexp varchar(1000),
+	_request_body_data_contract_object_id uuid DEFAULT(NULL),
+	_response_body_data_contract_object_id uuid DEFAULT(NULL)) RETURNS SETOF api.http_event_type
+AS
+$$
+DECLARE
+	_authorized_roles text[];
+BEGIN
+	PERFORM system.raise_exception_if_null_or_empty_argument(_object_id, '_object_id');
+	PERFORM system.raise_exception_if_null_or_empty_argument(_service_verson_regexp, '_service_verson_regexp');
+	PERFORM system.raise_exception_if_null_or_empty_argument(_http_methods_regexp, '_http_methods_regexp');
+	PERFORM system.raise_exception_if_null_or_empty_argument(_url_regexp, '_url_regexp');
+	
+	SELECT data.split_roles_csv_to_array(_authorized_roles_csv) INTO _authorized_roles;
+	IF array_length(_authorized_roles, 1) = 0 THEN
+    	_authorized_roles := NULL;
+	END IF;
+		
+	RETURN QUERY
+	INSERT INTO api.http_event_type(
+		object_id,
+		authorized_roles,
+		service_verson_regexp,
+		http_methods_regexp,
+		url_regexp,
+		request_body_data_contract_object_id,
+		response_body_data_contract_object_id) VALUES
+	(
+		_object_id,
+		_authorized_roles,
+		_service_verson_regexp,
+		_http_methods_regexp,
+		_url_regexp,
+		_request_body_data_contract_object_id,
+		_response_body_data_contract_object_id
+	)
+	ON CONFLICT(object_id) DO UPDATE SET
+		authorized_roles = EXCLUDED.authorized_roles,
+		service_verson_regexp = EXCLUDED.service_verson_regexp,
+		http_methods_regexp = EXCLUDED.http_methods_regexp,
+		url_regexp = EXCLUDED.url_regexp,
+		request_body_data_contract_object_id = EXCLUDED.request_body_data_contract_object_id,
+		response_body_data_contract_object_id = EXCLUDED.response_body_data_contract_object_id
+	RETURNING *;
+END;
+$$ LANGUAGE 'plpgsql';
 
 
 
@@ -258,7 +352,7 @@ CREATE TABLE api.http_trigger_queue
 	http_event_type_object_id uuid NOT NULL REFERENCES api.http_trigger(http_event_type_object_id),
 	event_args json NOT NULL,
 	request_body text,
-	result api.content_result	
+	result api.http_content_result	
 ) INHERITS (system.gcobject);
 
 
@@ -266,7 +360,7 @@ CREATE OR REPLACE FUNCTION api.customer_get(
 	_args jsonb,
 	_content_type character varying,
 	_content jsonb)
-    RETURNS SETOF api.content_result 
+    RETURNS SETOF api.http_content_result 
     LANGUAGE 'plpgsql'
 
 AS $$

@@ -25,9 +25,9 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
         /// </summary>
         public override string TransformText()
         {
-            this.Write("\r\nCREATE TEMPORARY TABLE tmp_data_contracts(\r\n   object_id uuid NOT NULL,\r\n   dot" +
-                    "net_type varchar(150) NOT NULL );\r\n\r\nINSERT INTO tmp_data_contracts(object_id, d" +
-                    "otnet_type) VALUES ");
+            this.Write("\r\nCREATE TEMPORARY TABLE tmp_data_contracts(\r\n   object_id uuid NOT NULL,\r\n   nam" +
+                    "e varchar(1000) NOT NULL);\r\n\r\nINSERT INTO tmp_data_contracts(object_id, name) VA" +
+                    "LUES ");
  foreach(var type in DataContractTypes){ 
             this.Write(" \r\n(\'");
             this.Write(this.ToStringHelper.ToStringWithCulture(type.GUID));
@@ -47,10 +47,10 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
  if(entry != DataContractEntries.Last())Write(","); } 
             this.Write(@" ;
 
-INSERT INTO api.data_contract(object_id, dotnet_type)
-SELECT object_id, dotnet_type
-FROM tmp_data_contracts
-ON CONFLICT(object_id) DO UPDATE SET dotnet_type = EXCLUDED.dotnet_type;
+INSERT INTO api.data_contract(object_id, name)
+SELECT object_id, name
+FROM tmp_data_contracts AS tmp
+ON CONFLICT(object_id) DO UPDATE SET name = EXCLUDED.name;
 
 
 INSERT INTO api.data_contract_content_type(data_contract_object_id, content_type)
