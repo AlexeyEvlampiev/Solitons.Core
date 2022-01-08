@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Solitons
 {
-    public interface ILogEntryBuilder
+    public partial interface ILogEntryBuilder
     {
         ILogEntryBuilder WithTag(string tag);
 
@@ -42,5 +43,17 @@ namespace Solitons
 
         
         ILogEntryBuilder WithProperties(IEnumerable<KeyValuePair<string, string>> properties);
+    }
+
+    public partial interface ILogEntryBuilder
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="correlationId"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public ILogEntryBuilder WithTag(Guid correlationId) =>
+            this.WithTag(correlationId.ToString());
     }
 }

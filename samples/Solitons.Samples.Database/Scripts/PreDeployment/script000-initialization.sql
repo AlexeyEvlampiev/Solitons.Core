@@ -17,3 +17,4 @@ SELECT FORMAT('%s.%s',nspname, typname) AS full_name, nspname, t.*
 FROM pg_type AS t
 INNER JOIN pg_catalog.pg_namespace AS nt ON (nt.oid = t.typnamespace)
 WHERE nspname NOT IN ('pg_catalog', 'pg_toast', 'information_schema', 'extensions', 'public');
+

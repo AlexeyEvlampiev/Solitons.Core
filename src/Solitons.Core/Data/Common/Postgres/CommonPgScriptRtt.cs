@@ -103,7 +103,46 @@ CREATE OR REPLACE FUNCTION ");
                     "PLACE FUNCTION ");
             this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
             this.Write(".is_empty(_arg uuid) RETURNS bool AS\r\n$$\r\n\tSELECT (_arg = \'00000000-0000-0000-000" +
-                    "0-000000000000\'::uuid);\r\n$$ LANGUAGE \'sql\' IMMUTABLE;");
+                    "0-000000000000\'::uuid);\r\n$$ LANGUAGE \'sql\' IMMUTABLE;\r\n\r\n\r\nCREATE MATERIALIZED V" +
+                    "IEW ");
+            this.Write(this.ToStringHelper.ToStringWithCulture(SchemaName));
+            this.Write(@".mvw_role AS
+SELECT 
+	rolname AS full_name
+	,REGEXP_REPLACE(rolname, '^[^_]+[_]', '') AS name
+	,rolcanlogin AS is_login_role
+	,(NOT rolcanlogin) AS is_group_role
+FROM pg_catalog.pg_roles AS pgr
+WHERE pgr.rolname LIKE current_database()||'\_%'
+ORDER BY rolname;
+
+CREATE UNIQUE INDEX ux_mvw_role ON system.mvw_role (name);
+CREATE UNIQUE INDEX ux_mvw_full_name ON system.mvw_role (full_name);
+
+
+CREATE MATERIALIZED VIEW system.mvw_function AS
+SELECT 
+	p.proname AS name, 
+	n.nspname AS ""schema"", 
+	FORMAT('%s.%s',n.nspname, p.proname) AS fullname, 
+	t.typname AS return_type,
+    d.description,
+	proargnames AS arg_names,
+	pg_get_function_arguments(p.oid) AS args_csv,
+	COALESCE(array_length(proargnames, 1), 0) AS args_count
+FROM 
+	pg_catalog.pg_proc p
+INNER JOIN pg_catalog.pg_namespace n 
+	ON n.oid = p.pronamespace
+INNER JOIN pg_type t on p.prorettype = t.oid
+LEFT JOIN pg_description d on p.oid = d.objoid	
+WHERE 
+	pg_catalog.pg_function_is_visible(p.oid)
+AND n.nspname <> 'pg_catalog'
+AND n.nspname <> 'information_schema';
+
+CREATE UNIQUE INDEX ux_mvw_function_pkey ON system.mvw_function(""name"", ""schema"", args_csv);
+CREATE INDEX ix_mvw_function_schema ON system.mvw_function(""schema"", ""name"");");
             return this.GenerationEnvironment.ToString();
         }
     }

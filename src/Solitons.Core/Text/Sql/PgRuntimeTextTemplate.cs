@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml;
 
 namespace Solitons.Text.Sql
@@ -18,10 +19,28 @@ namespace Solitons.Text.Sql
             return base.ToStringWithCulture(objectToConvert);
         }
 
-        public string Quote(string text)
+        public static string Quote(string text, bool isNullable = true)
         {
-            if (text is null) return "NULL";
+            if (text is null)
+            {
+                return isNullable 
+                    ? "NULL" 
+                    : throw new ArgumentException("The printed field may not be NULL.", nameof(text));
+            }
             return text.Quote(QuoteType.SqlLiteral);
+        }
+
+        public static string ArrayConstructor(string[] items, bool isNullable = true)
+        {
+            if (items is null)
+            {
+                return isNullable
+                    ? "NULL"
+                    : throw new ArgumentException("The printed array may not be NULL.", nameof(items));
+            }
+            return string.Format("ARRAY[{0}]", items
+                .Select(r => r.Trim().Quote(QuoteType.SqlLiteral))
+                .Join());
         }
     }
 }

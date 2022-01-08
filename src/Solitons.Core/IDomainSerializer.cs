@@ -1,6 +1,4 @@
-﻿using Solitons.Security;
-using Solitons.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,7 +6,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Solitons
 {
@@ -86,20 +83,13 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="request"></param>
         /// <returns></returns>
-        ///<exception cref="ClaimNotFoundException"></exception>
-        ///<exception cref="QueryParameterNotFoundException"></exception>
-        ///<exception cref="ArgumentException"></exception>
-        ///<exception cref="ArgumentNullException"></exception>
-        Task<WebRequest> AsDomainWebRequestAsync(IWebRequest request);
-
-
         IEnumerable<Type> GetTypes();
     }
 
     public partial interface IDomainSerializer
     {
+
         /// <summary>
         /// 
         /// </summary>
@@ -349,6 +339,5 @@ namespace Solitons
                 .ThrowIfNullArgument(nameof(types)));
             return genericDomain.GetSerializer();
         }
-
     }
 }

@@ -1,12 +1,9 @@
-﻿using Solitons.Web;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Solitons
 {
@@ -29,15 +26,13 @@ namespace Solitons
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Guid, DtoMetadata> _metadata = new();
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly IHttpEventArgsConverter _converter;
+
         
 
         #endregion
 
         private DomainSerializer(DomainContext context)
         {
-            _converter = context.GetHttpEventArgsConverter();
 
             var dtoTypes = context.GetDataTransferObjectTypes();
             
@@ -198,42 +193,6 @@ namespace Solitons
                 content);
         }
 
-        public async Task<WebRequest> AsDomainWebRequestAsync(IWebRequest request)
-        {
-            if(request is null) return null;
-            var httpEventArgs =_converter.Convert(request, out IHttpEventArgsAttribute httpEventArgsMetadata);
-            if(httpEventArgs is null)
-                return null;
-
-            var payloadType = httpEventArgsMetadata.PayloadObjectType;
-            if(payloadType is null)
-            {
-                return new WebRequest(request, httpEventArgs, null);
-            }
-            
-            if(payloadType == typeof(Stream))
-            {
-                return new WebRequest(request, httpEventArgs, request.GetBody());
-            }
-
-            if(_metadata.TryGetValue(payloadType.GUID, out var metadata))
-            {
-                if(_serializers.TryGetValue(new SerializerKey(payloadType.GUID, request.ContentType), out var value))
-                {
-                    using var reader = new StreamReader(request.GetBody());
-                    var content = await reader.ReadToEndAsync();
-                    var payload = value.Serializer.Deserialize(content, metadata.DtoType);
-                    return new WebRequest(request,httpEventArgs, payload);
-                }
-
-                var supportedContentTypesCsv = metadata.SupportedContentTypes.Join();
-                throw new NotSupportedException(new StringBuilder("Request content type is not supported.")
-                    .Append($" Extected: {supportedContentTypesCsv}. Actual content type: {request.ContentType}")
-                    .ToString());
-            }
-
-            throw new InvalidOperationException($"{payloadType} is not a valid Data Transfer Object type.");
-        }
 
         /// <summary>
         /// 

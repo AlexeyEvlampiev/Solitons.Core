@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Solitons.Common;
-using Solitons.Data;
 using Solitons.Queues;
 using Solitons.Web;
 
@@ -41,8 +40,7 @@ namespace Solitons
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<IDomainSerializer> _serializer;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<IHttpEventArgsConverter> _httpEventArgsConverter;
+
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -51,11 +49,7 @@ namespace Solitons
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<Dictionary<Type, DataTransferObjectAttribute[]>> _dataTransferObjectTypes;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<Dictionary<IDatabaseExternalTriggerArgsAttribute, Type>> _dbCommandArgTypes;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<Dictionary<BasicHttpEventArgsAttribute, Type>> _httpEventArgTypes;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Type, IDataTransferObjectSerializer> _specializedSerializersBySerializerType = new();
@@ -123,14 +117,11 @@ namespace Solitons
                 return result;
             });
 
-            _httpEventArgsConverter = new Lazy<IHttpEventArgsConverter>(() => new HttpEventArgsConverter(_types));
             _sasPermissions = new Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>>(() => BlobSecureAccessSignatureMetadata.Discover(_types));
             _dataTransferObjectTypes = new Lazy<Dictionary<Type, DataTransferObjectAttribute[]>>(() => _types
                 .Select(type=> KeyValuePair.Create(type, DiscoverDataTransferObjectAttributes(type)))
                 .Where(pair=>pair.Value.Any())
                 .ToDictionary());
-            _dbCommandArgTypes = new Lazy<Dictionary<IDatabaseExternalTriggerArgsAttribute, Type>>(()=> IDatabaseExternalTriggerArgsAttribute.Discover(_types));
-            _httpEventArgTypes = new Lazy<Dictionary<BasicHttpEventArgsAttribute, Type>>(() => throw new NotImplementedException());
             _serializer = new Lazy<IDomainSerializer>(() => DomainSerializer.Create(this));
         }
 
@@ -149,8 +140,6 @@ namespace Solitons
         internal IReadOnlyDictionary<Type, DataTransferObjectAttribute[]> GetDataTransferObjectTypes() => 
             new ReadOnlyDictionary<Type, DataTransferObjectAttribute[]>(_dataTransferObjectTypes.Value);
 
-        public IReadOnlyDictionary<BasicHttpEventArgsAttribute, Type> GetHttpEventArgsTypes() =>
-            new ReadOnlyDictionary<BasicHttpEventArgsAttribute, Type>(_httpEventArgTypes.Value); 
 
         private DataTransferObjectAttribute[] DiscoverDataTransferObjectAttributes(Type type)
         {
@@ -291,22 +280,6 @@ namespace Solitons
         [DebuggerStepThrough]
         public IDomainSerializer GetSerializer() => _serializer.Value;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public IHttpEventArgsConverter GetHttpEventArgsConverter() => _httpEventArgsConverter.Value;
-
-        public IReadOnlyDictionary<Type, T> GetDatabaseExternalTriggerArgs<T>() where T : IDatabaseExternalTriggerArgsAttribute
-        {
-            var allCommands = _dbCommandArgTypes.Value;
-            var subset =  allCommands.Keys
-                .OfType<T>()
-                .ToDictionary(key=> allCommands[key], key => key);
-            return new ReadOnlyDictionary<Type, T>(subset);
-        }
 
 
         internal IDataTransferObjectSerializer GetDataTransferObjectSerializer(Type serializerType)
@@ -326,44 +299,7 @@ namespace Solitons
         /// <returns></returns>
         public IEnumerable<Type> GetTypes() => _types.AsEnumerable();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public IEnumerable<T> GetHttpTriggers<T>() where T : IHttpEventArgsAttribute => IHttpEventArgsAttribute.Discover(_types).OfType<T>();
 
-        [DebuggerStepThrough]
-        public IWebServer BuildWebServer(
-            IHttpEventHandler handler) => new WebServer(this, handler.ThrowIfNullArgument(nameof(handler)).ToEnumerable());
-
-        public IWebServer BuildWebServer(
-            IEnumerable<IHttpEventHandler> listeners) 
-        {
-            return new WebServer(this, listeners);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="THttpTrigger">API scope</typeparam>
-        /// <typeparam name="TDbTransaction">Database scope</typeparam>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public Dictionary<THttpTrigger, TDbTransaction> GetHttpTriggers<THttpTrigger, TDbTransaction>() 
-            where THttpTrigger : IHttpEventArgsAttribute
-            where TDbTransaction : IDbTransactionMetadata
-        {
-            var pairs =
-                from t in _types
-                let webAction = IHttpEventArgsAttribute.Get(t).OfType<THttpTrigger>().SingleOrDefault()
-                let dbTransaction = DbTransactionAttribute.Get(t).OfType<TDbTransaction>().SingleOrDefault()
-                where webAction is not null && dbTransaction is not null
-                select KeyValuePair.Create(webAction, dbTransaction);
-            return pairs.ToDictionary();
-        }
 
 
         /// <summary>
@@ -411,15 +347,10 @@ namespace Solitons
                 reference.Target = instance = Create();
             return (T)instance;
         }
-    }
 
-    public abstract partial class DomainContext
-    {
-        sealed record DataTransferObjectMetadata<T> : IDataTransferObjectMetadata
-            where T : IDataTransferObjectSerializer, new()
+        protected void RegisterTransactionScriptApi(Type apiInterfaceType)
         {
-            public Type SerializerType => typeof(T);
-            public bool IsDefault => false;
+            //TODO:
         }
     }
 }

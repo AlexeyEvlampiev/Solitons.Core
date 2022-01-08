@@ -15,6 +15,20 @@ namespace Solitons
 {
     public static partial class Extensions
     {
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToBase64(this Guid self)
+        {
+            var bytes = self.ToByteArray();
+            return System.Convert.ToBase64String(bytes);
+        }
+
         /// <summary>
         /// 
         /// </summary>

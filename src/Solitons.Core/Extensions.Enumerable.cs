@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,17 +14,6 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="self"></param>
-        /// <returns></returns>
-        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToBase64(this Guid self)
-        {
-            var bytes = self.ToByteArray();
-            return System.Convert.ToBase64String(bytes);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="self"></param>
         /// <returns></returns>
@@ -31,10 +21,59 @@ namespace Solitons
         public static Queue<T> ToQueue<T>(this IEnumerable<T> self) =>
             new(self ?? throw new ArgumentNullException(nameof(self)));
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="factory"></param>
+        /// <returns></returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICollection<T> ThrowIfNullOrEmpty<T>(this ICollection<T> self, Func<Exception> factory) where T : class
+        public static T[] ThrowIfNullOrEmpty<T>(this T[] self, Func<Exception> factory) where T : class
+        {
+            if (self is null || self.Length == 0)
+            {
+                throw factory?.Invoke() ?? new NullReferenceException();
+            }
+
+            return self;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="argName"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] ThrowIfNullOrEmptyArgument<T>(this T[] self, string argName, string message = null) where T : class
+        {
+            if (self is null || self.Length == 0)
+            {
+                argName = argName.DefaultIfNullOrWhiteSpace("?");
+                message = message.DefaultIfNullOrWhiteSpace($"{argName} array is null or empty.");
+                throw new ArgumentException(message, argName);
+            }
+
+            return self;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="factory"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T ThrowIfNullOrEmpty<T>(this T self, Func<Exception> factory) where T : ICollection
         {
             if (self is null || self.Count == 0)
             {

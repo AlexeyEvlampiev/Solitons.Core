@@ -16,6 +16,7 @@ namespace Solitons
         /// </summary>
         /// <returns></returns>
         IDomainSerializer GetSerializer();
+
     }
 
     public partial interface IDomainContext

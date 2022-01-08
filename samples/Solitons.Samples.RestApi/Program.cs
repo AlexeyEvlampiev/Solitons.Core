@@ -1,36 +1,70 @@
-using Solitons;
-using Solitons.Samples.Domain;
-using Solitons.Samples.RestApi;
-using Solitons.Samples.RestApi.Backend;
 using System.Security.Claims;
-
-
+using Microsoft.AspNetCore.Mvc;
+using Npgsql;
+using Solitons;
+using Solitons.Data;
+using Solitons.Samples.Domain;
+using Solitons.Samples.Domain.Contracts;
+using Solitons.Samples.RestApi;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers(config =>
+{
+    config.RespectBrowserAcceptHeader = true;
+}).AddXmlDataContractSerializerFormatters();
+
+builder.Services.AddApiVersioning(config =>
+{
+    config.DefaultApiVersion = new ApiVersion(1, 0);
+    config.AssumeDefaultVersionWhenUnspecified = true;
+    config.ReportApiVersions = true;
+});
+
+var env = IEnvironment.System;
+var connectionString = env
+    .GetEnvironmentVariable("SOLITONS_SAMPLE_CONNECTION_STRING")
+    .ThrowIfNullOrWhiteSpace(() =>
+        new InvalidOperationException("SOLITONS_SAMPLE_CONNECTION_STRING environment variable is missing."));
+connectionString = new NpgsqlConnectionStringBuilder(connectionString)
+{
+    ApplicationName = "Sample API",
+    MinPoolSize = 2
+}.ConnectionString;
+
+var context = SampleDomainContext.GetOrCreate();
+var serializer = context.GetSerializer();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal());
+builder.Services.AddTransient<ITransactionScriptApiProvider>(provider =>
+{
+    var caller = provider.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
+    return new PgTransactionScriptApiProvider(caller, serializer, connectionString);
+});
+builder.Services.AddTransient<ITransactionScriptApi>(serviceProviders =>
+{
+    var provider = serviceProviders.GetService<ITransactionScriptApiProvider>();
+    return TransactionScriptApi.Create<ITransactionScriptApi>(provider);
+});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 
+app.UseAuthorization();
 
-var connectionString = IEnvironment.System
-    .GetEnvironmentVariable("ConnectionString", EnvironmentVariableTarget.Process)
-    .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException("ConnectionString environment variable is required."));
-
-var server = SampleDomainContext
-    .GetOrCreate()
-    .BuildWebServer(new SampleDbHttpEventHandler(connectionString));
-// .WithInterceptors
-
-var logger = IAsyncLogger.Null;
-var converter = new AspNetMessageConverter();
-
-app.Map("/{**eventArgs}", async (HttpRequest aspNetHttpRequest, ClaimsPrincipal caller) =>
-{
-    var webRequest = converter.ToWebRequest(aspNetHttpRequest, caller);
-    var webResponse = await server.InvokeAsync(webRequest, logger);
-    return converter.ToAspNetResult(webResponse, webRequest);
-});
+app.MapControllers();
 
 app.Run();

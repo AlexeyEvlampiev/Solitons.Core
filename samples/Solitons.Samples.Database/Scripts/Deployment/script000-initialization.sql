@@ -46,18 +46,7 @@ CREATE TABLE IF NOT EXISTS system.user
 
 
 
-CREATE MATERIALIZED VIEW data.mvw_role AS
-SELECT 
-	rolname AS full_name
-	,REGEXP_REPLACE(rolname, '^[^_]+[_]', '') AS name
-	,rolcanlogin AS is_login_role
-	,(NOT rolcanlogin) AS is_group_role
-FROM pg_catalog.pg_roles AS pgr
-WHERE pgr.rolname LIKE current_database()||'\_%'
-ORDER BY rolname;
 
-CREATE UNIQUE INDEX ux_mvw_role ON data.mvw_role (name);
-CREATE UNIQUE INDEX ux_mvw_full_name ON data.mvw_role (full_name);
 
 
 CREATE OR REPLACE FUNCTION data.split_roles_csv_to_array(_roles_csv text) RETURNS text[] 
@@ -118,28 +107,21 @@ DECLARE
 BEGIN
 	_rolname := COALESCE(_rolname, 'prospect');
 	
-	IF _organization_object_id IS NULL THEN
-		RAISE EXCEPTION 'Organization object ID is required.';
-	END IF;	
+	PERFORM system.raise_exception_if_null_or_empty_argument(_organization_object_id, '_organization_object_id');
+	PERFORM system.raise_exception_if_null_or_empty_argument(_email, '_email');
 	
 	IF NOT EXISTS(SELECT 1 FROM data.organization WHERE object_id = _organization_object_id) THEN
 		RAISE EXCEPTION 'Specified organization is not registered.';
 	END IF;
-
 	
-	IF _email IS NULL THEN
-		RAISE EXCEPTION 'User email is required.';
-	END IF;
-
-	
-	IF NOT EXISTS(SELECT 1 FROM data.mvw_role WHERE name = _rolname AND is_group_role) THEN
+	IF NOT EXISTS(SELECT 1 FROM system.mvw_role WHERE name = _rolname AND is_group_role) THEN
 		RAISE EXCEPTION '''%'' group role does not exist.', _rolname;
 	END IF;
 
 
 	INSERT INTO data.user(organization_object_id, email, role_name, role_full_name)	
 	SELECT _organization_object_id, _email, r.name, r.full_name
-	FROM data.mvw_role AS r
+	FROM system.mvw_role AS r
 	WHERE name = _rolname
 	ON CONFLICT(email) DO UPDATE SET 
 		role_name = EXCLUDED.role_name
@@ -217,7 +199,6 @@ CREATE TABLE api.http_service
 	id system.natural_key NOT NULL UNIQUE,	
 	description text NOT NULL,
 	current_version system.version NOT NULL DEFAULT('1.0'),
-	authorized_roles text[],
 	base_address varchar(1000) NOT NULL DEFAULT('https://localhost:80') CHECK(base_address ~ '^https://\w')
 ) INHERITS (system.gcobject);
 
@@ -226,11 +207,8 @@ CREATE OR REPLACE FUNCTION api.http_service_upsert(
 	_id system.natural_key, 
 	_description text, 
 	_current_version system.version, 
-	_authorized_roles_csv text,
 	_base_address varchar(1000)) RETURNS SETOF api.http_service AS
 $$
-DECLARE
-	_authorized_roles text[];
 BEGIN
 	PERFORM system.raise_exception_if_null_or_empty_argument(_object_id, '_object_id');
 	PERFORM system.raise_exception_if_null_argument(_id, '_id');
@@ -238,31 +216,20 @@ BEGIN
 	PERFORM system.raise_exception_if_null_argument(_current_version, '_current_version');
 	PERFORM system.raise_exception_if_null_argument(_base_address, '_base_address');		
 
-	_authorized_roles := data.split_roles_csv_to_array(_authorized_roles_csv);
-
 	RETURN QUERY
-	INSERT INTO api.http_service(object_id, id, description, current_version, authorized_roles, base_address)
-	VALUES(_object_id, _id, _description, _current_version, _authorized_roles, _base_address)
+	INSERT INTO api.http_service(object_id, id, description, current_version, base_address)
+	VALUES(_object_id, _id, _description, _current_version, _base_address)
 	ON CONFLICT(object_id) DO UPDATE SET
 		id = EXCLUDED.id, 
 		description = EXCLUDED.description, 
 		current_version = EXCLUDED.current_version, 
-		base_address = EXCLUDED.base_address,
-		authorized_roles = EXCLUDED.authorized_roles
+		base_address = EXCLUDED.base_address
 	RETURNING *;
 END;
 $$ LANGUAGE 'plpgsql';	
 
-/*
-DROP DOMAIN public.version;
-CREATE DOMAIN public.version AS varchar(25) CHECK (value ~ '^\d+(\.\d+){0,3}$');
-select '3.2.1'::public.version;
-*/
 
---SELECT * FROM api.http_service_upsert('10000000-0000-0000-0000-000000000000', 'id', 'description', '3.2.1', 'https://localhost');
-
-
-CREATE TABLE api.http_event_type
+CREATE TABLE api.http_event
 (
 	PRIMARY KEY(object_id),
 	FOREIGN KEY(object_id) REFERENCES api.data_contract(object_id),
@@ -270,6 +237,7 @@ CREATE TABLE api.http_event_type
 	service_verson_regexp varchar(100) NOT NULL CHECK(service_verson_regexp ~ '\S+'),
 	http_methods_regexp varchar(100) NOT NULL CHECK(http_methods_regexp ~ '\S+'),
 	url_regexp varchar(1000) NOT NULL,
+	trigger_function varchar(1000),
 	request_body_data_contract_object_id uuid REFERENCES api.data_contract(object_id),
 	response_body_data_contract_object_id uuid REFERENCES api.data_contract(object_id),
 	CHECK(NOT system.is_empty(object_id))
@@ -277,14 +245,15 @@ CREATE TABLE api.http_event_type
 
 
 
-CREATE OR REPLACE FUNCTION api.http_event_type_upsert(
+CREATE OR REPLACE FUNCTION api.http_event_upsert(
 	_object_id uuid,
 	_authorized_roles_csv text,
 	_service_verson_regexp varchar(100),
 	_http_methods_regexp varchar(100),
 	_url_regexp varchar(1000),
+	_trigger_function varchar(1000),
 	_request_body_data_contract_object_id uuid DEFAULT(NULL),
-	_response_body_data_contract_object_id uuid DEFAULT(NULL)) RETURNS SETOF api.http_event_type
+	_response_body_data_contract_object_id uuid DEFAULT(NULL)) RETURNS SETOF api.http_event
 AS
 $$
 DECLARE
@@ -295,13 +264,23 @@ BEGIN
 	PERFORM system.raise_exception_if_null_or_empty_argument(_http_methods_regexp, '_http_methods_regexp');
 	PERFORM system.raise_exception_if_null_or_empty_argument(_url_regexp, '_url_regexp');
 	
+	_trigger_function := NULLIF(TRIM(_trigger_function),'');
+
+	IF (_trigger_function IS NOT NULL) AND NOT EXISTS(
+		SELECT 1 
+		FROM system.mvw_function 
+		WHERE "name" = _trigger_function 
+		AND "schema" = 'api') THEN
+		RAISE EXCEPTION '''api.%'' function does not exist.', _trigger_function;
+	END IF;
+
 	SELECT data.split_roles_csv_to_array(_authorized_roles_csv) INTO _authorized_roles;
 	IF array_length(_authorized_roles, 1) = 0 THEN
     	_authorized_roles := NULL;
 	END IF;
 		
 	RETURN QUERY
-	INSERT INTO api.http_event_type(
+	INSERT INTO api.http_event(
 		object_id,
 		authorized_roles,
 		service_verson_regexp,
@@ -331,25 +310,15 @@ $$ LANGUAGE 'plpgsql';
 
 
 
-CREATE TABLE api.http_trigger 
-(
-	http_event_type_object_id uuid PRIMARY KEY REFERENCES api.http_event_type(object_id),
-	trigger_function varchar(1000) NOT NULL
-) ;
 
-CREATE TABLE api.http_service_event_type
-(
-	http_service_object_id uuid NOT NULL REFERENCES api.http_service(object_id),
-	http_event_type_object_id uuid NOT NULL REFERENCES api.http_event_type(object_id),
-	PRIMARY KEY(http_service_object_id, http_event_type_object_id)
-);
 
+/*
 
 CREATE TABLE api.http_trigger_queue
 (
 	id bigint NOT NULL GENERATED ALWAYS AS IDENTITY,
-	PRIMARY KEY(http_event_type_object_id),
-	http_event_type_object_id uuid NOT NULL REFERENCES api.http_trigger(http_event_type_object_id),
+	PRIMARY KEY(http_event_object_id),
+	http_event_object_id uuid NOT NULL REFERENCES api.http_trigger(http_event_object_id),
 	event_args json NOT NULL,
 	request_body text,
 	result api.http_content_result	
@@ -385,3 +354,38 @@ END;
 $$;
 
 
+*/
+
+
+
+CREATE OR REPLACE VIEW api.vw_data_contract AS
+SELECT 
+	dc.name,
+	(http_event_args.object_id IS NOT NULL) AS is_http_event_args, 
+	(EXISTS(SELECT 1 FROM api.http_event WHERE request_body_data_contract_object_id = dc.object_id)) AS is_http_event_request, 
+	(EXISTS(SELECT 1 FROM api.http_event WHERE response_body_data_contract_object_id = dc.object_id)) AS is_http_event_response, 
+	dc.object_id,
+	dc.created_utc	
+FROM api.data_contract AS dc
+LEFT JOIN api.http_event AS http_event_args ON http_event_args.object_id = dc.object_id
+LEFT JOIN api.http_event AS http_event_request ON http_event_request.request_body_data_contract_object_id = dc.object_id
+LEFT JOIN api.http_event AS http_event_response ON http_event_request.response_body_data_contract_object_id = dc.object_id
+WHERE dc.deleted_utc IS NULL;
+
+
+
+
+CREATE OR REPLACE FUNCTION api.customer_get(p_request jsonb) RETURNS jsonb 
+AS
+$$
+DECLARE 
+	v_customer_object_id uuid := p_request->>'oid';
+BEGIN
+	PERFORM system.raise_exception_if_null_or_empty_argument(v_customer_object_id, 'oid');
+	RETURN jsonb_build_object(
+			'oid', v_customer_object_id,
+			'id', 'Customer ID goes here',
+			'email', 'Customer email goes here');
+	
+END;
+$$ LANGUAGE 'plpgsql' STABLE;

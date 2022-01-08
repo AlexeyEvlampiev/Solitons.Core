@@ -83,6 +83,7 @@ namespace Solitons
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">createException</exception>
         /// <exception cref="System.NullReferenceException"></exception>
+        [DebuggerNonUserCode]
         public static string ThrowIfNullOrWhiteSpace(this string self, Func<Exception> createException)
         {
             if (createException == null) throw new ArgumentNullException(nameof(createException));

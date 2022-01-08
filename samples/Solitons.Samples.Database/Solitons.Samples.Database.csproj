@@ -45,10 +45,6 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>RegisterDataContractsSqlRtt.cs</LastGenOutput>
     </None>
-    <None Update="Scripts\PostDeployment\RegisterHttpTriggersRtt.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>RegisterHttpTriggersRtt.cs</LastGenOutput>
-    </None>
     <None Update="Scripts\PostDeployment\RegisterSuperuserRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>RegisterSuperuserRtt.cs</LastGenOutput>
@@ -74,11 +70,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>RegisterDataContractsSqlRtt.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Scripts\PostDeployment\RegisterHttpTriggersRtt.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>RegisterHttpTriggersRtt.tt</DependentUpon>
     </Compile>
     <Compile Update="Scripts\PostDeployment\RegisterSuperuserRtt.cs">
       <DesignTime>True</DesignTime>

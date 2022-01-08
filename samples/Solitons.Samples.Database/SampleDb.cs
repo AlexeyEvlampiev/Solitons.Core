@@ -5,7 +5,6 @@ using Npgsql;
 using Solitons.Samples.Database.Scripts.PostDeployment;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using DbUp.Support;
 using Solitons.Data;
 using Solitons.Data.Common.Postgres;
 using Solitons.Samples.Database.Models;
@@ -129,7 +128,6 @@ namespace Solitons.Samples.Database
                 .LogToNowhere()
                 .WithScript("Registering Data Transfer Object contracts", new RegisterDataContractsSqlRtt())
                 .WithScript("Adding superuser account", new RegisterSuperuserRtt(superuserSettings))
-                .WithScript("Registering HTTP triggers", new RegisterHttpTriggersRtt())
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsPostDeployment)
                 .Build());
 
