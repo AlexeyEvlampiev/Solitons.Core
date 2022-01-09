@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Solitons.Common;
+using Solitons.Data;
 using Solitons.Queues;
 using Solitons.Web;
 
@@ -280,6 +281,21 @@ namespace Solitons
         [DebuggerStepThrough]
         public IDomainSerializer GetSerializer() => _serializer.Value;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="provider"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public T Implement<T>(ITransactionScriptApiProvider provider) where T : class
+        {
+            var serializer = GetSerializer();
+            var implementation = TransactionScriptApi.Create<T>(
+                provider.ThrowIfNullArgument(nameof(provider)), 
+                serializer);
+            return implementation;
+        }
 
 
         internal IDataTransferObjectSerializer GetDataTransferObjectSerializer(Type serializerType)

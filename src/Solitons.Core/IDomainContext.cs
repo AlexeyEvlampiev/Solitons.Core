@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Solitons.Data;
 
 namespace Solitons
 {
@@ -16,6 +17,16 @@ namespace Solitons
         /// </summary>
         /// <returns></returns>
         IDomainSerializer GetSerializer();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">Strongly typed Transaction Script interface to be implemented.</typeparam>
+        /// <param name="provider"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        T Implement<T>(ITransactionScriptApiProvider provider) where T : class;
 
     }
 

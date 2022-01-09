@@ -40,19 +40,8 @@ namespace Solitons.Samples.RestApi
             command.Parameters.AddWithValue("request", requestType, request);
             await connection.OpenAsync(cancellation);
             var response = await command.ExecuteScalarAsync(cancellation) ?? throw new NullReferenceException();
-            return response.ToString();
+            return response.ToString()!;
         }
 
-        protected override string Serialize(object request, string contentType)
-        {
-            Debug.Assert(_serializer.CanSerialize(request, contentType));
-            return _serializer.Serialize(request, contentType);
-        }
-
-        protected override object Deserialize(Type targetType, string contentType, string content)
-        {
-            Debug.Assert(_serializer.CanDeserialize(targetType, contentType));
-            return _serializer.Deserialize(targetType, contentType, content);
-        }
     }
 }

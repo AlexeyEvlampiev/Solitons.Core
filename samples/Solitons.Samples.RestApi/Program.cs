@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(config =>
 {
     config.RespectBrowserAcceptHeader = true;
-}).AddXmlDataContractSerializerFormatters();
+}).AddXmlSerializerFormatters();
 
 builder.Services.AddApiVersioning(config =>
 {
@@ -47,7 +47,7 @@ builder.Services.AddTransient<ITransactionScriptApiProvider>(provider =>
 builder.Services.AddTransient<ITransactionScriptApi>(serviceProviders =>
 {
     var provider = serviceProviders.GetService<ITransactionScriptApiProvider>();
-    return TransactionScriptApi.Create<ITransactionScriptApi>(provider);
+    return context.Implement<ITransactionScriptApi>(provider);
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

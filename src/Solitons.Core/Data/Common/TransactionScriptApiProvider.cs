@@ -5,18 +5,26 @@ using System.Threading.Tasks;
 
 namespace Solitons.Data.Common
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class TransactionScriptApiProvider : ITransactionScriptApiProvider
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="procedureMetadata"></param>
+        /// <param name="requestMetadata"></param>
+        /// <param name="responseMetadata"></param>
+        /// <param name="request"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
         protected abstract Task<string> InvokeAsync(
             StoredProcedureAttribute procedureMetadata,
             StoredProcedureRequestAttribute requestMetadata,
             StoredProcedureResponseAttribute responseMetadata,
             string request,
             CancellationToken cancellation);
-
-        protected abstract string Serialize(object request, string requestContentType);
-
-        protected abstract object Deserialize(Type responseInfoAsyncResultType, string contentType, string content);
 
         [DebuggerNonUserCode]
         protected virtual Task<object> OnRequestAsync(object request) => Task.FromResult(request);
@@ -44,19 +52,6 @@ namespace Solitons.Data.Common
                 cancellation);
         }
 
-        [DebuggerStepThrough]
-        string ITransactionScriptApiProvider.Serialize(object request, string contentType) =>
-            Serialize(
-                request.ThrowIfNullArgument(nameof(request)), 
-                contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)));
-
-        [DebuggerStepThrough]
-        object ITransactionScriptApiProvider.Deserialize(Type targetType, string contentType, string content) =>
-            Deserialize(
-                    targetType.ThrowIfNullArgument(nameof(targetType)), 
-                    contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)), 
-                    content.ThrowIfNullOrWhiteSpaceArgument(nameof(content)))
-                .ThrowIfNull(() => new NullReferenceException());
 
         [DebuggerStepThrough]
         Task<object> ITransactionScriptApiProvider.OnResponseAsync(object response) => OnResponseAsync(response.ThrowIfNullArgument(nameof(response)));

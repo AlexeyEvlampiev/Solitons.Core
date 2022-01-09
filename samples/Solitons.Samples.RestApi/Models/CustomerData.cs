@@ -1,9 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Solitons.Samples.Domain.Contracts;
 
 namespace Solitons.Samples.RestApi.Models
 {
+    [XmlRoot("Customer")]
     public class CustomerData : BasicJsonDataTransferObject, IBasicXmlDataTransferObject
     {
 
@@ -19,6 +21,7 @@ namespace Solitons.Samples.RestApi.Models
         /// 
         /// </summary>
         /// <param name="response"></param>
+        [DebuggerNonUserCode]
         public CustomerData(CustomerGetResponse response)
         {
             response.ThrowIfNullArgument(nameof(response));

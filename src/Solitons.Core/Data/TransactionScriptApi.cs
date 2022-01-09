@@ -13,7 +13,7 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public abstract class TransactionScriptApi : DispatchProxy
+    internal abstract class TransactionScriptApi : DispatchProxy
     {
         delegate object GeneralizedAsyncHandler(object[] args);
         delegate Task<object> AsyncHandler(object[] args);
@@ -24,9 +24,10 @@ namespace Solitons.Data
         internal TransactionScriptApi() { }
 
 
-        public static T Create<T>(ITransactionScriptApiProvider provider) where T : class
+        public static T Create<T>(ITransactionScriptApiProvider provider, IDomainSerializer serializer) where T : class
         {
             provider.ThrowIfNullArgument(nameof(provider));
+            serializer.ThrowIfNullArgument(nameof(serializer));
             if (typeof(T).IsInterface == false)
                 throw new InvalidOperationException();
             var instance = Create<T, TransactionScriptApi<T>>();
@@ -56,6 +57,9 @@ namespace Solitons.Data
                     .Get(method)
                     .ThrowIfNull(()=> new InvalidOperationException());
 
+                if (false == serializer.CanSerialize(requestInfo!.ParameterType, requestInfo.ContentType))
+                    throw new InvalidOperationException();
+
                 [DebuggerStepThrough]
                 async Task<object> InvokeAsync(object[] args)
                 {
@@ -65,7 +69,7 @@ namespace Solitons.Data
                     var cancellation = (CancellationToken)args[1];
                     cancellation.ThrowIfCancellationRequested();
                     request = await provider.OnRequestAsync(request) ?? request;
-                    var requestString = provider.Serialize(request, requestInfo.ContentType);
+                    var requestString = serializer.Serialize(request, requestInfo.ContentType);
                     var responseString = await provider.InvokeAsync(
                         procedureInfo, 
                         requestInfo, 
@@ -73,8 +77,8 @@ namespace Solitons.Data
                         requestString, 
                         cancellation);
                     responseString = responseString.ThrowIfNullOrWhiteSpace(() => new InvalidOperationException());
-                    var response = provider.Deserialize(
-                        responseInfo.AsyncResultType,
+                    var response = serializer.Deserialize(
+                        responseInfo!.AsyncResultType,
                         responseInfo.ContentType,
                         responseString)
                         .ThrowIfNull(()=> new InvalidOperationException());

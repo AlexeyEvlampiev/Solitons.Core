@@ -16,8 +16,7 @@ namespace Solitons.Data
             StoredProcedureResponseAttribute responseMetadata,
             string request, 
             CancellationToken cancellation);
-        string Serialize(object request, string contentType);
-        object Deserialize(Type targetType, string contentType, string content);
+
         Task<object> OnResponseAsync(object response);
     }
 }
