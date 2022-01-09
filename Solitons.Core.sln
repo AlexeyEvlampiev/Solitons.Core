@@ -15,11 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Azure.Referencelmp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{F6C6FD59-6DF0-4D2A-AA66-8A0CD3DD3D49}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solitons.Samples.Database", "samples\Solitons.Samples.Database\Solitons.Samples.Database.csproj", "{76EC9099-5E69-40EE-9A6A-FA93B8CF5C08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Samples.Database", "samples\Solitons.Samples.Database\Solitons.Samples.Database.csproj", "{76EC9099-5E69-40EE-9A6A-FA93B8CF5C08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solitons.Samples.Domain", "samples\Solitons.Samples.Domain\Solitons.Samples.Domain.csproj", "{0988B0E2-DA7F-4E92-AEE8-C838EE3F92A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Samples.Domain", "samples\Solitons.Samples.Domain\Solitons.Samples.Domain.csproj", "{0988B0E2-DA7F-4E92-AEE8-C838EE3F92A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solitons.Samples.RestApi", "samples\Solitons.Samples.RestApi\Solitons.Samples.RestApi.csproj", "{E53A106C-3453-4A4D-9CE9-A2D985F6FA7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Samples.RestApi", "samples\Solitons.Samples.RestApi\Solitons.Samples.RestApi.csproj", "{E53A106C-3453-4A4D-9CE9-A2D985F6FA7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
