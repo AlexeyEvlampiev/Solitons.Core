@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,7 +7,7 @@ namespace Solitons.Data.Common
     /// <summary>
     /// 
     /// </summary>
-    public abstract class TransactionScriptApiProvider : ITransactionScriptApiProvider
+    public abstract class TransactionScriptProvider : ITransactionScriptProvider
     {
         /// <summary>
         /// 
@@ -33,10 +32,10 @@ namespace Solitons.Data.Common
         protected virtual Task<object> OnResponseAsync(object response) => Task.FromResult(response);
 
         [DebuggerStepThrough]
-        Task<object> ITransactionScriptApiProvider.OnRequestAsync(object request) => OnRequestAsync(request.ThrowIfNullArgument(nameof(request)));
+        Task<object> ITransactionScriptProvider.OnRequestAsync(object request) => OnRequestAsync(request.ThrowIfNullArgument(nameof(request)));
 
         [DebuggerStepThrough]
-        Task<string> ITransactionScriptApiProvider.InvokeAsync(
+        Task<string> ITransactionScriptProvider.InvokeAsync(
             StoredProcedureAttribute procedureMetadata,
             StoredProcedureRequestAttribute requestMetadata,
             StoredProcedureResponseAttribute responseMetadata,
@@ -54,6 +53,6 @@ namespace Solitons.Data.Common
 
 
         [DebuggerStepThrough]
-        Task<object> ITransactionScriptApiProvider.OnResponseAsync(object response) => OnResponseAsync(response.ThrowIfNullArgument(nameof(response)));
+        Task<object> ITransactionScriptProvider.OnResponseAsync(object response) => OnResponseAsync(response.ThrowIfNullArgument(nameof(response)));
     }
 }

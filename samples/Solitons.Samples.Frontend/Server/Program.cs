@@ -1,34 +1,21 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
 using Solitons.Data;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Domain.Contracts;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers(config =>
-{
-    config.RespectBrowserAcceptHeader = true;
-}).AddXmlSerializerFormatters();
-
-builder.Services.AddApiVersioning(config =>
-{
-    config.DefaultApiVersion = new ApiVersion(1, 0);
-    config.AssumeDefaultVersionWhenUnspecified = true;
-    config.ReportApiVersions = true;
-});
 
 var connectionString = SampleEnvironment.GetPgConnectionString(config =>
 {
-    config.ApplicationName = "Solitons Sample Rest API";
+    config.ApplicationName = "Solitons Sample Frontend";
     config.MinPoolSize = 2;
 });
 
 
 var domainContext = SampleDomainContext.GetOrCreate();
+
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ITransactionScriptProvider>(provider =>
@@ -41,22 +28,36 @@ builder.Services.AddTransient(serviceProviders =>
     var provider = serviceProviders.GetService<ITransactionScriptProvider>();
     return domainContext.Create<ITransactionScriptApi>(provider);
 });
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services
+    .AddControllersWithViews(config=> config.RespectBrowserAcceptHeader = true)
+    .AddXmlSerializerFormatters();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseWebAssemblyDebugging();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 
+app.UseRouting();
+
+
+app.MapRazorPages();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();

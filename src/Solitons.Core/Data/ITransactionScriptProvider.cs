@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Data
@@ -7,7 +6,7 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface ITransactionScriptApiProvider
+    public interface ITransactionScriptProvider
     {
         Task<object> OnRequestAsync(object request);
         Task<string> InvokeAsync(

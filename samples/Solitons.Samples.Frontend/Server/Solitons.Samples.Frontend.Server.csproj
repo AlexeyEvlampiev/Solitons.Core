@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Solitons.Samples.Azure\Solitons.Samples.Azure.csproj" />
+    <ProjectReference Include="..\..\Solitons.Samples.Domain\Solitons.Samples.Domain.csproj" />
+    <ProjectReference Include="..\Client\Solitons.Samples.Frontend.Client.csproj" />
+    <ProjectReference Include="..\Shared\Solitons.Samples.Frontend.Shared.csproj" />
+  </ItemGroup>
+
+
+</Project>

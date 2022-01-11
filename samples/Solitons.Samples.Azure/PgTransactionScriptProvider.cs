@@ -1,25 +1,22 @@
-﻿using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Npgsql;
 using NpgsqlTypes;
 using Solitons.Data;
 using Solitons.Data.Common;
 
-namespace Solitons.Samples.RestApi
+namespace Solitons.Samples.Azure
 {
-    public class PgTransactionScriptApiProvider : TransactionScriptApiProvider
+    public class PgTransactionScriptProvider : TransactionScriptProvider
     {
         private readonly string _connectionString;
-        private readonly IDomainSerializer _serializer;
         private readonly ClaimsPrincipal _caller;
 
-        public PgTransactionScriptApiProvider(ClaimsPrincipal caller, IDomainSerializer serializer, string connectionString)
+
+        public PgTransactionScriptProvider(ClaimsPrincipal caller, string connectionString)
         {
             _caller = caller.ThrowIfNullArgument(nameof(caller));
-            _serializer = serializer.ThrowIfNullArgument(nameof(serializer));
             _connectionString = connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString));
         }
-
 
         protected override async Task<string> InvokeAsync(
             StoredProcedureAttribute procedureMetadata,

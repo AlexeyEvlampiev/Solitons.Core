@@ -1,27 +1,45 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Solitons.Collections;
 
 namespace Solitons
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class BasicSettings
+    public abstract class BasicSettings : IEnumerable<KeyValuePair<string, string>>
     {
-        private readonly Lazy<Dictionary<BasicSettingAttribute, PropertyInfo>> _properties;
+        sealed record Item(PropertyInfo Property, BasicSettingAttribute Setting, KeyAttribute Key);
+
+        private readonly Lazy<Item[]> _items;
 
         /// <summary>
         /// 
         /// </summary>
         protected BasicSettings()
         {
-            _properties =
-                new Lazy<Dictionary<BasicSettingAttribute, PropertyInfo>>(() =>
-                    BasicSettingAttribute.DiscoverProperties(GetType()));
+            _items = new Lazy<Item[]>(() =>
+            {
+                var items = new List<Item>();
+                var attributes = new List<Attribute>();
+                foreach (var property in GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty))
+                {
+                    attributes.Clear();
+                    attributes.AddRange(property.GetCustomAttributes());
+                    var setting = attributes.OfType<BasicSettingAttribute>().SingleOrDefault();
+                    if (setting is null) continue;
+                    var key = attributes.OfType<KeyAttribute>().SingleOrDefault() ?? new KeyAttribute(setting.Name);
+                    items.Add(new Item(property, setting, key));
+                }
+
+                return items.ToArray();
+            });
         }
 
         protected virtual string ToString(PropertyInfo property, object value) => value?.ToString();
@@ -30,12 +48,12 @@ namespace Solitons
 
         protected virtual void OnDeserialized()
         {
-            var properties = _properties.Value;
-            foreach (var att in properties.Keys)
+            var items = _items.Value;
+            foreach (var item in items)
             {
-                if (att.IsRequired)
+                var (property, setting, key) = (item.Property, item.Setting, item.Key);
+                if (setting.IsRequired)
                 {
-                    var property = properties[att];
                     var value = property.GetValue(this);
                     if (value is null)
                     {
@@ -79,20 +97,23 @@ namespace Solitons
 
         public sealed override string ToString()
         {
-            var properties = _properties.Value;
+            var items = _items.Value;
 
             var parts = new List<string>();
-            foreach (var pair in properties)
+            foreach (var item in items)
             {
-                var (attribute, property) = (pair.Key, pair.Value);
+                var (property, setting, key) = (item.Property, item.Setting, item.Key);
                 var value = property.GetValue(this);
                 var valueString = ToString(property, value);
                 if(valueString is null)continue;
                 
-                parts.Add($"{attribute.Name}={valueString}");
+                parts.Add($"{setting.Name}={valueString}");
             }
             return parts.Join(";");
         }
+
+        [DebuggerStepThrough]
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 
         protected bool NameEquals(PropertyInfo property, string name)
@@ -110,10 +131,10 @@ namespace Solitons
             input = settings.PreProcess(input);
             if (input is null) throw new NullReferenceException($"{settings.GetType()}.{nameof(settings.PreProcess)} returned null.");
 
-            var properties = settings._properties.Value;
+            var properties = settings._items.Value;
             var propertiesByPosition = properties
-                .Where(p => p.Key.Position.HasValue)
-                .ToDictionary(p => p.Key.Position.GetValueOrDefault(), p => p.Value);
+                .Where(p => p.Setting.Position.HasValue)
+                .ToDictionary(p => p.Setting.Position.GetValueOrDefault(), p => p.Property);
             
             
             var equations = Regex.Split(input, @";");
@@ -126,11 +147,10 @@ namespace Solitons
                 if (!match.Success) throw new FormatException();
                 var sides = Regex.Split(equation, @"(?=[=])(?<=^\s*\w+\s*)=");
                 var (lhs, rhs) = (match.Groups["lhs"].Value.Trim(), match.Groups["rhs"].Value);
-                var matchedAttributes = properties
-                    .Where(p=> p.Key.NameRegex.IsMatch(lhs))
-                    .Select(p=> p.Key)
+                var matchedItems = properties
+                    .Where(p=> p.Setting.NameRegex.IsMatch(lhs))
                     .ToList();
-                if (matchedAttributes.Count > 1)
+                if (matchedItems.Count > 1)
                 {
                     //...
                     throw new FormatException();
@@ -146,10 +166,10 @@ namespace Solitons
                         throw new FormatException($"Property name is missing at position {position}. {GetSynopsis<T>()}");
                     }
                 }
-                else if(matchedAttributes.Count == 1)
+                else if(matchedItems.Count == 1)
                 {
-                    var attribute = matchedAttributes.Single();
-                    var property = properties[attribute];
+                    var item = matchedItems.Single();
+                    var property = item.Property;
                     settings.SetProperty(property, rhs);
                 }
                 else
@@ -164,6 +184,17 @@ namespace Solitons
             return settings;
         }
 
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        {
+            foreach (var item in _items.Value)
+            {
+                var value = item.Property.GetValue(this, Array.Empty<object>())?.ToString();
+                if(value.IsNullOrWhiteSpace())continue;
+                var key = item.Key.Name;
+                yield return KeyValuePair.Create(key, value);
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -173,9 +204,9 @@ namespace Solitons
         {
             if (obj is null) return false;
             if (obj.GetType() != GetType()) return false;
-            var properties = _properties
+            var properties = _items
                 .Value
-                .Select(pair=> pair.Value);
+                .Select(item=> item.Property);
 
             foreach (var p in properties)
             {
@@ -189,6 +220,7 @@ namespace Solitons
 
             return true;
         }
+
 
         /// <summary>
         /// 

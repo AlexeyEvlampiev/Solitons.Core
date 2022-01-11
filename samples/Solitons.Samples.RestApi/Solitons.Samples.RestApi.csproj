@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Solitons.Samples.Azure\Solitons.Samples.Azure.csproj" />
     <ProjectReference Include="..\Solitons.Samples.Domain\Solitons.Samples.Domain.csproj" />
   </ItemGroup>
 

@@ -288,7 +288,7 @@ namespace Solitons
         /// <param name="provider"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public T Implement<T>(ITransactionScriptApiProvider provider) where T : class
+        public T Create<T>(ITransactionScriptProvider provider) where T : class
         {
             var serializer = GetSerializer();
             var implementation = TransactionScriptApi.Create<T>(

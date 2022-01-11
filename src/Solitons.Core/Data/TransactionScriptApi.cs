@@ -19,12 +19,12 @@ namespace Solitons.Data
         delegate Task<object> AsyncHandler(object[] args);
 
         private readonly Dictionary<MethodInfo, GeneralizedAsyncHandler> _generalizedCallbacks = new();
-        private ITransactionScriptApiProvider? _callback;
+        private ITransactionScriptProvider? _callback;
 
         internal TransactionScriptApi() { }
 
 
-        public static T Create<T>(ITransactionScriptApiProvider provider, IDomainSerializer serializer) where T : class
+        public static T Create<T>(ITransactionScriptProvider provider, IDomainSerializer serializer) where T : class
         {
             provider.ThrowIfNullArgument(nameof(provider));
             serializer.ThrowIfNullArgument(nameof(serializer));
@@ -152,7 +152,7 @@ namespace Solitons.Data
         public sealed override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj) ||
-                (obj is ITransactionScriptApiProvider callback && callback.Equals(_callback))) return true;
+                (obj is ITransactionScriptProvider callback && callback.Equals(_callback))) return true;
             return false;
         }
 

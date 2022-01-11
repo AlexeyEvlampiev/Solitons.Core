@@ -26,7 +26,7 @@ namespace Solitons
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        T Implement<T>(ITransactionScriptApiProvider provider) where T : class;
+        T Create<T>(ITransactionScriptProvider provider) where T : class;
 
     }
 
