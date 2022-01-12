@@ -5,17 +5,16 @@ using Solitons;
 using Solitons.Data;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
-using Solitons.Samples.Domain.Contracts;
 using Solitons.Samples.Frontend.Server;
 
 
 var domainContext = SampleDomainContext.GetOrCreate();
 var adB2CSettings = new ConfigurationBuilder()
-    .AddInMemoryCollection(SampleEnvironment.GetAzureActiveDirectoryB2CSettings())
+    .AddInMemoryCollection(EnvironmentVariables.GetAzureActiveDirectoryB2CSettings())
     .Build()
     .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
-var pgConnectionString = SampleEnvironment.GetPgConnectionString(config =>
+var pgConnectionString = EnvironmentVariables.GetPgConnectionString(config =>
 {
     config.ApplicationName = "Sample Frontend Server";
     config.MinPoolSize = 2;

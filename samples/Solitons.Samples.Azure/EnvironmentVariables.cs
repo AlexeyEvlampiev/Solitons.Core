@@ -2,7 +2,7 @@
 
 namespace Solitons.Samples.Azure
 {
-    public static class SampleEnvironment
+    public static class EnvironmentVariables
     {
         private const string PostgresConnectionStringEnvVariable = "SOLITONS_SAMPLE_POSTGRES_CONNECTION_STRING";
 

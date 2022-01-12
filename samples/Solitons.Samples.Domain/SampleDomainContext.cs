@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Solitons.Samples.Domain.Contracts;
 
 namespace Solitons.Samples.Domain
 {
