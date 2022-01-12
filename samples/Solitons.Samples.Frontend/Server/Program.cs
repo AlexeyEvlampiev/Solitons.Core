@@ -3,12 +3,13 @@ using Microsoft.Identity.Web;
 using Solitons.Samples.Azure;
 
 
-var azureAdB2CSettings = SampleEnvironment.GetAzureActiveDirectoryB2CSettings();
 
-var configurationBuilder = new ConfigurationBuilder();
-configurationBuilder.AddInMemoryCollection(azureAdB2CSettings);
-var configuration = configurationBuilder.Build();
-var azureAdB2CSection = configuration.GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
+
+var azureAdB2CSection = new ConfigurationBuilder()
+    .AddInMemoryCollection(SampleEnvironment.GetAzureActiveDirectoryB2CSettings())
+    .Build()
+    .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
+
 
 var builder = WebApplication.CreateBuilder(args);
 
