@@ -1,3 +1,5 @@
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
@@ -24,16 +26,16 @@ public class WeatherForecastController : ControllerBase
     [HttpGet]
     public async Task<WeatherForecast[]> Get()
     {
-        var response = await _databaseApi.InvokeAsync(new WeatherForecastRequest());
-
-        return response
-            .ThrowIfNull(()=> new NullReferenceException())
-            .Items
-            .Select(item=> new WeatherForecast
-        {
-            Date = item.Date,
-            Summary = item.Summary,
-            TemperatureC = item.TemperatureC
-        }).ToArray();
+        return await _databaseApi
+            .InvokeAsync(new WeatherForecastRequest())
+            .ToObservable()
+            .SelectMany(response => response.Items)
+            .Select(item => new WeatherForecast
+            {
+                Date = item.Date,
+                Summary = item.Summary,
+                TemperatureC = item.TemperatureC
+            })
+            .ToArray();
     }
 }
