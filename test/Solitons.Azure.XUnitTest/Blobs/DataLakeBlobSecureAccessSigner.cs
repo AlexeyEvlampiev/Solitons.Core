@@ -34,6 +34,7 @@ namespace Solitons.Azure.Blobs
                 BlobContainerName = _container.Name,
                 BlobName = blobClient.Name,
                 Resource = "b",
+                StartsOn = DateTimeOffset.UtcNow.AddHours(-2),
                 ExpiresOn = DateTimeOffset.UtcNow.Add(metadata.TimeToLive)
             };
 

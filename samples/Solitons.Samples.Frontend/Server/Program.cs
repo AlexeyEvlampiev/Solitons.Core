@@ -1,37 +1,15 @@
-using System.Security.Claims;
-using Solitons.Data;
-using Solitons.Samples.Azure;
-using Solitons.Samples.Domain;
-using Solitons.Samples.Domain.Contracts;
-
-
-var connectionString = SampleEnvironment.GetPgConnectionString(config =>
-{
-    config.ApplicationName = "Solitons Sample Frontend";
-    config.MinPoolSize = 2;
-});
-
-
-var domainContext = SampleDomainContext.GetOrCreate();
-
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<ITransactionScriptProvider>(provider =>
-{
-    var caller = provider.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
-    return new PgTransactionScriptProvider(caller, connectionString);
-});
-builder.Services.AddTransient(serviceProviders =>
-{
-    var provider = serviceProviders.GetService<ITransactionScriptProvider>();
-    return domainContext.Create<ITransactionScriptApi>(provider);
-});
+// Add services to the container.
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
 
-builder.Services
-    .AddControllersWithViews(config=> config.RespectBrowserAcceptHeader = true)
-    .AddXmlSerializerFormatters();
+builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -54,6 +32,9 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapRazorPages();
