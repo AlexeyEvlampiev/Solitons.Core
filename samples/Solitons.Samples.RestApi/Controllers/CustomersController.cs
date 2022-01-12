@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Solitons.Samples.Domain;
 using Solitons.Samples.Domain.Contracts;
 using Solitons.Samples.RestApi.Models;
 

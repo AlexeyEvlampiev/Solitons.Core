@@ -1,10 +1,23 @@
 ﻿using System.Data;
 using Solitons.Data;
+using Solitons.Samples.Domain.Contracts;
 
-namespace Solitons.Samples.Domain.Contracts
+namespace Solitons.Samples.Domain
 {
     public interface IDatabaseApi
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        [StoredProcedure("weather_forecast_get", IsolationLevel = IsolationLevel.ReadCommitted, OperationTimeoutInSeconds = 2)]
+        [return: StoredProcedureResponse(ContentType = "application/json")]
+        Task<WeatherForecastResponse> InvokeAsync(
+            [StoredProcedureRequest(ContentType = "application/json")] WeatherForecastRequest request,
+            CancellationToken cancellation = default);
+
         /// <summary>
         /// 
         /// </summary>

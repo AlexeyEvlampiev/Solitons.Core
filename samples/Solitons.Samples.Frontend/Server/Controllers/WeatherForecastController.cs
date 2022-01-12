@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
+using Solitons.Samples.Domain;
 using Solitons.Samples.Domain.Contracts;
 using Solitons.Samples.Frontend.Shared;
 
@@ -19,23 +20,20 @@ public class WeatherForecastController : ControllerBase
         _databaseApi = databaseApi ?? throw new ArgumentNullException(nameof(databaseApi));
     }
 
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
-
-
 
     [HttpGet]
-    public IEnumerable<WeatherForecast> Get()
+    public async Task<WeatherForecast[]> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        var response = await _databaseApi.InvokeAsync(new WeatherForecastRequest());
+
+        return response
+            .ThrowIfNull(()=> new NullReferenceException())
+            .Items
+            .Select(item=> new WeatherForecast
         {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+            Date = item.Date,
+            Summary = item.Summary,
+            TemperatureC = item.TemperatureC
+        }).ToArray();
     }
 }
