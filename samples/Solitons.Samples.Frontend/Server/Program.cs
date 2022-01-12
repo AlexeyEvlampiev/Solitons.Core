@@ -1,13 +1,20 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Identity.Web;
+using Solitons.Samples.Azure;
+
+
+var azureAdB2CSettings = SampleEnvironment.GetAzureActiveDirectoryB2CSettings();
+
+var configurationBuilder = new ConfigurationBuilder();
+configurationBuilder.AddInMemoryCollection(azureAdB2CSettings);
+var configuration = configurationBuilder.Build();
+var azureAdB2CSection = configuration.GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
+    .AddMicrosoftIdentityWebApi(azureAdB2CSection);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

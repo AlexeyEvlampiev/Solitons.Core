@@ -137,7 +137,10 @@ namespace Solitons
                 .ToDictionary(p => p.Setting.Position.GetValueOrDefault(), p => p.Property);
             
             
-            var equations = Regex.Split(input, @";");
+            var equations = Regex
+                .Split(input, @";")
+                .Skip(string.IsNullOrWhiteSpace);
+
             var equationRegex = new Regex(@"\s*(?:(?<lhs>\w+)\s*[=])?\s*(?<rhs>.+?)\s*$");
             var position = 0;
             foreach (var equation in equations)
