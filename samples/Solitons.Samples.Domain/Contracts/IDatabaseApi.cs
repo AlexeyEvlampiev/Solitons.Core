@@ -3,7 +3,7 @@ using Solitons.Data;
 
 namespace Solitons.Samples.Domain.Contracts
 {
-    public interface ITransactionScriptApi
+    public interface IDatabaseApi
     {
         /// <summary>
         /// 

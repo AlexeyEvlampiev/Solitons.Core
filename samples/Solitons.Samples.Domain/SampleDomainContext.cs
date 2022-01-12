@@ -12,7 +12,7 @@ namespace Solitons.Samples.Domain
         private SampleDomainContext()
             : base(typeof(SampleDomainContext).Assembly)
         {
-            RegisterTransactionScriptApi(typeof(ITransactionScriptApi));
+            RegisterTransactionScriptApi(typeof(IDatabaseApi));
         }
 
 
