@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Data;
+using System.Security.Claims;
 using Npgsql;
 using NpgsqlTypes;
 using Solitons.Data;
@@ -18,23 +19,26 @@ namespace Solitons.Samples.Azure
             _connectionString = connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString));
         }
 
+
+
         protected override async Task<string> InvokeAsync(
-            StoredProcedureAttribute procedureMetadata,
-            StoredProcedureRequestAttribute requestMetadata,
-            StoredProcedureResponseAttribute responseMetadata,
-            string request, 
+            string procedure, 
+            string content, 
+            string contentType,
+            int timeoutInSeconds, 
+            IsolationLevel isolationLevel,
             CancellationToken cancellation)
         {
             await using var connection = new NpgsqlConnection(_connectionString);
-            await using var command = new NpgsqlCommand($"SELECT api.{procedureMetadata.Procedure}(@request);", connection);
+            await using var command = new NpgsqlCommand($"SELECT api.{procedure}(@request);", connection);
 
-            var requestType = requestMetadata.ContentType switch
+            var requestType = contentType switch
             {
                 "application/json"=> NpgsqlDbType.Jsonb,
                 "application/xml" => NpgsqlDbType.Xml,
                 _=> throw new NotImplementedException()
             };
-            command.Parameters.AddWithValue("request", requestType, request);
+            command.Parameters.AddWithValue("request", requestType, content);
             await connection.OpenAsync(cancellation);
             var response = await command.ExecuteScalarAsync(cancellation) ?? throw new NullReferenceException();
             return response.ToString()!;

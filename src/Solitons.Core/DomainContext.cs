@@ -23,7 +23,6 @@ namespace Solitons
     /// <description>Data contracts: <see cref="DataTransferObjectAttribute"/>, <see cref="IDataTransferObjectMetadata"/></description>
     /// </item>
     /// <item>
-    /// <description>Url query parameter: <see cref="Solitons.Web.QueryParameterAttribute"/></description>
     /// </item>
     /// </list>
     /// </summary>
@@ -40,9 +39,6 @@ namespace Solitons
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<IDomainSerializer> _serializer;
-
-
-
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>> _sasPermissions;
@@ -290,12 +286,12 @@ namespace Solitons
         [DebuggerStepThrough]
         public T Create<T>(ITransactionScriptProvider provider) where T : class
         {
-            var serializer = GetSerializer();
-            var implementation = TransactionScriptApi.Create<T>(
-                provider.ThrowIfNullArgument(nameof(provider)), 
-                serializer);
-            return implementation;
+            provider = provider.ThrowIfNullArgument(nameof(provider));
+            //return TransactionScriptApi.Create<T>(provider, _serializer.Value);
+            throw new NotImplementedException();
         }
+
+
 
 
         internal IDataTransferObjectSerializer GetDataTransferObjectSerializer(Type serializerType)
@@ -364,9 +360,5 @@ namespace Solitons
             return (T)instance;
         }
 
-        protected void RegisterTransactionScriptApi(Type apiInterfaceType)
-        {
-            //TODO:
-        }
     }
 }

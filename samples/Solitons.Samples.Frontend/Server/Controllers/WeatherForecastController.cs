@@ -15,9 +15,9 @@ namespace Solitons.Samples.Frontend.Server.Controllers;
 [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes")]
 public class WeatherForecastController : ControllerBase
 {
-    private readonly IDatabaseApi _databaseApi;
+    private readonly ISampleDbApi _databaseApi;
 
-    public WeatherForecastController(IDatabaseApi databaseApi)
+    public WeatherForecastController(ISampleDbApi databaseApi)
     {
         _databaseApi = databaseApi ?? throw new ArgumentNullException(nameof(databaseApi));
     }

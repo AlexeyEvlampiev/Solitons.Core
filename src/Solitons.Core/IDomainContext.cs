@@ -27,7 +27,6 @@ namespace Solitons
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
         T Create<T>(ITransactionScriptProvider provider) where T : class;
-
     }
 
     public partial interface IDomainContext

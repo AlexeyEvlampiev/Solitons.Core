@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Data
@@ -10,10 +12,11 @@ namespace Solitons.Data
     {
         Task<object> OnRequestAsync(object request);
         Task<string> InvokeAsync(
-            StoredProcedureAttribute procedureMetadata, 
-            StoredProcedureRequestAttribute requestMetadata,
-            StoredProcedureResponseAttribute responseMetadata,
-            string request, 
+            string procedure,
+            string content,
+            string contentType,
+            int timeoutInSeconds,
+            IsolationLevel isolationLevel,
             CancellationToken cancellation);
 
         Task<object> OnResponseAsync(object response);
