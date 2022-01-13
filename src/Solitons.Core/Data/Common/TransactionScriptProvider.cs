@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace Solitons.Data.Common
             string contentType,
             int timeoutInSeconds,
             IsolationLevel isolationLevel,
+            Func<Task> completionCallback,
             CancellationToken cancellation);
 
         [DebuggerNonUserCode]
@@ -32,15 +34,18 @@ namespace Solitons.Data.Common
             string contentType,
             int timeoutInSeconds, 
             IsolationLevel isolationLevel,
+            Func<Task> completionCallback,
             CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
+            completionCallback ??= ()=> Task.CompletedTask;
             return InvokeAsync(
                 procedure.ThrowIfNullOrWhiteSpaceArgument(nameof(procedure)),
                 content.ThrowIfNullOrWhiteSpaceArgument(nameof(content)),
                 contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)),
                 timeoutInSeconds,
                 isolationLevel,
+                completionCallback,
                 cancellation);
         }
         

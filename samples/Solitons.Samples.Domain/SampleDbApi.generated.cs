@@ -21,7 +21,7 @@
 		/// <param name="cancellation"></param>
 		/// <returns></returns>
 		[Description("weather_forecast_get")]
-		Task<WeatherForecastResponse> InvokeAsync(WeatherForecastRequest request, Func<WeatherForecastResponse, Task> completionCallback = null, CancellationToken cancellation = default);
+		Task<WeatherForecastResponse> InvokeAsync(WeatherForecastRequest request, Func<Task> completionCallback = null, CancellationToken cancellation = default);
 	 
 	}
 
@@ -45,20 +45,16 @@
 		/// <param name="request"></param>
 		/// <param name="cancellation"></param>
 		/// <returns></returns>		
-		public async Task<WeatherForecastResponse> InvokeAsync(WeatherForecastRequest request, Func<WeatherForecastResponse, Task> completionCallback, CancellationToken cancellation)
+		public async Task<WeatherForecastResponse> InvokeAsync(WeatherForecastRequest request, Func<Task> completionCallback, CancellationToken cancellation)
 		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 			cancellation.ThrowIfCancellationRequested();
 
 			await _provider.OnRequestAsync(request);
 			var content = _serializer.Serialize(request, "application/json");	
-			content = await _provider.InvokeAsync("weather_forecast_get", content, "application/json", 2, IsolationLevel.ReadCommitted,	cancellation);
+			content = await _provider.InvokeAsync("weather_forecast_get", content, "application/json", 2, IsolationLevel.ReadCommitted,	completionCallback, cancellation);
 			var response = (WeatherForecastResponse)_serializer.Deserialize(typeof(WeatherForecastResponse), "application/json", content);
 			await _provider.OnResponseAsync(response);
-			if (completionCallback is not null)
-            {
-                await completionCallback.Invoke(response);
-            }
 			return response;
 		}
 	 

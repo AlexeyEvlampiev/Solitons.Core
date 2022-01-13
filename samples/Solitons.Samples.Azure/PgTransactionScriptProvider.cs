@@ -27,10 +27,12 @@ namespace Solitons.Samples.Azure
             string contentType,
             int timeoutInSeconds, 
             IsolationLevel isolationLevel,
+            Func<Task>? completionCallback,
             CancellationToken cancellation)
         {
             await using var connection = new NpgsqlConnection(_connectionString);
             await using var command = new NpgsqlCommand($"SELECT api.{procedure}(@request);", connection);
+            command.CommandTimeout = timeoutInSeconds;
 
             var requestType = contentType switch
             {
@@ -40,7 +42,12 @@ namespace Solitons.Samples.Azure
             };
             command.Parameters.AddWithValue("request", requestType, content);
             await connection.OpenAsync(cancellation);
+            await using var transaction = await connection.BeginTransactionAsync(isolationLevel, cancellation);
             var response = await command.ExecuteScalarAsync(cancellation) ?? throw new NullReferenceException();
+            if (completionCallback != null)
+                await completionCallback.Invoke();
+            await transaction.CommitAsync(CancellationToken.None);
+            await connection.CloseAsync();
             return response.ToString()!;
         }
 

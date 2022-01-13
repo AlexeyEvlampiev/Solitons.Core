@@ -17,6 +17,7 @@ namespace Solitons.Data
             string contentType,
             int timeoutInSeconds,
             IsolationLevel isolationLevel,
+            Func<Task> completionCallback,
             CancellationToken cancellation);
 
         Task<object> OnResponseAsync(object response);

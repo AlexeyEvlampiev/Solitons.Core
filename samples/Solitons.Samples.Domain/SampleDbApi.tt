@@ -36,7 +36,7 @@ namespace Solitons.Samples.Domain
 		/// <param name="cancellation"></param>
 		/// <returns></returns>
 		[Description("<#= p.Description #>")]
-		Task<<#= p.Response.Dto #>> InvokeAsync(<#= p.Request.Dto #> request, Func<<#= p.Response.Dto #>, Task> completionCallback = null, CancellationToken cancellation = default);
+		Task<<#= p.Response.Dto #>> InvokeAsync(<#= p.Request.Dto #> request, Func<Task> completionCallback = null, CancellationToken cancellation = default);
 	<# } #> 
 	}
 
@@ -60,20 +60,16 @@ namespace Solitons.Samples.Domain
 		/// <param name="request"></param>
 		/// <param name="cancellation"></param>
 		/// <returns></returns>		
-		public async Task<<#= p.Response.Dto #>> InvokeAsync(<#= p.Request.Dto #> request, Func<<#= p.Response.Dto #>, Task> completionCallback, CancellationToken cancellation)
+		public async Task<<#= p.Response.Dto #>> InvokeAsync(<#= p.Request.Dto #> request, Func<Task> completionCallback, CancellationToken cancellation)
 		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 			cancellation.ThrowIfCancellationRequested();
 
 			await _provider.OnRequestAsync(request);
 			var content = _serializer.Serialize(request, "<#= p.Request.ContentType #>");	
-			content = await _provider.InvokeAsync("<#= p.ProcedureName #>", content, "<#= p.Request.ContentType #>", <#= p.TimeoutInSeconds #>, IsolationLevel.<#= p.IsolationLevel #>,	cancellation);
+			content = await _provider.InvokeAsync("<#= p.ProcedureName #>", content, "<#= p.Request.ContentType #>", <#= p.TimeoutInSeconds #>, IsolationLevel.<#= p.IsolationLevel #>,	completionCallback, cancellation);
 			var response = (<#= p.Response.Dto #>)_serializer.Deserialize(typeof(<#= p.Response.Dto #>), "<#= p.Response.ContentType #>", content);
 			await _provider.OnResponseAsync(response);
-			if (completionCallback is not null)
-            {
-                await completionCallback.Invoke(response);
-            }
 			return response;
 		}
 	<# } #> 
