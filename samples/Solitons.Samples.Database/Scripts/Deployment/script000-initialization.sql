@@ -389,3 +389,22 @@ BEGIN
 	
 END;
 $$ LANGUAGE 'plpgsql' STABLE;
+
+
+CREATE OR REPLACE FUNCTION api.weather_forecast_get(p_request jsonb) RETURNS jsonb 
+AS
+$$
+DECLARE 
+	v_summaries text[] := ARRAY['Freezing', 'Bracing', 'Chilly', 'Cool', 'Mild', 'Warm', 'Balmy', 'Hot', 'Sweltering', 'Scorching'];
+	v_items jsonb[];
+BEGIN
+	SELECT  array_agg(jsonb_build_object(
+		'date', now() + (index||' days')::interval,
+		'temp', (-20 + floor(random() * 75)::int),
+		'summary', v_summaries[floor(random() * 10+1)::int]))
+	INTO v_items
+	FROM generate_series(0,5) AS sample("index");
+	
+	RETURN jsonb_build_object('items', v_items);
+END;
+$$ LANGUAGE 'plpgsql';

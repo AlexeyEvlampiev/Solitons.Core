@@ -39,7 +39,7 @@ builder.Services.AddTransient<ITransactionScriptProvider>(provider =>
 builder.Services.AddTransient(serviceProviders =>
 {
     var provider = serviceProviders.GetService<ITransactionScriptProvider>();
-    return domainContext.Create<ITransactionScriptApi>(provider);
+    return domainContext.Create<IDatabaseApi>(provider);
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

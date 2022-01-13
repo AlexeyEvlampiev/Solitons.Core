@@ -1,0 +1,165 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".generated.cs" #><#
+	string className = "SampleDbApi";
+	var procedures = new Procedure[]{
+		new Procedure("228c150b-091c-4409-a555-dcb68e226d06", "weather_forecast_get", "00:00:02",
+			new Request("WeatherForecastRequest"),
+			new Response("WeatherForecastResponse"))
+	};
+#>
+namespace Solitons.Samples.Domain
+{
+	using System;
+	using System.ComponentModel;
+	using System.Data;
+	using System.Threading.Tasks;
+	using Solitons.Data;
+
+	using Solitons.Samples.Domain.Contracts;
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public interface I<#= className #>
+	{<# foreach(var p in procedures){ #> 
+		
+		/// <summary>
+		/// <#= p.ProcedureName #>
+		/// </summary>
+		/// <param name="request"></param>
+		/// <param name="cancellation"></param>
+		/// <returns></returns>
+		[Description("<#= p.Description #>")]
+		Task<<#= p.Response.Dto #>> InvokeAsync(<#= p.Request.Dto #> request, Func<Task> completionCallback = null, CancellationToken cancellation = default);
+	<# } #> 
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public sealed class <#= className #> : I<#= className #>
+	{
+		private readonly ITransactionScriptProvider _provider;
+		private readonly IDomainSerializer _serializer;
+
+        public <#= className #>(ITransactionScriptProvider provider)
+        {
+            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+			_serializer = SampleDomainContext.GetOrCreate().GetSerializer();
+        }<# foreach(var p in procedures){ #> 
+		
+		/// <summary>
+		/// <#= p.Description #>
+		/// </summary>
+		/// <param name="request"></param>
+		/// <param name="cancellation"></param>
+		/// <returns></returns>		
+		public async Task<<#= p.Response.Dto #>> InvokeAsync(<#= p.Request.Dto #> request, Func<Task> completionCallback, CancellationToken cancellation)
+		{
+			if (request == null) throw new ArgumentNullException(nameof(request));
+			cancellation.ThrowIfCancellationRequested();
+
+			await _provider.OnRequestAsync(request);
+			var content = _serializer.Serialize(request, "<#= p.Request.ContentType #>");	
+			content = await _provider.InvokeAsync("<#= p.ProcedureName #>", content, "<#= p.Request.ContentType #>", <#= p.TimeoutInSeconds #>, IsolationLevel.<#= p.IsolationLevel #>,	completionCallback, cancellation);
+			var response = (<#= p.Response.Dto #>)_serializer.Deserialize(typeof(<#= p.Response.Dto #>), "<#= p.Response.ContentType #>", content);
+			await _provider.OnResponseAsync(response);
+			return response;
+		}
+	<# } #> 
+	}
+}
+<#+
+	class Procedure
+	{
+		public Procedure(string uuid, string procedure, Request request, Response response)
+		{
+			Uuid = Guid.Parse(uuid);
+			ProcedureName = procedure;
+			Request = request;
+			Response = response;
+			IsolationLevel = IsolationLevel.ReadCommitted;
+			TimeoutInSeconds = 30;
+			Description = procedure;
+		}
+
+		public Procedure(string uuid, string procedure, string timeout, Request request, Response response) 
+			: this(uuid, procedure, request, response)
+		{
+			TimeoutInSeconds = (int)TimeSpan.Parse(timeout).TotalSeconds;
+		}
+
+		public Procedure(string uuid, string procedure, IsolationLevel isolationLevel, Request request, Response response) 
+			: this(uuid, procedure, request, response)
+		{			
+			IsolationLevel = isolationLevel;
+		}
+
+		public Procedure(string uuid, string procedure, string timeout, IsolationLevel isolationLevel, Request request, Response response) 
+			: this(uuid, procedure, request, response)
+		{			
+			TimeoutInSeconds = (int)TimeSpan.Parse(timeout).TotalSeconds;
+			IsolationLevel = isolationLevel;
+		}
+
+		public string ProcedureName { get; private set; }
+		public IsolationLevel IsolationLevel { get; set; }
+		public int TimeoutInSeconds { get; set; }
+		public string Description { get; set; }
+
+		public Guid Uuid { get; private set; }
+		public Request Request { get; private set; }
+		public Response Response { get; private set; }
+	}
+
+
+	class Request
+	{
+		private Request()
+		{
+			ContentType = "application/json";
+		}
+
+		public Request(string dto) : this()
+		{
+			Dto = dto;
+		}
+
+		public Request(string dto, string contentType) : this(dto)
+		{
+			ContentType = contentType;
+		}
+
+		public string Dto { get; private set; }
+		public string ContentType { get; private set; }
+	}
+
+
+	class Response
+	{
+		private Response()
+		{
+			ContentType = "application/json";
+		}
+
+		public Response(string dto) : this()
+		{
+			Dto = dto;
+		}
+
+		public Response(string dto, string contentType) : this(dto)
+		{
+			ContentType = contentType;
+		}
+
+		public string Dto { get; private set; }
+		public string ContentType { get; private set; }
+	}
+
+#>

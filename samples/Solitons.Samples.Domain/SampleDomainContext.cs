@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Solitons.Samples.Domain.Contracts;
 
 namespace Solitons.Samples.Domain
 {
@@ -12,10 +11,7 @@ namespace Solitons.Samples.Domain
         private SampleDomainContext()
             : base(typeof(SampleDomainContext).Assembly)
         {
-            RegisterTransactionScriptApi(typeof(ITransactionScriptApi));
+            
         }
-
-
-        
     }
 }

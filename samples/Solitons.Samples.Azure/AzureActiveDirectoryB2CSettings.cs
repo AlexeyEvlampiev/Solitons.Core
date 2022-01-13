@@ -1,14 +1,15 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Solitons.Collections;
 
-namespace Solitons.Security.Common.AzureActiveDirectory
+namespace Solitons.Samples.Azure
 {
     /// <summary>
     /// 
     /// </summary>
     public sealed class AzureActiveDirectoryB2CSettings : BasicSettings
     {
+        public const string ConfigurationSectionName = "AzureAdB2C";
+
         /// <summary>
         /// 
         /// </summary>
@@ -44,6 +45,7 @@ namespace Solitons.Security.Common.AzureActiveDirectory
         [Key("AzureAdB2C:SignUpSignInPolicyId")]
         [BasicSetting("SignUpSignInPolicyId", IsRequired = true, Pattern = "(?i)(?:SignUp)?SignIn(?:Policy(?:Id)?)")]
         public string SignUpSignInPolicyId { get; set; }
+
 
         /// <summary>
         /// 

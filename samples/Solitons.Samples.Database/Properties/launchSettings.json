@@ -2,11 +2,11 @@
   "profiles": {
     "Drop And Recreate": {
       "commandName": "Project",
-      "commandLineArgs": "upgrade --superuser email=alexey@contoso.com;org=c2b91f6c-d1b8-4207-a80d-b6b12ea522c5 --recreate  --with-stubs --connection %SOLITONS_SAMPLE_CONNECTION_STRING%"
+      "commandLineArgs": "upgrade --superuser email=alexey@contoso.com;org=c2b91f6c-d1b8-4207-a80d-b6b12ea522c5 --recreate  --with-stubs --connection %SOLITONS_SAMPLE_POSTGRES_CONNECTION_STRING%"
     },
     "Upgrade": {
       "commandName": "Project",
-      "commandLineArgs": "upgrade --superuser email=alexey@contoso.com;org=c2b91f6c-d1b8-4207-a80d-b6b12ea522c5 --with-stubs --connection %SOLITONS_SAMPLE_CONNECTION_STRING%"
+      "commandLineArgs": "upgrade --superuser email=alexey@contoso.com;org=c2b91f6c-d1b8-4207-a80d-b6b12ea522c5 --with-stubs --connection %SOLITONS_SAMPLE_POSTGRES_CONNECTION_STRING%"
     },
     "ProvisionDb": {
       "commandName": "Project",

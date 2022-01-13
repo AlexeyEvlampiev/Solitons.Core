@@ -1,34 +1,41 @@
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
+using Solitons.Samples.Domain;
+using Solitons.Samples.Domain.Contracts;
 using Solitons.Samples.Frontend.Shared;
 
-namespace Solitons.Samples.Frontend.Server.Controllers
+namespace Solitons.Samples.Frontend.Server.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("[controller]")]
+[RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes")]
+public class WeatherForecastController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    private readonly ISampleDbApi _databaseApi;
+
+    public WeatherForecastController(ISampleDbApi databaseApi)
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+        _databaseApi = databaseApi ?? throw new ArgumentNullException(nameof(databaseApi));
+    }
 
-        private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
-        }
-
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
-        {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+    [HttpGet]
+    public async Task<WeatherForecast[]> Get()
+    {
+        return await _databaseApi
+            .InvokeAsync(new WeatherForecastRequest())
+            .ToObservable()
+            .SelectMany(response => response.Items)
+            .Select(item => new WeatherForecast
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+                Date = item.Date,
+                Summary = item.Summary,
+                TemperatureC = item.TemperatureC
             })
             .ToArray();
-        }
     }
 }

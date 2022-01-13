@@ -1,44 +1,47 @@
 using System.Security.Claims;
-using Solitons.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+using Solitons;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
-using Solitons.Samples.Domain.Contracts;
+using Solitons.Samples.Frontend.Server;
 
+var adB2CSettings = new ConfigurationBuilder()
+    .AddInMemoryCollection(EnvironmentVariables.GetAzureActiveDirectoryB2CSettings())
+    .Build()
+    .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
-var connectionString = SampleEnvironment.GetPgConnectionString(config =>
+var pgConnectionString = EnvironmentVariables.GetPgConnectionString(config =>
 {
-    config.ApplicationName = "Solitons Sample Frontend";
+    config.ApplicationName = "Sample Frontend Server";
     config.MinPoolSize = 2;
 });
 
 
-var domainContext = SampleDomainContext.GetOrCreate();
-
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<ITransactionScriptProvider>(provider =>
-{
-    var caller = provider.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
-    return new PgTransactionScriptProvider(caller, connectionString);
-});
-builder.Services.AddTransient(serviceProviders =>
-{
-    var provider = serviceProviders.GetService<ITransactionScriptProvider>();
-    return domainContext.Create<ITransactionScriptApi>(provider);
-});
+// Add services to the container.
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(adB2CSettings);
 
-builder.Services
-    .AddControllersWithViews(config=> config.RespectBrowserAcceptHeader = true)
-    .AddXmlSerializerFormatters();
+builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<ISampleDbApi>(serviceProviders =>
+{
+    var caller = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
+    var provider = new PgTransactionScriptProvider(caller, pgConnectionString);
+    var databaseApi = new SampleDbApi(provider);
+    return databaseApi;
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseWebAssemblyDebugging();
 }
 else
@@ -48,12 +51,17 @@ else
     app.UseHsts();
 }
 
+app.ConfigureExceptionHandler(IAsyncLogger.Null);
+
 app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapRazorPages();
