@@ -1,12 +1,23 @@
-﻿using Npgsql;
+﻿using Azure.Storage.Blobs;
+using Npgsql;
 
 namespace Solitons.Samples.Azure
 {
-    public static class EnvironmentVariables
+    public static class AzureFactory
     {
         private const string PostgresConnectionStringEnvVariable = "SOLITONS_SAMPLE_POSTGRES_CONNECTION_STRING";
-
         private const string AADB2CConnectionStringEnvVariable = "SOLITONS_SAMPLE_AADB2C_CONNECTION_STRING";
+        private const string StorageConnectionStringEnvVariable = "AZ_STORAGE_CONNECTION_STRING";
+
+        public static BlobStorageAsyncLogger GetLogger(IEnvironment? env = null)
+        {
+            env ??= IEnvironment.System;
+            var container = new BlobContainerClient(
+                env.GetEnvironmentVariable(StorageConnectionStringEnvVariable)
+                    .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException($"{StorageConnectionStringEnvVariable} environment variable is missing.")), 
+                "logs");
+            return new BlobStorageAsyncLogger(container);
+        }
 
         public static AzureActiveDirectoryB2CSettings GetAzureActiveDirectoryB2CSettings(IEnvironment? env = null)
         {

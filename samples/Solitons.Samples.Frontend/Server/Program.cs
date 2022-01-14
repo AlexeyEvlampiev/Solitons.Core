@@ -7,11 +7,11 @@ using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
 
 var adB2CSettings = new ConfigurationBuilder()
-    .AddInMemoryCollection(EnvironmentVariables.GetAzureActiveDirectoryB2CSettings())
+    .AddInMemoryCollection(AzureFactory.GetAzureActiveDirectoryB2CSettings())
     .Build()
     .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
-var pgConnectionString = EnvironmentVariables.GetPgConnectionString(config =>
+var pgConnectionString = AzureFactory.GetPgConnectionString(config =>
 {
     config.ApplicationName = "Sample Frontend Server";
     config.MinPoolSize = 2;
@@ -35,6 +35,8 @@ builder.Services.AddTransient<ISampleDbApi>(serviceProviders =>
     var databaseApi = new SampleDbApi(provider);
     return databaseApi;
 });
+
+builder.Services.AddSingleton<IAsyncLogger>(AzureFactory.GetLogger());
 
 var app = builder.Build();
 
