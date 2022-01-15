@@ -292,6 +292,7 @@ namespace Solitons
         /// <returns>A byte array containing the results of encoding the input string.</returns>
         /// <exception cref="ArgumentNullException">The string to be encoded</exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNull]
         public static byte[] ToUtf8Bytes(this string self)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
