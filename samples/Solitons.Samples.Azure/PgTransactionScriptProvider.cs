@@ -42,13 +42,13 @@ public class PgTransactionScriptProvider : TransactionScriptProvider
             await using var command = new NpgsqlCommand($"SELECT api.{procedure}(@request);", connection);
             command.CommandTimeout = timeoutInSeconds;
 
-            var requestType = requestMetadata.ContentType switch
+            var requestType = contentType switch
             {
                 "application/json" => NpgsqlDbType.Jsonb,
                 "application/xml" => NpgsqlDbType.Xml,
                 _ => throw new NotImplementedException()
             };
-            command.Parameters.AddWithValue("request", requestType, request);
+            command.Parameters.AddWithValue("request", requestType, content);
             await connection.OpenAsync(cancellation);
             await using var transaction = await connection.BeginTransactionAsync(isolationLevel, cancellation);
             var response = await command.ExecuteScalarAsync(cancellation) ?? throw new NullReferenceException();
