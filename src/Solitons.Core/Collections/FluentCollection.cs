@@ -10,7 +10,7 @@ namespace Solitons.Collections
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class FluentCollection<T> : ICollection<T>
+    public sealed class FluentCollection<T> : ICollection<T>
     {
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly ICollection<T> _collection;
