@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Security\Common\" />
     <Folder Include="Tables\" />
   </ItemGroup>
 

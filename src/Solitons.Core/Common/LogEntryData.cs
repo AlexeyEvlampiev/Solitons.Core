@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
-using Solitons.Collections;
+
 
 namespace Solitons.Common
 {
@@ -30,6 +30,7 @@ namespace Solitons.Common
         public LogEntryData(ILogEntry entry)
         {
             if (entry == null) throw new ArgumentNullException(nameof(entry));
+            Created = entry.Created;
             Level = entry.Level;
             Message = entry.Message;
             Details = entry.Details;
@@ -46,40 +47,39 @@ namespace Solitons.Common
         /// <summary>
         /// 
         /// </summary>
-        [JsonPropertyName("level"), XmlAttribute("Level")]
+        [JsonPropertyName("level")]
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public LogLevel Level { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        [JsonPropertyName("message"), XmlAttribute("Message")]
+        [JsonPropertyName("message")]
         public string Message { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        [JsonPropertyName("created"), XmlIgnore]
+        [JsonPropertyName("created")]
         public DateTimeOffset Created { get; set; }
 
 
         /// <summary>
         /// 
         /// </summary>
-        [JsonPropertyName("details"), XmlElement("Details")]
+        [JsonPropertyName("details")]
         public string Details { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         [JsonPropertyName("tags")]
-        [XmlArray("Tags"), XmlArrayItem("Add")]
         public List<string> Tags { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        [JsonPropertyName("properties"), XmlIgnore]
+        [JsonPropertyName("properties")]
         public IDictionary<string, string> Properties { get; set; }
 
 
@@ -90,18 +90,11 @@ namespace Solitons.Common
 
         IEnumerable<string> ILogEntry.Properties => Properties?.Keys ?? Enumerable.Empty<string>();
 
-        public sealed class PropertyCollection : DictionaryProxy<string, string>
-        {
-            public PropertyCollection()
-            {
-                
-            }
-            public PropertyCollection(IDictionary<string, string> value) : base(value)
-            {
-      
-            }
-        }
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static LogEntryData Parse(string json) => JsonSerializer.Deserialize<LogEntryData>(json);
     }
 }

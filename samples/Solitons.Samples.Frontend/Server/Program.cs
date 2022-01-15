@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Identity.Web;
 using Solitons;
 using Solitons.Samples.Azure;
@@ -11,7 +12,16 @@ var adB2CSettings = new ConfigurationBuilder()
     .Build()
     .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
-var pgConnectionString = EnvironmentVariables.GetPgConnectionString(config =>
+var azFactory = new AzureFactory();
+
+var logger = azFactory.GetLogger();
+
+var adB2CSettings = new ConfigurationBuilder()
+    .AddInMemoryCollection(azFactory.GetAzureActiveDirectoryB2CSettings())
+    .Build()
+    .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
+
+var pgConnectionString = azFactory.GetPgConnectionString(config =>
 {
     config.ApplicationName = "Sample Frontend Server";
     config.MinPoolSize = 2;
@@ -34,6 +44,22 @@ builder.Services.AddTransient<ISampleDbApi>(serviceProviders =>
     var provider = new PgTransactionScriptProvider(caller, pgConnectionString);
     var databaseApi = new SampleDbApi(provider);
     return databaseApi;
+});
+
+builder.Services.AddTransient<IAsyncLogger>(serviceProviders =>
+{
+    var context = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext;
+    if (context is null) return logger;
+    var caller = context.User;
+    var url = context.Request.GetDisplayUrl();
+
+    string email = caller.FindFirstValue("emails");
+    return logger
+        .WithProperty("email", email)
+        .WithProperty("url", url)
+        .WithProperty("host", Environment.MachineName)
+        .WithTags("Sample Frontend Server");
+
 });
 
 var app = builder.Build();

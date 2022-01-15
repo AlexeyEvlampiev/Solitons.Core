@@ -693,6 +693,23 @@ public static void SetEnvironmentVariable(string variable, string? value, Enviro
         /// </summary>
         [DebuggerNonUserCode]
         public static IEnvironment System => SysEnvironment.Instance;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">variable</exception>
+        /// <exception cref="NullReferenceException">variable</exception>
+        public string GetRequiredEnvironmentVariable(string variable, EnvironmentVariableTarget target = EnvironmentVariableTarget.Process)
+        {
+            var value = GetEnvironmentVariable(
+                    variable.ThrowIfNullOrWhiteSpaceArgument(nameof(variable))
+                    ,target)
+                .ThrowIfNull($"Required environment variable is missing. Variable name: {variable}");
+            return value;
+        }
     }
     
 
