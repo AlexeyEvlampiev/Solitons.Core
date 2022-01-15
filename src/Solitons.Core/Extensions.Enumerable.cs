@@ -96,34 +96,26 @@ namespace Solitons
             return range.Count(self.Add);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> self) => self ?? Enumerable.Empty<T>();
-        public static CsvCollection<T> ToCsvList<T>(this IEnumerable<T> self, 
-            string delimiter = null,
-            Func<T, string> formatItem = null)
-        {
-            if (self == null) throw new ArgumentNullException(nameof(self));
-            var csvList = new CsvCollection<T>(delimiter, formatItem);
-            foreach (var item in self)
-            {
-                csvList.Add(item);
-            }
 
-            return csvList;
-        }
-
-
-        public static CsvCollection<T> AsCsv<T>(this ICollection<T> self,
-            string delimiter = null,
-            Func<T, string> formatItem = null)
-        {
-            if (self == null) throw new ArgumentNullException(nameof(self));
-            var csvList = new CsvCollection<T>(self, delimiter, formatItem);
-            return csvList;
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] EmptyIfNull<T>(this T[] self) => self ?? Array.Empty<T>();
+
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> self, TKey key, Func<TValue> factory)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
@@ -138,6 +130,16 @@ namespace Solitons
             return value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="key"></param>
+        /// <param name="factory"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, object> self, TKey key, Func<TValue> factory)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));

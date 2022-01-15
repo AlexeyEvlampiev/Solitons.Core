@@ -12,7 +12,7 @@ namespace Solitons.Collections
     public sealed class FluentList<T> : IList<T>
     {
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        private readonly List<T> _list;
+        private readonly IList<T> _list;
 
         /// <summary>
         /// 
@@ -43,13 +43,6 @@ namespace Solitons.Collections
         {
             _list = new List<T>(collection);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fluentList"></param>
-        [DebuggerNonUserCode]
-        public static explicit operator List<T>(FluentList<T> fluentList) => fluentList?._list;
 
         /// <summary>
         /// 
@@ -108,6 +101,19 @@ namespace Solitons.Collections
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="item"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public bool Contains(T item, out int index)
+        {
+            index = IndexOf(item);
+            return index >= 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="array"></param>
         /// <param name="arrayIndex"></param>
         [DebuggerNonUserCode]
@@ -148,7 +154,7 @@ namespace Solitons.Collections
         public int Count => _list.Count;
 
         [DebuggerNonUserCode]
-        bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
+        bool ICollection<T>.IsReadOnly => _list.IsReadOnly;
 
         /// <summary>
         /// 
@@ -200,6 +206,27 @@ namespace Solitons.Collections
             get => _list[index];
             [DebuggerNonUserCode]
             set => _list[index] = value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public override int GetHashCode() => _list.GetHashCode();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            if (ReferenceEquals(_list, obj)) return true;
+            if (ReferenceEquals(null, obj)) return false;
+            return _list.Equals(obj);
         }
     }
 }
