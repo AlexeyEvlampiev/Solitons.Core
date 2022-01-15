@@ -49,8 +49,9 @@ builder.Services.AddTransient<IAsyncLogger>(serviceProviders =>
     var caller = context.User;
     var url = context.Request.GetDisplayUrl();
 
+    string email = caller.FindFirstValue("emails");
     return logger
-        .WithProperty("oid", caller.FindFirstValue("oid"))
+        .WithProperty("email", email)
         .WithProperty("url", url)
         .WithProperty("host", Environment.MachineName)
         .WithTags("Sample Frontend Server");
