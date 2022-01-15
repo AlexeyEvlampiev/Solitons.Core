@@ -7,10 +7,6 @@ using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
 
-var adB2CSettings = new ConfigurationBuilder()
-    .AddInMemoryCollection(EnvironmentVariables.GetAzureActiveDirectoryB2CSettings())
-    .Build()
-    .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
 var azFactory = new AzureFactory();
 
