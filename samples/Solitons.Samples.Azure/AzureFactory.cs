@@ -4,42 +4,45 @@ using Npgsql;
 
 namespace Solitons.Samples.Azure
 {
-    public static class AzureFactory
+    public sealed class AzureFactory
     {
+        private readonly IEnvironment _environment;
         private const string PostgresConnectionStringEnvVariable = "SOLITONS_SAMPLE_POSTGRES_CONNECTION_STRING";
         private const string EventHubsConnectionStringEnvVariable = "SOLITONS_SAMPLE_EVENTHUBS_CONNECTION_STRING";
         private const string AADB2CConnectionStringEnvVariable = "SOLITONS_SAMPLE_AADB2C_CONNECTION_STRING";
         private const string StorageConnectionStringEnvVariable = "AZ_STORAGE_CONNECTION_STRING";
 
-        public static BlobStorageAsyncLogger GetLogger(IEnvironment? env = null)
+        public AzureFactory() : this(IEnvironment.System)
         {
-            env ??= IEnvironment.System;
-            var logsBufferQueue = new QueueClient(
-                env.GetEnvironmentVariable(StorageConnectionStringEnvVariable)
-                    .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException($"{StorageConnectionStringEnvVariable} environment variable is missing.")), 
-                "logs");
-            var logsHub = new EventHubProducerClient(env.GetEnvironmentVariable(EventHubsConnectionStringEnvVariable)
-                .ThrowIfNullOrWhiteSpace(() => new InvalidOperationException($"{EventHubsConnectionStringEnvVariable} environment variable is missing.")), "logs");
-            return new BlobStorageAsyncLogger(logsBufferQueue, logsHub);
+            
         }
 
-        public static AzureActiveDirectoryB2CSettings GetAzureActiveDirectoryB2CSettings(IEnvironment? env = null)
+        public AzureFactory(IEnvironment environment)
         {
-            env ??= IEnvironment.System;
+            _environment = environment ?? throw new ArgumentNullException(nameof(environment));
+        }
+
+
+        public IAsyncLogger GetLogger()
+        {
+            var eventHubsConnectionString = _environment.GetRequiredEnvironmentVariable(EventHubsConnectionStringEnvVariable);
+            var storageConnectionString = _environment.GetRequiredEnvironmentVariable(StorageConnectionStringEnvVariable);
+            var logsBufferQueue = new QueueClient(storageConnectionString, "logs");
+            var logsHub = new EventHubProducerClient(eventHubsConnectionString);
+            return new BufferedAsyncLogger(logsBufferQueue, logsHub);
+        }
+
+        public AzureActiveDirectoryB2CSettings GetAzureActiveDirectoryB2CSettings()
+        {
             return AzureActiveDirectoryB2CSettings
-                .Parse(env
-                    .GetEnvironmentVariable(AADB2CConnectionStringEnvVariable)
-                    .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException($"{AADB2CConnectionStringEnvVariable} environment variable is missing.")));
+                .Parse(_environment
+                    .GetRequiredEnvironmentVariable(AADB2CConnectionStringEnvVariable));
         }
 
-        public static string GetPgConnectionString(Action<NpgsqlConnectionStringBuilder>? config = null, IEnvironment? env = null)
+        public string GetPgConnectionString(Action<NpgsqlConnectionStringBuilder>? config = null)
         {
-            env ??= IEnvironment.System;
-            var builder = new NpgsqlConnectionStringBuilder(env
-                .ThrowIfNullArgument(nameof(env))
-                .GetEnvironmentVariable(PostgresConnectionStringEnvVariable)
-                .ThrowIfNullOrWhiteSpace(() =>
-                    new InvalidOperationException($"{PostgresConnectionStringEnvVariable} environment variable is missing.")));
+            var builder = new NpgsqlConnectionStringBuilder(_environment
+                .GetRequiredEnvironmentVariable(PostgresConnectionStringEnvVariable));
             config?.Invoke(builder);
             return builder.ConnectionString;
         }

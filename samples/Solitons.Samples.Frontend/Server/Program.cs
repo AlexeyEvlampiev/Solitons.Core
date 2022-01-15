@@ -1,17 +1,23 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Identity.Web;
 using Solitons;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
 
+
+var azFactory = new AzureFactory();
+
+var logger = azFactory.GetLogger();
+
 var adB2CSettings = new ConfigurationBuilder()
-    .AddInMemoryCollection(AzureFactory.GetAzureActiveDirectoryB2CSettings())
+    .AddInMemoryCollection(azFactory.GetAzureActiveDirectoryB2CSettings())
     .Build()
     .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
-var pgConnectionString = AzureFactory.GetPgConnectionString(config =>
+var pgConnectionString = azFactory.GetPgConnectionString(config =>
 {
     config.ApplicationName = "Sample Frontend Server";
     config.MinPoolSize = 2;
@@ -36,7 +42,20 @@ builder.Services.AddTransient<ISampleDbApi>(serviceProviders =>
     return databaseApi;
 });
 
-builder.Services.AddSingleton<IAsyncLogger>(AzureFactory.GetLogger());
+builder.Services.AddTransient<IAsyncLogger>(serviceProviders =>
+{
+    var context = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext;
+    if (context is null) return logger;
+    var caller = context.User;
+    var url = context.Request.GetDisplayUrl();
+
+    return logger
+        .WithProperty("oid", caller.FindFirstValue("oid"))
+        .WithProperty("url", url)
+        .WithProperty("host", Environment.MachineName)
+        .WithTags("Sample Frontend Server");
+
+});
 
 var app = builder.Build();
 

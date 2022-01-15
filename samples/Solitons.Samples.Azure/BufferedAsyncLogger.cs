@@ -9,7 +9,7 @@ using Solitons.Common;
 
 namespace Solitons.Samples.Azure
 {
-    public sealed class BlobStorageAsyncLogger : AsyncLogger
+    public sealed class BufferedAsyncLogger : AsyncLogger
     {
         private readonly QueueClient _bufferQueue;
         private readonly EventHubProducerClient _logsHub;
@@ -18,7 +18,7 @@ namespace Solitons.Samples.Azure
         private int _flushing;
 
 
-        public BlobStorageAsyncLogger(QueueClient bufferQueue, EventHubProducerClient logsHub)
+        public BufferedAsyncLogger(QueueClient bufferQueue, EventHubProducerClient logsHub)
         {
             _bufferQueue = bufferQueue ?? throw new ArgumentNullException(nameof(bufferQueue));
             _logsHub = logsHub ?? throw new ArgumentNullException(nameof(logsHub));
