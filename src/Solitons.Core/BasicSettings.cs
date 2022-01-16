@@ -15,7 +15,7 @@ namespace Solitons
     /// </summary>
     public abstract class BasicSettings : IEnumerable<KeyValuePair<string, string>>
     {
-        sealed record Item(PropertyInfo Property, BasicSettingAttribute Setting, KeyAttribute Key);
+        sealed record Item(PropertyInfo Property, BasicSettingAttribute Setting, DictionaryKeyAttribute DictionaryKey);
 
         private readonly Lazy<Item[]> _items;
 
@@ -34,7 +34,7 @@ namespace Solitons
                     attributes.AddRange(property.GetCustomAttributes());
                     var setting = attributes.OfType<BasicSettingAttribute>().SingleOrDefault();
                     if (setting is null) continue;
-                    var key = attributes.OfType<KeyAttribute>().SingleOrDefault() ?? new KeyAttribute(setting.Name);
+                    var key = attributes.OfType<DictionaryKeyAttribute>().SingleOrDefault() ?? new DictionaryKeyAttribute(setting.Name);
                     items.Add(new Item(property, setting, key));
                 }
 
@@ -51,7 +51,7 @@ namespace Solitons
             var items = _items.Value;
             foreach (var item in items)
             {
-                var (property, setting, key) = (item.Property, item.Setting, item.Key);
+                var (property, setting, key) = (item.Property, item.Setting, Key: item.DictionaryKey);
                 if (setting.IsRequired)
                 {
                     var value = property.GetValue(this);
@@ -102,7 +102,7 @@ namespace Solitons
             var parts = new List<string>();
             foreach (var item in items)
             {
-                var (property, setting, key) = (item.Property, item.Setting, item.Key);
+                var (property, setting, key) = (item.Property, item.Setting, Key: item.DictionaryKey);
                 var value = property.GetValue(this);
                 var valueString = ToString(property, value);
                 if(valueString is null)continue;
@@ -193,7 +193,7 @@ namespace Solitons
             {
                 var value = item.Property.GetValue(this, Array.Empty<object>())?.ToString();
                 if(value.IsNullOrWhiteSpace())continue;
-                var key = item.Key.Name;
+                var key = item.DictionaryKey.Name;
                 yield return KeyValuePair.Create(key, value);
             }
         }

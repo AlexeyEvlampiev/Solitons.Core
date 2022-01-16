@@ -6,13 +6,13 @@ namespace Solitons.Collections
     /// 
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public sealed class KeyAttribute : Attribute
+    public sealed class DictionaryKeyAttribute : Attribute
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="name"></param>
-        public KeyAttribute(string name)
+        public DictionaryKeyAttribute(string name)
         {
             Name = name.ThrowIfNullOrWhiteSpaceArgument(nameof(name));
         }

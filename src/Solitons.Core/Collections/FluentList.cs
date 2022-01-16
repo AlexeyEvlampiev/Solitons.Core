@@ -2,9 +2,182 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Solitons.Collections
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class FluentList
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> Create<T>() => new();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public static FluentList<T> Create<T>(IEnumerable<T> collection)
+        {
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
+            return new FluentList<T>(collection.ToList());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> Create<T>(T item) => Wrap(new List<T>(){item});
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item1"></param>
+        /// <param name="item2"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> Create<T>(T item1, T item2) => Wrap(new List<T>() { item1, item2});
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item1"></param>
+        /// <param name="item2"></param>
+        /// <param name="item3"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> Create<T>(T item1, T item2, T item3) => Wrap(new List<T>() { item1, item2, item3 });
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> Create<T>(params T[] items) => Wrap(new List<T>(items));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="capacity"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> CreateWithCapacity<T>(int capacity, T item) => Wrap(new List<T>(capacity) { item });
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="capacity"></param>
+        /// <param name="item1"></param>
+        /// <param name="item2"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> CreateWithCapacity<T>(int capacity, T item1, T item2) => Wrap(new List<T>(capacity) { item1, item2 });
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="capacity"></param>
+        /// <param name="item1"></param>
+        /// <param name="item2"></param>
+        /// <param name="item3"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> CreateWithCapacity<T>(int capacity, T item1, T item2, T item3) => Wrap(new List<T>(capacity) { item1, item2, item3 });
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="capacity"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> CreateWithCapacity<T>(int capacity, params T[] items)
+        {
+            var list = new List<T>(capacity);
+            list.AddRange(items);
+            return Wrap(list);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="capacity"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static FluentList<T> CreateWithCapacity<T>(int capacity) => new(new List<T>(capacity));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="capacity"></param>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public static FluentList<T> CreateWithCapacity<T>(int capacity, IEnumerable<T> collection)
+        {
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
+            var list = new List<T>(capacity);
+            list.AddRange(collection);
+            return new FluentList<T>(list);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public static FluentList<T> Wrap<T>(IList<T> list)
+        {
+            if (list == null) throw new ArgumentNullException(nameof(list));
+            return list is FluentList<T> fluentList
+                ? fluentList
+                : new FluentList<T>(list);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public static FluentList<T> WrapOrCreate<T>(IEnumerable<T> collection)
+        {
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
+            return new FluentList<T>(collection);
+        }
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -18,7 +191,7 @@ namespace Solitons.Collections
         /// 
         /// </summary>
         [DebuggerNonUserCode]
-        public FluentList()
+        internal FluentList()
         {
             _list = new List<T>();
         }
@@ -28,7 +201,7 @@ namespace Solitons.Collections
         /// </summary>
         /// <param name="capacity"></param>
         [DebuggerNonUserCode]
-        public FluentList(int capacity)
+        internal FluentList(int capacity)
         {
             _list = new List<T>(capacity);
         }
@@ -39,9 +212,19 @@ namespace Solitons.Collections
         /// <param name="collection"></param>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerNonUserCode]
-        public FluentList(IEnumerable<T> collection)
+        internal FluentList(IEnumerable<T> collection)
         {
-            _list = new List<T>(collection);
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
+            if (collection is FluentList<T> other)
+            {
+                _list = other._list;
+            }
+            else
+            {
+                _list = collection is IList<T> list
+                    ? list
+                    : new List<T>(collection);
+            }
         }
 
         /// <summary>
@@ -50,6 +233,8 @@ namespace Solitons.Collections
         /// <param name="list"></param>
         [DebuggerNonUserCode]
         public static explicit operator FluentList<T>(List<T> list) => list == null ? null : new FluentList<T>();
+
+        
 
         /// <summary>
         /// 
@@ -119,20 +304,14 @@ namespace Solitons.Collections
         [DebuggerNonUserCode]
         public void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
 
-        [DebuggerNonUserCode]
-        bool ICollection<T>.Remove(T item) => _list.Remove(item);
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
         [DebuggerNonUserCode]
-        public FluentList<T> Remove(T item)
-        {
-            _list.Remove(item);
-            return this;
-        }
+        public bool Remove(T item) => _list.Remove(item);
+
 
         /// <summary>
         /// 

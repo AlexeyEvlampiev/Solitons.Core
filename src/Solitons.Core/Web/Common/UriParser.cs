@@ -30,7 +30,7 @@ namespace Solitons.Web.Common
         /// <param name="queryString">The query string.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static KeyValuePairCollection ParseQueryString(string queryString)
+        public static KeyValuePairCollection<string, string> ParseQueryString(string queryString)
         {
             queryString = queryString
                 .ThrowIfNull(() => new ArgumentException($"Input query string is required.", nameof(queryString)))
@@ -38,7 +38,7 @@ namespace Solitons.Web.Common
             var match = QueryRegex.Match(queryString);
             if (match.Success == false) throw new FormatException();
 
-            return new KeyValuePairCollection(match
+            return KeyValuePairCollection.Create(match
                 .ZipCaptures("name", "value")
                 .Select(pair =>
                 {
@@ -69,7 +69,7 @@ namespace Solitons.Web.Common
             return true;
         }
 
-        public static bool TryParseQueryString(string queryString, out KeyValuePairCollection queryParameters)
+        public static bool TryParseQueryString(string queryString, out KeyValuePairCollection<string, string> queryParameters)
         {
             queryParameters = null;
             if (queryString is null) return false;
@@ -77,7 +77,7 @@ namespace Solitons.Web.Common
             var match = QueryRegex.Match(queryString);
             if (match.Success == false) return false;
 
-            queryParameters = new KeyValuePairCollection(match
+            queryParameters = KeyValuePairCollection.Create(match
                 .ZipCaptures("name", "value")
                 .Select(pair =>
                 {
@@ -93,7 +93,7 @@ namespace Solitons.Web.Common
             TryParse(rawUri, out resourceUri, out queryString);
 
         [DebuggerStepThrough]
-        bool IUriParser.TryParseQueryString(string queryString, out KeyValuePairCollection queryParameters) =>
+        bool IUriParser.TryParseQueryString(string queryString, out KeyValuePairCollection<string, string> queryParameters) =>
             TryParseQueryString(queryString, out queryParameters);
 
     }
