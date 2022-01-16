@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -8,9 +11,17 @@ using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
 
 
+var disposables = new CompositeDisposable();
+
 var azFactory = new AzureFactory();
 
 var logger = azFactory.GetLogger();
+
+#if DEBUG
+disposables.Add(logger
+    .AsObservable()
+    .Subscribe(log=> Debug.WriteLine($"{log.Level}: {log.Message}")));
+#endif
 
 var adB2CSettings = new ConfigurationBuilder()
     .AddInMemoryCollection(azFactory.GetAzureActiveDirectoryB2CSettings())
@@ -25,6 +36,8 @@ var pgConnectionString = azFactory.GetPgConnectionString(config =>
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton(disposables);
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
