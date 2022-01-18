@@ -10,12 +10,8 @@ namespace Solitons
     /// <summary>
     /// 
     /// </summary>
-    public interface IAsyncLogger
+    public partial interface IAsyncLogger
     {
-        /// <summary>
-        /// Gets the <see cref="IAsyncLogger"/> null object.
-        /// </summary>
-        public static IAsyncLogger Null => AsyncLogger.Null;
         /// <summary>
         /// Logs the specified message asynchronously.
         /// </summary>
@@ -140,5 +136,18 @@ namespace Solitons
         /// <returns>Extended <see cref="IAsyncLogger"/> instance</returns>
         [DebuggerStepThrough]
         public IAsyncLogger WithProperties(IEnumerable<KeyValuePair<string, string>> properties) => new AsyncLoggerProxy(this, builder => builder.WithProperties(properties));
+    }
+
+    public partial interface IAsyncLogger
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public static IAsyncLogger Null => AsyncNullObjectLogger.Instance;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static IAsyncLogger Trace => TraceAsyncLogger.Instance;
     }
 }

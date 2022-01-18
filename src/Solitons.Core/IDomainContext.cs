@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Solitons.Data;
+using static Solitons.Collections.FluentEnumerable;
 
 namespace Solitons
 {
@@ -48,9 +49,8 @@ namespace Solitons
         /// <returns></returns>
         [DebuggerStepThrough]
         public static IDomainContext CreateGenericContext(Assembly assembly) =>
-            new GenericDomainContext(assembly
-                .ThrowIfNullArgument(nameof(assembly))
-                .ToEnumerable());
+            new GenericDomainContext(Yield(assembly
+                .ThrowIfNullArgument(nameof(assembly))));
 
         /// <summary>
         /// Creates a generic instance of <see cref="DomainContext"/> built from the specified assemblies.

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using Solitons.Collections;
 using Solitons.Common;
 using Solitons.Data;
 using Solitons.Queues;
@@ -74,9 +75,8 @@ namespace Solitons
         /// </summary>
         /// <param name="assembly"></param>
         [DebuggerStepThrough]
-        protected DomainContext(Assembly assembly) : this(assembly
-           .ThrowIfNullArgument(nameof(assembly))
-            .ToEnumerable()
+        protected DomainContext(Assembly assembly) : this(FluentEnumerable.Yield(assembly
+           .ThrowIfNullArgument(nameof(assembly)))
            .SelectMany(a => a.GetTypes()))
         {
 

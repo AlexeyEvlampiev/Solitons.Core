@@ -2,15 +2,80 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
-using Solitons.Collections.Specialized;
+using Solitons.Collections;
 
 namespace Solitons
 {
     public static partial class Extensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [return: NotNull]
+        public static FluentCollection<T> AsFluentCollection<T>(this ICollection<T> self)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+
+            return self is FluentCollection<T> fluent
+                ? fluent
+                : new FluentCollection<T>(self);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="callback"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AsFluentCollection<T>(this ICollection<T> self, Action<FluentCollection<T>> callback)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
+            var fluentCollection = self.AsFluentCollection();
+            callback.Invoke(fluentCollection);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [return: NotNull]
+        public static FluentList<T> AsFluentList<T>(this IList<T> self)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            return self is FluentList<T> fluent
+                ? fluent
+                : new FluentList<T>(self);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="callback"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AsFluentList<T>(this IList<T> self, Action<FluentList<T>> callback)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (callback == null) throw new ArgumentNullException(nameof(callback));
+            var fluentList = self.AsFluentList();
+            callback.Invoke(fluentList);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -116,6 +181,16 @@ namespace Solitons
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] EmptyIfNull<T>(this T[] self) => self ?? Array.Empty<T>();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="key"></param>
+        /// <param name="factory"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> self, TKey key, Func<TValue> factory)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));

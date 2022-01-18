@@ -1,12 +1,13 @@
 ﻿
 
 using System.Reflection;
+using Solitons.Collections;
 
 namespace Solitons.Azure
 {
     class TestDomainContext : DomainContext
     {
-        private TestDomainContext() : base(Assembly.GetExecutingAssembly().ToEnumerable())
+        private TestDomainContext() : base(FluentEnumerable.Yield(Assembly.GetExecutingAssembly()))
         {
         }
 

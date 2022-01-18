@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Solitons.Collections;
 
 namespace Solitons.Azure
 {
@@ -10,7 +11,7 @@ namespace Solitons.Azure
         public static DomainContext Instance => _lazyInstance.Value;
 
         private MyDomainContext() 
-            : base(Assembly.GetExecutingAssembly().ToEnumerable())
+            : base(FluentEnumerable.Yield(Assembly.GetExecutingAssembly()))
         {
         }
     }

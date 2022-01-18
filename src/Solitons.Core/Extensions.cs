@@ -218,21 +218,7 @@ namespace Solitons
                    value == 308;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="self"></param>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNull]
-        public static IEnumerable<T> ToEnumerable<T>(this T self, Func<T, bool> filter = null)
-        {
-            if(false == filter?.Invoke(self))yield break;
-            yield return self;
-        }
+
         /// <summary>
         /// Throws if the target instance is null.
         /// </summary>

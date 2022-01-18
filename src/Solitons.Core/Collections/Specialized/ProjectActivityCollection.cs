@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static Solitons.Collections.FluentEnumerable;
 
 namespace Solitons.Collections.Specialized
 {
@@ -37,7 +38,6 @@ namespace Solitons.Collections.Specialized
         /// <param name="id"></param>
         /// <param name="effortInDays"></param>
         /// <returns></returns>
-
         [DebuggerStepThrough]
         public ProjectActivity Add(string id, int effortInDays) => Add(id, effortInDays, Enumerable.Empty<ProjectActivity>());
 
@@ -50,9 +50,8 @@ namespace Solitons.Collections.Specialized
         /// <returns></returns>
         [DebuggerStepThrough]
         public ProjectActivity Add(string id, int effortInDays, ProjectActivity dependency) => 
-            Add(id, effortInDays, dependency
-                .ThrowIfNullArgument(nameof(dependency))
-                .ToEnumerable());
+            Add(id, effortInDays, Yield(dependency
+                .ThrowIfNullArgument(nameof(dependency))));
 
         /// <summary>
         /// 

@@ -18,30 +18,10 @@ namespace Solitons.Collections
         /// <summary>
         /// 
         /// </summary>
-        [DebuggerNonUserCode]
-        public FluentCollection() : this(new List<T>())
-        {
-            
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="collection"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        [DebuggerNonUserCode]
-        public FluentCollection(ICollection<T> collection)
-        {
-            _collection = collection ?? throw new ArgumentNullException(nameof(collection));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="enumerable"></param>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerNonUserCode]
-        public FluentCollection(IEnumerable<T> enumerable)
+        internal FluentCollection(IEnumerable<T> enumerable)
         {
             if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
             _collection = enumerable is ICollection<T> collection

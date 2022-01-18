@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using Solitons.Collections;
 
 namespace Solitons
 {
@@ -286,7 +287,9 @@ namespace Solitons
         [DebuggerStepThrough]
         public static IDomainSerializer FromAssemblies(Assembly assembly)
         {
-            var genericDomain = new GenericDomainContext(assembly.ToEnumerable());
+            var genericDomain = new GenericDomainContext(
+                FluentEnumerable.Yield(assembly
+                .ThrowIfNullArgument(nameof(assembly))));
             return genericDomain.GetSerializer();
         }
 
@@ -316,11 +319,10 @@ namespace Solitons
         }
 
         [DebuggerStepThrough]
-        public static IDomainSerializer FromTypes(Type type)
+        public static IDomainSerializer FromType(Type type)
         {
-            var genericDomain = new GenericDomainContext(type
-                .ThrowIfNullArgument(nameof(type))
-                .ToEnumerable());
+            var genericDomain = new GenericDomainContext(FluentEnumerable.Yield(type
+                .ThrowIfNullArgument(nameof(type))));
             return genericDomain.GetSerializer();
         }
 

@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -15,7 +14,9 @@ var disposables = new CompositeDisposable();
 
 var azFactory = new AzureFactory();
 
-var logger = azFactory.GetLogger();
+var logger = azFactory
+    .GetLogger()
+    .WithProperty("assembly",typeof(Program).Assembly.FullName);
 
 #if DEBUG
 disposables.Add(logger

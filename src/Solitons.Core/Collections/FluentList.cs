@@ -261,6 +261,70 @@ namespace Solitons.Collections
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item1"></param>
+        /// <param name="item2"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public FluentList<T> Add(T item1, T item2)
+        {
+            _list.Add(item1);
+            _list.Add(item2);
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item1"></param>
+        /// <param name="item2"></param>
+        /// <param name="item3"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public FluentList<T> Add(T item1, T item2, T item3)
+        {
+            _list.Add(item1);
+            _list.Add(item2);
+            _list.Add(item3);
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public FluentList<T> Add(params T[] items)
+        {
+            if (items == null) throw new ArgumentNullException(nameof(items));
+            foreach (var item in items)
+            {
+                _list.Add(item);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public FluentList<T> AddRange(IEnumerable<T> items)
+        {
+            if (items == null) throw new ArgumentNullException(nameof(items));
+            foreach (var item in items)
+            {
+                _list.Add(item);
+            }
+            return this;
+        }
+
         [DebuggerNonUserCode]
         void ICollection<T>.Clear() => _list.Clear();
 

@@ -24,7 +24,7 @@ namespace Solitons
             Assert.NotNull(instance);
             instance.Text = "This is a test";
 
-            var serializer = IDomainSerializer.FromTypes(((object)instance).GetType());
+            var serializer = IDomainSerializer.FromType(((object)instance).GetType());
 
             Assert.True(serializer.CanSerialize((object)instance, out var contentType));
             Assert.Equal(supportedContentType, contentType);
@@ -55,7 +55,7 @@ namespace Solitons
                 Text = "This is a test"
             };
 
-            var serializer = IDomainSerializer.FromTypes(instance.GetType());
+            var serializer = IDomainSerializer.FromType(instance.GetType());
             var supportedContentTypes = serializer.GetContentTypes(instance.GetType()).ToHashSet();
 
             Assert.Equal(2, supportedContentTypes.Count);
@@ -88,7 +88,7 @@ namespace Solitons
             Assert.NotNull(instance);
             instance.Text = "This is a test";
 
-            var serializer = IDomainSerializer.FromTypes(dtoType);
+            var serializer = IDomainSerializer.FromType(dtoType);
             var supportedContentTypes = serializer.GetContentTypes(dtoType).ToHashSet();
 
             Assert.Equal(2, supportedContentTypes.Count);
@@ -118,7 +118,7 @@ namespace Solitons
         [Fact]
         public void RespectXmlFirstRequirement()
         {
-            var target = IDomainSerializer.FromTypes(typeof(XmlFirstDto));
+            var target = IDomainSerializer.FromType(typeof(XmlFirstDto));
             Assert.True(target.CanSerialize(typeof(XmlFirstDto), out var contentType));
             Assert.Equal("application/xml", contentType, StringComparer.OrdinalIgnoreCase);
         }
@@ -126,7 +126,7 @@ namespace Solitons
         [Fact]
         public void RespectJsonFirstRequirement()
         {
-            var target = IDomainSerializer.FromTypes(typeof(JsonFirstDto));
+            var target = IDomainSerializer.FromType(typeof(JsonFirstDto));
             Assert.True(target.CanSerialize(typeof(JsonFirstDto), out var contentType));
             Assert.Equal("application/json", contentType, StringComparer.OrdinalIgnoreCase);
         }
@@ -134,9 +134,9 @@ namespace Solitons
         [Theory]
         [InlineData(typeof(ExplitXmlPreferenceDto), "application/xml")]
         [InlineData(typeof(ExplitJsonPreferenceDto), "application/json")]
-        public void RespectExplisitSerializationPreference(Type dtoType, string expectedDefaultContentType)
+        public void RespectExplicitSerializationPreference(Type dtoType, string expectedDefaultContentType)
         {
-            var target = IDomainSerializer.FromTypes(dtoType);
+            var target = IDomainSerializer.FromType(dtoType);
             Assert.True(target.CanSerialize(dtoType, out var contentType));
             Assert.Equal(expectedDefaultContentType, contentType, StringComparer.OrdinalIgnoreCase);
         }

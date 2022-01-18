@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Solitons.Collections
 {
@@ -16,6 +18,20 @@ namespace Solitons.Collections
         public static IEnumerable<T> Yield<T>(T item)
         {
             yield return item;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> Yield<T>(T item, bool condition)
+        {
+            if(condition)yield return item;
         }
 
         /// <summary>
