@@ -2,6 +2,8 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
+using Solitons.Reflection.Common;
 using Xunit;
 
 namespace Solitons.Reflection
@@ -10,15 +12,17 @@ namespace Solitons.Reflection
     {
 
         [Fact]
-        public void Work()
+        public async Task WorkAsync()
         {
-            var inspector = new QuotationInspector(typeof(TestEntity));
+            var recursiveInspector = RecursivePropertyInspector
+                .Create(new QuotationInspector());
+
             var entity = new TestEntity("To quote or not to quote");
             
             Assert.Equal("To quote or not to quote", entity.QuotedText);
             Assert.Equal("To quote or not to quote", entity.PlainText);
 
-            inspector.Inspect(entity);
+            await recursiveInspector.InspectAsync(entity);
 
             Assert.Equal("'To quote or not to quote'", entity.QuotedText);
             Assert.Equal("To quote or not to quote", entity.PlainText);
@@ -36,11 +40,8 @@ namespace Solitons.Reflection
             public string PlainText { get; set; }
         }
 
-        sealed class QuotationInspector : RecursivePropertyInfoInspector
+        sealed class QuotationInspector : PropertyInspector
         {
-            public QuotationInspector(Type type) : base(new TypePropertiesDictionary(type))
-            {
-            }
 
             protected override void Inspect(object target, PropertyInfo property)
             {
@@ -48,7 +49,7 @@ namespace Solitons.Reflection
                 property.SetValue(target, text.Quote(QuoteType.Single));
             }
 
-            protected override bool IsTarget(PropertyInfo property) =>
+            protected override bool IsTargetProperty(PropertyInfo property) =>
                 property.PropertyType == typeof(string) &&
                 property.Name.Contains("Quoted");
         }
