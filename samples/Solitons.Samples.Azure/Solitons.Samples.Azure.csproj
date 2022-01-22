@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Solitons.Core\Solitons.Core.csproj" />
+    <ProjectReference Include="..\Solitons.Samples.Domain\Solitons.Samples.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -10,7 +10,10 @@
 	var procedures = new Procedure[]{
 		new Procedure("228c150b-091c-4409-a555-dcb68e226d06", "weather_forecast_get", "00:00:02",
 			new Request("WeatherForecastRequest"),
-			new Response("WeatherForecastResponse"))
+			new Response("WeatherForecastResponse")),
+		new Procedure("475c7a03-61ea-4d43-866d-a89496f0e5dd", "image_get", "00:00:01",
+			new Request("ImageGetRequest"),
+			new Response("ImageGetResponse"))
 	};
 #>
 namespace Solitons.Samples.Domain
@@ -46,7 +49,7 @@ namespace Solitons.Samples.Domain
 	public sealed class <#= className #> : I<#= className #>
 	{
 		private readonly ITransactionScriptProvider _provider;
-		private readonly IDomainSerializer _serializer;
+		private readonly IDomainContractSerializer _serializer;
 
         public <#= className #>(ITransactionScriptProvider provider)
         {

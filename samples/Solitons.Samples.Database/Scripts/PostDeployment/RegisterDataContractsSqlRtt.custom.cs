@@ -20,7 +20,7 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
                 .ToList();
         }
 
-        public IDomainSerializer Serializer { get; }
+        public IDomainContractSerializer ContractSerializer { get; }
 
         public List<Type> DataContractTypes { get; }
 

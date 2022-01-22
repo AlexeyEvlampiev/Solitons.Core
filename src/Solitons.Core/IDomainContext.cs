@@ -17,7 +17,7 @@ namespace Solitons
         /// 
         /// </summary>
         /// <returns></returns>
-        IDomainSerializer GetSerializer();
+        IDomainContractSerializer GetSerializer();
 
         /// <summary>
         /// 

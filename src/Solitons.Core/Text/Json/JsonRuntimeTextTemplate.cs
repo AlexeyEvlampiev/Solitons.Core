@@ -20,6 +20,8 @@ namespace Solitons.Text.Json
         protected override string ToStringWithCulture(object objectToConvert)
         {
             if (objectToConvert is null) return "null";
+            if (objectToConvert is bool boolean)
+                return boolean ? "true" : "false";
             if (objectToConvert is string str) return JsonSerializer.Serialize(str);
             if (objectToConvert is StringBuilder stringBuilder) return JsonSerializer.Serialize(stringBuilder.ToString());
             if (objectToConvert is TimeSpan timeSpan) return XmlConvert.ToString(timeSpan);

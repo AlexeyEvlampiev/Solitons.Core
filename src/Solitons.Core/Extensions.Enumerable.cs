@@ -15,6 +15,25 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="exclude"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        public static IEnumerable<TSource> WrapAsEnumerable<TSource>(this TSource source, Func<TSource, bool> exclude = null)
+        {
+            if (exclude != null && exclude.Invoke(source))
+            {
+                yield break;
+            }
+
+            yield return source;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="self"></param>
         /// <returns></returns>

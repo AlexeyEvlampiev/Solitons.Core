@@ -40,10 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Tables\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\Solitons.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

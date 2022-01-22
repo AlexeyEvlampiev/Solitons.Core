@@ -4,6 +4,9 @@ using System.Xml;
 
 namespace Solitons.Text.Sql
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class PgRuntimeTextTemplate : RuntimeTextTemplate
     {
         protected override string ToStringWithCulture(object objectToConvert)

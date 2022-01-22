@@ -11,7 +11,7 @@ namespace Solitons.Samples.Frontend.Server.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route("api/weather")]
 [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes")]
 public class WeatherForecastController : ControllerBase
 {

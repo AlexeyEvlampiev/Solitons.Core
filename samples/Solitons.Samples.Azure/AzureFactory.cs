@@ -1,6 +1,8 @@
 ﻿using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Queues;
 using Npgsql;
+using Solitons.Samples.Azure.Security;
+using Solitons.Samples.Domain.Security;
 
 namespace Solitons.Samples.Azure
 {
@@ -29,7 +31,15 @@ namespace Solitons.Samples.Azure
             var storageConnectionString = _environment.GetRequiredEnvironmentVariable(StorageConnectionStringEnvVariable);
             var logsBufferQueue = new QueueClient(storageConnectionString, "logs");
             var logsHub = new EventHubProducerClient(eventHubsConnectionString);
-            return new BufferedAsyncLogger(logsBufferQueue, logsHub);
+            IAsyncLogger logger = new BufferedAsyncLogger(logsBufferQueue, logsHub);
+            return logger;
+        }
+
+        public ReadOnlySasAccessSigner GetReadOnlySasAccessSigner()
+        {
+            var storageConnectionString =
+                _environment.GetRequiredEnvironmentVariable(StorageConnectionStringEnvVariable);
+            return new AzureReadOnlySasAccessSigner(storageConnectionString);
         }
 
         public AzureActiveDirectoryB2CSettings GetAzureActiveDirectoryB2CSettings()

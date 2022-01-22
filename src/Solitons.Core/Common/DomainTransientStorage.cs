@@ -18,12 +18,12 @@ namespace Solitons.Common
         private const string ContentTypeKey = "ContentType";
         private const string ReferenceKey = "Reference";
         private const string SchemaKey = "Schema";
-        private readonly IDomainSerializer _serializer;
+        private readonly IDomainContractSerializer _contractSerializer;
 
         [DebuggerNonUserCode]
-        protected DomainTransientStorage(IDomainSerializer serializer)
+        protected DomainTransientStorage(IDomainContractSerializer contractSerializer)
         {
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _contractSerializer = contractSerializer ?? throw new ArgumentNullException(nameof(contractSerializer));
         }
         protected abstract Task<string> SaveAsync(Stream stream, DateTimeOffset expiresOn, CancellationToken cancellation);
 
@@ -44,7 +44,7 @@ namespace Solitons.Common
             using var content =
                 dto is Stream ? Disposable.Empty :
                 dto is byte[] bytes ? bytes.ToMemoryStream() :
-                _serializer.Serialize(dto, contentType)
+                _contractSerializer.Serialize(dto, contentType)
                     .ToMemoryStream(Encoding.UTF8);
             var stream = content as Stream ?? dto as Stream;
             stream.ThrowIfCanNotReadArgument(nameof(dto));
@@ -77,7 +77,7 @@ namespace Solitons.Common
                     return await LoadAsync(reference, cancellation);
                 using var reader = new StreamReader(await LoadAsync(reference, cancellation));
                 var content = await reader.ReadToEndAsync();
-                return _serializer.Deserialize(typeId, contentType, content);
+                return _contractSerializer.Deserialize(typeId, contentType, content);
             }
 
             throw new ArgumentException($"Melformed storage receipt", nameof(receipt));
@@ -87,7 +87,7 @@ namespace Solitons.Common
         bool IDomainTransientStorage2.CanSave(object dto, string contentType)
         {
             if (dto is Stream stream) return stream.CanRead;
-            return dto is byte[] || _serializer.CanSerialize(dto, contentType);
+            return dto is byte[] || _contractSerializer.CanSerialize(dto, contentType);
         }
 
         [DebuggerNonUserCode]
@@ -105,7 +105,7 @@ namespace Solitons.Common
                 return true;
             }
 
-            return _serializer.CanSerialize(dto, out contentType);
+            return _contractSerializer.CanSerialize(dto, out contentType);
         }
     }
 }

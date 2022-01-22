@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Solitons
 {
-    sealed class DomainSerializer : IDomainSerializer
+    sealed class DomainContractSerializer : IDomainContractSerializer
     {
         //TODO: Change record to struct
         sealed record SerializerKey(Guid TypeId, string ContentType);
@@ -31,7 +31,7 @@ namespace Solitons
 
         #endregion
 
-        private DomainSerializer(DomainContext context)
+        private DomainContractSerializer(DomainContext context)
         {
 
             var dtoTypes = context.GetDataTransferObjectTypes();
@@ -72,7 +72,7 @@ namespace Solitons
             }
         }
 
-        internal static IDomainSerializer Create(DomainContext domainContext) => new DomainSerializer(domainContext);
+        internal static IDomainContractSerializer Create(DomainContext domainContext) => new DomainContractSerializer(domainContext);
 
         private bool CanSerialize(object dto, string contentType) =>
             _serializers.ContainsKey(new SerializerKey(dto.GetType().GUID, contentType));
@@ -166,24 +166,24 @@ namespace Solitons
 
 
         [DebuggerStepThrough]
-        bool IDomainSerializer.CanSerialize(object dto, string contentType) => dto != null && CanSerialize(dto,  contentType);
+        bool IDomainContractSerializer.CanSerialize(object dto, string contentType) => dto != null && CanSerialize(dto,  contentType);
 
         [DebuggerStepThrough]
-        bool IDomainSerializer.CanDeserialize(Guid typeId, string contentType)
+        bool IDomainContractSerializer.CanDeserialize(Guid typeId, string contentType)
         {
             if (typeId == Guid.Empty || contentType.IsNullOrWhiteSpace()) return false;
             return CanDeserialize(typeId, contentType);
         }
 
         [DebuggerStepThrough]
-        string IDomainSerializer.Serialize(object obj, string contentType)
+        string IDomainContractSerializer.Serialize(object obj, string contentType)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             return Serialize(obj, contentType);
         }
 
         [DebuggerStepThrough]
-        object IDomainSerializer.Deserialize(Guid typeId, string contentType, string content)
+        object IDomainContractSerializer.Deserialize(Guid typeId, string contentType, string content)
         {
             if (typeId == Guid.Empty) throw new ArgumentException($"Type GUID is required.", nameof(typeId));
             contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType));

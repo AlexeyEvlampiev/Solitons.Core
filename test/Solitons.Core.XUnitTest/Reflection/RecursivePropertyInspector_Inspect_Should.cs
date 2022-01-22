@@ -1,6 +1,5 @@
 ﻿// ReSharper disable InconsistentNaming
 
-using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Solitons.Reflection.Common;

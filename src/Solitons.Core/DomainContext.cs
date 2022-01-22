@@ -39,7 +39,7 @@ namespace Solitons
 
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<IDomainSerializer> _serializer;
+        private readonly Lazy<IDomainContractSerializer> _serializer;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>> _sasPermissions;
@@ -119,7 +119,7 @@ namespace Solitons
                 .Select(type=> KeyValuePair.Create(type, DiscoverDataTransferObjectAttributes(type)))
                 .Where(pair=>pair.Value.Any())
                 .ToDictionary());
-            _serializer = new Lazy<IDomainSerializer>(() => DomainSerializer.Create(this));
+            _serializer = new Lazy<IDomainContractSerializer>(() => DomainContractSerializer.Create(this));
         }
 
 
@@ -271,11 +271,11 @@ namespace Solitons
         }
 
         /// <summary>
-        /// Gets an instance of the <see cref="IDomainSerializer"/> class assembled by this <see cref="DomainContext"/> object.
+        /// Gets an instance of the <see cref="IDomainContractSerializer"/> class assembled by this <see cref="DomainContext"/> object.
         /// </summary>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public IDomainSerializer GetSerializer() => _serializer.Value;
+        public IDomainContractSerializer GetSerializer() => _serializer.Value;
 
         /// <summary>
         /// 

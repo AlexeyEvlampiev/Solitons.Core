@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace Solitons.Samples.Frontend.Server
@@ -19,12 +20,16 @@ namespace Solitons.Samples.Frontend.Server
                     {
                         var ex = contextFeature.Error;
                         Debug.WriteLine(ex.Message);
-                        //logger.LogError($"Something went wrong: {contextFeature.Error}");
-                        //await context.Response.WriteAsync(new ErrorDetails()
-                        //{
-                        //    StatusCode = context.Response.StatusCode,
-                        //    Message = "Internal Server Error."
-                        //}.ToString());
+                        var correlationId = Guid.NewGuid();
+                        await logger.ErrorAsync(ex.Message, log=> log
+                            .WithDetails(ex.ToString())
+                            .WithTag(correlationId));
+                        var response = new
+                        {
+                            message = "Internal Server Error.",
+                            correlationId = correlationId
+                        };
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
                     }
                 });
             });

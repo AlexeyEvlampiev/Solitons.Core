@@ -15,7 +15,22 @@ namespace Solitons
 {
     public static partial class Extensions
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public static string Append(this string self, Action<StringBuilder> config)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (config == null) throw new ArgumentNullException(nameof(config));
+            var builder = new StringBuilder(self);
+            config.Invoke(builder);
+            return builder.ToString();
+        }
 
         /// <summary>
         /// 

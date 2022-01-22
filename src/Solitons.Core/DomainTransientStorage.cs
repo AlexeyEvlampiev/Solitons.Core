@@ -10,14 +10,14 @@ namespace Solitons
     {
         public const string StreamContentType = "application/octet-stream";
         private readonly ITransientStorage _transientStorage;
-        private readonly IDomainSerializer _serializer;
+        private readonly IDomainContractSerializer _contractSerializer;
 
         public DomainTransientStorage(
             ITransientStorage innerStorage,
-            IDomainSerializer serializer)
+            IDomainContractSerializer contractSerializer)
         {
             _transientStorage = innerStorage ?? throw new ArgumentNullException(nameof(innerStorage));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _contractSerializer = contractSerializer ?? throw new ArgumentNullException(nameof(contractSerializer));
         }
 
 
@@ -38,10 +38,10 @@ namespace Solitons
                 return await UploadAsync(memory, expiresAfter, cancellation);
             }
 
-            if (false == _serializer.CanSerialize(dto, out _))
+            if (false == _contractSerializer.CanSerialize(dto, out _))
                 throw new ArgumentException($"{dto.GetType()} does not belong to the underlined domain.");
 
-            var dtoBytes = _serializer
+            var dtoBytes = _contractSerializer
                 .Serialize(dto, out var contentType)
                 .ToBytes(Encoding.UTF8);
 
@@ -95,14 +95,14 @@ namespace Solitons
                         await using var stream = await _transientStorage.DownloadAsync(receipt.Content, cancellation);
                         using var reader = new StreamReader(stream);
                         var dtoString = await reader.ReadToEndAsync();
-                        return _serializer.Deserialize(receipt.DtoTypeId, receipt.ContentType, dtoString);
+                        return _contractSerializer.Deserialize(receipt.DtoTypeId, receipt.ContentType, dtoString);
                     }
                 case (DataTransferMethod.ByValue):
                     {
                         var content = receipt.Content
                             .AsBase64Bytes()
                             .ToUtf8String();
-                        return _serializer.Deserialize(receipt.DtoTypeId, receipt.ContentType, content);
+                        return _contractSerializer.Deserialize(receipt.DtoTypeId, receipt.ContentType, content);
                     }
                 default:
                     throw new NotSupportedException($"{receipt.DataTransferMethod}");

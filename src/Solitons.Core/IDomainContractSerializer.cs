@@ -14,7 +14,7 @@ namespace Solitons
     /// Represents a domain- specific serializer. 
     /// </summary>
     /// <seealso cref="DomainContext"/>
-    public partial interface IDomainSerializer
+    public partial interface IDomainContractSerializer
     {
         /// <summary>
         /// Determines whether this instance can serialize objects of the specified type, applying the specified content type serialization rules.
@@ -88,7 +88,7 @@ namespace Solitons
         IEnumerable<Type> GetTypes();
     }
 
-    public partial interface IDomainSerializer
+    public partial interface IDomainContractSerializer
     {
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace Solitons
         /// <returns></returns>
         /// <seealso cref="DomainContext.GetSerializer"/>
         [DebuggerStepThrough]
-        public static IDomainSerializer FromAssemblies(Assembly assembly)
+        public static IDomainContractSerializer FromAssemblies(Assembly assembly)
         {
             var genericDomain = new GenericDomainContext(
                 FluentEnumerable.Yield(assembly
@@ -299,7 +299,7 @@ namespace Solitons
         /// <param name="assemblies"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static IDomainSerializer FromAssemblies(params Assembly[] assemblies)
+        public static IDomainContractSerializer FromAssemblies(params Assembly[] assemblies)
         {
             var genericDomain = new GenericDomainContext(assemblies);
             return genericDomain.GetSerializer();
@@ -312,14 +312,14 @@ namespace Solitons
         /// <param name="assemblies"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static IDomainSerializer FromAssemblies(IEnumerable<Assembly> assemblies)
+        public static IDomainContractSerializer FromAssemblies(IEnumerable<Assembly> assemblies)
         {
             var genericDomain = new GenericDomainContext(assemblies);
             return genericDomain.GetSerializer();
         }
 
         [DebuggerStepThrough]
-        public static IDomainSerializer FromType(Type type)
+        public static IDomainContractSerializer FromType(Type type)
         {
             var genericDomain = new GenericDomainContext(FluentEnumerable.Yield(type
                 .ThrowIfNullArgument(nameof(type))));
@@ -327,7 +327,7 @@ namespace Solitons
         }
 
         [DebuggerStepThrough]
-        public static IDomainSerializer FromTypes(params Type[] types) 
+        public static IDomainContractSerializer FromTypes(params Type[] types) 
         {
             var genericDomain = new GenericDomainContext(types
                 .ThrowIfNullArgument(nameof(types)));
@@ -335,7 +335,7 @@ namespace Solitons
         }
 
         [DebuggerStepThrough]
-        public static IDomainSerializer FromTypes(IEnumerable<Type> types)
+        public static IDomainContractSerializer FromTypes(IEnumerable<Type> types)
         {
             var genericDomain = new GenericDomainContext(types
                 .ThrowIfNullArgument(nameof(types)));

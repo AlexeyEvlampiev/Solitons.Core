@@ -408,3 +408,15 @@ BEGIN
 	RETURN jsonb_build_object('items', v_items);
 END;
 $$ LANGUAGE 'plpgsql';
+
+
+CREATE OR REPLACE FUNCTION api.image_get(p_request jsonb) RETURNS jsonb 
+AS
+$$
+DECLARE 
+	v_image_object_id uuid := p_request->>'oid';
+BEGIN
+	PERFORM system.raise_exception_if_null_or_empty_argument(v_image_object_id, 'oid');	
+	RETURN jsonb_build_object('uri', 'images/'||v_image_object_id);
+END;
+$$ LANGUAGE 'plpgsql';

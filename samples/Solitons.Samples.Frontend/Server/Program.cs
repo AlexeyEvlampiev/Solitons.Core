@@ -1,16 +1,16 @@
 using System.Diagnostics;
-using System.Reactive.Disposables;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Identity.Web;
 using Solitons;
+using Solitons.Reflection;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
 
 
-var disposables = new CompositeDisposable();
+var staticRoots = new HashSet<object>();
 
 var azFactory = new AzureFactory();
 
@@ -18,8 +18,10 @@ var logger = azFactory
     .GetLogger()
     .WithProperty("assembly",typeof(Program).Assembly.FullName);
 
+var signer = azFactory.GetReadOnlySasAccessSigner();
+
 #if DEBUG
-disposables.Add(logger
+staticRoots.Add(logger
     .AsObservable()
     .Subscribe(log=> Debug.WriteLine($"{log.Level}: {log.Message}")));
 #endif
@@ -38,7 +40,8 @@ var pgConnectionString = azFactory.GetPgConnectionString(config =>
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(disposables);
+builder.Services.AddSingleton(staticRoots);
+builder.Services.AddSingleton(RecursivePropertyInspector.Create(signer));
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -87,7 +90,7 @@ else
     app.UseHsts();
 }
 
-app.ConfigureExceptionHandler(IAsyncLogger.Null);
+app.ConfigureExceptionHandler(logger);
 
 app.UseHttpsRedirection();
 
