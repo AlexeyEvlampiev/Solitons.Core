@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -84,5 +85,11 @@ namespace Solitons.Common
         /// </summary>
         /// <returns></returns>
         public IObservable<ILogEntry> AsObservable() => _logs.AsObservable();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public IObserver<ILogEntry> AsObserver() => Observer.Create<ILogEntry>(log => LogAsync(log));
     }
 }

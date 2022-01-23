@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -10,7 +11,7 @@ using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
 
 
-var staticRoots = new HashSet<object>();
+
 
 var azFactory = new AzureFactory();
 
@@ -18,13 +19,8 @@ var logger = azFactory
     .GetLogger()
     .WithProperty("assembly",typeof(Program).Assembly.FullName);
 
-var signer = azFactory.GetReadOnlySasAccessSigner();
-
-#if DEBUG
-staticRoots.Add(logger
-    .AsObservable()
-    .Subscribe(log=> Debug.WriteLine($"{log.Level}: {log.Message}")));
-#endif
+var sasUriPropertyInspector = azFactory.GetBlobSasUriPropertyInspector();
+var objectGraphInspector = new ObjectGraphInspector();
 
 var adB2CSettings = new ConfigurationBuilder()
     .AddInMemoryCollection(azFactory.GetAzureActiveDirectoryB2CSettings())
@@ -40,8 +36,24 @@ var pgConnectionString = azFactory.GetPgConnectionString(config =>
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(staticRoots);
-builder.Services.AddSingleton(RecursivePropertyInspector.Create(signer));
+builder.Services.AddTransient<ObjectGraphInspector>(serviceProviders =>
+{
+    var env = serviceProviders.GetService<IWebHostEnvironment>();
+    var httpContext = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext;
+    var clientIpAddress = httpContext?.Connection?.RemoteIpAddress ?? IPAddress.Any;
+
+    if (env.IsDevelopment() && 
+        IPAddress.IsLoopback(clientIpAddress))
+    {
+        return objectGraphInspector
+            .WithPropertyInspector(sasUriPropertyInspector
+                .WithIpAddress(MyPublicIpAddress.Value));
+    }
+
+    return objectGraphInspector
+        .WithPropertyInspector(sasUriPropertyInspector
+            .WithIpAddress(clientIpAddress));
+});
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -66,10 +78,13 @@ builder.Services.AddTransient<IAsyncLogger>(serviceProviders =>
     var caller = context.User;
     var url = context.Request.GetDisplayUrl();
 
+    var clientIpAddress = context.Connection.RemoteIpAddress ?? IPAddress.None;
+
     string email = caller.FindFirstValue("emails");
     return logger
         .WithProperty("email", email)
         .WithProperty("url", url)
+        .WithProperty("clientIp", clientIpAddress.ToString())
         .WithProperty("host", Environment.MachineName)
         .WithTags("Sample Frontend Server");
 
@@ -82,6 +97,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseWebAssemblyDebugging();
+    logger
+        .AsObservable()
+        .Subscribe(IAsyncLogger.Trace.AsObserver());
+    Trace.Listeners.Add(new ConsoleTraceListener());
 }
 else
 {

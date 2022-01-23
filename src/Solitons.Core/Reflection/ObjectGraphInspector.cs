@@ -16,9 +16,9 @@ namespace Solitons.Reflection
     /// <summary>
     /// 
     /// </summary>
-    public sealed class RecursivePropertyInspector : IDisposable
+    public sealed class ObjectGraphInspector : IDisposable
     {
-        private readonly IPropertyInspector[] _inspectors;
+        private readonly IReadOnlyList<IObjectPropertyInspector> _propertyInspectors;
         private readonly EventLoopScheduler _scheduler;
         private readonly Dictionary<Type, PropertyInfo[]> _properties = new();
         private readonly Dictionary<PropertyInfo, ParameterInfo[]> _indexParameters = new();
@@ -28,15 +28,45 @@ namespace Solitons.Reflection
         /// <summary>
         /// 
         /// </summary>
+        public ObjectGraphInspector()
+        {
+            _scheduler = new EventLoopScheduler();
+            _propertyInspectors = new List<IObjectPropertyInspector>();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scheduler"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ObjectGraphInspector(EventLoopScheduler scheduler)
+        {
+            _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
+            _propertyInspectors = new List<IObjectPropertyInspector>();
+        }
+
+        private ObjectGraphInspector(ObjectGraphInspector other, IEnumerable<IObjectPropertyInspector> addedPropertyInspectors)
+        {
+            _propertyInspectors = new List<IObjectPropertyInspector>(other._propertyInspectors
+                .Union(addedPropertyInspectors)
+                .Distinct());
+            _scheduler = other._scheduler;
+            _properties = other._properties;
+            _indexParameters = other._indexParameters;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="scheduler"></param>
         /// <param name="inspectors"></param>
         [DebuggerNonUserCode]
-        private RecursivePropertyInspector(
+        private ObjectGraphInspector(
             EventLoopScheduler scheduler,
-            IPropertyInspector[] inspectors)
+            IObjectPropertyInspector[] inspectors)
         {
             _scheduler = scheduler;
-            _inspectors = inspectors;
+            _propertyInspectors = inspectors.Distinct().ToList();
         }
 
 
@@ -48,13 +78,13 @@ namespace Solitons.Reflection
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public static RecursivePropertyInspector Create(
+        public static ObjectGraphInspector Create(
             EventLoopScheduler scheduler,
-            IEnumerable<IPropertyInspector> inspectors)
+            IEnumerable<IObjectPropertyInspector> inspectors)
         {
             if (scheduler == null) throw new ArgumentNullException(nameof(scheduler));
             if (inspectors == null) throw new ArgumentNullException(nameof(inspectors));
-            return new RecursivePropertyInspector(
+            return new ObjectGraphInspector(
                 scheduler, 
                 inspectors
                     .SkipNulls()
@@ -69,7 +99,7 @@ namespace Solitons.Reflection
         /// <param name="inspectors"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static RecursivePropertyInspector Create(IEnumerable<IPropertyInspector> inspectors)
+        public static ObjectGraphInspector Create(IEnumerable<IObjectPropertyInspector> inspectors)
         {
             var scheduler = new EventLoopScheduler();
             try
@@ -91,9 +121,9 @@ namespace Solitons.Reflection
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public static RecursivePropertyInspector Create(
+        public static ObjectGraphInspector Create(
             EventLoopScheduler scheduler,
-            IPropertyInspector inspector)
+            IObjectPropertyInspector inspector)
         {
             if (inspector == null) throw new ArgumentNullException(nameof(inspector));
             return Create(scheduler, FluentEnumerable.Yield(inspector));
@@ -107,9 +137,9 @@ namespace Solitons.Reflection
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public static RecursivePropertyInspector Create(
+        public static ObjectGraphInspector Create(
             EventLoopScheduler scheduler,
-            params IPropertyInspector[] inspectors)
+            params IObjectPropertyInspector[] inspectors)
         {
             if (inspectors == null) throw new ArgumentNullException(nameof(inspectors));
             return Create(scheduler, inspectors.AsEnumerable());
@@ -122,8 +152,8 @@ namespace Solitons.Reflection
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public static RecursivePropertyInspector Create(
-            IPropertyInspector inspector)
+        public static ObjectGraphInspector Create(
+            IObjectPropertyInspector inspector)
         {
             if (inspector == null) throw new ArgumentNullException(nameof(inspector));
             return Create(FluentEnumerable.Yield(inspector));
@@ -136,13 +166,50 @@ namespace Solitons.Reflection
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public static RecursivePropertyInspector Create(
-            params IPropertyInspector[] inspectors)
+        public static ObjectGraphInspector Create(
+            params IObjectPropertyInspector[] inspectors)
         {
             if (inspectors == null) throw new ArgumentNullException(nameof(inspectors));
             return Create(inspectors.AsEnumerable());
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inspector"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ObjectGraphInspector WithPropertyInspector(IObjectPropertyInspector inspector)
+        {
+            if (inspector == null) throw new ArgumentNullException(nameof(inspector));
+            return new ObjectGraphInspector(this, new[] { inspector });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inspectors"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ObjectGraphInspector WithPropertyInspector(IEnumerable<IObjectPropertyInspector> inspectors)
+        {
+            if (inspectors == null) throw new ArgumentNullException(nameof(inspectors));
+            return new ObjectGraphInspector(this, inspectors);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inspectors"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ObjectGraphInspector WithPropertyInspector(params IObjectPropertyInspector[] inspectors)
+        {
+            if (inspectors == null) throw new ArgumentNullException(nameof(inspectors));
+            if (inspectors.Length == 0) return this;
+            return new ObjectGraphInspector(this, inspectors);
+        }
+
         #endregion
 
         /// <summary>
@@ -164,10 +231,10 @@ namespace Solitons.Reflection
                 .ToTask(cancellation);
         }
 
-        void Inspect(object target, Func<object, bool> shouldInspect)
+        void Inspect(object target, Func<object, bool> inspectionRequired)
         {
             if(target is null)return;
-            if(false == shouldInspect.Invoke(target))return;
+            if(false == inspectionRequired.Invoke(target))return;
             var properties = _properties.GetOrAdd(target.GetType(), ()=> target.GetType().GetProperties());
             foreach (var property in properties)
             {
@@ -179,12 +246,11 @@ namespace Solitons.Reflection
                         : Array.Empty<ParameterInfo>();
                     _indexParameters.Add(property, indexParameters);
                 }
-
-                Array.ForEach(_inspectors, inspector=> inspector.Inspect(target, property));
+                _propertyInspectors.ForEach(i=> i.Inspect(target, property));
                 if (indexParameters.Length > 0) continue;
                 if (property.GetMethod == null) continue;
                 var value = property.GetValue(target);
-                Inspect(value, shouldInspect);
+                Inspect(value, inspectionRequired);
             }
         }
 

@@ -132,13 +132,16 @@ namespace Solitons.Common
             return base.PreProcess(input);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="FormatException"></exception>
         protected override void OnDeserialized()
         {
             base.OnDeserialized();
             if (Name.IsNullOrWhiteSpace())
                 throw new FormatException("Range name is missing.");
-            var comparer = new IpAddressComparer();
-            if (comparer.Compare(StartAddress, EndAddress) > 0)
+            if (IpAddressComparer.Default.Compare(StartAddress, EndAddress) > 0)
                 throw new FormatException("Start IP < end IP");
         }
     }

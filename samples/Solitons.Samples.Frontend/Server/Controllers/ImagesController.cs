@@ -14,10 +14,10 @@ namespace Solitons.Samples.Frontend.Server.Controllers
     public class ImagesController : ControllerBase
     {
         private readonly ISampleDbApi _databaseApi;
-        private readonly RecursivePropertyInspector _inspector;
+        private readonly ObjectGraphInspector _inspector;
         private readonly IAsyncLogger _logger;
 
-        public ImagesController(ISampleDbApi databaseApi, RecursivePropertyInspector inspector, IAsyncLogger logger)
+        public ImagesController(ISampleDbApi databaseApi, ObjectGraphInspector inspector, IAsyncLogger logger)
         {
             _databaseApi = databaseApi ?? throw new ArgumentNullException(nameof(databaseApi));
             _inspector = inspector ?? throw new ArgumentNullException(nameof(inspector));

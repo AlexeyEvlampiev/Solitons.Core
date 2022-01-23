@@ -49,6 +49,9 @@ namespace Solitons
 
         [DebuggerStepThrough]
         public IObservable<ILogEntry> AsObservable() => _innerLogger.AsObservable();
+        
+        [DebuggerStepThrough]
+        public IObserver<ILogEntry> AsObserver() => _innerLogger.AsObserver();
 
         [DebuggerStepThrough]
         public override string ToString() => _innerLogger.ToString();

@@ -6,7 +6,7 @@ namespace Solitons.Reflection.Common
     /// <summary>
     /// 
     /// </summary>
-    public abstract class PropertyInspector : IPropertyInspector
+    public abstract class ObjectPropertyInspector : IObjectPropertyInspector
     {
         private readonly Dictionary<PropertyInfo, bool> _properties = new();
 
@@ -24,7 +24,7 @@ namespace Solitons.Reflection.Common
         /// <returns></returns>
         protected abstract bool IsTargetProperty(PropertyInfo property);
 
-        void IPropertyInspector.Inspect(object target, PropertyInfo property)
+        void IObjectPropertyInspector.Inspect(object target, PropertyInfo property)
         {
             if(target is null || property is null)return;
             if (false == _properties.TryGetValue(property, out var isTargetProperty))

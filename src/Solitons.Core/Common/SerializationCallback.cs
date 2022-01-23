@@ -13,19 +13,19 @@ namespace Solitons.Common
         /// 
         /// </summary>
         /// <param name="sender"></param>
-        protected virtual void OnDeserialization(object sender) => Debug.WriteLine($"{GetType()}.{nameof(OnDeserialization)} called.");
+        protected virtual void OnDeserialization(object sender) {}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="sender"></param>
-        protected virtual void OnSerialized(object sender) => Debug.WriteLine($"{GetType()}.{nameof(OnSerialized)} called.");
+        protected virtual void OnSerialized(object sender) { }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="sender"></param>
-        protected virtual void OnSerializing(object sender) => Debug.WriteLine($"{GetType()}.{nameof(OnSerializing)} called.");
+        protected virtual void OnSerializing(object sender) { }
 
         [DebuggerStepThrough]
         void IDeserializationCallback.OnDeserialization(object sender) => OnDeserialization(sender);

@@ -5,7 +5,7 @@ namespace Solitons.Reflection
     /// <summary>
     /// 
     /// </summary>
-    public interface IPropertyInspector
+    public interface IObjectPropertyInspector
     {
         /// <summary>
         /// 

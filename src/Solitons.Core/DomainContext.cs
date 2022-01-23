@@ -12,7 +12,6 @@ using Solitons.Collections;
 using Solitons.Common;
 using Solitons.Data;
 using Solitons.Queues;
-using Solitons.Web;
 
 namespace Solitons
 {
@@ -41,8 +40,6 @@ namespace Solitons
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<IDomainContractSerializer> _serializer;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>> _sasPermissions;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Lazy<Dictionary<Type, DataTransferObjectAttribute[]>> _dataTransferObjectTypes;
@@ -114,7 +111,6 @@ namespace Solitons
                 return result;
             });
 
-            _sasPermissions = new Lazy<Dictionary<Type, BlobSecureAccessSignatureMetadata[]>>(() => BlobSecureAccessSignatureMetadata.Discover(_types));
             _dataTransferObjectTypes = new Lazy<Dictionary<Type, DataTransferObjectAttribute[]>>(() => _types
                 .Select(type=> KeyValuePair.Create(type, DiscoverDataTransferObjectAttributes(type)))
                 .Where(pair=>pair.Value.Any())
@@ -256,18 +252,6 @@ namespace Solitons
             if (provider == null) throw new ArgumentNullException(nameof(provider));
             if (transientStorage == null) throw new ArgumentNullException(nameof(transientStorage));
             return new DomainQueue(this, provider, transientStorage);
-        }
-
-
-
-        public IEnumerable<T> GetSecureAccessSignatureDeclarations<T>() where T : ISecureAccessSignatureMetadata
-        {
-            if (_sasPermissions.Value.TryGetValue(typeof(T), out var array))
-            {
-                return array.OfType<T>();
-            }
-
-            return Enumerable.Empty<T>();
         }
 
         /// <summary>

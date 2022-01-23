@@ -13,7 +13,7 @@ namespace Solitons.Reflection
         [Fact]
         public async Task WorkAsync()
         {
-            var recursiveInspector = RecursivePropertyInspector
+            var recursiveInspector = ObjectGraphInspector
                 .Create(new QuotationInspector());
 
             var entity = new TestEntity("To quote or not to quote");
@@ -39,7 +39,7 @@ namespace Solitons.Reflection
             public string PlainText { get; set; }
         }
 
-        sealed class QuotationInspector : PropertyInspector
+        sealed class QuotationInspector : ObjectPropertyInspector
         {
 
             protected override void Inspect(object target, PropertyInfo property)

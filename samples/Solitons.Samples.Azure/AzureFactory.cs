@@ -1,8 +1,7 @@
 ﻿using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Queues;
 using Npgsql;
-using Solitons.Samples.Azure.Security;
-using Solitons.Samples.Domain.Security;
+using Solitons.Common;
 
 namespace Solitons.Samples.Azure
 {
@@ -35,11 +34,11 @@ namespace Solitons.Samples.Azure
             return logger;
         }
 
-        public ReadOnlySasAccessSigner GetReadOnlySasAccessSigner()
+        public BlobSasUriPropertyInspector GetBlobSasUriPropertyInspector()
         {
             var storageConnectionString =
                 _environment.GetRequiredEnvironmentVariable(StorageConnectionStringEnvVariable);
-            return new AzureReadOnlySasAccessSigner(storageConnectionString);
+            return new AzureBlobSasUriPropertyInspector(storageConnectionString);
         }
 
         public AzureActiveDirectoryB2CSettings GetAzureActiveDirectoryB2CSettings()

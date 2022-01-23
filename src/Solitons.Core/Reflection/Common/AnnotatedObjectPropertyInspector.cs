@@ -10,9 +10,10 @@ namespace Solitons.Reflection.Common
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class DeclarativePropertyInspector<T> : PropertyInspector where T : Attribute
+    public abstract class AnnotatedObjectPropertyInspector<T> : ObjectPropertyInspector where T : Attribute
     {
         private readonly Dictionary<PropertyInfo, T> _attributes = new();
+
 
         /// <summary>
         /// 
@@ -21,6 +22,15 @@ namespace Solitons.Reflection.Common
         /// <param name="property"></param>
         /// <param name="attribute"></param>
         protected abstract void Inspect(object target, PropertyInfo property, T attribute);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="attribute"></param>
+        /// <returns></returns>
+        protected virtual bool IsTargetProperty(PropertyInfo property, T attribute) => true;
+
 
         /// <summary>
         /// 
@@ -41,12 +51,18 @@ namespace Solitons.Reflection.Common
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        protected override bool IsTargetProperty(PropertyInfo property)
+        protected sealed override bool IsTargetProperty(PropertyInfo property)
         {
             var attribute = property.GetCustomAttribute<T>();
             if (attribute is null) return false;
-            _attributes.Add(property, attribute);
-            return true;
+            if (IsTargetProperty(property, attribute))
+            {
+                _attributes.Add(property, attribute);
+                return true;
+            }
+
+            return false;
         }
+
     }
 }

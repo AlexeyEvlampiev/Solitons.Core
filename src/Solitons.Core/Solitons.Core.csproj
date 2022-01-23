@@ -26,12 +26,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Security\Common\**" />
-    <EmbeddedResource Remove="Security\Common\**" />
-    <None Remove="Security\Common\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.Reactive" Version="[5.0.0,)" />
   </ItemGroup>
 
@@ -150,6 +144,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>HttpRequestHeaders.generated.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Security\Common\" />
   </ItemGroup>
 
 </Project>

@@ -1,26 +1,31 @@
 ﻿using System;
-using System.Reflection;
 
-namespace Solitons.Web
+namespace Solitons.Security
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface ISecureAccessSignatureMetadata
+    [Flags]
+    public enum BlobSasPermissions
     {
         /// <summary>
         /// 
         /// </summary>
-        TimeSpan TimeToLive { get; }
+        Read = 1,
 
         /// <summary>
         /// 
         /// </summary>
-        PropertyInfo TargetProperty { get; }
+        Create = 2,
 
         /// <summary>
         /// 
         /// </summary>
-        Type DeclaringType { get; }
+        Write = 4,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Delete = 8
     }
 }

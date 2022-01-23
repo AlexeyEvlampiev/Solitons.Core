@@ -1,16 +1,13 @@
-﻿using Solitons.Web.Common;
-using System;
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
 
 namespace Solitons.Web
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class RSASecureAccessSignatureService : SecureAccessSignatureService
+    public sealed class RSASecureAccessSignatureService 
     {
+        private readonly IClock _clock;
         private readonly RSACryptoServiceProvider  _rsa;
         private readonly HashAlgorithm _hashAlgorithm = MD5.Create();
   
@@ -23,57 +20,58 @@ namespace Solitons.Web
             _rsa = rsa.ThrowIfNullArgument(nameof(rsa));
         }
 
-        internal RSASecureAccessSignatureService(RSACryptoServiceProvider rsa, IClock clock) : base(clock)
+        internal RSASecureAccessSignatureService(RSACryptoServiceProvider rsa, IClock clock)
         {
+            if (clock != null) _clock = clock;
             _rsa = rsa.ThrowIfNullArgument(nameof(rsa));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="config"></param>
-        public RSASecureAccessSignatureService(Action<RSACryptoServiceProvider> config)
-        {
-            config.ThrowIfNullArgument(nameof(config));
-            _rsa = new RSACryptoServiceProvider();
-            config.Invoke(_rsa);
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="config"></param>
+        //public RSASecureAccessSignatureService(Action<RSACryptoServiceProvider> config)
+        //{
+        //    config.ThrowIfNullArgument(nameof(config));
+        //    _rsa = new RSACryptoServiceProvider();
+        //    config.Invoke(_rsa);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="queryString"></param>
-        /// <returns></returns>
-        protected override string SignQueryString(string queryString)
-        { 
-            var data = Encoding.ASCII.GetBytes(queryString);
-            try
-            { 
-                var sig = _rsa
-                    .SignData(data, _hashAlgorithm)
-                    .ToBase64String();                
-                return $"{queryString}&sig={sig}";
-            }
-            catch (CryptographicException ex)
-            {
-                Debug.WriteLine(ex.Message);
-                return null;
-            }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="queryString"></param>
+        ///// <returns></returns>
+        //protected override string SignQueryString(string queryString)
+        //{ 
+        //    var data = Encoding.ASCII.GetBytes(queryString);
+        //    try
+        //    { 
+        //        var sig = _rsa
+        //            .SignData(data, _hashAlgorithm)
+        //            .ToBase64String();                
+        //        return $"{queryString}&sig={sig}";
+        //    }
+        //    catch (CryptographicException ex)
+        //    {
+        //        Debug.WriteLine(ex.Message);
+        //        return null;
+        //    }
 
-        }
+        //}
 
-        protected override bool IsGenuineQueryString(string signedQueryString, string signature)
-        {
-            var data = Encoding.ASCII.GetBytes(signedQueryString);
-            var sig = signature.AsBase64Bytes();
-            return _rsa.VerifyData(data, _hashAlgorithm, sig);
-        }
+        //protected override bool IsGenuineQueryString(string signedQueryString, string signature)
+        //{
+        //    var data = Encoding.ASCII.GetBytes(signedQueryString);
+        //    var sig = signature.AsBase64Bytes();
+        //    return _rsa.VerifyData(data, _hashAlgorithm, sig);
+        //}
 
-        protected override void Dispose()
-        {
-            _rsa.Dispose();
-            _hashAlgorithm.Dispose();
-        }
+        //protected override void Dispose()
+        //{
+        //    _rsa.Dispose();
+        //    _hashAlgorithm.Dispose();
+        //}
 
         
     }

@@ -31,10 +31,17 @@ namespace Solitons
         Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder> config = null);
 
         /// <summary>
-        /// Ases the observable.
+        /// 
         /// </summary>
         /// <returns></returns>
         IObservable<ILogEntry> AsObservable();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        IObserver<ILogEntry> AsObserver();
+
 
         /// <summary>
         /// Logs the specified error message asynchronously.

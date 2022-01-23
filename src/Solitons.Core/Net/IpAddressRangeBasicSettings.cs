@@ -39,7 +39,7 @@ namespace Solitons.Net
             (start ??= end).ThrowIfNullArgument(nameof(start));
             end ??= start;
 
-            var comparer = new IpAddressComparer();
+            var comparer = IpAddressComparer.Default;
             if (comparer.Compare(end, start) >= 0)
             {
                 Start = start;

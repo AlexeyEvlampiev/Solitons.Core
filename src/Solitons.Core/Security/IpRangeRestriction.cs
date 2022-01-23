@@ -1,31 +1,23 @@
-﻿using System;
-
-namespace Solitons.Web
+﻿namespace Solitons.Security
 {
     /// <summary>
     /// 
     /// </summary>
-    [Flags]
-    public enum BlobSasPermissions
+    public enum IpRangeRestriction
     {
         /// <summary>
         /// 
         /// </summary>
-        Read = 1,
+        None = 0,
 
         /// <summary>
         /// 
         /// </summary>
-        Create = 2,
+        Prefferred,
 
         /// <summary>
         /// 
         /// </summary>
-        Write = 4,
-
-        /// <summary>
-        /// 
-        /// </summary>
-        Delete = 8
+        Required
     }
 }

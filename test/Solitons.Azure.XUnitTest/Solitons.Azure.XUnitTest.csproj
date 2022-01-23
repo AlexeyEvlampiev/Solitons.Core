@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Tests\Blobs\" />
     <Folder Include="Tests\Web\" />
   </ItemGroup>
 
