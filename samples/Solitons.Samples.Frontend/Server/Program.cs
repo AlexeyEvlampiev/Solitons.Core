@@ -103,9 +103,9 @@ builder.Services.AddTransient<IAsyncLogger>(serviceProviders =>
 
     string email = caller.FindFirstValue("emails");
     return logger
-        .WithProperty(LogPropertyNames.UserEmail, email)
-        .WithProperty(LogPropertyNames.RequestUri, url)
-        .WithProperty(LogPropertyNames.RemoteIpAddress, remoteIpAddress.ToString());
+        .WithUserEmail(email)
+        .WithRequestUri(url)
+        .WithRemoteIpAddress(remoteIpAddress.ToString());
 
 });
 
