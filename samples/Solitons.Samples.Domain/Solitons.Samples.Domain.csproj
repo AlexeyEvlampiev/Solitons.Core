@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="AsyncLoggerExtensions.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AsyncLoggerExtensions.tt</DependentUpon>
+    </None>
     <None Include="SampleDbApi.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -19,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="AsyncLoggerExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AsyncLoggerExtensions.generated.cs</LastGenOutput>
+    </None>
     <None Update="SampleDbApi.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SampleDbApi.generated.cs</LastGenOutput>
@@ -30,6 +39,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AsyncLoggerExtensions.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AsyncLoggerExtensions.tt</DependentUpon>
+    </Compile>
     <Compile Update="SampleDbApi.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

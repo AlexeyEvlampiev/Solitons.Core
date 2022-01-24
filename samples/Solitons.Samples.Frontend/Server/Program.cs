@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Net;
+using System.Reactive.Concurrency;
+using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -12,25 +14,42 @@ using Solitons.Samples.Frontend.Server;
 
 
 
+const string appletId = "Sample Web Server";
 
-var azFactory = new AzureFactory();
 
-var logger = azFactory
+var azureServiceFactory = new AzureServiceFactory(IEnvironment.System);
+
+var logger = azureServiceFactory
     .GetLogger()
-    .WithProperty("assembly",typeof(Program).Assembly.FullName);
+    .WithAssemblyInfo(Assembly.GetExecutingAssembly())
+    .WithEnvironmentInfo()
+    .WithAppletId(appletId)
+    .FireAndForget(AppletEvent.StartingUp);
 
-var sasUriPropertyInspector = azFactory.GetBlobSasUriPropertyInspector();
-var objectGraphInspector = new ObjectGraphInspector();
+
+var schedulers = Enumerable
+    .Range(1, Environment.ProcessorCount)
+    .Select(_ => new EventLoopScheduler())
+    .ToArray();
+
+var objectGraphInspectors = schedulers
+    .Select(scheduler=> new ObjectGraphInspector(scheduler))
+    .ToArray();
+
+var sasUriPropertyInspector = azureServiceFactory.GetSasUriPropertyInspector();
+
 
 var adB2CSettings = new ConfigurationBuilder()
-    .AddInMemoryCollection(azFactory.GetAzureActiveDirectoryB2CSettings())
+    .AddInMemoryCollection(azureServiceFactory.GetAzureActiveDirectoryB2CSettings())
     .Build()
     .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
 
-var pgConnectionString = azFactory.GetPgConnectionString(config =>
+var pgConnectionString = azureServiceFactory.GetPgConnectionString(config =>
 {
-    config.ApplicationName = "Sample Frontend Server";
+    config.ApplicationName = appletId;
+    config.CommandTimeout = 3;
     config.MinPoolSize = 2;
+    config.MaxPoolSize = 10;
 });
 
 
@@ -42,15 +61,17 @@ builder.Services.AddTransient<ObjectGraphInspector>(serviceProviders =>
     var httpContext = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext;
     var clientIpAddress = httpContext?.Connection?.RemoteIpAddress ?? IPAddress.Any;
 
+    var objectInspector = objectGraphInspectors.GetRandomElement();
+
     if (env.IsDevelopment() && 
         IPAddress.IsLoopback(clientIpAddress))
     {
-        return objectGraphInspector
+        return objectInspector
             .WithPropertyInspector(sasUriPropertyInspector
                 .WithIpAddress(MyPublicIpAddress.Value));
     }
 
-    return objectGraphInspector
+    return objectInspector
         .WithPropertyInspector(sasUriPropertyInspector
             .WithIpAddress(clientIpAddress));
 });
@@ -78,15 +99,13 @@ builder.Services.AddTransient<IAsyncLogger>(serviceProviders =>
     var caller = context.User;
     var url = context.Request.GetDisplayUrl();
 
-    var clientIpAddress = context.Connection.RemoteIpAddress ?? IPAddress.None;
+    var remoteIpAddress = context.Connection.RemoteIpAddress ?? IPAddress.None;
 
     string email = caller.FindFirstValue("emails");
     return logger
-        .WithProperty("email", email)
-        .WithProperty("url", url)
-        .WithProperty("clientIp", clientIpAddress.ToString())
-        .WithProperty("host", Environment.MachineName)
-        .WithTags("Sample Frontend Server");
+        .WithProperty(LogPropertyNames.UserEmail, email)
+        .WithProperty(LogPropertyNames.RequestUri, url)
+        .WithProperty(LogPropertyNames.RemoteIpAddress, remoteIpAddress.ToString());
 
 });
 

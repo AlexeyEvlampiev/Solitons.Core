@@ -22,6 +22,7 @@ namespace Solitons.Reflection
         private readonly EventLoopScheduler _scheduler;
         private readonly Dictionary<Type, PropertyInfo[]> _properties = new();
         private readonly Dictionary<PropertyInfo, ParameterInfo[]> _indexParameters = new();
+        private readonly bool _canDispose;
 
         #region ctor
 
@@ -32,6 +33,7 @@ namespace Solitons.Reflection
         {
             _scheduler = new EventLoopScheduler();
             _propertyInspectors = new List<IObjectPropertyInspector>();
+            _canDispose = true;
         }
 
         /// <summary>
@@ -43,6 +45,7 @@ namespace Solitons.Reflection
         {
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
             _propertyInspectors = new List<IObjectPropertyInspector>();
+            _canDispose = false;
         }
 
         private ObjectGraphInspector(ObjectGraphInspector other, IEnumerable<IObjectPropertyInspector> addedPropertyInspectors)
@@ -53,6 +56,7 @@ namespace Solitons.Reflection
             _scheduler = other._scheduler;
             _properties = other._properties;
             _indexParameters = other._indexParameters;
+            _canDispose = false;
         }
 
         /// <summary>
@@ -67,6 +71,7 @@ namespace Solitons.Reflection
         {
             _scheduler = scheduler;
             _propertyInspectors = inspectors.Distinct().ToList();
+            _canDispose = false;
         }
 
 
@@ -259,7 +264,10 @@ namespace Solitons.Reflection
         /// </summary>
         void IDisposable.Dispose()
         {
-            _scheduler.Dispose();
+            if (_canDispose)
+            {
+                _scheduler.Dispose();
+            }
         }
     }
 }

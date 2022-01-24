@@ -1,0 +1,54 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".generated.cs" #>
+<#
+	var properties = new Property[]{
+		new Property("MachineName", "NetBIOS name of the hosting computer"),
+		new Property("AssemblyFullName", ".NET assembly full name"),
+		new Property("OSVersion", "The current platform identifier and version number."),
+		new Property("AppletId", "The current Applet ID."),
+		new Property("UserEmail", "User email claim."),
+		new Property("RequestUri", "Requested resource Uri."),
+		new Property("RemoteIpAddress", "Remote IP address.")
+	};
+#>
+namespace Solitons.Samples.Domain
+{
+	public static partial class LogPropertyNames
+	{<# foreach(var p in properties){ #> 
+
+		/// <summary>
+        /// <#= p.Description #>
+        /// </summary>
+		public const string <#= p.Name #> = "<#= p.Name #>"; <# } #> 		
+	}
+
+	public static partial class Extensions
+	{<# foreach(var p in properties){ #> 
+
+		/// <summary>
+        /// <#= p.Description #>
+        /// </summary>
+		public static IAsyncLogger With<#= p.Name #>(this IAsyncLogger self, string value)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            return self.WithProperty(LogPropertyNames.<#= p.Name #>, value);
+        } <# } #> 			
+	}
+}
+<#+
+	class Property
+	{
+		public Property(string name, string description)
+		{
+			Name = name;
+			Description = description;
+		}
+
+		public string Name{ get; set; }
+		public string Description{ get; set; }
+	}
+#>

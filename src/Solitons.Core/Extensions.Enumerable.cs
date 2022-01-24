@@ -15,6 +15,21 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        public static T GetRandomElement<T>(this IReadOnlyList<T> self)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            var index = (int)(DateTime.UtcNow.Ticks % self.Count);
+            return self[index];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <param name="source"></param>
         /// <param name="exclude"></param>

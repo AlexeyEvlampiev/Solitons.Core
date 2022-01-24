@@ -5,7 +5,7 @@ using Solitons.Common;
 
 namespace Solitons.Samples.Azure
 {
-    public sealed class AzureFactory
+    public sealed class AzureServiceFactory
     {
         private readonly IEnvironment _environment;
         private const string PostgresConnectionStringEnvVariable = "SOLITONS_SAMPLE_POSTGRES_CONNECTION_STRING";
@@ -13,12 +13,12 @@ namespace Solitons.Samples.Azure
         private const string AADB2CConnectionStringEnvVariable = "SOLITONS_SAMPLE_AADB2C_CONNECTION_STRING";
         private const string StorageConnectionStringEnvVariable = "AZ_STORAGE_CONNECTION_STRING";
 
-        public AzureFactory() : this(IEnvironment.System)
+        public AzureServiceFactory() : this(IEnvironment.System)
         {
             
         }
 
-        public AzureFactory(IEnvironment environment)
+        public AzureServiceFactory(IEnvironment environment)
         {
             _environment = environment ?? throw new ArgumentNullException(nameof(environment));
         }
@@ -34,7 +34,7 @@ namespace Solitons.Samples.Azure
             return logger;
         }
 
-        public BlobSasUriPropertyInspector GetBlobSasUriPropertyInspector()
+        public BlobSasUriPropertyInspector GetSasUriPropertyInspector()
         {
             var storageConnectionString =
                 _environment.GetRequiredEnvironmentVariable(StorageConnectionStringEnvVariable);
