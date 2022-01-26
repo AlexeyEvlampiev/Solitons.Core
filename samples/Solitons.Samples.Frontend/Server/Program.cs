@@ -1,17 +1,15 @@
 using System.Diagnostics;
 using System.Net;
-using System.Reactive.Concurrency;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Identity.Web;
 using Solitons;
-using Solitons.Reflection;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
-
+using Solitons.Security;
 
 
 const string appletId = "Sample Web Server";
@@ -25,18 +23,6 @@ var logger = azureServiceFactory
     .WithEnvironmentInfo()
     .WithAppletId(appletId)
     .FireAndForget(AppletEvent.StartingUp);
-
-
-var schedulers = Enumerable
-    .Range(1, Environment.ProcessorCount)
-    .Select(_ => new EventLoopScheduler())
-    .ToArray();
-
-var objectGraphInspectors = schedulers
-    .Select(scheduler=> new ObjectGraphInspector(scheduler))
-    .ToArray();
-
-var sasUriPropertyInspector = azureServiceFactory.GetSasUriPropertyInspector();
 
 
 var adB2CSettings = new ConfigurationBuilder()
@@ -55,26 +41,7 @@ var pgConnectionString = azureServiceFactory.GetPgConnectionString(config =>
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddTransient<ObjectGraphInspector>(serviceProviders =>
-{
-    var env = serviceProviders.GetService<IWebHostEnvironment>();
-    var httpContext = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext;
-    var clientIpAddress = httpContext?.Connection?.RemoteIpAddress ?? IPAddress.Any;
-
-    var objectInspector = objectGraphInspectors.GetRandomElement();
-
-    if (env.IsDevelopment() && 
-        IPAddress.IsLoopback(clientIpAddress))
-    {
-        return objectInspector
-            .WithPropertyInspector(sasUriPropertyInspector
-                .WithIpAddress(MyPublicIpAddress.Value));
-    }
-
-    return objectInspector
-        .WithPropertyInspector(sasUriPropertyInspector
-            .WithIpAddress(clientIpAddress));
-});
+builder.Services.AddSingleton<ISecureBlobAccessUriBuilder>(azureServiceFactory.GetSecureBlobAccessUriBuilder());
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -116,6 +83,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseWebAssemblyDebugging();
+    app.UseMachinePublicIpAsRemoteAddress();
     logger
         .AsObservable()
         .Subscribe(IAsyncLogger.Trace.AsObserver());

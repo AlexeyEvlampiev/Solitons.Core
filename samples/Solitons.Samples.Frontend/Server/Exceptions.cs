@@ -2,11 +2,20 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
+using Solitons.Samples.Azure;
 
 namespace Solitons.Samples.Frontend.Server
 {
     public static class Exceptions
     {
+        public static void UseMachinePublicIpAsRemoteAddress(this IApplicationBuilder app)
+        {
+            app.Use(async (HttpContext context, RequestDelegate rd) =>
+            {
+                context.Connection.RemoteIpAddress = await MyPublicIpAddress.GetAsync();
+                await rd.Invoke(context);
+            });
+        }
         public static void ConfigureExceptionHandler(this IApplicationBuilder app, IAsyncLogger logger)
         {
             app.UseExceptionHandler(appError =>

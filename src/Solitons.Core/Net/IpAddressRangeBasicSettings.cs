@@ -11,7 +11,7 @@ namespace Solitons.Net
     public sealed class IpAddressRangeBasicSettings : BasicSettings, IFormattable
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private IPAddress _end;
+        private IPAddress? _end;
 
         /// <summary>
         /// 
@@ -19,7 +19,7 @@ namespace Solitons.Net
         [DebuggerNonUserCode]
         public IpAddressRangeBasicSettings()
         {
-            Start = IPAddress.Loopback;
+            Start = IPAddress.None;
         }
 
         /// <summary>
@@ -34,9 +34,8 @@ namespace Solitons.Net
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        public IpAddressRangeBasicSettings(IPAddress start, IPAddress end)
+        public IpAddressRangeBasicSettings(IPAddress start, IPAddress? end)
         {
-            (start ??= end).ThrowIfNullArgument(nameof(start));
             end ??= start;
 
             var comparer = IpAddressComparer.Default;
@@ -120,6 +119,25 @@ namespace Solitons.Net
                 "g" => _end is null ? Start.ToString() : $"{Start}-{End}",
                 _=> this.ToString()
             };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settings"></param>
+        public static implicit operator IpAddressRange?(IpAddressRangeBasicSettings? settings)
+        {
+            if (settings is null) return null;
+            return new IpAddressRange(settings.Start, settings.End);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="range"></param>
+        public static implicit operator IpAddressRangeBasicSettings?(IpAddressRange range)
+        {
+            return new IpAddressRangeBasicSettings(range.Start, range.Start);
         }
     }
 }

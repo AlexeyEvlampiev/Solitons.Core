@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
-using Solitons.Reflection;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Domain.Contracts;
+using Solitons.Security;
 
 namespace Solitons.Samples.Frontend.Server.Controllers
 {
@@ -14,13 +14,13 @@ namespace Solitons.Samples.Frontend.Server.Controllers
     public class ImagesController : ControllerBase
     {
         private readonly ISampleDbApi _databaseApi;
-        private readonly ObjectGraphInspector _inspector;
+        private readonly ISecureBlobAccessUriBuilder _secureBlobAccessUriBuilder;
         private readonly IAsyncLogger _logger;
 
-        public ImagesController(ISampleDbApi databaseApi, ObjectGraphInspector inspector, IAsyncLogger logger)
+        public ImagesController(ISampleDbApi databaseApi, ISecureBlobAccessUriBuilder secureBlobAccessUriBuilder, IAsyncLogger logger)
         {
             _databaseApi = databaseApi ?? throw new ArgumentNullException(nameof(databaseApi));
-            _inspector = inspector ?? throw new ArgumentNullException(nameof(inspector));
+            _secureBlobAccessUriBuilder = secureBlobAccessUriBuilder ?? throw new ArgumentNullException(nameof(secureBlobAccessUriBuilder));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -29,8 +29,14 @@ namespace Solitons.Samples.Frontend.Server.Controllers
         {
             var request = new ImageGetRequest(oid);
             var response = await _databaseApi.InvokeAsync(request);
-            await _inspector.InspectAsync(response);
-            return Redirect(response.ImageSource ?? string.Empty);
+            var ip = Request.HttpContext.Connection.RemoteIpAddress;
+            
+            var uri = _secureBlobAccessUriBuilder
+                .BuildDownloadUri(
+                    response.ImageRelativePath,
+                    response.AccessTimeWindow,
+                    response.AllowAllIpAddresses ? null : ip);
+            return Redirect(uri.ToString());
         }
 
         [HttpGet(), Route("{oid}/source")]
@@ -38,8 +44,14 @@ namespace Solitons.Samples.Frontend.Server.Controllers
         {
             var request = new ImageGetRequest(oid);
             var response = await _databaseApi.InvokeAsync(request);
-            await _inspector.InspectAsync(response);
-            return response.ImageSource ?? String.Empty;
+            var ip = Request.HttpContext.Connection.RemoteIpAddress;
+
+            var uri = _secureBlobAccessUriBuilder
+                .BuildDownloadUri(
+                    response.ImageRelativePath,
+                    response.AccessTimeWindow,
+                    response.AllowAllIpAddresses ? null : ip);
+            return uri.ToString();
         }
     }
 }

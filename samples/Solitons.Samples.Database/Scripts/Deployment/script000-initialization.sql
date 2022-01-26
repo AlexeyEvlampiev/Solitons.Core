@@ -417,6 +417,10 @@ DECLARE
 	v_image_object_id uuid := p_request->>'oid';
 BEGIN
 	PERFORM system.raise_exception_if_null_or_empty_argument(v_image_object_id, 'oid');	
-	RETURN jsonb_build_object('uri', 'images/'||v_image_object_id);
+	SET LOCAL intervalstyle = 'iso_8601';
+	RETURN jsonb_build_object(
+		'relativePath', 'images/'||v_image_object_id,
+		'accessTimeWindow','5 minutes'::interval,
+		'allowAllIpAddresses', false);
 END;
 $$ LANGUAGE 'plpgsql';

@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
-using Solitons.Security;
+using Solitons.Text.Json;
 
 namespace Solitons.Samples.Domain.Contracts
 {
@@ -14,14 +13,14 @@ namespace Solitons.Samples.Domain.Contracts
         /// <summary>
         /// 
         /// </summary>
-        [JsonPropertyName("uri")]
-        [BlobSasUri("DigitalAssets", BlobSasPermissions.Read, "00:05:00", IpRangeRestriction = IpRangeRestriction.Required)]
-        public string ImageSource { get; set; } = string.Empty;
+        [JsonPropertyName("relativePath")]
+        public string ImageRelativePath { get; set; } = string.Empty;
 
-        protected override void OnSerializing(object sender)
-        {
-            base.OnSerializing(sender);
-            Debug.Assert(Uri.IsWellFormedUriString(ImageSource, UriKind.Absolute));
-        }
+        [JsonPropertyName("allowAllIpAddresses")]
+        public bool AllowAllIpAddresses { get; set; }
+
+        [JsonPropertyName("accessTimeWindow")]
+        [JsonConverter(typeof(TimeSpanToStringConverter))]
+        public TimeSpan AccessTimeWindow { get; set; }
     }
 }

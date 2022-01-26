@@ -791,6 +791,7 @@
 		/// <param name="paramName"></param>
 		/// <param name="message"></param>
 		/// <returns><paramref name="self"/></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static System.TimeSpan ThrowIfArgumentLessThan(this System.TimeSpan self, System.TimeSpan min,  string paramName, string message = null)
 		{

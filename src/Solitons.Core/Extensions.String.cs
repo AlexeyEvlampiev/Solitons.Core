@@ -66,13 +66,38 @@ namespace Solitons
         /// <param name="expectedKind"></param>
         /// <param name="createException"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ThrowIfNotUri(this string self, UriKind expectedKind, Func<Exception> createException)
+        public static string ThrowIfMalformedUri(this string self, UriKind expectedKind, Func<Exception> createException)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (createException == null) throw new ArgumentNullException(nameof(createException));
             if (Uri.IsWellFormedUriString(self, expectedKind)) return self;
-            throw createException.Invoke() ?? throw new InvalidCastException($"'{self}' is not a well formed {expectedKind} uri.");
+            throw createException.Invoke() ?? throw new ArgumentNullException($"'{self}' is not a well formed {expectedKind} uri.");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="expectedKind"></param>
+        /// <param name="parameterName"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNull]
+        public static string ThrowIfMalformedUriArgument(this string self, UriKind expectedKind, string parameterName, string? message = null)
+        {
+            if (string.IsNullOrWhiteSpace(self) ||
+                false == Uri.IsWellFormedUriString(self, expectedKind))
+            {
+
+                throw message.IsNullOrWhiteSpace()
+                    ? new ArgumentException($"Mallformed URI argument.", nameof(parameterName))
+                    : new ArgumentException(message, nameof(parameterName));
+            }
+            return self;
         }
 
         /// <summary>
@@ -105,7 +130,7 @@ namespace Solitons
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
-        public static string ThrowIfNullOrWhiteSpaceArgument(this string self, string parameterName, string message = null)
+        public static string ThrowIfNullOrWhiteSpaceArgument(this string self, string parameterName, string? message = null)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
@@ -140,7 +165,7 @@ namespace Solitons
         /// <returns>
         ///   <c>true</c> if the value parameter is null or Empty, or if value consists exclusively of white-space characters.
         /// </returns>
-        public static bool IsNullOrWhiteSpace(this string self) => string.IsNullOrWhiteSpace(self);
+        public static bool IsNullOrWhiteSpace(this string? self) => string.IsNullOrWhiteSpace(self);
 
         /// <summary>
         /// Defaults if null or white space.
