@@ -147,4 +147,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Blobs\Common\" />
+  </ItemGroup>
+
 </Project>

@@ -9,7 +9,7 @@ namespace Solitons.Samples.Database.Models
         public string Email { get; set; }
 
         [BasicSetting("OrganizationID", IsRequired = true, Pattern = "(?is)^org(?:anization(?:-?id)?)?$")]
-        public Guid UrganizationId { get; set; }
+        public Guid OrganizationId { get; set; }
 
         [DebuggerStepThrough]
         public static SuperuserSettings Parse(string text) => 

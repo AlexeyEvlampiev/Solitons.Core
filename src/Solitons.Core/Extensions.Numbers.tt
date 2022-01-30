@@ -92,6 +92,20 @@ namespace Solitons
 		/// </summary>
 		/// <param name="self"></param>
 		/// <param name="min"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static <#= type #> ThrowIfLessOrEqual(this <#= type #> self, <#= type #> min, Func<Exception> errorFactory)
+		{
+			if(self <= min)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
 		/// <param name="paramName"></param>
 		/// <param name="message"></param>
 		/// <returns><paramref name="self"/></returns>
@@ -108,6 +122,26 @@ namespace Solitons
 			return self;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="min"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static <#= type #> ThrowIfArgumentLessOrEqual(this <#= type #> self, <#= type #> min,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self <= min)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}
 
 		/// <summary>
 		/// 
@@ -120,6 +154,20 @@ namespace Solitons
 		public static <#= type #> ThrowIfGreaterThan(this <#= type #> self, <#= type #> max, Func<Exception> errorFactory)
 		{
 			if(self > max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
+			return self;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="errorFactory"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static <#= type #> ThrowIfGreaterOrEqual(this <#= type #> self, <#= type #> max, Func<Exception> errorFactory)
+		{
+			if(self >= max)throw errorFactory?.Invoke() ?? new ArgumentOutOfRangeException(nameof(self));
 			return self;
 		}
 
@@ -142,6 +190,27 @@ namespace Solitons
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} <# } #> 		
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="self"></param>
+		/// <param name="max"></param>
+		/// <param name="paramName"></param>
+		/// <param name="message"></param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static <#= type #> ThrowIfArgumentGreaterOrEqual(this <#= type #> self, <#= type #> max,  string paramName, string message = null)
+		{
+			if(string.IsNullOrWhiteSpace(paramName))paramName = nameof(self);
+			if(self > max)
+			{
+				throw string.IsNullOrWhiteSpace(message) 
+					? new ArgumentOutOfRangeException(paramName)
+					: new ArgumentOutOfRangeException(message, paramName);
+			}
+			return self;
+		}<# } #> 		
 	}
 }

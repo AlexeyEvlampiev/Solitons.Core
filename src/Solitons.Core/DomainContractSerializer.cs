@@ -127,27 +127,21 @@ namespace Solitons
                 : Array.Empty<string>();
         }
 
-        private string Serialize(object obj, string contentType)
-        {
-            if (_serializers.TryGetValue(new SerializerKey(obj.GetType().GUID, contentType), out var value))
-            {
-                return value.Serializer.Serialize(obj);
-            }
-
-            throw new NotSupportedException($"'{contentType}' content type is not suported for {obj.GetType()}");
-        }
 
         public string Serialize(object obj, out string contentType)
         {
-            if(_metadata.TryGetValue(obj.GetType().GUID, out var metadata))
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            var type = obj.GetType();
+            if(_metadata.TryGetValue(type.GUID, out var metadata))
             {
                 var serializer = metadata.DefaultSerializer;
                 contentType = serializer.ContentType;
                 return serializer.Serialize(obj);
             }
 
-            throw new ArgumentException($"Required a domain annotated DTO type. Actual: {obj.GetType()}");
+            throw new ArgumentException(CreateDtoNotSupportedMessage(type), nameof(obj));
         }
+
 
         private object Deserialize(Guid typeId, string contentType, string content)
         {
@@ -179,7 +173,25 @@ namespace Solitons
         string IDomainContractSerializer.Serialize(object obj, string contentType)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-            return Serialize(obj, contentType);
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            if (contentType == null) throw new ArgumentNullException(nameof(contentType));
+
+            var type = obj.GetType();
+            if (_serializers.TryGetValue(new SerializerKey(obj.GetType().GUID, contentType), out var value))
+            {
+                return value.Serializer.Serialize(obj);
+            }
+
+            if (_metadata.TryGetValue(type.GUID, out var metadata))
+            {
+                var csv = metadata.SupportedContentTypes.Join(", ");
+                throw new ArgumentOutOfRangeException(
+                    new StringBuilder($"'{contentType}' content type is not supported.")
+                        .Append($" Supported content types: {csv}.")
+                        .ToString(), nameof(contentType));
+            }
+
+            throw new ArgumentException(CreateDtoNotSupportedMessage(type), nameof(obj));
         }
 
         [DebuggerStepThrough]
@@ -201,5 +213,31 @@ namespace Solitons
         [DebuggerStepThrough]
         public IEnumerable<Type> GetTypes() => _metadata.Values
             .Select(v => v.DtoType);
+
+
+
+        private static string CreateDtoNotSupportedMessage(Type type)
+        {
+            var message = new StringBuilder($"{type} type not supported.");
+
+            if (Attribute.GetCustomAttribute(type, typeof(GuidAttribute)) is null)
+            {
+                message.Append($" Did you forget annotating this type with {typeof(GuidAttribute)}?");
+            }
+            else if (Attribute.GetCustomAttribute(type, typeof(DataTransferObjectAttribute)) is null ||
+                     typeof(IBasicJsonDataTransferObject).IsAssignableFrom(type) == false ||
+                     typeof(IBasicXmlDataTransferObject).IsAssignableFrom(type) == false)
+            {
+                message
+                    .Append($" Did you forget annotating this type with {typeof(DataTransferObjectAttribute)}?")
+                    .Append($" Alternatively you can make {type} type implementing {typeof(IBasicJsonDataTransferObject)} or {typeof(IBasicXmlDataTransferObject)} interface.");
+            }
+            else
+            {
+                message.Append($" Did you forget registering this type or the types assembly in your {nameof(DomainContext)} implementation?");
+            }
+
+            return message.ToString();
+        }
     }
 }

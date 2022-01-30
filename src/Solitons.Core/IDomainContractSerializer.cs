@@ -152,18 +152,6 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="receipt"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public bool CanDeserialize(DomainTransientStorageReceipt receipt)
-        {
-            return receipt is not null &&
-                   CanDeserialize(receipt.DtoTypeId, receipt.ContentType);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="type"></param>
         /// <param name="contentType"></param>
         /// <returns></returns>
@@ -277,6 +265,7 @@ namespace Solitons
 
             throw new ArgumentException("Invalid content", nameof(bytes));
         }
+
 
         /// <summary>
         /// 

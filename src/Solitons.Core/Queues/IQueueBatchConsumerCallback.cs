@@ -9,7 +9,7 @@ namespace Solitons.Queues
     /// <summary>
     /// 
     /// </summary>
-    public interface IDomainQueueBatchConsumerCallback
+    public interface IQueueBatchConsumerCallback
     {
         /// <summary>
         /// Gets the behaviour.

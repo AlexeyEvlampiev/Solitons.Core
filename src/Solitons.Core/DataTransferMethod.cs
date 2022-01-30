@@ -6,8 +6,6 @@
     /// <remarks>
     /// Specifies the intended data transfer method.
     /// </remarks>
-    /// <seealso cref="ISpecializedSerializer"/>
-    /// <seealso cref="ISpecializedTransientStorageReceipt"/>
     public enum DataTransferMethod
     {
         /// <summary>

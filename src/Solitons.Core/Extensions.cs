@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -244,7 +245,7 @@ namespace Solitons
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
-        public static T ThrowIfNull<T>(this T self, Func<Exception> factory) where T : class
+        public static T ThrowIfNull<T>(this T self, Func<Exception> factory) where T : class?
         {
             if (self is null)
             {
@@ -399,9 +400,15 @@ namespace Solitons
                 .Zip(values, KeyValuePair.Create);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="createException"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNull]
         public static Guid ThrowIfEmpty(this Guid self, Func<Exception> createException)
         {
             if (createException == null) throw new ArgumentNullException(nameof(createException));
@@ -412,6 +419,19 @@ namespace Solitons
             }
 
             return self;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static Guid DefaultIfEmpty(this Guid self, Guid defaultValue)
+        {
+            return self == Guid.Empty
+                ? defaultValue
+                : self;
         }
 
         [DebuggerNonUserCode]

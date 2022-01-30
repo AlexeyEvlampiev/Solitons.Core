@@ -8,7 +8,7 @@ namespace Solitons.Queues
     /// <summary>
     /// 
     /// </summary>
-    public interface IDomainQueueStreamConsumerCallback
+    public interface IQueueStreamConsumerCallback
     {
         /// <summary>
         /// Gets the behaviour.

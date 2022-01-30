@@ -174,6 +174,7 @@ namespace Solitons
         /// <param name="defaultValue">The default value.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">defaultValue</exception>
+        [return: NotNull]
         public static string DefaultIfNullOrWhiteSpace(this string self, string defaultValue)
         {
             if (defaultValue == null) throw new ArgumentNullException(nameof(defaultValue));

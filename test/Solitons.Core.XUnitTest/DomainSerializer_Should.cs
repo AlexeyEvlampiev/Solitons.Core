@@ -43,8 +43,8 @@ namespace Solitons
             clone = serializer.Unpack(package);
             Assert.Equal("This is a test", clone.Text);
 
-            Assert.Throws<NotSupportedException>(() => serializer.Serialize(instance, notSupportedContentType));
-            Assert.Throws<NotSupportedException>(() => serializer.Pack(instance, notSupportedContentType));
+            Assert.Throws<ArgumentOutOfRangeException>(() => serializer.Serialize(instance, notSupportedContentType));
+            Assert.Throws<ArgumentOutOfRangeException>(() => serializer.Pack(instance, notSupportedContentType));
         }
 
         [Fact]

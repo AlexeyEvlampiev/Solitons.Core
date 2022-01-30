@@ -32,6 +32,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SampleDbApi.generated.cs</LastGenOutput>
     </None>
+    <None Update="SampleQueueApi.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SampleQueueApi.generated.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +52,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SampleDbApi.tt</DependentUpon>
+    </Compile>
+    <Compile Update="SampleQueueApi.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SampleQueueApi.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

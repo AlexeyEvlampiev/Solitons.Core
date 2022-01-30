@@ -13,6 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Tests\Blobs\**" />
+    <EmbeddedResource Remove="Tests\Blobs\**" />
+    <None Remove="Tests\Blobs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
@@ -30,12 +36,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Solitons.Core\Solitons.Core.csproj" />
-    <ProjectReference Include="..\Solitons.Azure.Referencelmpl\Solitons.Azure.Referencelmpl.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Tests\Blobs\" />
-    <Folder Include="Tests\Web\" />
+    <Folder Include="Tests\" />
   </ItemGroup>
 
 </Project>

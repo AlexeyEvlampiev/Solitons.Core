@@ -11,6 +11,6 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
             _settings = emails.ThrowIfNullArgument(nameof(emails));
         }
 
-        public string ValuesCsv => _settings.Select(e=> $"('{e.Email}', '{e.UrganizationId}'::uuid)").Join();
+        public string ValuesCsv => _settings.Select(e=> $"('{e.Email}', '{e.OrganizationId}'::uuid)").Join();
     }
 }

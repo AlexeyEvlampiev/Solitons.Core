@@ -241,18 +241,6 @@ namespace Solitons
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="provider"></param>
-        /// <param name="transientStorage"></param>
-        /// <returns></returns>
-        public IDomainQueue BuildQueue(IQueueServiceProvider provider, ITransientStorage transientStorage)
-        {
-            if (provider == null) throw new ArgumentNullException(nameof(provider));
-            if (transientStorage == null) throw new ArgumentNullException(nameof(transientStorage));
-            return new DomainQueue(this, provider, transientStorage);
-        }
 
         /// <summary>
         /// Gets an instance of the <see cref="IDomainContractSerializer"/> class assembled by this <see cref="DomainContext"/> object.
@@ -296,18 +284,6 @@ namespace Solitons
         public IEnumerable<Type> GetTypes() => _types.AsEnumerable();
 
 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="transientStorage"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public IDomainTransientStorage CreateDomainTransientStorage(ITransientStorage transientStorage) => 
-            new DomainTransientStorage(
-                transientStorage.ThrowIfNullArgument(nameof(transientStorage)), 
-                GetSerializer());
         
 
 

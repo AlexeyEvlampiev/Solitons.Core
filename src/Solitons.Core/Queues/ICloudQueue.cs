@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public interface IDomainQueue : IDomainQueueProducer, IDomainQueueConsumer
+    public interface ICloudQueue : ICloudQueueProducer, ICloudQueueConsumer
     {
        
     }

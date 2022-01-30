@@ -9,7 +9,7 @@ namespace Solitons.Queues
     /// <summary>
     /// 
     /// </summary>
-    public partial interface IDomainQueueConsumer
+    public partial interface ICloudQueueConsumer
     {
         /// <summary>
         /// Converts to observable.
@@ -17,7 +17,7 @@ namespace Solitons.Queues
         /// <param name="callback">The callback.</param>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IObservable<object> ToObservable(IDomainQueueStreamConsumerCallback callback, IAsyncLogger logger);
+        IObservable<object> ToObservable(IQueueStreamConsumerCallback callback, IAsyncLogger logger);
 
         /// <summary>
         /// Converts to observable.
@@ -25,10 +25,10 @@ namespace Solitons.Queues
         /// <param name="callback">The callback.</param>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IObservable<IReadOnlyList<object>> ToObservable(IDomainQueueBatchConsumerCallback callback, IAsyncLogger logger);
+        IObservable<IReadOnlyList<object>> ToObservable(IQueueBatchConsumerCallback callback, IAsyncLogger logger);
     }
 
-    public partial interface IDomainQueueConsumer
+    public partial interface ICloudQueueConsumer
     {
         /// <summary>
         /// 
@@ -38,7 +38,7 @@ namespace Solitons.Queues
         /// <param name="cancellation"></param>
         /// <returns></returns>
         public async Task ConsumeAsync(
-            IDomainQueueStreamConsumerCallback callback,
+            IQueueStreamConsumerCallback callback,
             IAsyncLogger logger,
             CancellationToken cancellation = default)
         {
@@ -57,7 +57,7 @@ namespace Solitons.Queues
         /// <param name="logger"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        public async Task ConsumeAsync(IDomainQueueBatchConsumerCallback callback, IAsyncLogger logger, CancellationToken cancellation = default)
+        public async Task ConsumeAsync(IQueueBatchConsumerCallback callback, IAsyncLogger logger, CancellationToken cancellation = default)
         {
             if (callback == null) throw new ArgumentNullException(nameof(callback));
             if (logger == null) throw new ArgumentNullException(nameof(logger));
