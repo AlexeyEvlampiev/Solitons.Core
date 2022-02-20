@@ -87,7 +87,7 @@ if (app.Environment.IsDevelopment())
     app.UseMachinePublicIpAsRemoteAddress();
     logger
         .AsObservable()
-        .Subscribe(IAsyncLogger.Trace.AsObserver());
+        .Subscribe(IAsyncLogger.Console.AsObserver());
     Trace.Listeners.Add(new ConsoleTraceListener());
 }
 else

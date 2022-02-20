@@ -147,17 +147,13 @@ namespace Solitons.Diagnostics
     public partial interface IAsyncLogger
     {
         /// <summary>
-        /// 
+        /// Null Object implementation
         /// </summary>
         public static IAsyncLogger Null => AsyncNullObjectLogger.Instance;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public static IAsyncLogger Trace => TraceAsyncLogger.Instance;
 
         /// <summary>
-        /// 
+        /// Console output implementation
         /// </summary>
         public static IAsyncLogger Console => ConsoleAsyncLogger.Instance;
     }
