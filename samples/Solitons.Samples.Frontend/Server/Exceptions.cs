@@ -2,7 +2,9 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
+using Solitons.Diagnostics;
 using Solitons.Samples.Azure;
+using Solitons.Samples.Domain;
 
 namespace Solitons.Samples.Frontend.Server
 {
@@ -30,9 +32,9 @@ namespace Solitons.Samples.Frontend.Server
                         var ex = contextFeature.Error;
                         Debug.WriteLine(ex.Message);
                         var correlationId = Guid.NewGuid();
-                        await logger.ErrorAsync(ex.Message, log=> log
-                            .WithDetails(ex.ToString())
-                            .WithTag(correlationId));
+                        await logger.WithCorrelationId(correlationId.ToString())
+                            .ErrorAsync(ex.Message, log=> log
+                            .WithDetails(ex.ToString()));
                         var response = new
                         {
                             message = "Internal Server Error.",

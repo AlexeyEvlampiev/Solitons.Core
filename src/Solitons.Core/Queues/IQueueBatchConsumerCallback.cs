@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Diagnostics;
 
 namespace Solitons.Queues
 {

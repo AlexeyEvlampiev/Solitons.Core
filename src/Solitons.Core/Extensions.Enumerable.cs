@@ -35,7 +35,7 @@ namespace Solitons
         /// <param name="exclude"></param>
         /// <returns></returns>
         [DebuggerNonUserCode]
-        public static IEnumerable<TSource> WrapAsEnumerable<TSource>(this TSource source, Func<TSource, bool> exclude = null)
+        public static IEnumerable<TSource> WrapAsEnumerable<TSource>(this TSource source, Func<TSource, bool>? exclude = null)
         {
             if (exclude != null && exclude.Invoke(source))
             {
@@ -151,7 +151,7 @@ namespace Solitons
         /// <exception cref="ArgumentException"></exception>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] ThrowIfNullOrEmptyArgument<T>(this T[] self, string argName, string message = null) where T : class
+        public static T[] ThrowIfNullOrEmptyArgument<T>(this T[] self, string argName, string? message = null) where T : class
         {
             if (self is null || self.Length == 0)
             {
@@ -358,7 +358,7 @@ namespace Solitons
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(
-            this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey> comparer = null)
+            this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             comparer ??= EqualityComparer<TKey>.Default;
@@ -366,7 +366,7 @@ namespace Solitons
         }
 
         public static IObservable<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(
-            this IObservable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey> comparer = null)
+            this IObservable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             comparer ??= EqualityComparer<TKey>.Default;
@@ -374,7 +374,7 @@ namespace Solitons
         }
 
         public static Dictionary<TKey, object> GroupByKey<TKey, TValue>(
-            this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey> comparer = null)
+            this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             comparer ??= EqualityComparer<TKey>.Default;

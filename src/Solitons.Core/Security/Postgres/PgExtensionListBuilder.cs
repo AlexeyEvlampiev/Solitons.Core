@@ -13,7 +13,7 @@ namespace Solitons.Security.Postgres
         public IEnumerable<string> Extensions => _schemaByExtension.Keys;
 
         [DebuggerNonUserCode]
-        public IPgExtensionListBuilder With(string extension, string schema = null)
+        public IPgExtensionListBuilder With(string extension, string? schema = null)
         {
             extension = extension
                 .ThrowIfNullOrWhiteSpaceArgument(nameof(extension))

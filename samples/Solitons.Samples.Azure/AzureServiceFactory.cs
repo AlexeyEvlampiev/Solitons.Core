@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Queues;
 using Npgsql;
+using Solitons.Diagnostics;
 
 namespace Solitons.Samples.Azure
 {

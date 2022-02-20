@@ -5,7 +5,8 @@ using System.Security.Cryptography;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Queues;
-using Solitons.Common;
+using Solitons.Diagnostics;
+using Solitons.Diagnostics.Common;
 
 namespace Solitons.Samples.Azure
 {

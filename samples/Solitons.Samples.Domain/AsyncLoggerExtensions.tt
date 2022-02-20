@@ -12,11 +12,13 @@
 		new Property("AppletId", "The current Applet ID."),
 		new Property("UserEmail", "User email claim."),
 		new Property("RequestUri", "Requested resource Uri."),
-		new Property("RemoteIpAddress", "Remote IP address.")
+		new Property("RemoteIpAddress", "Remote IP address."),
+		new Property("CorrelationId", "Correlation ID.")
 	};
 #>
 namespace Solitons.Samples.Domain
 {
+	using Solitons.Diagnostics;
 	public static partial class LogPropertyNames
 	{<# foreach(var p in properties){ #> 
 

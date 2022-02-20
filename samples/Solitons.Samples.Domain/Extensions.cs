@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Solitons.Diagnostics;
 
 namespace Solitons.Samples.Domain
 {

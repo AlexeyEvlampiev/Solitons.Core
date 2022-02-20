@@ -1,31 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 
-namespace Solitons.Common
+namespace Solitons.Diagnostics
 {
     sealed class LogEntry : ILogEntry, ILogEntryBuilder
     {
-        private HashSet<string> _tags;
-        private Dictionary<string, string> _properties;
-        private StringBuilder _details;
+        private HashSet<string>? _tags;
+        private Dictionary<string, string>? _properties;
+        private HashSet<string>? _details;
 
-        public LogLevel Level { get; set; }
+        public LogEntry(LogLevel level, string message)
+        {
+            Level = level;
+            Message = message;
+        }
 
-        public string Message { get; set; }
+        public LogLevel Level { get; }
+
+        public string Message { get; }
 
         public DateTimeOffset Created { get; } = DateTimeOffset.UtcNow;
 
-        public string Details { get; set; }
+        public string? Details => _details?.Join(Environment.NewLine);
 
-        public IEnumerable<string> Tags => _tags?.AsEnumerable() ?? Enumerable.Empty<string>();
+        public IEnumerable<string> Tags => _tags  ?? Enumerable.Empty<string>();
 
-        public IEnumerable<string> Properties => _properties?.Keys ?? Enumerable.Empty<string>();
+        public IEnumerable<string> PropertyNames => _properties?.Keys ?? Enumerable.Empty<string>();
 
-        public string GetProperty(string name) => _properties != null
+        public string? GetProperty(string name) => _properties != null
             ? _properties[name]
             : throw new KeyNotFoundException($"{nameof(name)} property not found.");
 
@@ -47,14 +52,12 @@ namespace Solitons.Common
         public ILogEntryBuilder WithDetails(string details)
         {
             if (details.IsNullOrWhiteSpace()) return this;
-            LazyInitializer.EnsureInitialized(ref _details, () => new StringBuilder());
-            _details
-                .AppendLine()
-                .Append(details);
+            LazyInitializer.EnsureInitialized(ref _details, () => new HashSet<string>());
+            _details.Add(details);
             return this;
         }
 
-        public ILogEntryBuilder WithProperties(IEnumerable<KeyValuePair<string, string>> properties)
+        public ILogEntryBuilder WithProperties(IEnumerable<KeyValuePair<string, string>>? properties)
         {
             if (properties is null) return this;
 

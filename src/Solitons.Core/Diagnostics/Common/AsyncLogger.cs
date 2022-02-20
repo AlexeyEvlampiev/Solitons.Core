@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
-namespace Solitons.Common
+namespace Solitons.Diagnostics.Common
 {
     /// <summary>
     /// 
@@ -28,13 +28,9 @@ namespace Solitons.Common
         /// <param name="message"></param>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder> config = null)
+        public async Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder>? config = null)
         {
-            var entry = new LogEntry()
-            {
-                Level = level,
-                Message = message
-            };
+            var entry = new LogEntry(level, message);
             config?.Invoke(entry);
 
             try
@@ -48,12 +44,12 @@ namespace Solitons.Common
             }
         }
 
-        public virtual async Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder> config = null)
+        public virtual async Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder>? config = null)
         {
             void Extend(ILogEntryBuilder builder)
             {
                 builder
-                    .WithTag(ex.GetType().FullName)
+                    .WithTag(ex.GetType().FullName!)
                     .WithDetails(ex.ToString());
             }
 
@@ -61,11 +57,7 @@ namespace Solitons.Common
                 ? Extend
                 : config + Extend;
 
-            var entry = new LogEntry()
-            {
-                Level = level,
-                Message = ex.Message
-            };
+            var entry = new LogEntry(level, ex.Message);
 
 
             config?.Invoke(entry);
@@ -91,5 +83,6 @@ namespace Solitons.Common
         /// </summary>
         /// <returns></returns>
         public IObserver<ILogEntry> AsObserver() => Observer.Create<ILogEntry>(log => LogAsync(log));
+
     }
 }

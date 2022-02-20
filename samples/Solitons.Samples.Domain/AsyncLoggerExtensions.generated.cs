@@ -1,5 +1,6 @@
 ﻿namespace Solitons.Samples.Domain
 {
+	using Solitons.Diagnostics;
 	public static partial class LogPropertyNames
 	{ 
 
@@ -36,7 +37,12 @@
 		/// <summary>
         /// Remote IP address.
         /// </summary>
-		public const string RemoteIpAddress = "RemoteIpAddress";  		
+		public const string RemoteIpAddress = "RemoteIpAddress";  
+
+		/// <summary>
+        /// Correlation ID.
+        /// </summary>
+		public const string CorrelationId = "CorrelationId";  		
 	}
 
 	public static partial class Extensions
@@ -103,6 +109,15 @@
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             return self.WithProperty(LogPropertyNames.RemoteIpAddress, value);
+        }  
+
+		/// <summary>
+        /// Correlation ID.
+        /// </summary>
+		public static IAsyncLogger WithCorrelationId(this IAsyncLogger self, string value)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            return self.WithProperty(LogPropertyNames.CorrelationId, value);
         }  			
 	}
 }

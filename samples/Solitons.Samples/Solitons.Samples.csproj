@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Solitons</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Solitons.Core\Solitons.Core.csproj" />
+	</ItemGroup>
+
+</Project>

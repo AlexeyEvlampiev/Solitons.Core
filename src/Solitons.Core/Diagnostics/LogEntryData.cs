@@ -5,8 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-
-namespace Solitons.Common
+namespace Solitons.Diagnostics
 {
     /// <summary>
     /// 
@@ -20,6 +19,7 @@ namespace Solitons.Common
         /// </summary>
         public LogEntryData()
         {
+            Message = "?";
             Created = DateTimeOffset.UtcNow;
         }
 
@@ -37,7 +37,7 @@ namespace Solitons.Common
             Tags = entry.Tags?
                 .Distinct(StringComparer.Ordinal)?
                 .ToList();
-            Properties = entry.Properties?
+            Properties = entry.PropertyNames?
                 .ToDictionary(
                     name => name,
                     entry.GetProperty,
@@ -68,33 +68,33 @@ namespace Solitons.Common
         /// 
         /// </summary>
         [JsonPropertyName("details")]
-        public string Details { get; set; }
+        public string? Details { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         [JsonPropertyName("tags")]
-        public List<string> Tags { get; set; }
+        public List<string>? Tags { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         [JsonPropertyName("properties")]
-        public IDictionary<string, string> Properties { get; set; }
+        public Dictionary<string, string?>? Properties { get; set; }
 
 
 
-        string ILogEntry.GetProperty(string name) => Properties[name];
+        string? ILogEntry.GetProperty(string name) => Properties?.TryGetValue(name, out var value) == true ? value : null;
 
-        IEnumerable<string> ILogEntry.Tags => Tags ?? Enumerable.Empty<string>();
+        IEnumerable<string> ILogEntry.Tags => Tags as IEnumerable<string> ?? Enumerable.Empty<string>();
 
-        IEnumerable<string> ILogEntry.Properties => Properties?.Keys ?? Enumerable.Empty<string>();
+        IEnumerable<string> ILogEntry.PropertyNames => Properties?.Keys ?? Enumerable.Empty<string>();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>
-        public static LogEntryData Parse(string json) => JsonSerializer.Deserialize<LogEntryData>(json);
+        public static LogEntryData? Parse(string json) => JsonSerializer.Deserialize<LogEntryData>(json);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Solitons.Diagnostics;
 using Xunit;
 
 namespace Solitons.Common

@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
-using Solitons.Common;
+using Solitons.Diagnostics.Common;
 
-namespace Solitons
+namespace Solitons.Diagnostics
 {
     sealed class TraceAsyncLogger : AsyncLogger
     {

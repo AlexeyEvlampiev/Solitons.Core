@@ -26,7 +26,7 @@ namespace Solitons.Data
 
         private GenericDbConnectionFactory(
             State state,
-            Action<DbConnectionStringBuilder> transform = null)
+            Action<DbConnectionStringBuilder>? transform = null)
         {
             _state = state;
             _transform = transform;

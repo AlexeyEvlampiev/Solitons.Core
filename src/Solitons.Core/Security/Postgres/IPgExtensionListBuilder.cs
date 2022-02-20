@@ -5,6 +5,6 @@
     /// </summary>
     public interface IPgExtensionListBuilder
     {
-        IPgExtensionListBuilder With(string extension, string schema = null);
+        IPgExtensionListBuilder With(string extension, string? schema = null);
     }
 }

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Solitons
+namespace Solitons.Diagnostics
 {
     sealed class AsyncLoggerProxy : IAsyncLogger
     {
@@ -30,7 +30,7 @@ namespace Solitons
 
 
         [DebuggerStepThrough]
-        public Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder> config = null)
+        public Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder>? config = null)
         {
             config = config is null
                 ? _innerConfig
@@ -39,7 +39,7 @@ namespace Solitons
         }
         
         [DebuggerStepThrough]
-        public Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder> config = null)
+        public Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder>? config = null)
         {
             config = config is null
                 ? _innerConfig
@@ -54,7 +54,7 @@ namespace Solitons
         public IObserver<ILogEntry> AsObserver() => _innerLogger.AsObserver();
 
         [DebuggerStepThrough]
-        public override string ToString() => _innerLogger.ToString();
+        public override string ToString() => _innerLogger.ToString() ?? _innerLogger.GetType().ToString();
 
         [DebuggerStepThrough]
         public override bool Equals(object? obj) => _innerLogger.Equals(obj);

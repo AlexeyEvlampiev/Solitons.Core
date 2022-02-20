@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Solitons.Diagnostics.Common;
 
-namespace Solitons.Common
+namespace Solitons.Diagnostics
 {
     sealed class AsyncNullObjectLogger : AsyncLogger
     {

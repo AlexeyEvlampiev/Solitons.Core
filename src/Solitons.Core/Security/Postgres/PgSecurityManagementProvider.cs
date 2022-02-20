@@ -46,8 +46,8 @@ namespace Solitons.Security.Postgres
 
         public void ProvisionDatabase(
             string databaseName, 
-            Action<IPgRoleBuilder> configRoles = null,
-            Action<IPgExtensionListBuilder> configExtensions = null)
+            Action<IPgRoleBuilder>? configRoles = null,
+            Action<IPgExtensionListBuilder>? configExtensions = null)
         {
             var roles = new PgRoleBuilder();
             var extensions = new PgExtensionListBuilder();

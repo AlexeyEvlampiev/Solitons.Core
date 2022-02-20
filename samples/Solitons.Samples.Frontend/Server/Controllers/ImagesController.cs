@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
+using Solitons.Diagnostics;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Domain.Contracts;
 using Solitons.Security;

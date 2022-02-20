@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -87,7 +86,7 @@ namespace Solitons
         /// <param name="message"></param>
         /// <returns></returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T ThrowIfCanNotReadArgument<T>(this T self, string paramName, string message = null) where T : Stream
+        public static T ThrowIfCanNotReadArgument<T>(this T self, string paramName, string? message = null) where T : Stream
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (false == self.CanRead)
@@ -128,7 +127,7 @@ namespace Solitons
         /// <param name="message"></param>
         /// <returns></returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T ThrowIfCanNotWriteArgument<T>(this T self, string paramName, string message = null) where T : Stream
+        public static T ThrowIfCanNotWriteArgument<T>(this T self, string paramName, string? message = null) where T : Stream
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (false == self.CanWrite)
@@ -288,7 +287,7 @@ namespace Solitons
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
-        public static T ThrowIfNullArgument<T>(this T self, string parameterName, string message = null) where T : class
+        public static T ThrowIfNullArgument<T>(this T self, string parameterName, string? message = null) where T : class
         {
             if (self is null)
             {
@@ -437,7 +436,7 @@ namespace Solitons
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
-        public static Guid ThrowIfEmptyArgument(this Guid self, string parameterName, string message = null)
+        public static Guid ThrowIfEmptyArgument(this Guid self, string parameterName, string? message = null)
         {
             if (self == Guid.Empty)
             {

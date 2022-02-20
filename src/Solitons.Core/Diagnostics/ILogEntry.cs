@@ -1,16 +1,16 @@
-﻿using Solitons.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 
-namespace Solitons
+namespace Solitons.Diagnostics
 {
     /// <summary>
     /// 
     /// </summary>
-    public partial interface ILogEntry  
+    public partial interface ILogEntry 
     {
         /// <summary>
         /// 
@@ -30,7 +30,7 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
-        string Details { get; }
+        string? Details { get; }
 
         /// <summary>
         /// 
@@ -40,14 +40,14 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
-        IEnumerable<string> Properties { get; }
+        IEnumerable<string> PropertyNames { get; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        string GetProperty(string name);
+        string? GetProperty(string name);
     }
 
     public partial interface ILogEntry
@@ -61,19 +61,13 @@ namespace Solitons
         /// <returns></returns>
         public IReadOnlyDictionary<string, string> GetProperties()
         {
-            return Properties.Any()
-                ? new ReadOnlyDictionary<string, string>(Properties
-                    .Select(name => KeyValuePair.Create(name, GetProperty(name)))
+            return PropertyNames.Any()
+                ? new ReadOnlyDictionary<string, string>(PropertyNames
+                    .Select(name => KeyValuePair.Create(name, GetProperty(name)!))
                     .ToDictionary(StringComparer.Ordinal))
                 : EmptyPropertiesDictionary;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public ILogEntry AsLogEntry() => this is LogEntryProxy entry ? entry : new LogEntryProxy(this);
         
         /// <summary>
         /// 
@@ -85,6 +79,18 @@ namespace Solitons
             return this is LogEntryData data 
                 ? data 
                 : new LogEntryData(this);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="indented"></param>
+        /// <returns></returns>
+        public string ToJsonString(bool indented = false)
+        {
+            return JsonSerializer.Serialize(
+                this.AsDataTransferObject(),
+                new JsonSerializerOptions() { WriteIndented = indented });
         }
     }
 }

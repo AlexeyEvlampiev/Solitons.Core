@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Identity.Web;
 using Solitons;
+using Solitons.Diagnostics;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
 using Solitons.Samples.Frontend.Server;
