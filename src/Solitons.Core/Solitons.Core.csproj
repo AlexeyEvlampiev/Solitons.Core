@@ -8,7 +8,7 @@
     <RootNamespace>Solitons</RootNamespace>
     <Authors>Alexey Evlampiev</Authors>
     <Company>Solitons</Company>
-    <Description>Solitons.Core is a .NET base class library providing interfaces and implementations for types, algorithms, and utility functions commonly required for cloud software systems..</Description>
+    <Description>Solitons.Core is a .NET base class library providing interfaces and implementations for types, algorithms, and utility functions commonly required for cloud software systems.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
@@ -20,6 +20,8 @@
     <PackageIcon>Solitons.png</PackageIcon>
     <PackageIconUrl />
     <Nullable>enable</Nullable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>logging;logger;cloud;asynchronous;common;C#;.net;</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\Solitons.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
