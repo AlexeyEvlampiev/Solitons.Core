@@ -33,8 +33,7 @@ namespace Solitons.Samples.Frontend.Server
                         Debug.WriteLine(ex.Message);
                         var correlationId = Guid.NewGuid();
                         await logger.WithCorrelationId(correlationId.ToString())
-                            .ErrorAsync(ex.Message, log=> log
-                            .WithDetails(ex.ToString()));
+                            .ErrorAsync(ex.Message, ex.ToString());
                         var response = new
                         {
                             message = "Internal Server Error.",

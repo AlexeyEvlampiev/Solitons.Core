@@ -10,21 +10,22 @@ namespace Solitons.Diagnostics
     {
         private HashSet<string>? _tags;
         private Dictionary<string, string>? _properties;
-        private HashSet<string>? _details;
 
-        public LogEntry(LogLevel level, string message)
+
+        public LogEntry(LogLevel level, string message, string? details)
         {
             Level = level;
             Message = message;
+            Details = details;
         }
 
         public LogLevel Level { get; }
 
         public string Message { get; }
 
-        public DateTimeOffset Created { get; } = DateTimeOffset.UtcNow;
+        public string? Details { get; }
 
-        public string? Details => _details?.Join(Environment.NewLine);
+        public DateTimeOffset Created { get; } = DateTimeOffset.UtcNow;
 
         public IEnumerable<string> Tags => _tags  ?? Enumerable.Empty<string>();
 
@@ -35,7 +36,7 @@ namespace Solitons.Diagnostics
             : throw new KeyNotFoundException($"{nameof(name)} property not found.");
 
 
-        public ILogEntryBuilder WithTag(string tag)
+        public ILogEntryBuilder WithTags(string tag)
         {
             LazyInitializer.EnsureInitialized(ref _tags, () => new HashSet<string>(StringComparer.Ordinal));
             _tags.Add(tag);
@@ -49,13 +50,6 @@ namespace Solitons.Diagnostics
             return this;
         }
 
-        public ILogEntryBuilder WithDetails(string details)
-        {
-            if (details.IsNullOrWhiteSpace()) return this;
-            LazyInitializer.EnsureInitialized(ref _details, () => new HashSet<string>());
-            _details.Add(details);
-            return this;
-        }
 
         public ILogEntryBuilder WithProperties(IEnumerable<KeyValuePair<string, string>>? properties)
         {

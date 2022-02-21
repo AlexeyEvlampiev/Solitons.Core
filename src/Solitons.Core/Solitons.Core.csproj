@@ -8,7 +8,7 @@
     <RootNamespace>Solitons</RootNamespace>
     <Authors>Alexey Evlampiev</Authors>
     <Company>Solitons</Company>
-    <Description>Solitons.Core is a .NET base class library providing interfaces and implementations for types, algorithms, and utility functions commonly required for cloud software systems.</Description>
+    <Description>Solitons.Core is a .NET base class library providing interfaces and implementations for types, algorithms, and utility functions common for cloud software systems.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md">
+    <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

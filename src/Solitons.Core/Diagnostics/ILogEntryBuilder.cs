@@ -12,13 +12,6 @@ namespace Solitons.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tag"></param>
-        /// <returns></returns>
-        ILogEntryBuilder WithTag(string tag);
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -27,9 +20,9 @@ namespace Solitons.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="details"></param>
+        /// <param name="tag"></param>
         /// <returns></returns>
-        ILogEntryBuilder WithDetails(string details);
+        ILogEntryBuilder WithTags(string tag);
 
         /// <summary>
         /// 
@@ -40,8 +33,8 @@ namespace Solitons.Diagnostics
         [DebuggerStepThrough]
         public ILogEntryBuilder WithTags(string tag0, string tag1)
         {
-            return WithTag(tag0)
-                .WithTag(tag1);
+            return WithTags(tag0)
+                .WithTags(tag1);
         }
 
         /// <summary>
@@ -54,9 +47,9 @@ namespace Solitons.Diagnostics
         [DebuggerStepThrough]
         public ILogEntryBuilder WithTags(string tag0, string tag1, string tag2)
         {
-            return WithTag(tag0)
-                .WithTag(tag1)
-                .WithTag(tag2);
+            return WithTags(tag0)
+                .WithTags(tag1)
+                .WithTags(tag2);
         }
 
 
@@ -72,7 +65,7 @@ namespace Solitons.Diagnostics
             ILogEntryBuilder entry = this;
             foreach (var tag in tags)
             {
-                entry = entry.WithTag(tag);
+                entry = entry.WithTags(tag);
             }
 
             return entry;

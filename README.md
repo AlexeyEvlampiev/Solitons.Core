@@ -8,18 +8,20 @@ Represents an immutable asynchronous event logger.
 ```csharp
     public static async Task RunAsync()
     {
-        // Create a configure a console logger
+        // Create a console logger with default tags and properties
         var logger = IAsyncLogger.Console
             .WithTags("example", "console")
             .WithProperty("machine", Environment.MachineName)
             .WithProperty("user", Environment.UserName);
 
         await logger.InfoAsync($"Starting...");
-        // Output: {"level":"Info","message":"Starting...","created":"2022-02-20T14:23:44.5271977+00:00","details":null,"tags":["example","console"],"properties":{"machine":"HM-812","user":"alexey"}}
+        // Output: {"level":"Info","message":"Starting...","created":"2022-02-21T18:39:56.1717421+00:00","details":null,"tags":["example","console"],"properties":{"machine":"alexey-pc","user":"alexey"}}
+
         await ExecuteWithLoggingAsync(logger);
-        // Output: {"level":"Info","message":"Some message","created":"2022-02-20T14:23:44.6971355+00:00","details":"Thread ID: 1","tags":["example","console"],"properties":{"machine":"HM-812","user":"alexey","method":"ExecuteWithLoggingAsync"}}
+        // Output: {"level":"Info","message":"Some message","created":"2022-02-21T18:39:56.4674155+00:00","details":"Thread ID: 1","tags":["example","console"],"properties":{"machine":"alexey-pc","user":"alexey","method":"ExecuteWithLoggingAsync"}}
+
         await logger.InfoAsync("Done...");
-        // Output: {"level":"Info","message":"Done...","created":"2022-02-20T14:23:44.7070038+00:00","details":null,"tags":["example","console"],"properties":{"machine":"HM-812","user":"alexey"}}
+        // Output: {"level":"Info","message":"Done...","created":"2022-02-21T18:39:56.4679397+00:00","details":null,"tags":["example","console"],"properties":{"machine":"alexey-pc","user":"alexey"}}
     }
 
     private static async Task ExecuteWithLoggingAsync(IAsyncLogger logger)
@@ -28,8 +30,9 @@ Represents an immutable asynchronous event logger.
         logger = logger
             .WithProperty("method", nameof(ExecuteWithLoggingAsync));
 
+
         await logger.InfoAsync("Some message",
-            log => log.WithDetails($"Thread ID: {Thread.CurrentThread.ManagedThreadId}"));
+            details: $"Thread ID: {Thread.CurrentThread.ManagedThreadId}");
     }
 ```
 #### Example 2: Using custom IAsyncLogger implementations

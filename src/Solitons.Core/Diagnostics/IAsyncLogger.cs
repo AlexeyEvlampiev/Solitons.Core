@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Solitons.Diagnostics
@@ -19,6 +18,16 @@ namespace Solitons.Diagnostics
         /// <param name="config">The log entry configuration callback</param>
         /// <returns></returns>
         Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder>? config = null);
+
+        /// <summary>
+        /// Logs the specified message asynchronously.
+        /// </summary>
+        /// <param name="level">The log level</param>
+        /// <param name="message">The log message</param>
+        /// <param name="details">The details text</param>
+        /// <param name="config">The log entry configuration callback</param>
+        /// <returns></returns>
+        Task LogAsync(LogLevel level, string message, string details, Action<ILogEntryBuilder>? config = null);
 
         /// <summary>
         /// Logs the specified exception asynchronously.
@@ -40,7 +49,20 @@ namespace Solitons.Diagnostics
         /// </summary>
         /// <returns></returns>
         IObserver<ILogEntry> AsObserver();
+    }
 
+    public partial interface IAsyncLogger
+    {
+        /// <summary>
+        /// Null Object implementation
+        /// </summary>
+        public static IAsyncLogger Null => AsyncNullObjectLogger.Instance;
+
+
+        /// <summary>
+        /// Console output implementation
+        /// </summary>
+        public static IAsyncLogger Console => ConsoleAsyncLogger.Instance;
 
         /// <summary>
         /// Logs the specified error message asynchronously.
@@ -51,6 +73,25 @@ namespace Solitons.Diagnostics
         public Task ErrorAsync(string message, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Error, message, config);
 
         /// <summary>
+        /// Logs the specified error message asynchronously.
+        /// </summary>
+        /// <param name="message">The message text</param>
+        /// <param name="details">The details text</param>
+        /// <param name="config">The log entry configuration callback</param>
+        [DebuggerStepThrough]
+        public Task ErrorAsync(string message, string details, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Error, message, details, config);
+
+
+        /// <summary>
+        /// Logs the specified error asynchronously.
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public Task ErrorAsync(Exception ex, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Error, ex.Message, ex.ToString(), config);
+
+        /// <summary>
         /// Logs the specified warning message asynchronously.
         /// </summary>
         /// <param name="message">The message text</param>
@@ -58,6 +99,14 @@ namespace Solitons.Diagnostics
         [DebuggerStepThrough]
         public Task WarningAsync(string message, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Warning, message, config);
 
+        /// <summary>
+        /// Logs the specified warning message asynchronously.
+        /// </summary>
+        /// <param name="message">The message text</param>
+        /// <param name="details">The details text</param>
+        /// <param name="config">The log entry configuration callback</param>
+        [DebuggerStepThrough]
+        public Task WarningAsync(string message, string details, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Warning, message, details, config);
 
         /// <summary>
         /// Logs the specified information message asynchronously.
@@ -68,28 +117,13 @@ namespace Solitons.Diagnostics
         public Task InfoAsync(string message, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Info, message, config);
 
         /// <summary>
-        /// Logs the specified error message asynchronously.
-        /// </summary>
-        /// <param name="message">The message text</param>
-        /// <param name="config">The log entry configuration callback</param>
-        [DebuggerStepThrough]
-        public Task ErrorAsync(StringBuilder message, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Error, message.ToString(), config);
-
-        /// <summary>
-        /// Logs the specified warning message asynchronously.
-        /// </summary>
-        /// <param name="message">The message text</param>
-        /// <param name="config">The log entry configuration callback</param>
-        [DebuggerStepThrough]
-        public Task WarningAsync(StringBuilder message, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Warning, message.ToString(), config);
-
-        /// <summary>
         /// Logs the specified information message asynchronously.
         /// </summary>
         /// <param name="message">The message text</param>
+        /// <param name="details">The details text</param>
         /// <param name="config">The log entry configuration callback</param>
         [DebuggerStepThrough]
-        public Task InfoAsync(StringBuilder message, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Info, message.ToString(), config);
+        public Task InfoAsync(string message, string details, Action<ILogEntryBuilder>? config = null) => LogAsync(LogLevel.Info, message, details, config);
 
         /// <summary>
         /// Creates a new instance of <see cref="IAsyncLogger"/> that automatically adds the specified tag to every log entry.
@@ -97,7 +131,7 @@ namespace Solitons.Diagnostics
         /// <param name="tag">The tag.</param>
         /// <returns>Extended <see cref="IAsyncLogger"/> instance</returns>
         [DebuggerStepThrough]
-        public IAsyncLogger WithTag(string tag) => new AsyncLoggerProxy(this, builder => builder.WithTag(tag));
+        public IAsyncLogger WithTags(string tag) => new AsyncLoggerProxy(this, builder => builder.WithTags(tag));
 
         /// <summary>
         /// Creates a new instance of <see cref="IAsyncLogger"/> that automatically adds the specified tags to every log entry.
@@ -142,19 +176,5 @@ namespace Solitons.Diagnostics
         /// <returns>Extended <see cref="IAsyncLogger"/> instance</returns>
         [DebuggerStepThrough]
         public IAsyncLogger WithProperties(IEnumerable<KeyValuePair<string, string>>? properties) => new AsyncLoggerProxy(this, builder => builder.WithProperties(properties));
-    }
-
-    public partial interface IAsyncLogger
-    {
-        /// <summary>
-        /// Null Object implementation
-        /// </summary>
-        public static IAsyncLogger Null => AsyncNullObjectLogger.Instance;
-
-
-        /// <summary>
-        /// Console output implementation
-        /// </summary>
-        public static IAsyncLogger Console => ConsoleAsyncLogger.Instance;
     }
 }

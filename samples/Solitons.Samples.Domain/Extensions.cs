@@ -24,7 +24,7 @@ namespace Solitons.Samples.Domain
 
         public static IAsyncLogger FireAndForget(this IAsyncLogger self, AppletEvent appletEvent)
         {
-            self.InfoAsync(appletEvent.ToString(), log => log.WithDetails($"Applet event"));
+            self.InfoAsync(appletEvent.ToString(), "Applet event");
             return self;
         }
     }

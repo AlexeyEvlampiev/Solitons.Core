@@ -18,10 +18,9 @@ namespace Solitons.Diagnostics
                 .AsObservable()
                 .Subscribe(OnLog);
 
-            await logger.InfoAsync("This is a test", log=> log
-                .WithDetails("This is details")
+            await logger.InfoAsync("This is a test", "This is details", log => log
                 .WithProperty("My property key", "My property value")
-                .WithTag("This is a tag"));
+                .WithTags("This is a tag"));
 
             void OnLog(ILogEntry entry)
             {

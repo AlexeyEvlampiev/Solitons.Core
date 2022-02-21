@@ -28,38 +28,21 @@ namespace Solitons.Diagnostics.Common
         /// <param name="message"></param>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder>? config = null)
+        [DebuggerStepThrough]
+        public Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder>? config = null) =>
+            LogAsync(level, message, null, config);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="message"></param>
+        /// <param name="details"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public async Task LogAsync(LogLevel level, string message, string? details, Action<ILogEntryBuilder>? config = null)
         {
-            var entry = new LogEntry(level, message);
-            config?.Invoke(entry);
-
-            try
-            {
-                await LogAsync(entry);
-                _logs.OnNext(entry);
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError(e.ToString());
-            }
-        }
-
-        public virtual async Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder>? config = null)
-        {
-            void Extend(ILogEntryBuilder builder)
-            {
-                builder
-                    .WithTag(ex.GetType().FullName!)
-                    .WithDetails(ex.ToString());
-            }
-
-            config = config is null
-                ? Extend
-                : config + Extend;
-
-            var entry = new LogEntry(level, ex.Message);
-
-
+            var entry = new LogEntry(level, message, details);
             config?.Invoke(entry);
             try
             {
@@ -68,9 +51,22 @@ namespace Solitons.Diagnostics.Common
             }
             catch (Exception e)
             {
+                Debug.Fail(e.Message);
                 Trace.TraceError(e.ToString());
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="ex"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public virtual Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder>? config = null) =>
+            LogAsync(level, ex.Message, ex.ToString(), config);
+
 
         /// <summary>
         /// 

@@ -37,7 +37,16 @@ namespace Solitons.Diagnostics
                 : _innerConfig + config;
             return _innerLogger.LogAsync(level, message, config);
         }
-        
+
+        [DebuggerStepThrough]
+        public Task LogAsync(LogLevel level, string message, string details, Action<ILogEntryBuilder>? config = null)
+        {
+            config = config is null
+                ? _innerConfig
+                : _innerConfig + config;
+            return _innerLogger.LogAsync(level, message, details, config);
+        }
+
         [DebuggerStepThrough]
         public Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder>? config = null)
         {
