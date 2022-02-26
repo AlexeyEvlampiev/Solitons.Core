@@ -7,7 +7,7 @@ namespace Solitons
     /// <summary>
     /// Represents a Content Type constraint serializer.
     /// </summary>
-    public partial interface IDataTransferObjectSerializer
+    public partial interface IMediaTypeSerializer
     {
         /// <summary>
         /// Gets the serializer constraint content type.
@@ -34,24 +34,24 @@ namespace Solitons
     }
 
 
-    public partial interface IDataTransferObjectSerializer
+    public partial interface IMediaTypeSerializer
     {
         /// <summary>
         /// Default basic JSON serializer instance
         /// </summary>
-        public static readonly IDataTransferObjectSerializer BasicJsonSerializer = new BasicJsonDataTransferObjectSerializer();
+        public static readonly IMediaTypeSerializer BasicJsonSerializer = new BasicJsonMediaTypeSerializer();
 
         /// <summary>
         /// Default basic XML serializer instance
         /// </summary>
-        public static readonly IDataTransferObjectSerializer BasicXmlSerializer = new BasicXmlDataTransferObjectSerializer();
+        public static readonly IMediaTypeSerializer BasicXmlSerializer = new BasicXmlMediaTypeSerializer();
 
         /// <summary>
         /// Extends this object behaviour with additional assertions for methods and properties. 
         /// </summary>
         /// <returns>Proxy instance</returns>
         [DebuggerNonUserCode]
-        public IDataTransferObjectSerializer AsDataTransferObjectSerializer() =>
-            DataTransferObjectSerializerProxy.Wrap(this);
+        public IMediaTypeSerializer AsDataTransferObjectSerializer() =>
+            MediaTypeSerializerProxy.Wrap(this);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Solitons.Configuration;
 
 namespace Solitons.Samples.Database.Models
 {

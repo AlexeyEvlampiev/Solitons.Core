@@ -17,7 +17,7 @@ namespace Solitons
     /// <seealso cref="Parse(string, Type)"/>
     /// <seealso cref="DataTransferObjectAttribute"/>
     /// <seealso cref="BasicXmlDataTransferObject"/>
-    /// <seealso cref="BasicXmlDataTransferObjectSerializer"/>
+    /// <seealso cref="BasicXmlMediaTypeSerializer"/>
     public interface IBasicXmlDataTransferObject 
     {
         /// <summary>

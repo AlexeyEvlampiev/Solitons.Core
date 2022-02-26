@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Solitons.Collections;
+using Solitons.Configuration;
 
 namespace Solitons.Samples.Azure
 {

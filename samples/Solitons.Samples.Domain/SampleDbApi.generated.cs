@@ -41,12 +41,12 @@
 	public sealed class SampleDbApi : ISampleDbApi
 	{
 		private readonly ITransactionScriptProvider _provider;
-		private readonly IDomainContractSerializer _serializer;
+		private readonly SampleDataContractSerializer _serializer;
 
         public SampleDbApi(ITransactionScriptProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-			_serializer = SampleDomainContext.GetOrCreate().GetSerializer();
+			_serializer = new SampleDataContractSerializer();
         } 
 		
 		/// <summary>

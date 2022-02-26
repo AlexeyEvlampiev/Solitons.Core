@@ -45,9 +45,9 @@ Represents an immutable asynchronous event logger.
             .WithProperty("machine", Environment.MachineName)
             .WithProperty("user", Environment.UserName);
 
-        await logger.InfoAsync("Information goes here", log => log.WithDetails("Should be in green"));
-        await logger.WarningAsync("Warning goes here", log => log.WithDetails("Should be in yellow"));
-        await logger.ErrorAsync("Error goes here", log => log.WithDetails("Should be in red"));
+        await logger.InfoAsync("Information goes here", details: "Should be in green");
+        await logger.WarningAsync("Warning goes here", details: "Should be in yellow");
+        await logger.ErrorAsync("Error goes here", details: "Should be in red");
     }
 
 
@@ -55,30 +55,27 @@ Represents an immutable asynchronous event logger.
     {
         public static IAsyncLogger Create() => new CustomAsyncLogger();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entry"></param>
-        /// <returns></returns>
         protected override Task LogAsync(ILogEntry entry)
         {
             var json = entry.ToJsonString(indented: true);
 
+            Console.WriteLine(new string('=', 50));
+
             var color = Console.ForegroundColor;
             try
             {
-                Console.WriteLine(new string('-', 50));
-                Console.ForegroundColor = entry.Level switch 
+                Console.ForegroundColor = entry.Level switch
                 {
-                    LogLevel.Error => ConsoleColor.Red, 
-                    LogLevel.Warning => ConsoleColor.DarkYellow, 
-                    _=> ConsoleColor.Green
+                    LogLevel.Error => ConsoleColor.Red,
+                    LogLevel.Warning => ConsoleColor.DarkYellow,
+                    _ => ConsoleColor.Green
                 };
                 Console.WriteLine(json);
                 return Task.CompletedTask;
             }
             finally
             {
+                // Restore the original text color
                 Console.ForegroundColor = color;
             }
         }

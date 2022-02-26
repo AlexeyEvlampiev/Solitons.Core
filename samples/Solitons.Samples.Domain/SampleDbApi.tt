@@ -49,12 +49,12 @@ namespace Solitons.Samples.Domain
 	public sealed class <#= className #> : I<#= className #>
 	{
 		private readonly ITransactionScriptProvider _provider;
-		private readonly IDomainContractSerializer _serializer;
+		private readonly SampleDataContractSerializer _serializer;
 
         public <#= className #>(ITransactionScriptProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-			_serializer = SampleDomainContext.GetOrCreate().GetSerializer();
+			_serializer = new SampleDataContractSerializer();
         }<# foreach(var p in procedures){ #> 
 		
 		/// <summary>

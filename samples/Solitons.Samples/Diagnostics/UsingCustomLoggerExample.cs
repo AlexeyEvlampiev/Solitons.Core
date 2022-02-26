@@ -20,11 +20,6 @@ public static class UsingCustomLoggerExample
     {
         public static IAsyncLogger Create() => new CustomAsyncLogger();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entry"></param>
-        /// <returns></returns>
         protected override Task LogAsync(ILogEntry entry)
         {
             var json = entry.ToJsonString(indented: true);
@@ -50,7 +45,4 @@ public static class UsingCustomLoggerExample
             }
         }
     }
-
-
-
 }

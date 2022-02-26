@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Solitons.Collections;
 
-namespace Solitons
+namespace Solitons.Configuration
 {
     /// <summary>
     /// 
@@ -42,7 +42,7 @@ namespace Solitons
             });
         }
 
-        protected virtual string ToString(PropertyInfo property, object value) => value?.ToString();
+        protected virtual string ToString(PropertyInfo property, object? value) => value?.ToString();
 
         protected virtual string PreProcess(string input) => input;
 

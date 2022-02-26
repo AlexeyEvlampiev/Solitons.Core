@@ -4,9 +4,9 @@ using System.Runtime.Serialization;
 
 namespace Solitons.Common
 {
-    public abstract class DataTransferObjectSerializer : IDataTransferObjectSerializer
+    public abstract class MediaTypeSerializer : IMediaTypeSerializer
     {
-        protected DataTransferObjectSerializer(string contentType)
+        protected MediaTypeSerializer(string contentType)
         {
             ContentType = contentType;
         }
@@ -18,7 +18,7 @@ namespace Solitons.Common
         protected abstract object Deserialize(string content, Type targetType);
 
         [DebuggerStepThrough]
-        string IDataTransferObjectSerializer.Serialize(object obj)
+        string IMediaTypeSerializer.Serialize(object obj)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             var callback = obj as ISerializationCallback;
@@ -29,7 +29,7 @@ namespace Solitons.Common
         }
 
         [DebuggerStepThrough]
-        object IDataTransferObjectSerializer.Deserialize(string content, Type targetType)
+        object IMediaTypeSerializer.Deserialize(string content, Type targetType)
         {
             var obj = Deserialize(
                 content.ThrowIfNullArgument(nameof(content)), 

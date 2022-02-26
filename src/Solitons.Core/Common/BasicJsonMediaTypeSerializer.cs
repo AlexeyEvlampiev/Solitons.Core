@@ -4,9 +4,9 @@ using System.Text.Json;
 
 namespace Solitons.Common
 {
-    public sealed class BasicJsonDataTransferObjectSerializer : DataTransferObjectSerializer
+    public sealed class BasicJsonMediaTypeSerializer : MediaTypeSerializer
     {
-        public BasicJsonDataTransferObjectSerializer() : base("application/json")
+        public BasicJsonMediaTypeSerializer() : base("application/json")
         {
         }
 

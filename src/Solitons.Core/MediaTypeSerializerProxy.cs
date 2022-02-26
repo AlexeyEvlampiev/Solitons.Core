@@ -3,22 +3,22 @@ using System.Diagnostics;
 
 namespace Solitons
 {
-    sealed class DataTransferObjectSerializerProxy : IDataTransferObjectSerializer
+    sealed class MediaTypeSerializerProxy : IMediaTypeSerializer
     {
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        private readonly IDataTransferObjectSerializer _innerSerializer;
+        private readonly IMediaTypeSerializer _innerSerializer;
 
-        private DataTransferObjectSerializerProxy(IDataTransferObjectSerializer innerSerializer)
+        private MediaTypeSerializerProxy(IMediaTypeSerializer innerSerializer)
         {
             _innerSerializer = innerSerializer;
         }
 
         [DebuggerNonUserCode]
-        public static IDataTransferObjectSerializer Wrap(IDataTransferObjectSerializer innerSerialize)
+        public static IMediaTypeSerializer Wrap(IMediaTypeSerializer innerSerialize)
         {
-            return innerSerialize is DataTransferObjectSerializerProxy proxy
+            return innerSerialize is MediaTypeSerializerProxy proxy
                 ? proxy
-                : new DataTransferObjectSerializerProxy(innerSerialize);
+                : new MediaTypeSerializerProxy(innerSerialize);
         }
 
         public string ContentType

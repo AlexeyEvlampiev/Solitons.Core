@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Solitons
+namespace Solitons.Configuration
 {
     /// <summary>
     /// 
@@ -12,7 +12,7 @@ namespace Solitons
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public sealed class BasicSettingAttribute : Attribute
     {
-        private Regex _nameRegex;
+        private Regex? _nameRegex;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BasicSettingAttribute"/> class.
@@ -35,16 +35,29 @@ namespace Solitons
         {
             Position = position;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public int? Position { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Pattern
         {
             get => NameRegex.ToString();
             set => _nameRegex = value.IsNullOrWhiteSpace() ? null : new Regex(value.Trim());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IsRequired { get; set; } = true;
 
         internal Regex NameRegex => _nameRegex ??= new Regex(Name);
