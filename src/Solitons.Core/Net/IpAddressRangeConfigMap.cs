@@ -9,7 +9,7 @@ namespace Solitons.Net
     /// <summary>
     /// 
     /// </summary>
-    public sealed class IpAddressRangeBasicSettings : BasicSettings, IFormattable
+    public sealed class IpAddressRangeConfigMap : ConfigMap, IFormattable
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private IPAddress? _end;
@@ -18,7 +18,7 @@ namespace Solitons.Net
         /// 
         /// </summary>
         [DebuggerNonUserCode]
-        public IpAddressRangeBasicSettings()
+        public IpAddressRangeConfigMap()
         {
             Start = IPAddress.None;
         }
@@ -28,14 +28,14 @@ namespace Solitons.Net
         /// </summary>
         /// <param name="address"></param>
         [DebuggerStepThrough]
-        public IpAddressRangeBasicSettings(IPAddress address) : this(address.ThrowIfNullArgument(nameof(address)), address){}
+        public IpAddressRangeConfigMap(IPAddress address) : this(address.ThrowIfNullArgument(nameof(address)), address){}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        public IpAddressRangeBasicSettings(IPAddress start, IPAddress? end)
+        public IpAddressRangeConfigMap(IPAddress start, IPAddress? end)
         {
             end ??= start;
 
@@ -55,13 +55,13 @@ namespace Solitons.Net
         /// <summary>
         /// 
         /// </summary>
-        [BasicSetting("Start", IsRequired = true, Pattern = @"(?is)^(?:start|from)(?:-?address)$")]
+        [ConfigMap("Start", IsRequired = true, Pattern = @"(?is)^(?:start|from)(?:-?address)$")]
         public IPAddress Start { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        [BasicSetting("End", IsRequired = false, Pattern = @"(?is)^(?:end|till|to|untill)(?:-?address)$")]
+        [ConfigMap("End", IsRequired = false, Pattern = @"(?is)^(?:end|till|to|untill)(?:-?address)$")]
         public IPAddress End
         {
             get => _end ?? Start;
@@ -74,7 +74,7 @@ namespace Solitons.Net
         /// <param name="text"></param>
         /// <returns></returns>
         /// <exception cref="FormatException"></exception>
-        public static IpAddressRangeBasicSettings Parse(string text)
+        public static IpAddressRangeConfigMap Parse(string text)
         {
             text.ThrowIfNullOrWhiteSpaceArgument(nameof(text));
             if (text.Contains("-"))
@@ -86,15 +86,15 @@ namespace Solitons.Net
                     throw new FormatException();
                 if (false == IPAddress.TryParse(parts[1], out var end))
                     throw new FormatException();
-                return new IpAddressRangeBasicSettings(start, end);
+                return new IpAddressRangeConfigMap(start, end);
             }
 
             if(IPAddress.TryParse(text, out var address))
             {
-                return new IpAddressRangeBasicSettings(address);
+                return new IpAddressRangeConfigMap(address);
             }
 
-            return Parse<IpAddressRangeBasicSettings>(text);
+            return Parse<IpAddressRangeConfigMap>(text);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Solitons.Net
         /// <returns></returns>
         public static string GetSynopsis()
         {
-            var template = GetSynopsis<IpAddressRangeBasicSettings>();
+            var template = GetSynopsis<IpAddressRangeConfigMap>();
             return $"{{start}}-{{end}} or {{address}} or {template}";
         }
 
@@ -126,7 +126,7 @@ namespace Solitons.Net
         /// 
         /// </summary>
         /// <param name="settings"></param>
-        public static implicit operator IpAddressRange?(IpAddressRangeBasicSettings? settings)
+        public static implicit operator IpAddressRange?(IpAddressRangeConfigMap? settings)
         {
             if (settings is null) return null;
             return new IpAddressRange(settings.Start, settings.End);
@@ -136,9 +136,9 @@ namespace Solitons.Net
         /// 
         /// </summary>
         /// <param name="range"></param>
-        public static implicit operator IpAddressRangeBasicSettings?(IpAddressRange range)
+        public static implicit operator IpAddressRangeConfigMap?(IpAddressRange range)
         {
-            return new IpAddressRangeBasicSettings(range.Start, range.Start);
+            return new IpAddressRangeConfigMap(range.Start, range.Start);
         }
     }
 }

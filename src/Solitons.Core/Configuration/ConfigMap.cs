@@ -11,18 +11,24 @@ using Solitons.Collections;
 namespace Solitons.Configuration
 {
     /// <summary>
-    /// 
+    /// A common base for flat sets of configuration properties. 
     /// </summary>
-    public abstract class BasicSettings : IEnumerable<KeyValuePair<string, string>>
+    /// <remarks>
+    /// The class supports conversions to- and from- a semicolon separated list of key-value pairs constructed for properties adorned with <see cref="ConfigMapAttribute"/>.
+    /// See conversion methods <see cref="ToString()"/> and <see cref="Parse{T}"/>
+    /// </remarks>
+    /// <seealso cref="ConfigMapAttribute"/>
+    public abstract class ConfigMap : IEnumerable<KeyValuePair<string, string>>
     {
-        sealed record Item(PropertyInfo Property, BasicSettingAttribute Setting, DictionaryKeyAttribute DictionaryKey);
+        sealed record Item(PropertyInfo Property, ConfigMapAttribute Setting, DictionaryKeyAttribute DictionaryKey);
 
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly Lazy<Item[]> _items;
 
         /// <summary>
         /// 
         /// </summary>
-        protected BasicSettings()
+        protected ConfigMap()
         {
             _items = new Lazy<Item[]>(() =>
             {
@@ -32,7 +38,7 @@ namespace Solitons.Configuration
                 {
                     attributes.Clear();
                     attributes.AddRange(property.GetCustomAttributes());
-                    var setting = attributes.OfType<BasicSettingAttribute>().SingleOrDefault();
+                    var setting = attributes.OfType<ConfigMapAttribute>().SingleOrDefault();
                     if (setting is null) continue;
                     var key = attributes.OfType<DictionaryKeyAttribute>().SingleOrDefault() ?? new DictionaryKeyAttribute(setting.Name);
                     items.Add(new Item(property, setting, key));
@@ -42,16 +48,31 @@ namespace Solitons.Configuration
             });
         }
 
-        protected virtual string ToString(PropertyInfo property, object? value) => value?.ToString();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        protected virtual string? ToString(PropertyInfo property, object? value) => value?.ToString();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         protected virtual string PreProcess(string input) => input;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <exception cref="FormatException"></exception>
         protected virtual void OnDeserialized()
         {
             var items = _items.Value;
             foreach (var item in items)
             {
-                var (property, setting, key) = (item.Property, item.Setting, Key: item.DictionaryKey);
+                var (property, setting) = (item.Property, item.Setting);
                 if (setting.IsRequired)
                 {
                     var value = property.GetValue(this);
@@ -82,7 +103,7 @@ namespace Solitons.Configuration
         /// <param name="lhs"></param>
         /// <param name="rhs"></param>
         /// <returns></returns>
-        protected virtual bool Equals(PropertyInfo property, object lhs, object rhs)
+        protected virtual bool Equals(PropertyInfo property, object? lhs, object? rhs)
         {
             if (lhs is null && rhs is null) return true;
             if (lhs is null || rhs is null) return false;
@@ -95,35 +116,21 @@ namespace Solitons.Configuration
         }
 
 
-        public sealed override string ToString()
-        {
-            var items = _items.Value;
-
-            var parts = new List<string>();
-            foreach (var item in items)
-            {
-                var (property, setting, key) = (item.Property, item.Setting, Key: item.DictionaryKey);
-                var value = property.GetValue(this);
-                var valueString = ToString(property, value);
-                if(valueString is null)continue;
-                
-                parts.Add($"{setting.Name}={valueString}");
-            }
-            return parts.Join(";");
-        }
-
         [DebuggerStepThrough]
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 
-        protected bool NameEquals(PropertyInfo property, string name)
-        {
-            return property != null &&
-                   name != null &&
-                   name.Equals(property.Name, StringComparison.Ordinal);
-        }
 
-        protected static T Parse<T>(string input) where T : BasicSettings, new()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="NullReferenceException"></exception>
+        /// <exception cref="FormatException"></exception>
+        protected static T Parse<T>(string input) where T : ConfigMap, new()
         {
             if (input.IsNullOrWhiteSpace()) throw new ArgumentException($"Input string is required. {GetSynopsis<T>()}", nameof(input));
 
@@ -187,6 +194,10 @@ namespace Solitons.Configuration
             return settings;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
         {
             foreach (var item in _items.Value)
@@ -194,7 +205,7 @@ namespace Solitons.Configuration
                 var value = item.Property.GetValue(this, Array.Empty<object>())?.ToString();
                 if(value.IsNullOrWhiteSpace())continue;
                 var key = item.DictionaryKey.Name;
-                yield return KeyValuePair.Create(key, value);
+                yield return KeyValuePair.Create(key, value!);
             }
         }
 
@@ -228,11 +239,52 @@ namespace Solitons.Configuration
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            var properties = _items
+                .Value
+                .Select(item => item.Property);
+
+            long sum = 0;
+            foreach (var p in properties)
+            {
+                sum += p.GetValue(this)?.GetHashCode() ?? 0;
+            }
+
+            return sum.GetHashCode();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public sealed override string ToString()
+        {
+            var items = _items.Value;
+
+            var parts = new List<string>();
+            foreach (var item in items)
+            {
+                var (property, setting) = (item.Property, item.Setting);
+                var value = property.GetValue(this);
+                var valueString = ToString(property, value);
+                if (valueString is null) continue;
+
+                parts.Add($"{setting.Name}={valueString}");
+            }
+            return parts.Join(";");
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected static string GetSynopsis<T>() where T : BasicSettings
+        protected static string GetSynopsis<T>() where T : ConfigMap
         {
-            var metadata = BasicSettingAttribute.DiscoverProperties(typeof(T));
+            var metadata = ConfigMapAttribute.DiscoverProperties(typeof(T));
             return metadata.Keys
                 .Select(att => $"{att.Name}={{{att.Name}}}")
                 .Join(";");

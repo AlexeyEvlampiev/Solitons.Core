@@ -11,17 +11,16 @@ namespace Solitons.Common
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="BasicSettings" />
-    public sealed class NamedIpRangeSettings : BasicSettings
+    /// <seealso cref="ConfigMap" />
+    public sealed class NamedIpRangeSettings : ConfigMap
     {
-        private IPAddress _endAddress;
+        private IPAddress? _endAddress;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NamedIpRangeSettings"/> class.
         /// </summary>
         public NamedIpRangeSettings()
         {
-            
         }
 
         /// <summary>
@@ -90,19 +89,33 @@ namespace Solitons.Common
             return Parse<NamedIpRangeSettings>(input);
         }
 
-        [BasicSetting("name", 0, Pattern = "(?i)(name|id|rule|firewall)")]
-        public string Name { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [ConfigMap("name", 0, Pattern = "(?i)(name|id|rule|firewall)")]
+        public string? Name { get; set; }
 
-        [BasicSetting("start", 1, Pattern = "(?i)(start|from)")]
-        public IPAddress StartAddress { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [ConfigMap("start", 1, Pattern = "(?i)(start|from)")]
+        public IPAddress? StartAddress { get; set; }
 
-        [BasicSetting("end", 2, Pattern = "(?i)(end|to)")]
-        public IPAddress EndAddress
+        /// <summary>
+        /// 
+        /// </summary>
+        [ConfigMap("end", 2, Pattern = "(?i)(end|to)")]
+        public IPAddress? EndAddress
         {
             get => _endAddress ?? StartAddress;
             set => _endAddress = value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
         protected override void SetProperty(PropertyInfo property, string value)
         {
             if (property.PropertyType == typeof(IPAddress))

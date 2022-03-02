@@ -4,17 +4,38 @@ using System.Runtime.Serialization;
 
 namespace Solitons.Common
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class MediaTypeSerializer : IMediaTypeSerializer
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="contentType"></param>
         protected MediaTypeSerializer(string contentType)
         {
             ContentType = contentType;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string ContentType { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         protected abstract string Serialize(object obj);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="targetType"></param>
+        /// <returns></returns>
         protected abstract object Deserialize(string content, Type targetType);
 
         [DebuggerStepThrough]

@@ -263,7 +263,6 @@ namespace Solitons
         public object Deserialize(Guid typeId, string contentType, string content)
         {
             if (contentType == null) throw new ArgumentNullException(nameof(contentType));
-            if (contentType == null) throw new ArgumentNullException(nameof(contentType));
             if (content == null) throw new ArgumentNullException(nameof(content));
             var key = new SerializerKey(typeId, contentType);
             if (_serializers.TryGetValue(key, out var value))

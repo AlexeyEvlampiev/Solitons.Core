@@ -4,12 +4,12 @@ using Solitons.Configuration;
 namespace Solitons.Samples.Database.Models
 {
     
-    public sealed class SuperuserSettings : BasicSettings
+    public sealed class SuperuserSettings : ConfigMap
     {
-        [BasicSetting("Email", IsRequired = true, Pattern = "(?is)^email$")]
+        [ConfigMap("Email", IsRequired = true, Pattern = "(?is)^email$")]
         public string Email { get; set; }
 
-        [BasicSetting("OrganizationID", IsRequired = true, Pattern = "(?is)^org(?:anization(?:-?id)?)?$")]
+        [ConfigMap("OrganizationID", IsRequired = true, Pattern = "(?is)^org(?:anization(?:-?id)?)?$")]
         public Guid OrganizationId { get; set; }
 
         [DebuggerStepThrough]
