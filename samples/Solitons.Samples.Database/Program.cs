@@ -106,7 +106,7 @@ cli.Command("upgrade", upgrade =>
     options.ConnectionString.Validators.Add(new PgConnectionStringOptionValidator());
     options.Superuser.IsRequired(true);
     options.Superuser.Validators.Add(new SuperuserSettingsValidator());
-    options.Superuser.Description += $" ({SuperuserSettings.GetSynopsis()})";
+    options.Superuser.Description += $" ({SuperuserSettingsGroup.GetSynopsis()})";
     upgrade.OnExecute(() =>
     {
         var connection = new NpgsqlConnectionStringBuilder(options.ConnectionString.Value());
@@ -118,7 +118,7 @@ cli.Command("upgrade", upgrade =>
 
         var superuserSettings = options.Superuser
             .Values
-            .Select(SuperuserSettings.Parse)
+            .Select(SuperuserSettingsGroup.Parse)
             .ToArray();
         Console.WriteLine();
         if (options.Recreate.HasValue())

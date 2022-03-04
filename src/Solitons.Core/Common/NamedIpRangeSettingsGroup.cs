@@ -11,20 +11,20 @@ namespace Solitons.Common
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="ConfigMap" />
-    public sealed class NamedIpRangeSettings : ConfigMap
+    /// <seealso cref="SettingsGroup" />
+    public sealed class NamedIpRangeSettingsGroup : SettingsGroup
     {
         private IPAddress? _endAddress;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NamedIpRangeSettings"/> class.
+        /// Initializes a new instance of the <see cref="NamedIpRangeSettingsGroup"/> class.
         /// </summary>
-        public NamedIpRangeSettings()
+        public NamedIpRangeSettingsGroup()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NamedIpRangeSettings"/> class.
+        /// Initializes a new instance of the <see cref="NamedIpRangeSettingsGroup"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="start">The start.</param>
@@ -35,7 +35,7 @@ namespace Solitons.Common
         /// or
         /// end
         /// </exception>
-        public NamedIpRangeSettings(string name, IPAddress start, IPAddress end)
+        public NamedIpRangeSettingsGroup(string name, IPAddress start, IPAddress end)
         {
             if (name.IsNullOrWhiteSpace())
                 throw new ArgumentException($"IP range name is required.", nameof(name));
@@ -45,33 +45,33 @@ namespace Solitons.Common
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NamedIpRangeSettings"/> class.
+        /// Initializes a new instance of the <see cref="NamedIpRangeSettingsGroup"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="start">The start.</param>
-        public NamedIpRangeSettings(string name, IPAddress start) : this(name, start, start)
+        public NamedIpRangeSettingsGroup(string name, IPAddress start) : this(name, start, start)
         {
             
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NamedIpRangeSettings"/> class.
+        /// Initializes a new instance of the <see cref="NamedIpRangeSettingsGroup"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="start">The start.</param>
         /// <param name="end">The end.</param>
-        public NamedIpRangeSettings(string name, string start, string end) 
+        public NamedIpRangeSettingsGroup(string name, string start, string end) 
             : this(name, IPAddress.Parse(start ?? throw new ArgumentNullException(nameof(start))), IPAddress.Parse(end ?? throw new ArgumentNullException(nameof(end))))
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NamedIpRangeSettings"/> class.
+        /// Initializes a new instance of the <see cref="NamedIpRangeSettingsGroup"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="start">The start.</param>
-        public NamedIpRangeSettings(string name, string start) : this(name, start, start)
+        public NamedIpRangeSettingsGroup(string name, string start) : this(name, start, start)
         {
             
         }
@@ -83,28 +83,28 @@ namespace Solitons.Common
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">input</exception>
         [DebuggerStepThrough]
-        public static NamedIpRangeSettings Parse(string input)
+        public static NamedIpRangeSettingsGroup Parse(string input)
         {
             if (input == null) throw new ArgumentNullException(nameof(input));
-            return Parse<NamedIpRangeSettings>(input);
+            return Parse<NamedIpRangeSettingsGroup>(input);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        [ConfigMap("name", 0, Pattern = "(?i)(name|id|rule|firewall)")]
+        [Setting("name", 0, Pattern = "(?i)(name|id|rule|firewall)")]
         public string? Name { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        [ConfigMap("start", 1, Pattern = "(?i)(start|from)")]
+        [Setting("start", 1, Pattern = "(?i)(start|from)")]
         public IPAddress? StartAddress { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        [ConfigMap("end", 2, Pattern = "(?i)(end|to)")]
+        [Setting("end", 2, Pattern = "(?i)(end|to)")]
         public IPAddress? EndAddress
         {
             get => _endAddress ?? StartAddress;

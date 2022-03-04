@@ -8,10 +8,10 @@ namespace Solitons.Samples.Azure
 
         private const string AADB2CConnectionStringEnvVariable = "SOLITONS_SAMPLE_AADB2C_CONNECTION_STRING";
 
-        public static AzureActiveDirectoryB2CSettings GetAzureActiveDirectoryB2CSettings(IEnvironment? env = null)
+        public static AzureActiveDirectoryB2CSettingsGroup GetAzureActiveDirectoryB2CSettings(IEnvironment? env = null)
         {
             env ??= IEnvironment.System;
-            return AzureActiveDirectoryB2CSettings
+            return AzureActiveDirectoryB2CSettingsGroup
                 .Parse(env
                     .GetEnvironmentVariable(AADB2CConnectionStringEnvVariable)
                     .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException($"{AADB2CConnectionStringEnvVariable} environment variable is missing.")));

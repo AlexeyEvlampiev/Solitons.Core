@@ -13,7 +13,7 @@ namespace Solitons.Samples.Database.Validators
             {
                 try
                 {
-                    var settings = SuperuserSettings.Parse(option.Value());
+                    var settings = SuperuserSettingsGroup.Parse(option.Value());
                     return ValidationResult.Success;
                 }
                 catch (Exception e)

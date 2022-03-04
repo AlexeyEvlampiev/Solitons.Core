@@ -9,32 +9,32 @@ namespace Solitons.Configuration
     /// Annotates flat configuration set properties with metadata defining serialization and parsing rules and constraints.
     /// </summary>
     /// <remarks>
-    /// The attribute takes effect when applied on properties of <see cref="ConfigMap"/> subclasses.
+    /// The attribute takes effect when applied on properties of <see cref="SettingsGroup"/> sub-classes.
     /// </remarks>
     /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public sealed class ConfigMapAttribute : Attribute
+    public sealed class SettingAttribute : Attribute
     {
         private Regex? _nameRegex;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigMapAttribute"/> class.
+        /// Initializes a new instance of the <see cref="SettingAttribute"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <exception cref="ArgumentNullException">name</exception>
         /// <exception cref="ArgumentException">Name is required. - name</exception>
-        public ConfigMapAttribute(string name)
+        public SettingAttribute(string name)
         {
             Name = (name ?? throw new ArgumentNullException(nameof(name))).Trim();
             if (Name.IsNullOrWhiteSpace()) throw new ArgumentException($"Name is required.", nameof(name));
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigMapAttribute"/> class.
+        /// Initializes a new instance of the <see cref="SettingAttribute"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="position">The position.</param>
-        public ConfigMapAttribute(string name, int position) : this(name)
+        public SettingAttribute(string name, int position) : this(name)
         {
             Position = position;
         }
@@ -76,7 +76,7 @@ namespace Solitons.Configuration
         /// </returns>
         public override bool Equals(object? obj)
         {
-            return obj is ConfigMapAttribute other &&
+            return obj is SettingAttribute other &&
                    string.Equals(Name, other.Name, StringComparison.Ordinal);
         }
 
@@ -88,15 +88,15 @@ namespace Solitons.Configuration
         /// </returns>
         public override int GetHashCode() => Name.GetHashCode(StringComparison.Ordinal);
 
-        internal static Dictionary<ConfigMapAttribute, PropertyInfo> DiscoverProperties(Type type)
+        internal static Dictionary<SettingAttribute, PropertyInfo> DiscoverProperties(Type type)
         {
-            if (type.IsSubclassOf(typeof(ConfigMap)) == false)
-                throw new ArgumentOutOfRangeException($"Expected a subtype of {typeof(ConfigMap)}", nameof(type));
+            if (type.IsSubclassOf(typeof(SettingsGroup)) == false)
+                throw new ArgumentOutOfRangeException($"Expected a subtype of {typeof(SettingsGroup)}", nameof(type));
 
-            var result = new Dictionary<ConfigMapAttribute, PropertyInfo>();
+            var result = new Dictionary<SettingAttribute, PropertyInfo>();
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty))
             {
-                var att = property.GetCustomAttribute<ConfigMapAttribute>();
+                var att = property.GetCustomAttribute<SettingAttribute>();
                 if (att is null) continue;
                 result.Add(att, property);
             }

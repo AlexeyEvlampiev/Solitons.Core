@@ -19,13 +19,13 @@ namespace Solitons.Common
         [InlineData("name=test;204.120.0.10 - 204.120.0.15")]
         public void HandleValidRangeFormats(string input)
         {
-            var expectedRange = new NamedIpRangeSettings("test", "204.120.0.10", "204.120.0.15");
+            var expectedRange = new NamedIpRangeSettingsGroup("test", "204.120.0.10", "204.120.0.15");
 
-            var actualRange = NamedIpRangeSettings.Parse(input);
+            var actualRange = NamedIpRangeSettingsGroup.Parse(input);
             Assert.Equal(expectedRange, actualRange);
 
             var actualString = actualRange.ToString();
-            actualRange = NamedIpRangeSettings.Parse(actualString);
+            actualRange = NamedIpRangeSettingsGroup.Parse(actualString);
             Assert.Equal(expectedRange, actualRange);
         }
 
@@ -37,13 +37,13 @@ namespace Solitons.Common
         public void HandleValidAddressFormats(string input)
         {
             Debug.WriteLine(input);
-            var expectedRange = new NamedIpRangeSettings("test", "204.120.0.10");
+            var expectedRange = new NamedIpRangeSettingsGroup("test", "204.120.0.10");
 
-            var actualRange = NamedIpRangeSettings.Parse(input);
+            var actualRange = NamedIpRangeSettingsGroup.Parse(input);
             Assert.Equal(expectedRange, actualRange);
 
             var actualString = actualRange.ToString();
-            actualRange = NamedIpRangeSettings.Parse(actualString);
+            actualRange = NamedIpRangeSettingsGroup.Parse(actualString);
             Assert.Equal(expectedRange, actualRange);
         }
     }

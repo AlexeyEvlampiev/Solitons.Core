@@ -1,5 +1,37 @@
 # Solitons.Core
 Solitons.Core is a .NET base class library providing interfaces and implementations for types, algorithms, and utility functions commonly required for cloud software systems. 
+## Configuration
+### SettingsGroup class
+A common base for configuration settings classes requiring plain text serialization in the form of semicolon delimited key-value pairs.
+#### Example 1: Using custom settings group
+```csharp
+    public static void Run()
+    {
+        var login = new UserLoginSettings()
+        {
+            User = "admin",
+            Password = "bb307dafcbe7"
+        };
+
+        Console.WriteLine(login);
+        //Output: user=admin;password=bb307dafcbe7
+
+        login = UserLoginSettings.Parse("u=superuser;pwd=c82584fa160f");
+        Console.WriteLine(login);
+        //Output: user=superuser;password=c82584fa160f
+    }
+
+    public sealed class UserLoginSettings : SettingsGroup
+    {
+        [Setting("user", IsRequired = true, Pattern = "(?i)(username|use?r|u)")]
+        public string User { get; set; } = String.Empty;
+
+        [Setting("password", IsRequired = true, Pattern = "(?i)(password|pass|pwd|p)")]
+        public string Password { get; set; } = String.Empty;
+
+        public static UserLoginSettings Parse(string text) => Parse<UserLoginSettings>(text);
+    }
+```
 ## Diagnostics
 Solitons Diagnostics namespace provides types and interfaces for application logging and tracing purposes.
 ### IAsyncLogger interface

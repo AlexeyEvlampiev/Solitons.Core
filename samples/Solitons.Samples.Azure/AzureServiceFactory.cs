@@ -41,9 +41,9 @@ namespace Solitons.Samples.Azure
             return new AzureSecureBlobAccessUriBuilder(storageConnectionString);
         }
 
-        public AzureActiveDirectoryB2CSettings GetAzureActiveDirectoryB2CSettings()
+        public AzureActiveDirectoryB2CSettingsGroup GetAzureActiveDirectoryB2CSettings()
         {
-            return AzureActiveDirectoryB2CSettings
+            return AzureActiveDirectoryB2CSettingsGroup
                 .Parse(_environment
                     .GetRequiredEnvironmentVariable(AADB2CConnectionStringEnvVariable));
         }

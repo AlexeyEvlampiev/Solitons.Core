@@ -11,16 +11,16 @@ using Solitons.Collections;
 namespace Solitons.Configuration
 {
     /// <summary>
-    /// A common base for flat sets of configuration properties. 
+    /// Settings group.
     /// </summary>
     /// <remarks>
-    /// The class supports conversions to- and from- a semicolon separated list of key-value pairs constructed for properties adorned with <see cref="ConfigMapAttribute"/>.
-    /// See conversion methods <see cref="ToString()"/> and <see cref="Parse{T}"/>
+    /// Serialization format: a plain-text semicolon-separated list of key-value pairs constructed for properties annotated with <see cref="SettingAttribute"/>.
+    /// Use <see cref="ToString()"/> for serialization. Use <see cref="Parse{T}"/> generic parser method to implement custom deserialization.
     /// </remarks>
-    /// <seealso cref="ConfigMapAttribute"/>
-    public abstract class ConfigMap : IEnumerable<KeyValuePair<string, string>>
+    /// <seealso cref="SettingAttribute"/>
+    public abstract class SettingsGroup : IEnumerable<KeyValuePair<string, string>>
     {
-        sealed record Item(PropertyInfo Property, ConfigMapAttribute Setting, DictionaryKeyAttribute DictionaryKey);
+        sealed record Item(PropertyInfo Property, SettingAttribute Setting, DictionaryKeyAttribute DictionaryKey);
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly Lazy<Item[]> _items;
@@ -28,7 +28,7 @@ namespace Solitons.Configuration
         /// <summary>
         /// 
         /// </summary>
-        protected ConfigMap()
+        protected SettingsGroup()
         {
             _items = new Lazy<Item[]>(() =>
             {
@@ -38,7 +38,7 @@ namespace Solitons.Configuration
                 {
                     attributes.Clear();
                     attributes.AddRange(property.GetCustomAttributes());
-                    var setting = attributes.OfType<ConfigMapAttribute>().SingleOrDefault();
+                    var setting = attributes.OfType<SettingAttribute>().SingleOrDefault();
                     if (setting is null) continue;
                     var key = attributes.OfType<DictionaryKeyAttribute>().SingleOrDefault() ?? new DictionaryKeyAttribute(setting.Name);
                     items.Add(new Item(property, setting, key));
@@ -72,7 +72,7 @@ namespace Solitons.Configuration
             var items = _items.Value;
             foreach (var item in items)
             {
-                var (property, setting) = (item.Property, item.Setting);
+                var (property, setting) = (item.Property, Setting: item.Setting);
                 if (setting.IsRequired)
                 {
                     var value = property.GetValue(this);
@@ -130,7 +130,7 @@ namespace Solitons.Configuration
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="NullReferenceException"></exception>
         /// <exception cref="FormatException"></exception>
-        protected static T Parse<T>(string input) where T : ConfigMap, new()
+        protected static T Parse<T>(string input) where T : SettingsGroup, new()
         {
             if (input.IsNullOrWhiteSpace()) throw new ArgumentException($"Input string is required. {GetSynopsis<T>()}", nameof(input));
 
@@ -266,7 +266,7 @@ namespace Solitons.Configuration
             var parts = new List<string>();
             foreach (var item in items)
             {
-                var (property, setting) = (item.Property, item.Setting);
+                var (property, setting) = (item.Property, Setting: item.Setting);
                 var value = property.GetValue(this);
                 var valueString = ToString(property, value);
                 if (valueString is null) continue;
@@ -282,9 +282,9 @@ namespace Solitons.Configuration
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected static string GetSynopsis<T>() where T : ConfigMap
+        protected static string GetSynopsis<T>() where T : SettingsGroup
         {
-            var metadata = ConfigMapAttribute.DiscoverProperties(typeof(T));
+            var metadata = SettingAttribute.DiscoverProperties(typeof(T));
             return metadata.Keys
                 .Select(att => $"{att.Name}={{{att.Name}}}")
                 .Join(";");

@@ -29,7 +29,7 @@ var logger = azureServiceFactory
 var adB2CSettings = new ConfigurationBuilder()
     .AddInMemoryCollection(azureServiceFactory.GetAzureActiveDirectoryB2CSettings())
     .Build()
-    .GetSection(AzureActiveDirectoryB2CSettings.ConfigurationSectionName);
+    .GetSection(AzureActiveDirectoryB2CSettingsGroup.ConfigurationSectionName);
 
 var pgConnectionString = azureServiceFactory.GetPgConnectionString(config =>
 {

@@ -49,7 +49,7 @@ namespace Solitons.Samples.Database
 
         public static int Upgrade(
             string connectionString,
-            SuperuserSettings[] superuserSettings,
+            SuperuserSettingsGroup[] superuserSettings,
             SampleDbUpgradeOptions options)
         {
             connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString));
@@ -78,7 +78,7 @@ namespace Solitons.Samples.Database
 
         private static Queue<UpgradeEngine> BuildUpgradeStepQueue(
             string connectionString, 
-            SuperuserSettings[] superuserSettings,
+            SuperuserSettingsGroup[] superuserSettings,
             SampleDbUpgradeOptions options)
         {
             var logger = new SampleDbUpgradeLog();

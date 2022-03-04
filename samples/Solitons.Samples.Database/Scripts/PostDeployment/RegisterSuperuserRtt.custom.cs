@@ -4,9 +4,9 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
 {
     public partial class RegisterSuperuserRtt
     {
-        private readonly IEnumerable<SuperuserSettings> _settings;
+        private readonly IEnumerable<SuperuserSettingsGroup> _settings;
 
-        public RegisterSuperuserRtt(IEnumerable<SuperuserSettings> emails)
+        public RegisterSuperuserRtt(IEnumerable<SuperuserSettingsGroup> emails)
         {
             _settings = emails.ThrowIfNullArgument(nameof(emails));
         }
