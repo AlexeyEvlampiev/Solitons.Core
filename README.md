@@ -1,6 +1,7 @@
 # Solitons.Core
 Solitons.Core is a .NET base class library providing interfaces and implementations for types, algorithms, and utility functions commonly required for cloud software systems. 
 ## Configuration
+Contains types that provide a programming model for handling configuration data.
 ### SettingsGroup class
 A common base for configuration settings classes requiring plain text serialization in the form of semicolon delimited key-value pairs.
 #### Example 1: Using custom settings group
