@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
+using Solitons.Data;
 using Solitons.Text.Json;
 
 namespace Solitons.Samples.Domain.Contracts

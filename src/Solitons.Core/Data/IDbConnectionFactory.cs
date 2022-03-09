@@ -29,6 +29,10 @@ namespace Solitons.Data
         /// <returns></returns>
         IDbConnectionFactory WithPassword(string password);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         IDbConnection CreateConnection();
 
         /// <summary>

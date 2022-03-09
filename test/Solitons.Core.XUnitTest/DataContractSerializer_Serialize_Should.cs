@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
+using Solitons.Data;
 using Xunit;
 
 namespace Solitons
@@ -30,7 +31,7 @@ namespace Solitons
 
         public sealed class JsonFirstTestSerialize : DataContractSerializer
         {
-            public JsonFirstTestSerialize()
+            public JsonFirstTestSerialize() : base(DataContractSerializerBehaviour.Default)
             {
                 Register(typeof(MyClass), IMediaTypeSerializer.BasicJsonSerializer);
                 Register(typeof(MyClass), IMediaTypeSerializer.BasicXmlSerializer);
@@ -39,7 +40,7 @@ namespace Solitons
 
         public sealed class XmlFirstTestSerialize : DataContractSerializer
         {
-            public XmlFirstTestSerialize()
+            public XmlFirstTestSerialize() : base(DataContractSerializerBehaviour.Default)
             {
                 Register(typeof(MyClass), IMediaTypeSerializer.BasicXmlSerializer);
                 Register(typeof(MyClass), IMediaTypeSerializer.BasicJsonSerializer);

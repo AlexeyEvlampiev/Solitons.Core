@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.Serialization;
+using Solitons.Data;
 
 namespace Solitons.Common
 {

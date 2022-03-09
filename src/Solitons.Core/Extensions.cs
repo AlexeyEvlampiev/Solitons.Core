@@ -10,11 +10,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Data;
 
 namespace Solitons
 {
     public static partial class Extensions
     {
+        /// <summary>
+        /// Inverts this sort order
+        /// </summary>
+        /// <param name="self">The sort order to invert.</param>
+        /// <returns>The inverted sort order.</returns>
+        public static SortOrder Invert(this SortOrder self) => (SortOrder)((byte)self ^ 1);
+
         /// <summary>
         /// 
         /// </summary>

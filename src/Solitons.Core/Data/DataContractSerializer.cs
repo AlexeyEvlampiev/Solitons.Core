@@ -2,14 +2,21 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
+using Solitons.Data.Common;
 
-namespace Solitons
+namespace Solitons.Data
 {
     /// <summary>
     /// 
     /// </summary>
     public abstract class DataContractSerializer
     {
+        private readonly DataContractSerializerBehaviour _behaviour;
+
         #region Types
 
         readonly struct SerializerKey
@@ -55,9 +62,95 @@ namespace Solitons
             public HashSet<string> SupportedContentTypes { get; }
         }
 
+
+        sealed class BasicDtoPackage : DtoPackageWriter, IDtoPackage
+        {
+            private readonly Dictionary<string, string> _data;
+
+            public BasicDtoPackage() 
+                : this(new Dictionary<string, string>())
+            {
+            }
+
+            private BasicDtoPackage(Dictionary<string, string> data)
+            {
+                _data = data;
+            }
+
+            public string ContentType
+            {
+                get => _data.TryGetValue("sys.contentType", out var value) ? value : "text/plain";
+                set => _data["sys.contentType"] = value.DefaultIfNullOrWhiteSpace("text/plain").Trim();
+            }
+
+            public Guid TypeId
+            {
+                get => _data.TryGetValue("sys.tid", out var value) ? Guid.TryParse(value, out var guid) ? guid : Guid.Empty : Guid.Empty;
+                set => _data["sys.tid"] = value.ThrowIfEmpty(()=> new InvalidOperationException("Type Id is required")).ToString("N");
+            }
+
+            public byte[] Content
+            {
+                get => _data.TryGetValue("sys.body", out var value) ? Convert.FromBase64String(value) : Array.Empty<byte>();
+                set => _data["sys.body"] = value
+                    .ThrowIfNull(() => new InvalidOperationException("Content is required"))
+                    .ToBase64String();
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="key"></param>
+            /// <param name="value"></param>
+            /// <returns></returns>
+            public bool TryGetProperty(string key, out string? value)
+            {
+                return _data.TryGetValue($"user.{key}", out value);
+            }
+
+            protected override void SetContent(byte[] content)
+            {
+                Content = content;
+            }
+
+            protected override void SetContentType(string contentType)
+            {
+                ContentType = contentType;
+            }
+
+            protected override void SetTypeGuid(Guid guid)
+            {
+                TypeId = guid;
+            }
+
+
+            protected override void SetProperty(string key, string value)
+            {
+                _data[$"user.{key}"] = value;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString() => JsonSerializer.Serialize(_data);
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="package"></param>
+            /// <returns></returns>
+            public static BasicDtoPackage Parse(string package)
+            {
+                return new BasicDtoPackage(JsonSerializer
+                    .Deserialize<Dictionary<string, string>>(package)
+                    .ThrowIfNull(() => new InvalidOperationException()));
+            }
+        }
+
         #endregion
 
-        #region MyRegion
+        #region Private Fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<SerializerKey, SerializerValue> _serializers = new();
@@ -67,17 +160,32 @@ namespace Solitons
 
         #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="behaviour"></param>
+        protected DataContractSerializer(DataContractSerializerBehaviour behaviour)
+        {
+            _behaviour = behaviour;
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="type"></param>
         /// <param name="serializer"></param>
-        /// <param name="isDefault"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected void Register(Type type, IMediaTypeSerializer serializer, bool isDefault = false)
+        protected void Register(Type type, IMediaTypeSerializer serializer)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
+            if (_behaviour.HasFlag(DataContractSerializerBehaviour.RequireCustomGuid) &&
+                type.GetCustomAttribute(typeof(GuidAttribute)) is null)
+            {
+                throw new InvalidOperationException(new StringBuilder($"{typeof(GuidAttribute)} annotation is missing.")
+                    .Append($" See type {type}.")
+                    .ToString());
+            }
+
             serializer = MediaTypeSerializerProxy.Wrap(serializer
                 .ThrowIfNullArgument(nameof(serializer)));
 
@@ -89,11 +197,6 @@ namespace Solitons
             {
                 metadata = new Metadata(type, serializer);
                 _metadata.Add(type.GUID, metadata);
-            }
-
-            if (isDefault)
-            {
-                metadata.DefaultSerializer = serializer;
             }
 
             metadata.SupportedContentTypes.Add(serializer.ContentType);
@@ -141,6 +244,15 @@ namespace Solitons
 
             return false;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="contentType"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public bool CanDeserialize(Type type, string contentType) => CanDeserialize(type.GUID, contentType);
 
         /// <summary>
         /// 
@@ -271,6 +383,47 @@ namespace Solitons
             }
 
             throw new ArgumentOutOfRangeException($"'{typeId}' data contract type is not supported.", nameof(typeId));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="writer"></param>
+        public void Pack(object dto, IDtoPackageWriter writer)
+        {
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
+            if (writer == null) throw new ArgumentNullException(nameof(writer));
+            var content = Serialize(dto, out var contentType).ToUtf8Bytes();
+            writer.SetContentType(contentType);
+            writer.SetTypeGuid(dto.GetType().GUID);
+            writer.SetContent(content);
+            writer.SetProperty("type", dto.GetType().Name);
+            writer.SetProperty("createdUtc", DateTime.UtcNow.ToString("O"));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public string Pack(object dto)
+        {
+            var writer = new BasicDtoPackage();
+            Pack(dto, writer);
+            return writer.ToString()!
+                .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="package"></param>
+        /// <returns></returns>
+        public object Unpack(string package)
+        {
+            var obj = BasicDtoPackage.Parse(package);
+            return Deserialize(obj.TypeId, obj.ContentType, obj.Content.ToUtf8String());
         }
 
         /// <summary>

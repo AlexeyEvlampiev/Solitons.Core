@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Solitons.Common;
+using Solitons.Data;
 
 namespace Solitons.Samples.Azure
 {

@@ -1,4 +1,4 @@
-﻿namespace Solitons
+﻿namespace Solitons.Data
 {
     /// <summary>
     /// Types of data transfer

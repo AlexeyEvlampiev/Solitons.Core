@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Solitons.Common;
 
-namespace Solitons
+namespace Solitons.Data
 {
     /// <summary>
     /// Represents a Content Type constraint serializer.

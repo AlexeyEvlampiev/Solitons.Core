@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using Solitons.Data;
+using Xunit;
 
 namespace Solitons
 {

@@ -1,12 +1,13 @@
 ﻿
 
+using Solitons.Data;
 using Solitons.Samples.Domain.Contracts;
 
 namespace Solitons.Samples.Domain
 {
     public sealed class SampleDataContractSerializer : DataContractSerializer
     {
-        public SampleDataContractSerializer()
+        public SampleDataContractSerializer() : base(DataContractSerializerBehaviour.Default)
         {
             Register(typeof(ImageGetRequest), IMediaTypeSerializer.BasicJsonSerializer);
             Register(typeof(ImageGetRequest), IMediaTypeSerializer.BasicXmlSerializer);

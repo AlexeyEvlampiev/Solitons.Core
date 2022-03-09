@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Solitons.Data;
 using Solitons.Diagnostics.Common;
 
 namespace Solitons.Diagnostics

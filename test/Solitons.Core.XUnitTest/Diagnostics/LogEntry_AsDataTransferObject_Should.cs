@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Solitons.Data;
 using Xunit;
 
 namespace Solitons.Diagnostics

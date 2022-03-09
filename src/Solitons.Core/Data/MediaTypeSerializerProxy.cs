@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Solitons
+namespace Solitons.Data
 {
     sealed class MediaTypeSerializerProxy : IMediaTypeSerializer
     {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Solitons
+namespace Solitons.Data
 {
     /// <summary>
     /// 
@@ -18,5 +18,6 @@ namespace Solitons
         /// </summary>
         /// <param name="sender"></param>
         void OnSerialized(object sender);
+
     }
 }

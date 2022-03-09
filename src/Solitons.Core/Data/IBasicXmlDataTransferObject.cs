@@ -1,21 +1,19 @@
-﻿using Solitons.Common;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using Solitons.Common;
 
-namespace Solitons
+namespace Solitons.Data
 {
     /// <summary>
     /// A marker interface automatically adding the <see cref="ToXmlString"/> method to implementing types.
     /// </summary>
-    /// <remarks>
-    /// Implies an implicit <see cref="DataTransferObjectAttribute"/> declaration.
-    /// </remarks>
     /// <seealso cref="Parse{T}(string)"/>
     /// <seealso cref="Parse(string, Type)"/>
-    /// <seealso cref="DataTransferObjectAttribute"/>
     /// <seealso cref="BasicXmlDataTransferObject"/>
     /// <seealso cref="BasicXmlMediaTypeSerializer"/>
     public interface IBasicXmlDataTransferObject 
@@ -70,6 +68,19 @@ namespace Solitons
             if (obj is IDeserializationCallback callback)
                 callback.OnDeserialization(typeof(IBasicXmlDataTransferObject));
             return obj;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="behaviour"></param>
+        /// <param name="assemblies"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static DataContractSerializer BuildSerializer(DataContractSerializerBehaviour behaviour, IEnumerable<Assembly> assemblies)
+        {
+            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
+            return new BasicXmlDataContractSerializer(behaviour,assemblies);
         }
     }
 

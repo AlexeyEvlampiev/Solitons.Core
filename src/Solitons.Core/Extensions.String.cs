@@ -109,6 +109,7 @@ namespace Solitons
         /// <exception cref="System.ArgumentNullException">createException</exception>
         /// <exception cref="System.NullReferenceException"></exception>
         [DebuggerNonUserCode]
+        [return: NotNull]
         public static string ThrowIfNullOrWhiteSpace(this string self, Func<Exception> createException)
         {
             if (createException == null) throw new ArgumentNullException(nameof(createException));
@@ -127,6 +128,7 @@ namespace Solitons
         /// <param name="parameterName"></param>
         /// <param name="message"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]

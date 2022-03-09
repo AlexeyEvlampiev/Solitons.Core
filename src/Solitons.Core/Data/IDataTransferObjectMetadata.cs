@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Solitons
+namespace Solitons.Data
 {
     public interface IDataTransferObjectMetadata
     {
