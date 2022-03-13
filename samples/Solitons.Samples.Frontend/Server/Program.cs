@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Identity.Web;
 using Solitons;
+using Solitons.Data;
 using Solitons.Diagnostics;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
@@ -55,8 +56,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ISampleDbApi>(serviceProviders =>
 {
     var caller = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
-    var provider = new PgTransactionScriptProvider(caller, pgConnectionString);
-    var databaseApi = new SampleDbApi(provider);
+    IDatabaseRpcProvider provider = new PgDatabaseRpcProvider(caller, pgConnectionString);
+    var databaseApi = provider.Create<ISampleDbApi>();
     return databaseApi;
 });
 

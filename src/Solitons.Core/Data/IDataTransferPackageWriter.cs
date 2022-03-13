@@ -5,7 +5,7 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDtoPackageWriter
+    public interface IDataTransferPackageWriter
     {
         void SetContentType(string contentType);
         void SetTypeGuid(Guid guid);

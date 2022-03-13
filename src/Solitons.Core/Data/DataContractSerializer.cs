@@ -63,16 +63,16 @@ namespace Solitons.Data
         }
 
 
-        sealed class BasicDtoPackage : DtoPackageWriter, IDtoPackage
+        sealed class BasicDataTransferPackage : DataTransferPackageWriter, IDataTransferPackage
         {
             private readonly Dictionary<string, string> _data;
 
-            public BasicDtoPackage() 
+            public BasicDataTransferPackage() 
                 : this(new Dictionary<string, string>())
             {
             }
 
-            private BasicDtoPackage(Dictionary<string, string> data)
+            private BasicDataTransferPackage(Dictionary<string, string> data)
             {
                 _data = data;
             }
@@ -140,9 +140,9 @@ namespace Solitons.Data
             /// </summary>
             /// <param name="package"></param>
             /// <returns></returns>
-            public static BasicDtoPackage Parse(string package)
+            public static BasicDataTransferPackage Parse(string package)
             {
-                return new BasicDtoPackage(JsonSerializer
+                return new BasicDataTransferPackage(JsonSerializer
                     .Deserialize<Dictionary<string, string>>(package)
                     .ThrowIfNull(() => new InvalidOperationException()));
             }
@@ -390,7 +390,7 @@ namespace Solitons.Data
         /// </summary>
         /// <param name="dto"></param>
         /// <param name="writer"></param>
-        public void Pack(object dto, IDtoPackageWriter writer)
+        public void Pack(object dto, IDataTransferPackageWriter writer)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (writer == null) throw new ArgumentNullException(nameof(writer));
@@ -409,7 +409,7 @@ namespace Solitons.Data
         /// <returns></returns>
         public string Pack(object dto)
         {
-            var writer = new BasicDtoPackage();
+            var writer = new BasicDataTransferPackage();
             Pack(dto, writer);
             return writer.ToString()!
                 .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException());
@@ -422,7 +422,7 @@ namespace Solitons.Data
         /// <returns></returns>
         public object Unpack(string package)
         {
-            var obj = BasicDtoPackage.Parse(package);
+            var obj = BasicDataTransferPackage.Parse(package);
             return Deserialize(obj.TypeId, obj.ContentType, obj.Content.ToUtf8String());
         }
 

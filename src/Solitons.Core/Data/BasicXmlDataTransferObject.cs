@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Xml.Serialization;
 using Solitons.Common;
 
 namespace Solitons.Data
@@ -10,7 +12,7 @@ namespace Solitons.Data
     /// XML- first Data Transfer Object. When used as a base class, ensures that the overriden <see cref="object.ToString"/> returns objects xml representation.
     /// 
     /// </summary>
-    public abstract class BasicXmlDataTransferObject : SerializationCallback, IBasicXmlDataTransferObject
+    public abstract class BasicXmlDataTransferObject : SerializationCallback, IBasicXmlDataTransferObject, ICloneable
     {
         /// <summary>
         /// 
@@ -18,6 +20,21 @@ namespace Solitons.Data
         /// <returns></returns>
         [DebuggerStepThrough]
         public sealed override string ToString() => this.ToXmlString();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        protected BasicXmlDataTransferObject Clone()
+        {
+            var xml = ToString();
+            var serializer = new XmlSerializer(GetType());
+            return ((BasicXmlDataTransferObject)serializer.Deserialize(new StringReader(xml))!);
+        }
+
+        [DebuggerStepThrough]
+        object ICloneable.Clone() => Clone();
 
         /// <summary>
         /// 

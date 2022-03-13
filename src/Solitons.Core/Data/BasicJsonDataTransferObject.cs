@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.Json;
 using Solitons.Common;
 
 namespace Solitons.Data
@@ -11,7 +12,7 @@ namespace Solitons.Data
     /// JSON- first Data Transfer Object. When used as a base class, ensures that the overriden <see cref="object.ToString"/> returns the objects json representation.    
     /// </summary>
     /// <seealso cref="IBasicJsonDataTransferObject"/>
-    public abstract class BasicJsonDataTransferObject : SerializationCallback, IBasicJsonDataTransferObject
+    public abstract class BasicJsonDataTransferObject : SerializationCallback, IBasicJsonDataTransferObject, ICloneable
     {
         /// <summary>
         /// 
@@ -19,6 +20,17 @@ namespace Solitons.Data
         /// <returns></returns>
         [DebuggerNonUserCode]
         public sealed override string ToString() => this.ToJsonString();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        protected BasicJsonDataTransferObject Clone() => ((BasicJsonDataTransferObject)JsonSerializer.Deserialize(ToString(), GetType())!)!;
+
+        [DebuggerStepThrough]
+        object ICloneable.Clone() => Clone();
+
 
         /// <summary>
         /// 

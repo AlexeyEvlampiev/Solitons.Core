@@ -5,7 +5,7 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDtoPackage
+    public interface IDataTransferPackage
     {
         /// <summary>
         /// 

@@ -12,11 +12,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>AsyncLoggerExtensions.tt</DependentUpon>
     </None>
-    <None Include="SampleDbApi.generated.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SampleDbApi.tt</DependentUpon>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -27,10 +22,6 @@
     <None Update="AsyncLoggerExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AsyncLoggerExtensions.generated.cs</LastGenOutput>
-    </None>
-    <None Update="SampleDbApi.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SampleDbApi.generated.cs</LastGenOutput>
     </None>
     <None Update="SampleQueueApi.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -47,11 +38,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>AsyncLoggerExtensions.tt</DependentUpon>
-    </Compile>
-    <Compile Update="SampleDbApi.generated.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SampleDbApi.tt</DependentUpon>
     </Compile>
     <Compile Update="SampleQueueApi.generated.cs">
       <DesignTime>True</DesignTime>
