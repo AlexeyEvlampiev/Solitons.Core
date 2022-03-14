@@ -15,6 +15,7 @@ namespace Solitons.Data
     /// </summary>
     public abstract class DataContractSerializer
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly DataContractSerializerBehaviour _behaviour;
 
         #region Types
@@ -164,6 +165,7 @@ namespace Solitons.Data
         /// 
         /// </summary>
         /// <param name="behaviour"></param>
+        [DebuggerNonUserCode]
         protected DataContractSerializer(DataContractSerializerBehaviour behaviour)
         {
             _behaviour = behaviour;
@@ -178,7 +180,7 @@ namespace Solitons.Data
         protected void Register(Type type, IMediaTypeSerializer serializer)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
-            if (_behaviour.HasFlag(DataContractSerializerBehaviour.RequireCustomGuid) &&
+            if (_behaviour.HasFlag(DataContractSerializerBehaviour.RequireGuidAnnotation) &&
                 type.GetCustomAttribute(typeof(GuidAttribute)) is null)
             {
                 throw new InvalidOperationException(new StringBuilder($"{typeof(GuidAttribute)} annotation is missing.")

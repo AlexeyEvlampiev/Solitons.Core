@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Npgsql;
 using NpgsqlTypes;
 using Polly;
@@ -27,7 +26,7 @@ public class PgDatabaseRpcProvider : DatabaseRpcProvider
     }
 
 
-
+    protected override bool CanSerialize(Type type, string contentType) => _serializer.CanSerialize(type, contentType);
 
     protected override Task<string> InvokeAsync(DbCommandAttribute annotation, string payload, CancellationToken cancellation)
     {

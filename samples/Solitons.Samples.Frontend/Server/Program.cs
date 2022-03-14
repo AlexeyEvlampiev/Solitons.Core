@@ -57,7 +57,7 @@ builder.Services.AddTransient<ISampleDbApi>(serviceProviders =>
 {
     var caller = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
     IDatabaseRpcProvider provider = new PgDatabaseRpcProvider(caller, pgConnectionString);
-    var databaseApi = provider.Create<ISampleDbApi>();
+    var databaseApi = provider.CreateProxy<ISampleDbApi>();
     return databaseApi;
 });
 

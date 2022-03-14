@@ -36,6 +36,15 @@ namespace Solitons.Data.Common
         /// <returns></returns>
         protected abstract object Deserialize(string content, string contentType, Type type);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="contentType"></param>
+        /// <returns></returns>
+        protected abstract bool CanSerialize(Type type, string contentType);
+
+
         [DebuggerStepThrough]
         Task<string> IDatabaseRpcProvider.InvokeAsync(DbCommandAttribute annotation, string payload, CancellationToken cancellation)
         {
@@ -43,6 +52,13 @@ namespace Solitons.Data.Common
             payload = payload.ThrowIfNullOrWhiteSpaceArgument(nameof(payload));
             cancellation.ThrowIfCancellationRequested();
             return InvokeAsync(annotation, payload, cancellation);
+        }
+
+        [DebuggerStepThrough]
+        bool IDatabaseRpcProvider.CanSerialize(Type type, string contentType)
+        {
+            return false == contentType.IsNullOrWhiteSpace() && 
+                   CanSerialize(type, contentType);
         }
 
         [DebuggerStepThrough]

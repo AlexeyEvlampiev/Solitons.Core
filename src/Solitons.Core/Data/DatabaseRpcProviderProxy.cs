@@ -7,6 +7,7 @@ namespace Solitons.Data
 {
     sealed class DatabaseRpcProviderProxy : IDatabaseRpcProvider
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly IDatabaseRpcProvider _innerProvider;
 
         private DatabaseRpcProviderProxy(IDatabaseRpcProvider provider)
@@ -39,6 +40,11 @@ namespace Solitons.Data
         public object Deserialize(string content, string contentType, Type type)
         {
             return _innerProvider.Deserialize(content, contentType, type);
+        }
+
+        public bool CanSerialize(Type type, string contentType)
+        {
+            return _innerProvider.CanSerialize(type, contentType);
         }
 
         [DebuggerStepThrough]

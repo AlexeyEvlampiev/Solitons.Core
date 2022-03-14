@@ -40,10 +40,12 @@ namespace Solitons.Data
         public TimeSpan CommandTimeout { get;  }
 
         public string RequestContentType { get; init; } = "application/json";
+        public string ResponseContentType { get; init; } = "application/json";
 
         public Type RequestType { get; internal set; }
         public Type ResponseType { get; internal set; }
-        internal DbCommandRelay DbCommandRelay { get; set; }
+        internal Func<object[], object> InvocationCallback { get; set; }
         public IsolationLevel IsolationLevel { get; }
+        
     }
 }

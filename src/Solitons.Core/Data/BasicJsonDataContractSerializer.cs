@@ -14,7 +14,7 @@ namespace Solitons.Data
             var types = assemblies
                 .Distinct()
                 .SelectMany(a => a.GetTypes())
-                .Skip(t=> t.IsAbstract || t.IsInterface);
+                .Skip(t => t.IsAbstract || t.IsInterface);
 
             foreach (var type in types)
             {

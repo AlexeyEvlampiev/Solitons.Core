@@ -12,6 +12,9 @@ namespace Solitons.Samples.Domain
             Register(typeof(ImageGetRequest), IMediaTypeSerializer.BasicJsonSerializer);
             Register(typeof(ImageGetRequest), IMediaTypeSerializer.BasicXmlSerializer);
 
+            Register(typeof(ImageGetResponse), IMediaTypeSerializer.BasicJsonSerializer);
+            Register(typeof(ImageGetResponse), IMediaTypeSerializer.BasicXmlSerializer);
+
             Register(typeof(WeatherForecastRequest), IMediaTypeSerializer.BasicJsonSerializer);
             Register(typeof(WeatherForecastRequest), IMediaTypeSerializer.BasicXmlSerializer);
 

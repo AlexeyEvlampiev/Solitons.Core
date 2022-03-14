@@ -12,6 +12,7 @@ namespace Solitons.Data
         string Serialize(object request, string contentType);
 
         object Deserialize(string content, string contentType, Type type);
+        bool CanSerialize(Type type, string contentType);
     }
 
     public partial interface IDatabaseRpcProvider
@@ -22,7 +23,7 @@ namespace Solitons.Data
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public T Create<T>() where T : class
+        public T CreateProxy<T>() where T : class
         {
             return DatabaseRpcDispatchProxy<T>.Create(this);
         }
