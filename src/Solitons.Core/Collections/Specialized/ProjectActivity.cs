@@ -37,6 +37,10 @@ namespace Solitons.Collections.Specialized
         /// </summary>
         public int EffortInDays { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public ActivitySummary Summary => new(this);
 
         /// <summary>
         /// Activity critical path.
@@ -79,7 +83,7 @@ namespace Solitons.Collections.Specialized
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if(obj == null) return false;
             if(ReferenceEquals(this, obj)) return true;
@@ -87,5 +91,58 @@ namespace Solitons.Collections.Specialized
                 return Id.Equals(other.Id, StringComparison.OrdinalIgnoreCase);
             return false;
         }
+
+        #region Nested Types
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public sealed record ActivitySummary
+        {
+
+            private readonly ProjectActivity _activity;
+
+            internal ActivitySummary(ProjectActivity activity)
+            {
+                _activity = activity;
+                var startDate = activity.CriticalPath
+                    .SkipLast(1)
+                    .Sum(_ => _.EffortInDays);
+                var endDate = startDate + EffortInDays;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public string ActivityId => _activity.Id;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public int EffortInDays => _activity.EffortInDays;
+
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public int StartDate => _activity
+                .CriticalPath
+                .SkipLast(1)
+                .Sum(_ => _.EffortInDays);
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public int EndDate => StartDate + EffortInDays;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public IEnumerable<ActivitySummary> CriticalPath => _activity
+                .CriticalPath
+                .Select(a=> new ActivitySummary(a));
+        }
+
+        #endregion
     }
 }

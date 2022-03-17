@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Solitons.Collections.Specialized
 {
+    // ReSharper disable once InconsistentNaming
     public sealed  class ProjectActivityCollection_CriticalPath_Should
     {
         [Theory]
@@ -36,7 +37,6 @@ namespace Solitons.Collections.Specialized
             {
                 Assert.Equal(expectedPath[i], actualPath[i]);
             }
-
         }
     }
 }
