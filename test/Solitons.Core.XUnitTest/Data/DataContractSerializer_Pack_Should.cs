@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using Solitons.Data.Common;
+using Xunit;
 
 namespace Solitons.Data
 {
@@ -9,7 +10,12 @@ namespace Solitons.Data
         public void Pack()
         {
             var dto = new MyDto() { Text = "This is a test" };
-            var serializer = new MySerializer();
+            var serializer = IDataContractSerializer
+                .CreateBuilder()
+                .RequireCustomGuidAnnotation(false)
+                .Add(typeof(MyDto), IMediaTypeSerializer.BasicJsonSerializer)
+                .Build();
+
             var package = serializer.Pack(dto);
             var clone = (MyDto)serializer.Unpack(package);
             Assert.Equal(dto.Text, clone.Text);
@@ -20,12 +26,5 @@ namespace Solitons.Data
             public string Text { get; set; }
         }
 
-        public sealed class MySerializer : DataContractSerializer
-        {
-            public MySerializer() : base(DataContractSerializerBehaviour.Default)
-            {
-                Register(typeof(MyDto), IMediaTypeSerializer.BasicJsonSerializer);
-            }
-        }
     }
 }

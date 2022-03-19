@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
+﻿using System.Diagnostics;
 
 namespace Solitons.Data
 {
@@ -27,19 +24,6 @@ namespace Solitons.Data
         {
             return IBasicJsonDataTransferObject.Parse<T>(text
                 .ThrowIfNullOrWhiteSpaceArgument(nameof(text)));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="behaviour"></param>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static DataContractSerializer BuildSerializer(DataContractSerializerBehaviour behaviour, IEnumerable<Assembly> assemblies)
-        {
-            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
-            return new BasicJsonDataContractSerializer(behaviour,assemblies);
         }
     }
 }

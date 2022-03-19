@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Data.Common;
 using Xunit;
 
 namespace Solitons.Data
@@ -12,10 +13,10 @@ namespace Solitons.Data
         [Fact]
         public async Task CreateValidProxy()
         {
-            var serializer = DataContractSerializerBuilder
-                .Create(DataContractSerializerBehaviour.Default)
-                .With(typeof(Request), IMediaTypeSerializer.BasicJsonSerializer)
-                .With(typeof(Response), IMediaTypeSerializer.BasicJsonSerializer)
+            var serializer = DataContractSerializer
+                .CreateBuilder()
+                .Add(typeof(Request), IMediaTypeSerializer.BasicJsonSerializer)
+                .Add(typeof(Response), IMediaTypeSerializer.BasicJsonSerializer)
                 .Build();
 
             var target = TestDatabaseRpcProvider

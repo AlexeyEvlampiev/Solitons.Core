@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Solitons.Data;
+using Solitons.Data.Common;
 using Xunit;
 
 namespace Solitons

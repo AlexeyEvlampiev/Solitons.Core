@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Solitons.Common;
@@ -69,21 +67,11 @@ namespace Solitons.Data
                 callback.OnDeserialization(typeof(IBasicXmlDataTransferObject));
             return obj;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="behaviour"></param>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static DataContractSerializer BuildSerializer(DataContractSerializerBehaviour behaviour, IEnumerable<Assembly> assemblies)
-        {
-            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
-            return new BasicXmlDataContractSerializer(behaviour,assemblies);
-        }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public static partial class Extensions
     {
         /// <summary>

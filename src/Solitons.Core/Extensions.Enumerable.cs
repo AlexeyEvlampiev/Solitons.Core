@@ -272,6 +272,7 @@ namespace Solitons
         /// <returns>An <see cref="IEnumerable{T}"/> that contains all the elements from the input sequence that satisfy the condition.</returns>
         /// <exception cref="ArgumentNullException">self or predicate </exception>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> Skip<T>(this IEnumerable<T> self, Func<T, bool> predicate)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
@@ -284,9 +285,9 @@ namespace Solitons
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="self">The self.</param>
-        /// <param name="predicate">The predicate.</param>
         /// <returns></returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> SkipNulls<T>(this IEnumerable<T> self) =>
             self.Skip(_ => _ is null);
 

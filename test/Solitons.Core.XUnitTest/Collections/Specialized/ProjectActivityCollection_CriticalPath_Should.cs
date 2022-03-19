@@ -30,6 +30,7 @@ namespace Solitons.Collections.Specialized
 
             var actualPath = project
                 .CriticalPath
+                .Select(ca=> ca.Activity)
                 .ToList();
 
             Assert.Equal(expectedPath.Count, actualPath.Count);

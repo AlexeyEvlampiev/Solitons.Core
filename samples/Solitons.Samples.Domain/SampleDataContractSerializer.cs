@@ -1,6 +1,7 @@
 ﻿
 
 using Solitons.Data;
+using Solitons.Data.Common;
 using Solitons.Samples.Domain.Contracts;
 
 namespace Solitons.Samples.Domain

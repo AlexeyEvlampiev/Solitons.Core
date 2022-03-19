@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using Solitons.Common;
@@ -59,19 +57,6 @@ namespace Solitons.Data
             if (obj is IDeserializationCallback callback)
                 callback.OnDeserialization(null);
             return obj;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="behaviour"></param>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static DataContractSerializer BuildSerializer(DataContractSerializerBehaviour behaviour, IEnumerable<Assembly> assemblies)
-        {
-            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
-            return new BasicJsonDataContractSerializer(behaviour, assemblies);
         }
     }
 

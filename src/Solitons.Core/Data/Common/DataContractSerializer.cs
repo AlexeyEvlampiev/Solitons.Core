@@ -6,18 +6,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using Solitons.Data.Common;
 
-namespace Solitons.Data
+namespace Solitons.Data.Common
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class DataContractSerializer
+    public abstract class DataContractSerializer : IDataContractSerializer
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly DataContractSerializerBehaviour _behaviour;
-
         #region Types
 
         readonly struct SerializerKey
@@ -149,9 +145,33 @@ namespace Solitons.Data
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        [Flags]
+        protected enum DataContractSerializerBehaviour
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            Default = 0,
+
+            /// <summary>
+            /// 
+            /// </summary>
+            RequireGuidAnnotation = 1
+        }
+
+        /// <summary>
+        /// Serializer builder
+        /// </summary>
+
         #endregion
 
         #region Private Fields
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private DataContractSerializerBehaviour _behaviour;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<SerializerKey, SerializerValue> _serializers = new();
@@ -169,6 +189,29 @@ namespace Solitons.Data
         protected DataContractSerializer(DataContractSerializerBehaviour behaviour)
         {
             _behaviour = behaviour;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static IDataContractSerializerBuilder CreateBuilder() => new DataContractSerializerBuilder(false);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="switch"></param>
+        protected void RequireCustomGuidAnnotation(bool @switch)
+        {
+            if (@switch)
+            {
+                _behaviour |= DataContractSerializerBehaviour.RequireGuidAnnotation;
+            }
+            else
+            {
+                _behaviour &= ~DataContractSerializerBehaviour.RequireGuidAnnotation;
+            }
         }
 
         /// <summary>
@@ -315,16 +358,16 @@ namespace Solitons.Data
         /// 
         /// </summary>
         /// <param name="obj"></param>
-        /// <param name="defaultContentType"></param>
+        /// <param name="contentType"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public string Serialize(object obj, out string defaultContentType)
+        public string Serialize(object obj, out string contentType)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             if (_metadata.TryGetValue(obj.GetType().GUID, out var metadata))
             {
-                defaultContentType = metadata.DefaultSerializer.ContentType;
+                contentType = metadata.DefaultSerializer.ContentType;
                 return metadata.DefaultSerializer.Serialize(obj);
             }
 

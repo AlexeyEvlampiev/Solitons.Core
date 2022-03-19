@@ -37,26 +37,22 @@ namespace Solitons.Collections.Specialized
         /// </summary>
         public int EffortInDays { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public ActivitySummary Summary => new(this);
 
         /// <summary>
-        /// Activity critical path.
+        /// Gets the critical path to this activity.
         /// </summary>
         /// <returns></returns>
-        public Stack<ProjectActivity> CriticalPath
+        public Stack<CriticalPathActivity> CriticalPath
         {
             get
             {
-                var criticalPath = new Stack<ProjectActivity>();
+                var criticalPath = new Stack<CriticalPathActivity>();
 
-                criticalPath.Push(this);
+                criticalPath.Push(new CriticalPathActivity(this));
 
                 _dependencies
                     .Select(dependency => dependency.CriticalPath)
-                    .OrderByDescending(path => path.Sum(a => a.EffortInDays))
+                    .OrderByDescending(path => path.Max(a => a.EndDate))
                     .Take(1)
                     .SelectMany(p => p)
                     .Reverse()
@@ -97,12 +93,12 @@ namespace Solitons.Collections.Specialized
         /// <summary>
         /// 
         /// </summary>
-        public sealed record ActivitySummary
+        public sealed record CriticalPathActivity
         {
 
             private readonly ProjectActivity _activity;
 
-            internal ActivitySummary(ProjectActivity activity)
+            internal CriticalPathActivity(ProjectActivity activity)
             {
                 _activity = activity;
                 var startDate = activity.CriticalPath
@@ -138,9 +134,17 @@ namespace Solitons.Collections.Specialized
             /// <summary>
             /// 
             /// </summary>
-            public IEnumerable<ActivitySummary> CriticalPath => _activity
-                .CriticalPath
-                .Select(a=> new ActivitySummary(a));
+            public Stack<CriticalPathActivity> CriticalPath => _activity
+                .CriticalPath;
+
+            internal ProjectActivity Activity => _activity;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="cpa"></param>
+            /// <returns></returns>
+            public static explicit operator ProjectActivity? (CriticalPathActivity? cpa) => cpa?._activity;
         }
 
         #endregion
