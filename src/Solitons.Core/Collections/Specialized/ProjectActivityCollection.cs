@@ -26,12 +26,11 @@ namespace Solitons.Collections.Specialized
         /// Collections aggregate critical path.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ProjectActivity.CriticalPathActivity> CriticalPath => _project
-                .Select(activity => activity.CriticalPath)
-                .OrderByDescending(criticalPath => criticalPath.Max(a => a.EndDate))
-                .Take(1)
-                .SelectMany(path => path)
-                .OrderBy(a=> a.StartDate);
+        public IEnumerable<ProjectActivity> CriticalPath => _project
+            .Select(activity => activity.CriticalPath)
+            .OrderByDescending(criticalPath => criticalPath.Sum(a => a.EffortInDays))
+            .Take(1)
+            .SelectMany(path => path);
 
         /// <summary>
         /// 

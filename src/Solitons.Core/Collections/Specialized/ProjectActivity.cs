@@ -42,17 +42,17 @@ namespace Solitons.Collections.Specialized
         /// Gets the critical path to this activity.
         /// </summary>
         /// <returns></returns>
-        public Stack<CriticalPathActivity> CriticalPath
+        public Stack<ProjectActivity> CriticalPath
         {
             get
             {
-                var criticalPath = new Stack<CriticalPathActivity>();
+                var criticalPath = new Stack<ProjectActivity>();
 
-                criticalPath.Push(new CriticalPathActivity(this));
+                criticalPath.Push(this);
 
                 _dependencies
                     .Select(dependency => dependency.CriticalPath)
-                    .OrderByDescending(path => path.Max(a => a.EndDate))
+                    .OrderByDescending(path => path.Sum(a => a.EffortInDays))
                     .Take(1)
                     .SelectMany(p => p)
                     .Reverse()
@@ -87,66 +87,5 @@ namespace Solitons.Collections.Specialized
                 return Id.Equals(other.Id, StringComparison.OrdinalIgnoreCase);
             return false;
         }
-
-        #region Nested Types
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public sealed record CriticalPathActivity
-        {
-
-            private readonly ProjectActivity _activity;
-
-            internal CriticalPathActivity(ProjectActivity activity)
-            {
-                _activity = activity;
-                var startDate = activity.CriticalPath
-                    .SkipLast(1)
-                    .Sum(_ => _.EffortInDays);
-                var endDate = startDate + EffortInDays;
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ActivityId => _activity.Id;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public int EffortInDays => _activity.EffortInDays;
-
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public int StartDate => _activity
-                .CriticalPath
-                .SkipLast(1)
-                .Sum(_ => _.EffortInDays);
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public int EndDate => StartDate + EffortInDays;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public Stack<CriticalPathActivity> CriticalPath => _activity
-                .CriticalPath;
-
-            internal ProjectActivity Activity => _activity;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="cpa"></param>
-            /// <returns></returns>
-            public static explicit operator ProjectActivity? (CriticalPathActivity? cpa) => cpa?._activity;
-        }
-
-        #endregion
     }
 }
