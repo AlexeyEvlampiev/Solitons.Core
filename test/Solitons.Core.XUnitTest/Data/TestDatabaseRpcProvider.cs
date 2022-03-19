@@ -9,13 +9,13 @@ namespace Solitons.Data
     sealed class TestDatabaseRpcProvider : DatabaseRpcProvider
     {
         private readonly Callback _callback;
-        private readonly DataContractSerializer _serializer;
+        private readonly IDataContractSerializer _serializer;
 
         public delegate Task<string> Callback(DbCommandAttribute annotation, string payload, CancellationToken cancellation);
 
 
-        public static IDatabaseRpcProvider Create(Callback callback, DataContractSerializer serializer) => new TestDatabaseRpcProvider(callback, serializer);
-        private TestDatabaseRpcProvider(Callback callback, DataContractSerializer serializer)
+        public static IDatabaseRpcProvider Create(Callback callback, IDataContractSerializer serializer) => new TestDatabaseRpcProvider(callback, serializer);
+        private TestDatabaseRpcProvider(Callback callback, IDataContractSerializer serializer)
         {
             _callback = callback ?? throw new ArgumentNullException(nameof(callback));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));

@@ -142,7 +142,7 @@ namespace Solitons.Data.Common
         /// 
         /// </summary>
         /// <returns></returns>
-        public DataContractSerializer Build() => new Serializer(_registrations);
+        public IDataContractSerializer Build() => new Serializer(_registrations);
 
     }
 }

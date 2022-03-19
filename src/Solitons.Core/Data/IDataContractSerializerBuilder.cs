@@ -38,7 +38,7 @@ namespace Solitons.Data
         /// 
         /// </summary>
         /// <returns></returns>
-        DataContractSerializer Build();
+        IDataContractSerializer Build();
 
         /// <summary>
         /// 

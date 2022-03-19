@@ -9,28 +9,99 @@ namespace Solitons.Collections.Specialized
 {
     /// <summary>
     ///  A collection of interdependent <see cref="ProjectActivity"/> items sorted by the item's longest duration variant.
-    /// <para>Computed properties:</para>
-    /// <list type="bullet">
-    /// <item>
-    /// <see cref="CriticalPath"/>
-    /// </item>
-    /// </list>
     /// </summary>
     public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
     {
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly HashSet<ProjectActivity> _project = new();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public sealed class CriticalPathActivity
+        {
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            private readonly ProjectActivity _innerActivity;
+
+            internal CriticalPathActivity(ProjectActivity innerActivity, int startDate)
+            {
+                StartDate = startDate;
+                _innerActivity = innerActivity;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public string ActivityId => _innerActivity.Id;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public int EffortInDays => _innerActivity.EffortInDays;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public int StartDate { get; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public int EndDate => StartDate + _innerActivity.EffortInDays;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            public override int GetHashCode() => _innerActivity.GetHashCode();
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="obj"></param>
+            /// <returns></returns>
+            public override bool Equals(object? obj)
+            {
+                return ReferenceEquals(this, obj) 
+                       || (obj is CriticalPathActivity other && _innerActivity.Equals(other._innerActivity));
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="cpa"></param>
+            /// <returns></returns>
+            public static implicit operator ProjectActivity?(CriticalPathActivity? cpa) => cpa?._innerActivity;
+
+            internal static IEnumerable<CriticalPathActivity> BuildPath(IEnumerable<ProjectActivity> path)
+            {
+                var criticalPath = new List<CriticalPathActivity>();
+                var startDate = 0;
+                foreach (var activity in path)
+                {
+                    criticalPath.Add(new CriticalPathActivity(activity, startDate));
+                    startDate += activity.EffortInDays;
+                }
+                return criticalPath;
+            }
+   
+        };
 
         /// <summary>
         /// Collections aggregate critical path.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ProjectActivity> CriticalPath => _project
+        public IEnumerable<CriticalPathActivity> GetCriticalPath() => _project
             .Select(activity => activity.CriticalPath)
             .OrderByDescending(criticalPath => criticalPath.Sum(a => a.EffortInDays))
             .Take(1)
-            .SelectMany(path => path);
+            .SelectMany(CriticalPathActivity.BuildPath);
+
+        public static IEnumerable<CriticalPathActivity> GetCriticalPath(ProjectActivity activity)
+        {
+            if (activity == null) throw new ArgumentNullException(nameof(activity));
+            return CriticalPathActivity.BuildPath(activity.CriticalPath);
+        }
 
         /// <summary>
         /// 

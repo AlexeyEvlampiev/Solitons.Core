@@ -29,7 +29,7 @@ namespace Solitons.Collections.Specialized
                 .ToList();
 
             var actualPath = project
-                .CriticalPath
+                .GetCriticalPath()
                 .ToList();
 
             Assert.Equal(expectedPath.Count, actualPath.Count);
