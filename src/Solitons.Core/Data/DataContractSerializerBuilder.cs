@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Solitons.Data.Common
+namespace Solitons.Data
 {
     /// <summary>
     /// 
@@ -17,18 +17,6 @@ namespace Solitons.Data.Common
         private readonly HashSet<Registration> _cache = new();
         private readonly List<Registration> _registrations = new();
         sealed record Registration(Type DtoType, IMediaTypeSerializer Serializer);
-
-        sealed class Serializer : DataContractSerializer
-        {
-            public Serializer(IEnumerable<Registration> registrations) 
-                : base(DataContractSerializerBehaviour.Default)
-            {
-                foreach (var registration in registrations)
-                {
-                    Register(registration.DtoType, registration.Serializer);
-                }
-            }
-        }
 
         /// <summary>
         /// 
@@ -142,7 +130,16 @@ namespace Solitons.Data.Common
         /// 
         /// </summary>
         /// <returns></returns>
-        public IDataContractSerializer Build() => new Serializer(_registrations);
+        public IDataContractSerializer Build()
+        {
+            var serializer = new DataContractSerializer();
+            foreach (var registration in _registrations)
+            {
+                serializer.Register(registration.DtoType, registration.Serializer);
+            }
+
+            return serializer;
+        }
 
     }
 }

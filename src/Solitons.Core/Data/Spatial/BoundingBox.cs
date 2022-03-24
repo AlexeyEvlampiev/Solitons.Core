@@ -109,5 +109,12 @@ namespace Solitons.Data.Spatial
         /// 
         /// </summary>
         public float Ymax { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() =>
+            string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3}", Xmin, Ymin, Xmax, Ymax);
     }
 }

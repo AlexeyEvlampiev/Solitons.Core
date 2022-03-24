@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
+using Solitons.Data.Common;
 
-namespace Solitons.Data.Common
+namespace Solitons.Data
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class DataContractSerializer : IDataContractSerializer
+    sealed class DataContractSerializer : IDataContractSerializer
     {
         #region Types
 
@@ -171,9 +169,6 @@ namespace Solitons.Data.Common
         #region Private Fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private DataContractSerializerBehaviour _behaviour;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<SerializerKey, SerializerValue> _serializers = new();
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -181,15 +176,6 @@ namespace Solitons.Data.Common
 
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="behaviour"></param>
-        [DebuggerNonUserCode]
-        protected DataContractSerializer(DataContractSerializerBehaviour behaviour)
-        {
-            _behaviour = behaviour;
-        }
 
         /// <summary>
         /// 
@@ -198,21 +184,6 @@ namespace Solitons.Data.Common
         [DebuggerStepThrough]
         public static IDataContractSerializerBuilder CreateBuilder() => new DataContractSerializerBuilder(false);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="switch"></param>
-        protected void RequireCustomGuidAnnotation(bool @switch)
-        {
-            if (@switch)
-            {
-                _behaviour |= DataContractSerializerBehaviour.RequireGuidAnnotation;
-            }
-            else
-            {
-                _behaviour &= ~DataContractSerializerBehaviour.RequireGuidAnnotation;
-            }
-        }
 
         /// <summary>
         /// 
@@ -220,16 +191,9 @@ namespace Solitons.Data.Common
         /// <param name="type"></param>
         /// <param name="serializer"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected void Register(Type type, IMediaTypeSerializer serializer)
+        internal void Register(Type type, IMediaTypeSerializer serializer)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
-            if (_behaviour.HasFlag(DataContractSerializerBehaviour.RequireGuidAnnotation) &&
-                type.GetCustomAttribute(typeof(GuidAttribute)) is null)
-            {
-                throw new InvalidOperationException(new StringBuilder($"{typeof(GuidAttribute)} annotation is missing.")
-                    .Append($" See type {type}.")
-                    .ToString());
-            }
 
             serializer = MediaTypeSerializerProxy.Wrap(serializer
                 .ThrowIfNullArgument(nameof(serializer)));

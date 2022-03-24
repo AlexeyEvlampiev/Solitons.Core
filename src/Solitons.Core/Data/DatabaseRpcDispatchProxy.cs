@@ -115,10 +115,17 @@ namespace Solitons.Data
                 if (request == null) throw new ArgumentNullException(nameof(request));
                 cancellation.ThrowIfCancellationRequested();
 
-                var requestText = provider.Serialize(request, annotation.RequestContentType);
-                var responseText = await provider.InvokeAsync(annotation, requestText, cancellation);
-                var response = (T)provider.Deserialize(responseText, annotation.ResponseContentType, typeof(T));
-                return response;
+                try
+                {
+                    var requestText = provider.Serialize(request, annotation.RequestContentType);
+                    var responseText = await provider.InvokeAsync(annotation, requestText, cancellation);
+                    var response = (T)provider.Deserialize(responseText, annotation.ResponseContentType, typeof(T));
+                    return response;
+                }
+                catch (Exception e)
+                {
+                    throw new DatabaseRpcInvocationException(annotation, e);
+                }
             }
         }
     }

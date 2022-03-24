@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Solitons.Data.Common;
 
 namespace Solitons.Data
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IDataContractSerializerBuilder
+    public partial interface IDataContractSerializerBuilder
     {
         /// <summary>
         /// 
@@ -40,6 +39,27 @@ namespace Solitons.Data
         /// <returns></returns>
         IDataContractSerializer Build();
 
+        
+    }
+
+    public partial interface IDataContractSerializerBuilder
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dtoType"></param>
+        /// <param name="mediaTypeSerializers"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerStepThrough]
+        IDataContractSerializerBuilder Add(Type dtoType, params IMediaTypeSerializer[] mediaTypeSerializers)
+        {
+            if (dtoType == null) throw new ArgumentNullException(nameof(dtoType));
+            if (mediaTypeSerializers == null) throw new ArgumentNullException(nameof(mediaTypeSerializers));
+            Array.ForEach(mediaTypeSerializers, mts=> Add(dtoType, mts));
+            return this;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -54,5 +74,6 @@ namespace Solitons.Data
             if (mediaTypeSelector == null) throw new ArgumentNullException(nameof(mediaTypeSelector));
             return AddAssemblyTypes(new Assembly[] { assembly }, mediaTypeSelector);
         }
+
     }
 }

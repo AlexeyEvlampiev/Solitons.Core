@@ -15,6 +15,13 @@ namespace Solitons.Data.Spatial
             Assert.Equal(ymin, boundingBox.Ymin);
             Assert.Equal(xmax, boundingBox.Xmax);
             Assert.Equal(ymax, boundingBox.Ymax);
+
+            var cloneCsv = boundingBox.ToString();
+            Assert.True(BoundingBox.TryParseCsv(cloneCsv, out boundingBox));
+            Assert.Equal(xmin, boundingBox.Xmin);
+            Assert.Equal(ymin, boundingBox.Ymin);
+            Assert.Equal(xmax, boundingBox.Xmax);
+            Assert.Equal(ymax, boundingBox.Ymax);
         }
     }
 }

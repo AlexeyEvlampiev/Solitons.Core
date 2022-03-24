@@ -177,12 +177,11 @@ namespace Solitons
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">defaultValue</exception>
         [return: NotNull]
-        public static string DefaultIfNullOrWhiteSpace(this string self, string defaultValue)
+        public static string DefaultIfNullOrWhiteSpace(this string? self, string defaultValue)
         {
-            if (defaultValue == null) throw new ArgumentNullException(nameof(defaultValue));
             return self.IsNullOrWhiteSpace()
                 ? defaultValue
-                : self;
+                : self!;
         }
 
         /// <summary>

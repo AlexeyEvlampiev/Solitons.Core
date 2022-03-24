@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Solitons.Data;
-using Solitons.Data.Common;
 using Xunit;
 
 namespace Solitons
@@ -10,16 +8,38 @@ namespace Solitons
     // ReSharper disable once InconsistentNaming
     public class DataContractSerializer_Serialize_Should
     {
-        [Theory]
-        [InlineData(typeof(JsonFirstTestSerialize), "application/json")]
-        [InlineData(typeof(XmlFirstTestSerialize), "application/xml")]
-        public void SupportHandleDefaultContentType(Type serializerType, string expectedDefaultContentType)
+        [Fact]
+        public void SupportJsonFirstSerialization()
         {
-            var target = (DataContractSerializer)Activator.CreateInstance(serializerType);
-            var content = target!.Serialize(new MyClass() { Text = "This is a test" }, out var actualContentType);
-            Assert.Equal(expectedDefaultContentType, actualContentType);
-            var clone = target.Deserialize<MyClass>(expectedDefaultContentType, content);
+            var target = IDataContractSerializer
+                .CreateBuilder()
+                .RequireCustomGuidAnnotation(false)
+                .Add(typeof(MyClass), 
+                    IMediaTypeSerializer.BasicJsonSerializer, 
+                    IMediaTypeSerializer.BasicXmlSerializer)
+                .Build();
+            var content = target.Serialize(new MyClass() { Text = "This is a test" }, out var actualContentType);
+            Assert.Equal("application/json", actualContentType);
+            var clone = target.Deserialize<MyClass>("application/json", content);
             Assert.Equal("This is a test", clone.Text);
+            Assert.True(target.CanSerialize(typeof(MyClass), "application/xml"));
+        }
+
+        [Fact]
+        public void SupportXmlFirstSerialization()
+        {
+            var target = IDataContractSerializer
+                .CreateBuilder()
+                .RequireCustomGuidAnnotation(false)
+                .Add(typeof(MyClass),
+                    IMediaTypeSerializer.BasicXmlSerializer,
+                    IMediaTypeSerializer.BasicJsonSerializer)
+                .Build();
+            var content = target.Serialize(new MyClass() { Text = "This is a test" }, out var actualContentType);
+            Assert.Equal("application/xml", actualContentType);
+            var clone = target.Deserialize<MyClass>("application/xml", content);
+            Assert.Equal("This is a test", clone.Text);
+            Assert.True(target.CanSerialize(typeof(MyClass), "application/json"));
         }
 
         [XmlRoot("MyData")]
@@ -30,22 +50,5 @@ namespace Solitons
             public string Text { get; set; }
         }
 
-        public sealed class JsonFirstTestSerialize : DataContractSerializer
-        {
-            public JsonFirstTestSerialize() : base(DataContractSerializerBehaviour.Default)
-            {
-                Register(typeof(MyClass), IMediaTypeSerializer.BasicJsonSerializer);
-                Register(typeof(MyClass), IMediaTypeSerializer.BasicXmlSerializer);
-            }
-        }
-
-        public sealed class XmlFirstTestSerialize : DataContractSerializer
-        {
-            public XmlFirstTestSerialize() : base(DataContractSerializerBehaviour.Default)
-            {
-                Register(typeof(MyClass), IMediaTypeSerializer.BasicXmlSerializer);
-                Register(typeof(MyClass), IMediaTypeSerializer.BasicJsonSerializer);
-            }
-        }
     }
 }
