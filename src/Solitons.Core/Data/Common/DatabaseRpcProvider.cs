@@ -14,27 +14,8 @@ namespace Solitons.Data.Common
         /// 
         /// </summary>
         /// <param name="annotation"></param>
-        /// <param name="payload"></param>
-        /// <param name="cancellation"></param>
         /// <returns></returns>
-        protected abstract Task<string> InvokeAsync(DbCommandAttribute annotation, string payload, CancellationToken cancellation);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="contentType"></param>
-        /// <returns></returns>
-        protected abstract string Serialize(object request, string contentType);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="contentType"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        protected abstract object Deserialize(string content, string contentType, Type type);
+        protected abstract IRpcCommand BuildRpcCommand(DbCommandAttribute annotation);
 
         /// <summary>
         /// 
@@ -44,40 +25,96 @@ namespace Solitons.Data.Common
         /// <returns></returns>
         protected abstract bool CanSerialize(Type type, string contentType);
 
-
         [DebuggerStepThrough]
-        Task<string> IDatabaseRpcProvider.InvokeAsync(DbCommandAttribute annotation, string payload, CancellationToken cancellation)
+        async Task<object> IDatabaseRpcProvider.InvokeAsync(DbCommandAttribute annotation, object request, CancellationToken cancellation)
         {
             if (annotation == null) throw new ArgumentNullException(nameof(annotation));
-            payload = payload.ThrowIfNullOrWhiteSpaceArgument(nameof(payload));
+            request = request.ThrowIfNullArgument(nameof(request));
             cancellation.ThrowIfCancellationRequested();
-            return InvokeAsync(annotation, payload, cancellation);
+
+            var rpc = BuildRpcCommand(annotation);
+            return await rpc.InvokeAsync(request, cancellation);
         }
 
         [DebuggerStepThrough]
         bool IDatabaseRpcProvider.CanSerialize(Type type, string contentType)
         {
-            return false == contentType.IsNullOrWhiteSpace() && 
+            return false == contentType.IsNullOrWhiteSpace() &&
                    CanSerialize(type, contentType);
         }
 
-        [DebuggerStepThrough]
-        string IDatabaseRpcProvider.Serialize(object request, string contentType)
+        /// <summary>
+        /// 
+        /// </summary>
+        protected interface IRpcCommand
         {
-            if (request == null) throw new ArgumentNullException(nameof(request));
-            contentType = contentType
-                .ThrowIfNullOrWhiteSpaceArgument(nameof(contentType))
-                .Trim();
-            return Serialize(request, contentType);
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="request"></param>
+            /// <param name="cancellation"></param>
+            /// <returns></returns>
+            Task<object> InvokeAsync(object request, CancellationToken cancellation);
         }
 
-        [DebuggerStepThrough]
-        object IDatabaseRpcProvider.Deserialize(string content, string contentType, Type type)
+        /// <summary>
+        /// 
+        /// </summary>
+        protected abstract class RpcCommand : IRpcCommand
         {
-            content = content.ThrowIfNullOrWhiteSpaceArgument(nameof(content));
-            contentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType));
-            if (type == null) throw new ArgumentNullException(nameof(type));
-            return Deserialize(content, contentType, type) ?? throw new NullReferenceException($"{GetType()}.{nameof(Deserialize)} returned null.");
+            private readonly IDataContractSerializer _serializer;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="annotation"></param>
+            /// <param name="serializer"></param>
+            /// <exception cref="ArgumentNullException"></exception>
+            protected RpcCommand(DbCommandAttribute annotation, IDataContractSerializer serializer)
+            {
+                Annotation = annotation ?? throw new ArgumentNullException(nameof(annotation));
+                _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            protected DbCommandAttribute Annotation { get; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="request"></param>
+            /// <param name="cancellation"></param>
+            /// <returns></returns>
+            protected abstract Task<object> InvokeAsync(object request, CancellationToken cancellation);
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="request"></param>
+            /// <returns></returns>
+            protected string SerializeRequest(object request) =>
+                _serializer.Serialize(request, Annotation.RequestContentType);
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="response"></param>
+            /// <returns></returns>
+            protected object DeserializeResponse(string response) =>
+                _serializer.Deserialize(
+                    Annotation.ResponseType, 
+                    Annotation.ResponseContentType, 
+                    response);
+
+            [DebuggerStepThrough]
+            Task<object> IRpcCommand.InvokeAsync(object request, CancellationToken cancellation)
+            {
+                if (request == null) throw new ArgumentNullException(nameof(request));
+                cancellation.ThrowIfCancellationRequested();
+                return InvokeAsync(request, cancellation);
+            }
         }
     }
 }

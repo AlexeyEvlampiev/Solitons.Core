@@ -28,41 +28,47 @@ public class PgDatabaseRpcProvider : DatabaseRpcProvider
 
     protected override bool CanSerialize(Type type, string contentType) => _serializer.CanSerialize(type, contentType);
 
-    protected override Task<string> InvokeAsync(DbCommandAttribute annotation, string payload, CancellationToken cancellation)
-    {
-        return RetryPolicy.ExecuteAsync(InvokeDbCommandAsync);
 
-        async Task<string> InvokeDbCommandAsync()
+    protected override RpcCommand BuildRpcCommand(DbCommandAttribute annotation)
+    {
+        return new PgRpcCommand(annotation, _serializer, _connectionString);
+    }
+
+    sealed class PgRpcCommand : RpcCommand
+    {
+        private readonly string _connectionString;
+
+        public PgRpcCommand(
+            DbCommandAttribute annotation,
+            IDataContractSerializer serializer,
+            string connectionString) : base(annotation, serializer)
         {
-            await using var connection = new NpgsqlConnection(_connectionString);
-            await using var command = new NpgsqlCommand($"SELECT api.{annotation.Procedure}(@request);", connection);
-            command.CommandTimeout = (int)annotation.CommandTimeout.TotalSeconds;
-
-            var requestType = annotation.RequestContentType switch
-            {
-                "application/json" => NpgsqlDbType.Jsonb,
-                "application/xml" => NpgsqlDbType.Xml,
-                _ => throw new NotImplementedException()
-            };
-            command.Parameters.AddWithValue("request", requestType, payload);
-            await connection.OpenAsync(cancellation);
-            await using var transaction = await connection.BeginTransactionAsync(annotation.IsolationLevel, cancellation);
-            var response = await command.ExecuteScalarAsync(cancellation) ?? throw new NullReferenceException();
-            await transaction.CommitAsync(CancellationToken.None);
-            await connection.CloseAsync();
-            return response.ToString()!;
+            _connectionString = connectionString;
         }
-    }
 
-
-    protected override object Deserialize(string content, string contentType, Type type)
-    {
-        return _serializer.Deserialize(type, contentType, content);
-    }
-
-
-    protected override string Serialize(object request, string contentType)
-    {
-        return _serializer.Serialize(request, contentType);
+        protected override Task<object> InvokeAsync(object request, CancellationToken cancellation)
+        {
+            return RetryPolicy.ExecuteAsync(async () =>
+            {
+                await using var connection = new NpgsqlConnection(_connectionString);
+                await using var command = new NpgsqlCommand($"SELECT api.{Annotation.Procedure}(@request);", connection);
+                command.CommandTimeout = (int)Annotation.CommandTimeout.TotalSeconds;
+                var requestType = Annotation.RequestContentType switch
+                {
+                    "application/json" => NpgsqlDbType.Jsonb,
+                    "application/xml" => NpgsqlDbType.Xml,
+                    _ => throw new NotImplementedException()
+                };
+                var payload = SerializeRequest(request);
+                command.Parameters.AddWithValue("request", requestType, payload);
+                await connection.OpenAsync(cancellation);
+                await using var transaction = await connection.BeginTransactionAsync(Annotation.IsolationLevel, cancellation);
+                var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
+                payload = dbResponse.ToString() ?? throw new NullReferenceException();
+                var response = DeserializeResponse(payload);
+                await transaction.CommitAsync(CancellationToken.None);
+                return response;
+            });
+        }
     }
 }

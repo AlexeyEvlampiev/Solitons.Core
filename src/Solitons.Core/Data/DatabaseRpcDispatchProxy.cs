@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Collections;
 using Solitons.Reflection;
 
 namespace Solitons.Data
@@ -28,8 +29,7 @@ namespace Solitons.Data
             return routes;
         }
 
-        private static Dictionary<MethodInfo, DbCommandAttribute> BuildAnnotationsTable(
-            Type interfaceType,
+        private static Dictionary<MethodInfo, DbCommandAttribute> BuildAnnotationsTable(Type interfaceType,
             IDatabaseRpcProvider provider)
         {
             var methods = interfaceType.GetMethods(BindingFlags.Instance | BindingFlags.Public);
@@ -80,8 +80,6 @@ namespace Solitons.Data
                         .ToString());
                 }
 
-
-
                 var callbackType = typeof(AsyncDatabaseCallback<>).MakeGenericType(responseType);
                 var invocationCallback = (InvocationCallback)Activator
                     .CreateInstance(callbackType)
@@ -117,10 +115,9 @@ namespace Solitons.Data
 
                 try
                 {
-                    var requestText = provider.Serialize(request, annotation.RequestContentType);
-                    var responseText = await provider.InvokeAsync(annotation, requestText, cancellation);
-                    var response = (T)provider.Deserialize(responseText, annotation.ResponseContentType, typeof(T));
-                    return response;
+
+                    var response = await provider.InvokeAsync(annotation, request, cancellation);
+                    return (T)response;
                 }
                 catch (Exception e)
                 {
@@ -181,5 +178,7 @@ namespace Solitons.Data
 
 
         public sealed override string ToString() => _provider?.ToString() ?? base.ToString()!;
+
+
     }
 }

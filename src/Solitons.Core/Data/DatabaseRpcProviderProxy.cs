@@ -24,23 +24,11 @@ namespace Solitons.Data
         }
 
         [DebuggerStepThrough]
-        public Task<string> InvokeAsync(DbCommandAttribute info, string payload, CancellationToken cancellation)
+        public Task<object> InvokeAsync(DbCommandAttribute info, object payload, CancellationToken cancellation)
         {
             return _innerProvider.InvokeAsync(info, payload, cancellation);
         }
 
-        [DebuggerStepThrough]
-        public string Serialize(object request, string contentType)
-        {
-            if (request == null) throw new ArgumentNullException(nameof(request));
-            return _innerProvider.Serialize(request, contentType);
-        }
-
-        [DebuggerStepThrough]
-        public object Deserialize(string content, string contentType, Type type)
-        {
-            return _innerProvider.Deserialize(content, contentType, type);
-        }
 
         public bool CanSerialize(Type type, string contentType)
         {

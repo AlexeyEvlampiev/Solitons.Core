@@ -36,11 +36,9 @@ namespace Solitons.Data
             Assert.Equal(typeof(Response), args.ResponseType);
 
             var request = JsonSerializer.Deserialize<Request>(payload);
-            Assert.Equal("This is a test request", request.Text);
-
-            var response = new Response() { Text = "This is a test response" };
-            var json = JsonSerializer.Serialize(response);
-            return Task.FromResult(json);
+            Assert.Equal("This is a test request", request!.Text);
+            var response = JsonSerializer.Serialize(new Response() { Text = "This is a test response" });
+            return Task.FromResult(response);
         }
 
         public interface ITestDatabaseApi

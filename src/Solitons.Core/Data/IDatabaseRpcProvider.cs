@@ -5,13 +5,16 @@ using System.Threading.Tasks;
 
 namespace Solitons.Data
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public partial interface IDatabaseRpcProvider
     {
-        Task<string> InvokeAsync(DbCommandAttribute annotation, string payload, CancellationToken cancellation);
+        Task<object> InvokeAsync(
+            DbCommandAttribute annotation, 
+            object payload, 
+            CancellationToken cancellation);
 
-        string Serialize(object request, string contentType);
-
-        object Deserialize(string content, string contentType, Type type);
         bool CanSerialize(Type type, string contentType);
     }
 

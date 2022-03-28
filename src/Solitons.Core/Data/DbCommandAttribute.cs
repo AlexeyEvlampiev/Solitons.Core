@@ -46,6 +46,5 @@ namespace Solitons.Data
         public Type ResponseType { get; internal set; }
         internal Func<object[], object> InvocationCallback { get; set; }
         public IsolationLevel IsolationLevel { get; }
-        
     }
 }

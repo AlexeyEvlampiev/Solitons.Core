@@ -13,6 +13,32 @@ namespace Solitons.Data
 
         public delegate Task<string> Callback(DbCommandAttribute annotation, string payload, CancellationToken cancellation);
 
+        [DebuggerNonUserCode]
+        protected override IRpcCommand BuildRpcCommand(DbCommandAttribute annotation) 
+            => new TestRpcCommand(annotation, _serializer, _callback);
+
+        sealed class TestRpcCommand : RpcCommand
+        {
+            private readonly IDataContractSerializer _serializer;
+            private readonly Callback _callback;
+
+            public TestRpcCommand(
+                DbCommandAttribute annotation, 
+                IDataContractSerializer serializer,
+                Callback callback) : base(annotation, serializer)
+            {
+                _serializer = serializer;
+                _callback = callback;
+            }
+
+            protected override async Task<object> InvokeAsync(object request, CancellationToken cancellation)
+            {
+                var payload = SerializeRequest(request);
+                payload = await _callback.Invoke(Annotation, payload, cancellation);
+                return DeserializeResponse(payload);
+            }
+
+        }
 
         public static IDatabaseRpcProvider Create(Callback callback, IDataContractSerializer serializer) => new TestDatabaseRpcProvider(callback, serializer);
         private TestDatabaseRpcProvider(Callback callback, IDataContractSerializer serializer)
@@ -21,22 +47,10 @@ namespace Solitons.Data
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        [DebuggerStepThrough]
-        protected override Task<string> InvokeAsync(DbCommandAttribute annotation, string payload,
-            CancellationToken cancellation) =>
-            _callback.Invoke(annotation, payload, cancellation);
+        
 
         [DebuggerStepThrough]
         protected override bool CanSerialize(Type type, string contentType) =>
             _serializer.CanSerialize(type, contentType);
-
-
-        [DebuggerStepThrough]
-        protected override string Serialize(object request, string contentType) =>
-            _serializer.Serialize(request, contentType);
-
-        [DebuggerStepThrough]
-        protected override object Deserialize(string content, string contentType, Type type)
-            => _serializer.Deserialize(type, contentType, content);
     }
 }
