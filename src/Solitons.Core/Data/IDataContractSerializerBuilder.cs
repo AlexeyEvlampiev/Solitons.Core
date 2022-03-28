@@ -71,7 +71,6 @@ namespace Solitons.Data
         public IDataContractSerializerBuilder AddAssemblyTypes(Assembly assembly, Func<Type, IEnumerable<IMediaTypeSerializer>>? mediaTypeSelector = null)
         {
             if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-            if (mediaTypeSelector == null) throw new ArgumentNullException(nameof(mediaTypeSelector));
             return AddAssemblyTypes(new Assembly[] { assembly }, mediaTypeSelector);
         }
 
