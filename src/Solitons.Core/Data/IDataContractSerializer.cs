@@ -146,4 +146,19 @@ public partial interface IDataContractSerializer
     /// <returns></returns>
     [DebuggerNonUserCode]
     public static IDataContractSerializerBuilder CreateBuilder() => new DataContractSerializerBuilder(true);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    [DebuggerStepThrough]
+    public string Pack(ICommandArgs args)
+    {
+        if (args == null) throw new ArgumentNullException(nameof(args));
+        var commandId = args.CommandId
+            .ThrowIfEmpty(()=> new ArgumentException(nameof(args), $"{nameof(args)}.{nameof(args.CommandId)} is empty."));
+        return Pack(args, commandId);
+    }
 }

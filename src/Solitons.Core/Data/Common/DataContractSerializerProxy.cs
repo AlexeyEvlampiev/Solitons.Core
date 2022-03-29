@@ -147,6 +147,15 @@ namespace Solitons.Data.Common
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerStepThrough]
+        public string Pack(ICommandArgs args) => _innerSerializer.Pack(args);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="package"></param>
         /// <param name="commandId"></param>
         /// <returns></returns>
