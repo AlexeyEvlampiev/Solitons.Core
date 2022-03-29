@@ -62,11 +62,13 @@ namespace Solitons.Data
         {
             private readonly Dictionary<string, string> _data;
 
+            [DebuggerNonUserCode]
             public BasicDataTransferPackage() 
                 : this(new Dictionary<string, string>())
             {
             }
 
+            [DebuggerNonUserCode]
             private BasicDataTransferPackage(Dictionary<string, string> data)
             {
                 _data = data;
@@ -82,6 +84,12 @@ namespace Solitons.Data
             {
                 get => _data.TryGetValue("sys.tid", out var value) ? Guid.TryParse(value, out var guid) ? guid : Guid.Empty : Guid.Empty;
                 set => _data["sys.tid"] = value.ThrowIfEmpty(()=> new InvalidOperationException("Type Id is required")).ToString("N");
+            }
+
+            public Guid CommandId
+            {
+                get => _data.TryGetValue("sys.cid", out var value) ? Guid.TryParse(value, out var guid) ? guid : Guid.Empty : Guid.Empty;
+                set => _data["sys.cid"] = value.ThrowIfEmpty(() => new InvalidOperationException("Type Id is required")).ToString("N");
             }
 
             public byte[] Content
@@ -106,6 +114,11 @@ namespace Solitons.Data
             protected override void SetContent(byte[] content)
             {
                 Content = content;
+            }
+
+            protected override void SetCommandId(Guid commandId)
+            {
+                CommandId = commandId;
             }
 
             protected override void SetContentType(string contentType)
@@ -398,8 +411,9 @@ namespace Solitons.Data
         /// 
         /// </summary>
         /// <param name="dto"></param>
+        /// <param name="commandId"></param>
         /// <param name="writer"></param>
-        public void Pack(object dto, IDataTransferPackageWriter writer)
+        public void Pack(object dto, Guid commandId, IDataTransferPackageWriter writer)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (writer == null) throw new ArgumentNullException(nameof(writer));
@@ -407,6 +421,7 @@ namespace Solitons.Data
             writer.SetContentType(contentType);
             writer.SetTypeGuid(dto.GetType().GUID);
             writer.SetContent(content);
+            writer.SetCommandId(commandId);
             writer.SetProperty("type", dto.GetType().Name);
             writer.SetProperty("createdUtc", DateTime.UtcNow.ToString("O"));
         }
@@ -415,11 +430,13 @@ namespace Solitons.Data
         /// 
         /// </summary>
         /// <param name="dto"></param>
+        /// <param name="commandId"></param>
         /// <returns></returns>
-        public string Pack(object dto)
+        [DebuggerStepThrough]
+        public string Pack(object dto, Guid commandId)
         {
             var writer = new BasicDataTransferPackage();
-            Pack(dto, writer);
+            Pack(dto, commandId, writer);
             return writer.ToString()!
                 .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException());
         }
@@ -428,10 +445,12 @@ namespace Solitons.Data
         /// 
         /// </summary>
         /// <param name="package"></param>
+        /// <param name="commandId"></param>
         /// <returns></returns>
-        public object Unpack(string package)
+        public object Unpack(string package, out Guid commandId)
         {
             var obj = BasicDataTransferPackage.Parse(package);
+            commandId = obj.CommandId;
             return Deserialize(obj.TypeId, obj.ContentType, obj.Content.ToUtf8String());
         }
 

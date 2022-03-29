@@ -25,13 +25,27 @@ namespace Solitons.Data.Common
         /// </summary>
         /// <param name="content"></param>
         protected abstract void SetContent(byte[] content);
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commandId"></param>
+        protected abstract void SetCommandId(Guid commandId);
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
         protected abstract void SetProperty(string key, string value);
+
+
+
+        void IDataTransferPackageWriter.SetCommandId(Guid commandId)
+        {
+            SetCommandId(commandId
+                .ThrowIfEmptyArgument(nameof(commandId)));
+        }
 
         [DebuggerStepThrough]
         void IDataTransferPackageWriter.SetContentType(string contentType)

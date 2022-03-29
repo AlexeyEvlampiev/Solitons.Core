@@ -20,6 +20,11 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
+        Guid CommandId { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         byte[] Content { get; }
 
         /// <summary>

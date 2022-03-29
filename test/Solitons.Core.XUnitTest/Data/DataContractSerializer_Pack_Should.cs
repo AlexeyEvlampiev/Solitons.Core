@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 
 namespace Solitons.Data
 {
@@ -14,10 +15,11 @@ namespace Solitons.Data
                 .RequireCustomGuidAnnotation(false)
                 .Add(typeof(MyDto), IMediaTypeSerializer.BasicJsonSerializer)
                 .Build();
-
-            var package = serializer.Pack(dto);
-            var clone = (MyDto)serializer.Unpack(package);
+            var expectedCommandId = Guid.Parse("4b957593-43b3-4c48-be57-fd8b079699b9");
+            var package = serializer.Pack(dto, expectedCommandId);
+            var clone = (MyDto)serializer.Unpack(package, out var actualCommandId);
             Assert.Equal(dto.Text, clone.Text);
+            Assert.Equal(expectedCommandId, actualCommandId);
         }
 
         public sealed class MyDto : BasicJsonDataTransferObject

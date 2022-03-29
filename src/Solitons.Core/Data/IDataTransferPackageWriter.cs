@@ -11,6 +11,8 @@ namespace Solitons.Data
         void SetTypeGuid(Guid guid);
         void SetContent(byte[] content);
 
+        void SetCommandId(Guid commandId);
+
         void SetProperty(string key, string value);
     }
 }

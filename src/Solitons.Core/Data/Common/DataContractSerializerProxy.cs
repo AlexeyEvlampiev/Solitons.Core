@@ -126,25 +126,32 @@ namespace Solitons.Data.Common
         /// 
         /// </summary>
         /// <param name="dto"></param>
+        /// <param name="commandId"></param>
         /// <param name="writer"></param>
         [DebuggerStepThrough]
-        public void Pack(object dto, IDataTransferPackageWriter writer) => _innerSerializer.Pack(dto, writer);
+        public void Pack(object dto, Guid commandId, IDataTransferPackageWriter writer)
+        {
+            _innerSerializer.Pack(dto, commandId, writer);
+        }
+
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="dto"></param>
+        /// <param name="commandId"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public string Pack(object dto) => _innerSerializer.Pack(dto);
+        public string Pack(object dto, Guid commandId) => _innerSerializer.Pack(dto, commandId);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="package"></param>
+        /// <param name="commandId"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public object Unpack(string package) => _innerSerializer.Unpack(package);
+        public object Unpack(string package, out Guid commandId) => _innerSerializer.Unpack(package, out commandId);
 
         /// <summary>
         /// 

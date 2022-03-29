@@ -111,22 +111,25 @@ public partial interface IDataContractSerializer
     /// 
     /// </summary>
     /// <param name="dto"></param>
+    /// <param name="commandId"></param>
     /// <param name="writer"></param>
-    void Pack(object dto, IDataTransferPackageWriter writer);
+    void Pack(object dto, Guid commandId, IDataTransferPackageWriter writer);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="dto"></param>
+    /// <param name="commandId"></param>
     /// <returns></returns>
-    string Pack(object dto);
+    string Pack(object dto, Guid commandId);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="package"></param>
+    /// <param name="commandId"></param>
     /// <returns></returns>
-    object Unpack(string package);
+    object Unpack(string package, out Guid commandId);
 
     /// <summary>
     /// 
