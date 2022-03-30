@@ -417,9 +417,11 @@ namespace Solitons.Data
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
             if (writer == null) throw new ArgumentNullException(nameof(writer));
-            var content = Serialize(dto, out var contentType).ToUtf8Bytes();
+
+            string contentType = "application/json";
+            var content = dto is EmptyCommandArgs ? Array.Empty<byte>() : Serialize(dto, out contentType).ToUtf8Bytes();
             writer.SetContentType(contentType);
-            writer.SetTypeGuid(dto.GetType().GUID);
+            writer.SetTypeId(dto.GetType().GUID);
             writer.SetContent(content);
             writer.SetCommandId(commandId);
             writer.SetProperty("type", dto.GetType().Name);
@@ -449,9 +451,14 @@ namespace Solitons.Data
         /// <returns></returns>
         public object Unpack(string package, out Guid commandId)
         {
-            var obj = BasicDataTransferPackage.Parse(package);
-            commandId = obj.CommandId;
-            return Deserialize(obj.TypeId, obj.ContentType, obj.Content.ToUtf8String());
+            var packageObj = BasicDataTransferPackage.Parse(package);
+            commandId = packageObj.CommandId;
+            if (packageObj.TypeId == typeof(EmptyCommandArgs).GUID)
+            {
+                return ICommandArgs.CreateEmpty(commandId);
+            }
+            var dto = Deserialize(packageObj.TypeId, packageObj.ContentType, packageObj.Content.ToUtf8String());
+            return dto;
         }
 
         /// <summary>

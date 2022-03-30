@@ -159,6 +159,10 @@ public partial interface IDataContractSerializer
         if (args == null) throw new ArgumentNullException(nameof(args));
         var commandId = args.CommandId
             .ThrowIfEmpty(()=> new ArgumentException(nameof(args), $"{nameof(args)}.{nameof(args.CommandId)} is empty."));
+        if (args.GetType() == typeof(CommandArgs))
+        {
+            return Pack(new object(), commandId);
+        }
         return Pack(args, commandId);
     }
 }

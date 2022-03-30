@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text.Json;
+using Solitons.Common;
 
-namespace Solitons.Common
+namespace Solitons.Data
 {
-    public sealed class BasicJsonMediaTypeSerializer : MediaTypeSerializer
+    sealed class BasicJsonMediaTypeSerializer : MediaTypeSerializer
     {
         public BasicJsonMediaTypeSerializer() : base("application/json")
         {
@@ -13,7 +14,7 @@ namespace Solitons.Common
         [DebuggerStepThrough]
         protected override string Serialize(object obj) => JsonSerializer.Serialize(obj);
 
-        protected override object Deserialize(string content, Type targetType) =>
+        protected override object? Deserialize(string content, Type targetType) =>
             JsonSerializer.Deserialize(content, targetType);
     }
 }

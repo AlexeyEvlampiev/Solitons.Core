@@ -55,7 +55,7 @@ namespace Solitons.Data.Common
         }
 
         [DebuggerStepThrough]
-        void IDataTransferPackageWriter.SetTypeGuid(Guid guid)
+        void IDataTransferPackageWriter.SetTypeId(Guid guid)
         {
             SetTypeGuid(guid
                 .ThrowIfEmptyArgument(nameof(guid)));

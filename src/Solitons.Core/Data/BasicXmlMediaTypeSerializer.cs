@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
+using Solitons.Common;
 
-namespace Solitons.Common
+namespace Solitons.Data
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class BasicXmlMediaTypeSerializer : MediaTypeSerializer
+    sealed class BasicXmlMediaTypeSerializer : MediaTypeSerializer
     {
         /// <summary>
         /// 
@@ -15,6 +16,7 @@ namespace Solitons.Common
         public BasicXmlMediaTypeSerializer() : base("application/xml")
         {
         }
+
         protected override string Serialize(object obj)
         {
             var serializer = new XmlSerializer(obj.GetType());
@@ -24,7 +26,8 @@ namespace Solitons.Common
             return writer.ToString();
         }
 
-        protected override object Deserialize(string content, Type targetType)
+
+        protected override object? Deserialize(string content, Type targetType)
         {
             var serializer = new XmlSerializer(targetType);
             using var reader = new StringReader(content);

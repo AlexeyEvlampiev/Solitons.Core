@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Text;
 using Solitons.Data;
 
 namespace Solitons.Common
@@ -37,7 +38,7 @@ namespace Solitons.Common
         /// <param name="content"></param>
         /// <param name="targetType"></param>
         /// <returns></returns>
-        protected abstract object Deserialize(string content, Type targetType);
+        protected abstract object? Deserialize(string content, Type targetType);
 
         [DebuggerStepThrough]
         string IMediaTypeSerializer.Serialize(object obj)
@@ -55,7 +56,10 @@ namespace Solitons.Common
         {
             var obj = Deserialize(
                 content.ThrowIfNullArgument(nameof(content)), 
-                targetType.ThrowIfNullArgument(nameof(targetType)));
+                targetType.ThrowIfNullArgument(nameof(targetType)))
+                .ThrowIfNull(()=> new InvalidOperationException(new StringBuilder($"Could not deserialize from the '{ContentType}' content.")
+                    .Append($" Target type: {targetType}")
+                    .ToString()));
             if(obj is IDeserializationCallback callback)
                 callback.OnDeserialization(this);
             return obj;

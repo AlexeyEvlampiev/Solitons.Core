@@ -8,7 +8,7 @@ namespace Solitons.Data
     public interface IDataTransferPackageWriter
     {
         void SetContentType(string contentType);
-        void SetTypeGuid(Guid guid);
+        void SetTypeId(Guid guid);
         void SetContent(byte[] content);
 
         void SetCommandId(Guid commandId);
