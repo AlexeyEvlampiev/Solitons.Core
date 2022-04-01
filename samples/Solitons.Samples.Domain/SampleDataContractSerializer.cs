@@ -7,12 +7,12 @@ namespace Solitons.Samples.Domain
 {
     public sealed class SampleDataContractSerializer : DataContractSerializerProxy
     {
-        public SampleDataContractSerializer() : base(IDataContractSerializer
+        public static readonly SampleDataContractSerializer Instance = new();
+        private SampleDataContractSerializer() : base(IDataContractSerializer
             .CreateBuilder()
             .AddAssemblyTypes(typeof(SampleDataContractSerializer).Assembly)
             .Build())
         {
-
         }
     }
 }

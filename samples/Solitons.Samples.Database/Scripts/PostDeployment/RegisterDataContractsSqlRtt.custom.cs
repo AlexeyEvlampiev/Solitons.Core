@@ -7,7 +7,7 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
         sealed record ContentTypeEntry(Guid TypeId, string ContentType, string Schema);
         public RegisterDataContractsSqlRtt()
         {
-            var serializer = new SampleDataContractSerializer();
+            var serializer = SampleDataContractSerializer.Instance;
                 
             DataContractTypes = serializer.GetSupportedTypes().ToList();
 

@@ -24,16 +24,17 @@ namespace Solitons.Data
         }
 
         [DebuggerStepThrough]
-        public Task<object> InvokeAsync(DbCommandAttribute info, object payload, CancellationToken cancellation)
+        public Task<object> InvokeAsync(
+            DbCommandAttribute annotation,
+            object payload,
+            IDataContractSerializer serializer,
+            Func<object, Task>? onResponse,
+            CancellationToken cancellation)
         {
-            return _innerProvider.InvokeAsync(info, payload, cancellation);
+            return _innerProvider.InvokeAsync(annotation, payload, serializer, onResponse, cancellation);
         }
 
 
-        public bool CanSerialize(Type type, string contentType)
-        {
-            return _innerProvider.CanSerialize(type, contentType);
-        }
 
         [DebuggerStepThrough]
         public override string ToString() => _innerProvider.ToString() ?? base.ToString()!;
@@ -43,5 +44,7 @@ namespace Solitons.Data
 
         [DebuggerStepThrough]
         public override int GetHashCode() => _innerProvider.GetHashCode();
+
+        
     }
 }

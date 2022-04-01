@@ -15,52 +15,45 @@ namespace Solitons.Data.Common
         /// </summary>
         /// <param name="annotation"></param>
         /// <returns></returns>
-        protected abstract IRpcCommand BuildRpcCommand(DbCommandAttribute annotation);
+        protected abstract IRpcHandler BuildRpcCommand(DbCommandAttribute annotation);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="contentType"></param>
-        /// <returns></returns>
-        protected abstract bool CanSerialize(Type type, string contentType);
 
         [DebuggerStepThrough]
-        async Task<object> IDatabaseRpcProvider.InvokeAsync(DbCommandAttribute annotation, object request, CancellationToken cancellation)
+        async Task<object> IDatabaseRpcProvider.InvokeAsync(
+            DbCommandAttribute annotation,
+            object request,
+            IDataContractSerializer serializer,
+            Func<object, Task>? onResponse,
+            CancellationToken cancellation)
         {
             if (annotation == null) throw new ArgumentNullException(nameof(annotation));
             request = request.ThrowIfNullArgument(nameof(request));
             cancellation.ThrowIfCancellationRequested();
 
             var rpc = BuildRpcCommand(annotation);
-            return await rpc.InvokeAsync(request, cancellation);
+            return await rpc.InvokeAsync(request, onResponse, cancellation);
         }
 
-        [DebuggerStepThrough]
-        bool IDatabaseRpcProvider.CanSerialize(Type type, string contentType)
-        {
-            return false == contentType.IsNullOrWhiteSpace() &&
-                   CanSerialize(type, contentType);
-        }
 
         /// <summary>
         /// 
         /// </summary>
-        protected interface IRpcCommand
+        protected interface IRpcHandler
         {
             /// <summary>
             /// 
             /// </summary>
             /// <param name="request"></param>
+            /// <param name="onResponse"></param>
             /// <param name="cancellation"></param>
             /// <returns></returns>
-            Task<object> InvokeAsync(object request, CancellationToken cancellation);
+            Task<object> InvokeAsync(object request, Func<object, Task>? onResponse, CancellationToken cancellation);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        protected abstract class RpcCommand : IRpcCommand
+        protected abstract class RpcHandler : IRpcHandler
         {
             private readonly IDataContractSerializer _serializer;
 
@@ -70,7 +63,7 @@ namespace Solitons.Data.Common
             /// <param name="annotation"></param>
             /// <param name="serializer"></param>
             /// <exception cref="ArgumentNullException"></exception>
-            protected RpcCommand(DbCommandAttribute annotation, IDataContractSerializer serializer)
+            protected RpcHandler(DbCommandAttribute annotation, IDataContractSerializer serializer)
             {
                 Annotation = annotation ?? throw new ArgumentNullException(nameof(annotation));
                 _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
@@ -85,9 +78,10 @@ namespace Solitons.Data.Common
             /// 
             /// </summary>
             /// <param name="request"></param>
+            /// <param name="onResponse"></param>
             /// <param name="cancellation"></param>
             /// <returns></returns>
-            protected abstract Task<object> InvokeAsync(object request, CancellationToken cancellation);
+            protected abstract Task<object> InvokeAsync(object request, Func<object, Task>? onResponse, CancellationToken cancellation);
 
             /// <summary>
             /// 
@@ -109,11 +103,11 @@ namespace Solitons.Data.Common
                     response);
 
             [DebuggerStepThrough]
-            Task<object> IRpcCommand.InvokeAsync(object request, CancellationToken cancellation)
+            Task<object> IRpcHandler.InvokeAsync(object request, Func<object, Task>? onResponse, CancellationToken cancellation)
             {
                 if (request == null) throw new ArgumentNullException(nameof(request));
                 cancellation.ThrowIfCancellationRequested();
-                return InvokeAsync(request, cancellation);
+                return InvokeAsync(request, onResponse, cancellation);
             }
         }
     }

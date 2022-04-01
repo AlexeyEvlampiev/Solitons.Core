@@ -17,7 +17,7 @@ namespace Solitons.Data
         /// <param name="procedure"></param>
         public DbCommandAttribute(string guid, string procedure)
         {
-            Oid = Guid
+            CommandId = Guid
                 .Parse(guid)
                 .ThrowIfEmptyArgument(nameof(guid));
             Procedure = procedure
@@ -30,7 +30,7 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
-        public Guid Oid { get; }
+        public Guid CommandId { get; }
 
         /// <summary>
         /// 

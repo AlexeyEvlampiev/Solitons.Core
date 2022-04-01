@@ -12,7 +12,7 @@ namespace Solitons.Samples.Azure;
 public class PgDatabaseRpcProvider : DatabaseRpcProvider
 {
     private readonly string _connectionString;
-    private readonly SampleDataContractSerializer _serializer = new();
+    private readonly IDataContractSerializer _serializer = SampleDataContractSerializer.Instance;
     private readonly ClaimsPrincipal _caller;
     private static readonly AsyncRetryPolicy RetryPolicy = Policy
         .Handle<NpgsqlException>(ex => ex.IsTransient)
@@ -26,19 +26,17 @@ public class PgDatabaseRpcProvider : DatabaseRpcProvider
     }
 
 
-    protected override bool CanSerialize(Type type, string contentType) => _serializer.CanSerialize(type, contentType);
 
-
-    protected override RpcCommand BuildRpcCommand(DbCommandAttribute annotation)
+    protected override RpcHandler BuildRpcCommand(DbCommandAttribute annotation)
     {
-        return new PgRpcCommand(annotation, _serializer, _connectionString);
+        return new PgRpcHandler(annotation, _serializer, _connectionString);
     }
 
-    sealed class PgRpcCommand : RpcCommand
+    sealed class PgRpcHandler : RpcHandler
     {
         private readonly string _connectionString;
 
-        public PgRpcCommand(
+        public PgRpcHandler(
             DbCommandAttribute annotation,
             IDataContractSerializer serializer,
             string connectionString) : base(annotation, serializer)
@@ -46,7 +44,11 @@ public class PgDatabaseRpcProvider : DatabaseRpcProvider
             _connectionString = connectionString;
         }
 
-        protected override Task<object> InvokeAsync(object request, CancellationToken cancellation)
+
+        protected override Task<object> InvokeAsync(
+            object request, 
+            Func<object, Task>? onResponse, 
+            CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
@@ -66,6 +68,10 @@ public class PgDatabaseRpcProvider : DatabaseRpcProvider
                 var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
                 payload = dbResponse.ToString() ?? throw new NullReferenceException();
                 var response = DeserializeResponse(payload);
+                if (onResponse != null)
+                {
+                    await onResponse(response);
+                }
                 await transaction.CommitAsync(CancellationToken.None);
                 return response;
             });

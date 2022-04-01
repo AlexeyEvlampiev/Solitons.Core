@@ -11,7 +11,7 @@ namespace Solitons.Data
         internal DatabaseRpcInvocationException(DbCommandAttribute annotation, Exception innerException) 
             : base(new StringBuilder("Database rpc invocation failed.")
                 .Append($" Failed stored procedure call: {annotation.Procedure}.")
-                .Append($" Command oid: {annotation.Oid}.")
+                .Append($" Command oid: {annotation.CommandId}.")
                 .Append($" Error: {innerException.Message}")
                 .ToString(), innerException)
         {
