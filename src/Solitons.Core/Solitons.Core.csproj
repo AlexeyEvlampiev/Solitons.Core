@@ -29,6 +29,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Blobs\Common\**" />
+    <EmbeddedResource Remove="Blobs\Common\**" />
+    <None Remove="Blobs\Common\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Reactive" Version="[5.0.0,)" />
   </ItemGroup>
 
@@ -151,10 +157,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>HttpRequestHeaders.generated.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Blobs\Common\" />
   </ItemGroup>
 
 </Project>

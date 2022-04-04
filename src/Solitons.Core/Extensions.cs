@@ -168,8 +168,6 @@ namespace Solitons
         [DebuggerStepThrough]
         public static void AsForegroundColor(this ConsoleColor self, Action callback)
         {
-            var foregroundColor = Console.ForegroundColor;
-
             try
             {
                 Console.ForegroundColor = self;
@@ -177,7 +175,7 @@ namespace Solitons
             }
             finally
             {
-                Console.ForegroundColor = foregroundColor;
+                Console.ResetColor();
             }
         }
 

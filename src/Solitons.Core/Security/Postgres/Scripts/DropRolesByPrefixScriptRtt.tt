@@ -9,7 +9,7 @@ DECLARE
     _role text;
 BEGIN
 FOR _role  IN
-    SELECT rolname FROM pg_catalog.pg_roles WHERE  rolname ~ '^<#= RolePrefix #>_'
+    SELECT rolname FROM pg_catalog.pg_roles WHERE  rolname ~ '^<#= RolePrefix #>'
 LOOP
     RAISE NOTICE 'DROP ROLE %', _role;
     EXECUTE 'DROP ROLE ' || _role;

@@ -28,8 +28,8 @@ namespace Solitons.Security.Postgres.Scripts
             this.Write("DO\r\n$$\r\nDECLARE\r\n    _role text;\r\nBEGIN\r\nFOR _role  IN\r\n    SELECT rolname FROM p" +
                     "g_catalog.pg_roles WHERE  rolname ~ \'^");
             this.Write(this.ToStringHelper.ToStringWithCulture(RolePrefix));
-            this.Write("_\'\r\nLOOP\r\n    RAISE NOTICE \'DROP ROLE %\', _role;\r\n    EXECUTE \'DROP ROLE \' || _ro" +
-                    "le;\r\nEND LOOP;\r\nEND;\r\n$$;");
+            this.Write("\'\r\nLOOP\r\n    RAISE NOTICE \'DROP ROLE %\', _role;\r\n    EXECUTE \'DROP ROLE \' || _rol" +
+                    "e;\r\nEND LOOP;\r\nEND;\r\n$$;");
             return this.GenerationEnvironment.ToString();
         }
     }

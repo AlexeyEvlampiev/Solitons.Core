@@ -29,8 +29,7 @@ namespace Solitons.Security.Postgres.Scripts
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName("admin")));
             this.Write("\') THEN\r\n\t\tALTER ROLE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName("admin")));
-            this.Write(" WITH\r\n\t\t\tLOGIN\r\n\t\t\tNOINHERIT\r\n\t\t\tNOSUPERUSER\r\n\t\t\tNOREPLICATION\r\n\t\t\tNOBYPASSRLS\r\n" +
-                    "\t\t\tCONNECTION LIMIT 10;\r\n\tELSE\r\n\t\tCREATE ROLE ");
+            this.Write(" WITH\r\n\t\t\tLOGIN\r\n\t\t\tNOINHERIT\t\t\r\n\t\t\tCONNECTION LIMIT 10;\r\n\tELSE\r\n\t\tCREATE ROLE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName("admin")));
             this.Write(" WITH\r\n\t\t\tLOGIN\r\n\t\t\tNOINHERIT\r\n\t\t\tNOSUPERUSER\r\n\t\t\tNOREPLICATION\r\n\t\t\tNOBYPASSRLS\r\n" +
                     "\t\t\tPASSWORD NULL\r\n\t\t\tCONNECTION LIMIT 10;\r\n\tEND IF;\r\n\r\n\tGRANT ");
@@ -42,8 +41,7 @@ namespace Solitons.Security.Postgres.Scripts
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));
             this.Write("\') THEN\r\n\t\tALTER ROLE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));
-            this.Write(" WITH\r\n\t\t\tLOGIN\r\n\t\t\tNOINHERIT\r\n\t\t\tNOSUPERUSER\r\n\t\t\tNOREPLICATION\r\n\t\t\tNOBYPASSRLS\r\n" +
-                    "\t\t\tCONNECTION LIMIT ");
+            this.Write(" WITH\r\n\t\t\tLOGIN\r\n\t\t\tNOINHERIT\r\n\t\t\tCONNECTION LIMIT ");
             this.Write(this.ToStringHelper.ToStringWithCulture(role.ConnectionLimit));
             this.Write(";\r\n\tELSE\r\n\t\tCREATE ROLE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));
@@ -63,8 +61,7 @@ namespace Solitons.Security.Postgres.Scripts
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));
             this.Write("\') THEN\r\n\t\tALTER ROLE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));
-            this.Write(" WITH\r\n\t\t\tNOLOGIN\r\n\t\t\tNOINHERIT\r\n\t\t\tNOSUPERUSER\r\n\t\t\tNOREPLICATION\r\n\t\t\tNOBYPASSRLS" +
-                    ";\r\n\tELSE\r\n\t\tCREATE ROLE ");
+            this.Write(" WITH\r\n\t\t\tNOLOGIN\r\n\t\t\tNOINHERIT;\r\n\tELSE\r\n\t\tCREATE ROLE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));
             this.Write(" WITH\r\n\t\t\tNOLOGIN\r\n\t\t\tNOINHERIT\r\n\t\t\tNOSUPERUSER\r\n\t\t\tNOREPLICATION\r\n\t\t\tNOBYPASSRLS" +
                     ";\r\n\tEND IF;\r\n\r\n\tGRANT ");

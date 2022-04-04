@@ -10,12 +10,17 @@ namespace Solitons
     /// </summary>
     public abstract class AsyncDisposable : IAsyncDisposable
     {
+        private int _disposed = 0;
+
         /// <summary>
         /// 
         /// </summary>
         public static IAsyncDisposable Empty => new AsyncDisposableNullObject();
 
-        private int _disposed = 0;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         protected  abstract ValueTask DisposeAsync();
 
         [DebuggerStepThrough]

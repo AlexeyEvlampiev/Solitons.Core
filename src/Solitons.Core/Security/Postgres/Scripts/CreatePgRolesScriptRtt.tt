@@ -9,10 +9,7 @@ BEGIN
 	IF EXISTS(SELECT 1 FROM pg_catalog.pg_roles WHERE  rolname = '<#= GetRoleFullName("admin") #>') THEN
 		ALTER ROLE <#= GetRoleFullName("admin")  #> WITH
 			LOGIN
-			NOINHERIT
-			NOSUPERUSER
-			NOREPLICATION
-			NOBYPASSRLS
+			NOINHERIT		
 			CONNECTION LIMIT 10;
 	ELSE
 		CREATE ROLE <#= GetRoleFullName("admin") #> WITH
@@ -39,9 +36,6 @@ BEGIN
 		ALTER ROLE <#= GetRoleFullName(role.Name) #> WITH
 			LOGIN
 			NOINHERIT
-			NOSUPERUSER
-			NOREPLICATION
-			NOBYPASSRLS
 			CONNECTION LIMIT <#= role.ConnectionLimit #>;
 	ELSE
 		CREATE ROLE <#= GetRoleFullName(role.Name) #> WITH
@@ -66,10 +60,7 @@ BEGIN
 	IF EXISTS(SELECT 1 FROM pg_catalog.pg_roles WHERE  rolname = '<#= GetRoleFullName(role.Name) #>') THEN
 		ALTER ROLE <#= GetRoleFullName(role.Name) #> WITH
 			NOLOGIN
-			NOINHERIT
-			NOSUPERUSER
-			NOREPLICATION
-			NOBYPASSRLS;
+			NOINHERIT;
 	ELSE
 		CREATE ROLE <#= GetRoleFullName(role.Name) #> WITH
 			NOLOGIN

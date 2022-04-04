@@ -25,7 +25,7 @@ namespace Solitons.Security.Postgres.Scripts
         /// </summary>
         public override string TransformText()
         {
-            this.Write("\r\nCREATE EXTENSION IF NOT EXISTS dblink SCHEMA public;\r\n");
+            this.Write("\r\n");
  if(DatabaseExists){ 
             this.Write(" \r\nALTER DATABASE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(DatabaseName));
