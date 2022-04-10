@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using Solitons.Collections;
 
@@ -148,22 +149,27 @@ namespace Solitons.Configuration
                 .Split(input, @";")
                 .Skip(string.IsNullOrWhiteSpace);
 
-            var equationRegex = new Regex(@"\s*(?:(?<lhs>\w+)\s*[=])?\s*(?<rhs>.+?)\s*$");
+            var equationRegex = new Regex(
+                @"\s*(?:(?<lhs>@key)\s*[=])?\s*(?<rhs>.+?)\s*$"
+                    .Replace("@key", @"[^\s=](?:\s*-?\s*[^\s=])*"));
             var position = 0;
             foreach (var equation in equations)
             {
                 var match = equationRegex.Match(equation);
                 //TODO: add exception message 
                 if (!match.Success) throw new FormatException();
-                var sides = Regex.Split(equation, @"(?=[=])(?<=^\s*\w+\s*)=");
                 var (lhs, rhs) = (match.Groups["lhs"].Value.Trim(), match.Groups["rhs"].Value);
                 var matchedItems = properties
                     .Where(p=> p.Setting.NameRegex.IsMatch(lhs))
                     .ToList();
                 if (matchedItems.Count > 1)
                 {
-                    //...
-                    throw new FormatException();
+                    var csv = matchedItems.Select(i => i.Setting.Name).Join(",");
+                    var message = new StringBuilder("Ambigous setting pattern declaration.")
+                        .Append($" The '{lhs}' setting is matched by multiple setting patterns.")
+                        .Append($" See settings {csv}.")
+                        .ToString();
+                    throw new FormatException(message);
                 }
                 if (lhs.IsNullOrWhiteSpace())
                 {

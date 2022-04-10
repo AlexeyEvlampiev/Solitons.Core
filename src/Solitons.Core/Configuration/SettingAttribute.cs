@@ -55,7 +55,18 @@ namespace Solitons.Configuration
         public string Pattern
         {
             get => NameRegex.ToString();
-            set => _nameRegex = value.IsNullOrWhiteSpace() ? null : new Regex(value.Trim());
+            set
+            {
+                if (value.IsNullOrWhiteSpace())
+                {
+                    _nameRegex = new Regex(Name);
+                }
+                else
+                {
+                    value = value.Trim();
+                    _nameRegex = new Regex($"^(?:{value})$");
+                }
+            }
         }
 
         /// <summary>
@@ -63,7 +74,7 @@ namespace Solitons.Configuration
         /// </summary>
         public bool IsRequired { get; set; } = true;
 
-        internal Regex NameRegex => _nameRegex ??= new Regex(Name);
+        internal Regex NameRegex => _nameRegex ?? new Regex(Name);
 
 
 
