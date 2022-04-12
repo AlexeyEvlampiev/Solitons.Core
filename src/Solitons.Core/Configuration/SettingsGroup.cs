@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Solitons.Collections;
+using Solitons.Common;
 
 namespace Solitons.Configuration
 {
@@ -77,7 +78,9 @@ namespace Solitons.Configuration
                 if (setting.IsRequired)
                 {
                     var value = property.GetValue(this);
-                    if (value is null)
+                    var isMissing = value is null;
+                    isMissing |= property.PropertyType == typeof(string) && string.IsNullOrWhiteSpace(value as string);
+                    if (isMissing)
                     {
                         throw new FormatException($"{property.Name} is required.");
                     }
@@ -268,7 +271,6 @@ namespace Solitons.Configuration
         public sealed override string ToString()
         {
             var items = _items.Value;
-
             var parts = new List<string>();
             foreach (var item in items)
             {

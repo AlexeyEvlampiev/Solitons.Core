@@ -11,13 +11,13 @@ namespace Solitons.Data
         /// 
         /// </summary>
         /// <param name="sender"></param>
-        void OnSerializing(object sender);
+        void OnSerializing(object? sender);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="sender"></param>
-        void OnSerialized(object sender);
+        void OnSerialized(object? sender);
 
     }
 }
