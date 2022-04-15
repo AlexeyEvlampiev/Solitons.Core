@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
 
-namespace Solitons.Security.Common
+namespace Solitons.Text.Json
 {
 
     // ReSharper disable once InconsistentNaming
-    public sealed class JsonToken_ToString_Should
+    public sealed class BasicJsonToken_ToString_Should
     {
         [Fact]
         public void Work()
@@ -20,7 +19,7 @@ namespace Solitons.Security.Common
             Assert.Equal(token, clone);
         }
 
-        public sealed class TestToken : JsonToken
+        public sealed class TestToken : BasicJsonToken
         {
             [JsonPropertyName("uuid")]
             public Guid Id { get; set; }

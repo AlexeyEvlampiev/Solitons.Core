@@ -3,33 +3,13 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
-namespace Solitons.Security.Common
+namespace Solitons.Text.Json
 {
     /// <summary>
     /// 
     /// </summary>
-    public abstract class JsonToken : IEquatable<JsonToken>
+    public abstract class BasicJsonToken : IEquatable<BasicJsonToken>
     {
-        private readonly IEncoder _encoder;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="encoder"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        protected JsonToken(IEncoder encoder)
-        {
-            _encoder = encoder ?? throw new ArgumentNullException(nameof(encoder));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        protected JsonToken() : this(new Utf8Encoder())
-        {
-            
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -38,7 +18,7 @@ namespace Solitons.Security.Common
         public sealed override string ToString()
         {
             var json = JsonSerializer.Serialize(this, GetType());
-            return _encoder.Encode(json).ToBase64String();
+            return json.ToBase64(Encoding.UTF8);
         }
 
         /// <summary>
@@ -46,21 +26,19 @@ namespace Solitons.Security.Common
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>
-        /// <param name="encoder"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="FormatException"></exception>
         [DebuggerStepThrough]
-        protected static T Parse<T>(string input, IEncoder? encoder = null) where T : JsonToken, new()
+        protected static T Parse<T>(string input) where T : BasicJsonToken, new()
         {
             input = input.ThrowIfNullOrWhiteSpaceArgument(nameof(input));
-            encoder ??= new Utf8Encoder();
-
+            
             var bytes = input
                 .ThrowIfNullOrWhiteSpaceArgument(nameof(input))
                 .AsBase64Bytes();
-            var json = encoder.Decode(bytes);
+            var json = bytes.ToUtf8String();
             return JsonSerializer.Deserialize<T>(json) 
                    ?? throw new FormatException();
         }
@@ -98,7 +76,7 @@ namespace Solitons.Security.Common
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(JsonToken? other)
+        public bool Equals(BasicJsonToken? other)
         {
             if (other is null) return false;
             if (other.GetType() != this.GetType()) return false;
@@ -115,7 +93,7 @@ namespace Solitons.Security.Common
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((JsonToken)obj);
+            return Equals((BasicJsonToken)obj);
         }
 
         /// <summary>
@@ -130,7 +108,7 @@ namespace Solitons.Security.Common
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static bool operator ==(JsonToken? left, JsonToken? right) => Equals(left, right);
+        public static bool operator ==(BasicJsonToken? left, BasicJsonToken? right) => Equals(left, right);
 
         /// <summary>
         /// 
@@ -138,12 +116,12 @@ namespace Solitons.Security.Common
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static bool operator !=(JsonToken? left, JsonToken? right) => !Equals(left, right);
+        public static bool operator !=(BasicJsonToken? left, BasicJsonToken? right) => !Equals(left, right);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="token"></param>
-        public static implicit operator string?(JsonToken? token) => token?.ToString();
+        public static implicit operator string?(BasicJsonToken? token) => token?.ToString();
     }
 }
