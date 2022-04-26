@@ -2,9 +2,8 @@
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
-using Solitons.Data;
 
-namespace Solitons.Common
+namespace Solitons.Data.Common
 {
     /// <summary>
     /// 
@@ -17,13 +16,13 @@ namespace Solitons.Common
         /// <param name="contentType"></param>
         protected MediaTypeSerializer(string contentType)
         {
-            ContentType = contentType;
+            TargetContentType = contentType;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public string ContentType { get; }
+        public string TargetContentType { get; }
 
         /// <summary>
         /// 
@@ -57,7 +56,7 @@ namespace Solitons.Common
             var obj = Deserialize(
                 content.ThrowIfNullArgument(nameof(content)), 
                 targetType.ThrowIfNullArgument(nameof(targetType)))
-                .ThrowIfNull(()=> new InvalidOperationException(new StringBuilder($"Could not deserialize from the '{ContentType}' content.")
+                .ThrowIfNull(()=> new InvalidOperationException(new StringBuilder($"Could not deserialize from the '{TargetContentType}' content.")
                     .Append($" Target type: {targetType}")
                     .ToString()));
             if(obj is IDeserializationCallback callback)

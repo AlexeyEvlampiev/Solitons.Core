@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
-using Solitons.Common;
+using Solitons.Data.Common;
 
 namespace Solitons.Data
 {

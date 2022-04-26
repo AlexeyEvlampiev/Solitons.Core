@@ -69,6 +69,20 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="self"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guid DefaultIfNullOrEmpty(this Guid? self, Guid defaultValue)
+        {
+            return self.GetValueOrDefault(Guid.Empty) == Guid.Empty
+                ? defaultValue
+                : self!.Value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="self"></param>
         /// <param name="createException"></param>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text.Json;
-using Solitons.Common;
+using Solitons.Data.Common;
 
 namespace Solitons.Data
 {

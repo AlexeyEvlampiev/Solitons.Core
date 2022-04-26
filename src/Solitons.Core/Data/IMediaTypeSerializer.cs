@@ -11,10 +11,10 @@ namespace Solitons.Data
         /// <summary>
         /// Gets the serializer constraint content type.
         /// </summary>
-        string ContentType { get; }
+        string TargetContentType { get; }
 
         /// <summary>
-        /// Returns a string representation of the specified object, encoded according to the declared content type specifications (see <see cref="ContentType"/>).
+        /// Returns a string representation of the specified object, encoded according to the declared content type specifications (see <see cref="TargetContentType"/>).
         /// </summary>
         /// <param name="obj">The object to be serialized</param>
         /// <returns></returns>

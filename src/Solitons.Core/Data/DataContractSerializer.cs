@@ -212,7 +212,7 @@ namespace Solitons.Data
                 .ThrowIfNullArgument(nameof(serializer)));
 
 
-            var key = new SerializerKey(type.GUID, serializer.ContentType);
+            var key = new SerializerKey(type.GUID, serializer.TargetContentType);
             var value = new SerializerValue(type, serializer);
             _serializers[key] = value;
             if (_metadata.TryGetValue(type.GUID, out var metadata) == false)
@@ -221,7 +221,7 @@ namespace Solitons.Data
                 _metadata.Add(type.GUID, metadata);
             }
 
-            metadata.SupportedContentTypes.Add(serializer.ContentType);
+            metadata.SupportedContentTypes.Add(serializer.TargetContentType);
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace Solitons.Data
         {
             if (_metadata.TryGetValue(type.GUID, out var metadata))
             {
-                contentType = metadata.DefaultSerializer.ContentType;
+                contentType = metadata.DefaultSerializer.TargetContentType;
                 return true;
             }
 
@@ -344,7 +344,7 @@ namespace Solitons.Data
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             if (_metadata.TryGetValue(obj.GetType().GUID, out var metadata))
             {
-                contentType = metadata.DefaultSerializer.ContentType;
+                contentType = metadata.DefaultSerializer.TargetContentType;
                 return metadata.DefaultSerializer.Serialize(obj);
             }
 

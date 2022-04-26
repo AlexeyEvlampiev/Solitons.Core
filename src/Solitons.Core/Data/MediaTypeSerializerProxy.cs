@@ -21,12 +21,12 @@ namespace Solitons.Data
                 : new MediaTypeSerializerProxy(innerSerialize);
         }
 
-        public string ContentType
+        public string TargetContentType
         {
             [DebuggerStepThrough]
             get => _innerSerializer
-                .ContentType
-                .ThrowIfNullOrWhiteSpace(() => new InvalidOperationException($"{_innerSerializer.GetType()}.{nameof(ContentType)} returned null or empty result."));
+                .TargetContentType
+                .ThrowIfNullOrWhiteSpace(() => new InvalidOperationException($"{_innerSerializer.GetType()}.{nameof(TargetContentType)} returned null or empty result."));
         }
 
         [DebuggerStepThrough]

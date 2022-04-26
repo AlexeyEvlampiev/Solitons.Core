@@ -89,14 +89,14 @@ namespace Solitons.Data
                 .ForEach(serializer => Add(type, serializer)));
 
             var registeredContentTypes = _registrations
-                .Select(r => KeyValuePair.Create(r.DtoType, r.Serializer.ContentType.ToUpper()))
+                .Select(r => KeyValuePair.Create(r.DtoType, r.Serializer.TargetContentType.ToUpper()))
                 .ToHashSet();
 
             types
                 .ForEach(type =>
                 {
-                    var jsonTypeRegistration = KeyValuePair.Create(type, IMediaTypeSerializer.BasicJsonSerializer.ContentType.ToUpper());
-                    var xmlTypeRegistration = KeyValuePair.Create(type, IMediaTypeSerializer.BasicXmlSerializer.ContentType.ToUpper());
+                    var jsonTypeRegistration = KeyValuePair.Create(type, IMediaTypeSerializer.BasicJsonSerializer.TargetContentType.ToUpper());
+                    var xmlTypeRegistration = KeyValuePair.Create(type, IMediaTypeSerializer.BasicXmlSerializer.TargetContentType.ToUpper());
 
                     if (false == registeredContentTypes.Contains(jsonTypeRegistration) && 
                         typeof(BasicJsonDataTransferObject).IsAssignableFrom(type) ||
