@@ -1,4 +1,6 @@
-﻿namespace Solitons.Collections
+﻿using System.Diagnostics;
+
+namespace Solitons.Collections
 {
     /// <summary>
     /// 
@@ -38,6 +40,7 @@
         /// <typeparam name="T"></typeparam>
         /// <param name="items"></param>
         /// <returns></returns>
+        [DebuggerNonUserCode]
         public static T[] Create<T>(params T[] items) => items;
     }
 }
