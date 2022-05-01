@@ -9,7 +9,7 @@ namespace Solitons.Caching.Common
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class ActiveETagCacheEntry<T> : ActiveCacheEntry<T> where T : class
+    public abstract class ETagManagedEntityCacheClient<T> : EntityCacheClient<T> where T : class
     {
         #region Private Fields
 
@@ -31,12 +31,12 @@ namespace Solitons.Caching.Common
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ageTolerance"></param>
+        /// <param name="maxEntityAge"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         [DebuggerStepThrough]
-        protected sealed override async Task<T?> GetAsync(TimeSpan ageTolerance, CancellationToken cancellation = default)
+        protected sealed override async Task<T?> GetAsync(TimeSpan maxEntityAge, CancellationToken cancellation = default)
         {
             State? stateCopy = null;
             lock (_syncRoot)
@@ -55,7 +55,7 @@ namespace Solitons.Caching.Common
                 }
             }
             
-            var creationTimeThreshold = DateTimeOffset.UtcNow - ageTolerance;
+            var creationTimeThreshold = DateTimeOffset.UtcNow - maxEntityAge;
             if (stateCopy.CreatedOn >= creationTimeThreshold)
             {
                 return stateCopy.Value;

@@ -12,7 +12,7 @@ namespace Solitons.Reactive
         [Fact]
         public async Task Work()
         {
-            IActiveCacheEntry<string> target = new TestActiveETagCacheEntry();
+            IEntityCacheClient<string> target = new TestEntityCacheClient();
 
             for(int i = 0; i < 10; ++i)
             {
@@ -21,7 +21,7 @@ namespace Solitons.Reactive
             }
         }
 
-        sealed class TestActiveETagCacheEntry : ActiveETagCacheEntry<string>
+        sealed class TestEntityCacheClient : ETagManagedEntityCacheClient<string>
         {
             protected override Task<State> GetIfNonMatchAsync(string? eTag, CancellationToken cancellation) => Task
                 .FromResult(new State("This is a test", "Some ETag"));

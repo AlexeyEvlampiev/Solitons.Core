@@ -9,28 +9,28 @@ namespace Solitons.Caching.Common
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class ActiveCacheEntry<T> : IActiveCacheEntry<T>
+    public abstract class EntityCacheClient<T> : IEntityCacheClient<T>
     {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ageTolerance"></param>
+        /// <param name="maxEntityAge"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        protected abstract Task<T?> GetAsync(TimeSpan ageTolerance, CancellationToken cancellation = default);
+        protected abstract Task<T?> GetAsync(TimeSpan maxEntityAge, CancellationToken cancellation = default);
 
         [DebuggerStepThrough]
-        Task<T?> IActiveCacheEntry<T>.GetAsync(CancellationToken cancellation)
+        Task<T?> IEntityCacheClient<T>.GetAsync(CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
             return GetAsync(TimeSpan.Zero, cancellation);
         }
 
         [DebuggerStepThrough]
-        Task<T?> IActiveCacheEntry<T>.GetAsync(TimeSpan ageTolerance, CancellationToken cancellation)
+        Task<T?> IEntityCacheClient<T>.GetAsync(TimeSpan maxEntityAge, CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
-            return GetAsync(ageTolerance, cancellation);
+            return GetAsync(maxEntityAge, cancellation);
         }
     }
 }

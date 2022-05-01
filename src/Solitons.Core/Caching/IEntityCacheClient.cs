@@ -8,7 +8,7 @@ namespace Solitons.Caching
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IActiveCacheEntry<T>
+    public interface IEntityCacheClient<T>
     {
         /// <summary>
         /// 
@@ -20,9 +20,9 @@ namespace Solitons.Caching
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ageTolerance"></param>
+        /// <param name="maxEntityAge"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task<T?> GetAsync(TimeSpan ageTolerance, CancellationToken cancellation = default);
+        Task<T?> GetAsync(TimeSpan maxEntityAge, CancellationToken cancellation = default);
     }
 }
