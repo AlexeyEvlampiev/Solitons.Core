@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Solitons.Data
+namespace Solitons.Data.Common
 {
     public interface IDbApiInfoSet
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        string ETag { get; }
+
         IEnumerable<Guid> GetCommandIds();
         Guid GetRequestContractId(Guid commandId);
         Guid GetResponseContractId(Guid commandId);

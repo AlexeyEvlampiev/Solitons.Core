@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
-namespace Solitons.Data
+namespace Solitons.Data.Common
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DatabaseApiInfo
+    public sealed class DatabaseApiInfo : IDatabaseApiInfo
     {
-        private readonly Dictionary<Guid, DatabaseApiCommandInfo?> _memberById = new();
+        private readonly Dictionary<Guid, IDatabaseApiCommandInfo?> _commandsById = new();
 
         /// <summary>
         /// 
@@ -19,25 +20,29 @@ namespace Solitons.Data
         public DatabaseApiInfo(IDbApiInfoSet set)
         {
             if (set == null) throw new ArgumentNullException(nameof(set));
+            ETag = set.ETag;
             var commandIds = set
                 .GetCommandIds()
                 .Select(id=> id.ThrowIfEmpty(()=> new InvalidOperationException($"Command ID is required")))
                 .ToHashSet();
             foreach (var id in commandIds)
             {
-                _memberById.Add(id, new DatabaseApiCommandInfo(id, set));
+                _commandsById.Add(id, new DatabaseApiCommandInfo(id, set));
             }
         }
+
+        public string ETag { get; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="member"></param>
+        /// <param name="command"></param>
         /// <returns></returns>
-        public bool TryGetCommandInfo(Guid id, out DatabaseApiCommandInfo? member)
+        [DebuggerNonUserCode]
+        bool IDatabaseApiInfo.TryGetCommandInfo(Guid id, out IDatabaseApiCommandInfo? command)
         {
-            return _memberById.TryGetValue(id, out member);
+            return _commandsById.TryGetValue(id, out command);
         }
     }
 }

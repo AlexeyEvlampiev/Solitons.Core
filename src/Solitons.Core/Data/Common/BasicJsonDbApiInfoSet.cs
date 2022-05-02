@@ -25,9 +25,10 @@ namespace Solitons.Data.Common
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             if (builder == null) throw new ArgumentNullException(nameof(builder));
-            _dataContractById = data.DataContracts.ToDictionary(dc => dc.Id);
-            _commandById = data.Commands.ToDictionary(c => c.Id);
-            var validationKeys = data.Commands.SelectMany(c => new[]
+            ETag = data.ETag;
+            _dataContractById = data.DataContracts;
+            _commandById = data.Commands;
+            var validationKeys = data.Commands.Values.SelectMany(c => new[]
             {
                 new SchemaValidationKey(c.Request.ContractId, c.Request.ContentType),
                 new SchemaValidationKey(c.Response.ContractId, c.Response.ContentType)
@@ -77,11 +78,13 @@ namespace Solitons.Data.Common
                 : throw new KeyNotFoundException($"Command info not found. Command ID: {commandId}");
         }
 
+        public string ETag { get; }
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Guid> GetCommandIds() => _dataContractById.Keys;
+        public IEnumerable<Guid> GetCommandIds() => _commandById.Keys;
 
         public Guid GetRequestContractId(Guid commandId) => GetCommand(commandId).Request.ContractId;
 
@@ -99,42 +102,71 @@ namespace Solitons.Data.Common
                 : throw new KeyNotFoundException($"Schema validator not found. Content type: \"{contentType}\", Contract ID: {contractId}");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public sealed class InfoSetData : BasicJsonDataTransferObject
         {
-            [JsonPropertyName("dataContracts")]
-            public DataContractData[] DataContracts { get; set; } = Array.Empty<DataContractData>();
+            /// <summary>
+            /// 
+            /// </summary>
+            [JsonPropertyName("dataContracts")] public Dictionary<Guid, DataContractData> DataContracts { get; set; } = new();
 
-            [JsonPropertyName("commands")]
-            public CommandData[] Commands { get; set; } = Array.Empty<CommandData>();
+            /// <summary>
+            /// 
+            /// </summary>
+            [JsonPropertyName("commands")] public Dictionary<Guid, CommandData> Commands { get; set; } = new();
+
+            /// <summary>
+            /// 
+            /// </summary>
+            [JsonPropertyName("eTag")] public string ETag { get; set; } = String.Empty;
         }
 
         public sealed class DataContractData
         {
 
             [JsonPropertyName("Id")]
-            public Guid Id { get; set; }
+            public string Id { get; set; }
 
-            [JsonPropertyName("schemaBase64")]
+            [JsonPropertyName("contentTypes")]
             public Dictionary<string, string> Base64SchemaByContentType { get; set; } = new ();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public sealed class CommandData
         {
-            [JsonPropertyName("Id")]
-            public Guid Id { get; set; }
+            /// <summary>
+            /// 
+            /// </summary>
+            [JsonPropertyName("procedure")] public string Procedure { get; set; } = String.Empty;
 
-            [JsonPropertyName("request")]
-            public CommandDataContractData Request { get; set; } = new CommandDataContractData();
+            /// <summary>
+            /// 
+            /// </summary>
+            [JsonPropertyName("scheduable")] public bool Scheduable { get; set; }
 
-            [JsonPropertyName("response")]
-            public CommandDataContractData Response { get; set; } = new CommandDataContractData();
+            [JsonPropertyName("request")] public CommandDataContractData Request { get; set; } = new();
+
+            [JsonPropertyName("response")] public CommandDataContractData Response { get; set; } = new();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public sealed class CommandDataContractData
         {
-            [JsonPropertyName("contractId")]
+            /// <summary>
+            /// 
+            /// </summary>
+            [JsonPropertyName("oid")]
             public Guid ContractId { get; set; }
 
+            /// <summary>
+            /// 
+            /// </summary>
             [JsonPropertyName("contentType")]
             public string ContentType { get; set; }
         }

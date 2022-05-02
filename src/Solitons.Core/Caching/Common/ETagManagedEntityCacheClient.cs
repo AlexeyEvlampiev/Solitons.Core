@@ -84,6 +84,7 @@ namespace Solitons.Caching.Common
             /// </summary>
             /// <param name="value"></param>
             /// <param name="eTag"></param>
+            [DebuggerNonUserCode]
             public State(T? value, string? eTag)
             {
                 Value = value;
@@ -91,6 +92,7 @@ namespace Solitons.Caching.Common
                 CreatedOn = DateTimeOffset.UtcNow;
             }
 
+            [DebuggerNonUserCode]
             private State(State other)
             {
                 Value = other.Value;
