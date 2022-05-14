@@ -17,6 +17,7 @@ namespace Solitons.Data.Common
         internal DatabaseApiCommandInfo(Guid commandId, IDbApiInfoSet infoSet)
         {
             CommandId = commandId.ThrowIfEmptyArgument(nameof(commandId));
+            Scheduable = infoSet.IsSchedulable(CommandId);
             Request = new DatabaseApiCommandDataContractInfo(
                 infoSet.GetRequestContractId(commandId),
                 infoSet.GetRequestContentType(commandId), 
@@ -32,6 +33,8 @@ namespace Solitons.Data.Common
         /// 
         /// </summary>
         public Guid CommandId { get; }
+
+        public bool Scheduable { get; }
 
         /// <summary>
         /// 

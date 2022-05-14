@@ -4,9 +4,15 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 
-<# if(DatabaseExists){ #> 
-ALTER DATABASE <#= DatabaseName #> OWNER TO <#= DatabaseAdmin #>;
 
-<# } else { #> 
-CREATE DATABASE <#= DatabaseName #> WITH OWNER <#= DatabaseAdmin #>;
-<# } #>  
+DO
+$$
+BEGIN
+   IF EXISTS (SELECT FROM pg_database WHERE datname = '<#= DatabaseName #>') THEN
+      ALTER DATABASE <#= DatabaseName #> OWNER TO <#= DatabaseAdmin #>;
+   ELSE
+      CREATE DATABASE <#= DatabaseName #> WITH OWNER <#= DatabaseAdmin #>;
+   END IF;
+END
+$$;
+

@@ -9,7 +9,7 @@ namespace Solitons.Caching.Common
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class EntityCacheClient<T> : IEntityCacheClient<T>
+    public abstract class ReadThroughCache<T> : IReadThroughCache<T> where T : class
     {
         /// <summary>
         /// 
@@ -20,17 +20,17 @@ namespace Solitons.Caching.Common
         protected abstract Task<T?> GetAsync(TimeSpan maxEntityAge, CancellationToken cancellation = default);
 
         [DebuggerStepThrough]
-        Task<T?> IEntityCacheClient<T>.GetAsync(CancellationToken cancellation)
+        Task<T?> IReadThroughCache<T>.ReadAsync(CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
             return GetAsync(TimeSpan.Zero, cancellation);
         }
 
         [DebuggerStepThrough]
-        Task<T?> IEntityCacheClient<T>.GetAsync(TimeSpan maxEntityAge, CancellationToken cancellation)
+        Task<T?> IReadThroughCache<T>.ReadAsync(TimeSpan maxTtl, CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
-            return GetAsync(maxEntityAge, cancellation);
+            return GetAsync(maxTtl, cancellation);
         }
     }
 }

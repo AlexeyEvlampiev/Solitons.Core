@@ -27,7 +27,7 @@ END;
 $$;
 
 
-<# foreach(var role in RolesWithLogin ){ #> 
+<# foreach(var role in LoginRoles ){ #> 
 
 DO
 $$
@@ -53,7 +53,7 @@ END;
 $$;
 <# } #> 
 
-<# foreach(var role in RouleGroups ){ #> 
+<# foreach(var role in GroupRoles ){ #> 
 DO
 $$
 BEGIN

@@ -9,7 +9,7 @@ namespace Solitons.Data.Common
     /// <summary>
     /// 
     /// </summary>
-    public abstract class DatabaseRpcClient : ETagManagedEntityCacheClient<IDatabaseApiInfo>, IDatabaseRpcClient
+    public abstract class DatabaseRpc : ReadThroughETagCache<IDatabaseApiInfo>, IDatabaseRpcClient
     {
         /// <summary>
         /// 
@@ -26,7 +26,26 @@ namespace Solitons.Data.Common
         /// <param name="content"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
+        protected abstract Task EnqueueAsync(IDatabaseApiCommandInfo command, string content, CancellationToken cancellation = default);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="content"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
         protected abstract Task<string> InvokeAsync(IDatabaseApiCommandInfo command, string content, CancellationToken cancellation);
+
+        [DebuggerStepThrough]
+        Task IDatabaseRpcClient.EnqueueAsync(IDatabaseApiCommandInfo command, string content, CancellationToken cancellation)
+        {
+            if (command == null) throw new ArgumentNullException(nameof(command));
+            if (content == null) throw new ArgumentNullException(nameof(content));
+            cancellation.ThrowIfCancellationRequested();
+            return EnqueueAsync(command, content, cancellation);
+        }
+
 
         [DebuggerStepThrough]
         async Task<IDatabaseApiInfo?> IDatabaseRpcClient.GetApiInfoAsync(string? eTag, CancellationToken cancellation)

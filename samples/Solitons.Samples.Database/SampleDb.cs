@@ -16,7 +16,7 @@ namespace Solitons.Samples.Database
     {
         public static void DeprovisionDatabase(IDbConnectionFactory connectionFactory, string databaseName)
         {
-            using var provider = new PgSecurityManagementProvider(connectionFactory);
+            var provider = new PgSecurityManagementProvider(connectionFactory);
             provider.DropRolesByPrefix($"{databaseName}_");
             provider.DropDatabase(databaseName);
         }
@@ -25,15 +25,9 @@ namespace Solitons.Samples.Database
             string databaseName,
             string? adminPassword = null)
         {
-            using var manager = new PgSecurityManagementProvider(connectionFactory);
+            var manager = new PgSecurityManagementProvider(connectionFactory);
             manager.ProvisionDatabase(databaseName,
-                roles => roles
-                    .WithLoginRole("public_api")
-                    .WithLoginRole("private_api")
-                    .WithGroupRole("prospect")
-                    .WithGroupRole("customer")
-                    .WithMembership("public_api", "prospect")
-                    .WithMembership("public_api", "customer"),
+                BuildRoles,
                 extensions=> extensions
                     .With("hstore")
                     .With("pgcrypto")
@@ -44,6 +38,15 @@ namespace Solitons.Samples.Database
             {
                 manager.ChangeRolePassword(databaseName, "admin", adminPassword);
             }
+        }
+
+        private static void BuildRoles(PgRolesBuilder roles)
+        {
+            var prospectRole = roles.AddGroupRole("prospect");
+            var customerRole = roles.AddGroupRole("customer");
+
+            roles.AddLoginRole("public_api", prospectRole, customerRole);
+            roles.AddLoginRole("private_api");
         }
 
 

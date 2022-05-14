@@ -9,7 +9,7 @@ namespace Solitons.Caching.Common
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class ETagManagedEntityCacheClient<T> : EntityCacheClient<T> where T : class
+    public abstract class ReadThroughETagCache<T> : ReadThroughCache<T> where T : class
     {
         #region Private Fields
 

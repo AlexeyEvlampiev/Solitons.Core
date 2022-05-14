@@ -25,21 +25,17 @@ namespace Solitons.Security.Postgres.Scripts
         /// </summary>
         public override string TransformText()
         {
-            this.Write("\r\n");
- if(DatabaseExists){ 
-            this.Write(" \r\nALTER DATABASE ");
+            this.Write("\r\n\r\nDO\r\n$$\r\nBEGIN\r\n   IF EXISTS (SELECT FROM pg_database WHERE datname = \'");
+            this.Write(this.ToStringHelper.ToStringWithCulture(DatabaseName));
+            this.Write("\') THEN\r\n      ALTER DATABASE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(DatabaseName));
             this.Write(" OWNER TO ");
             this.Write(this.ToStringHelper.ToStringWithCulture(DatabaseAdmin));
-            this.Write(";\r\n\r\n");
- } else { 
-            this.Write(" \r\nCREATE DATABASE ");
+            this.Write(";\r\n   ELSE\r\n      CREATE DATABASE ");
             this.Write(this.ToStringHelper.ToStringWithCulture(DatabaseName));
             this.Write(" WITH OWNER ");
             this.Write(this.ToStringHelper.ToStringWithCulture(DatabaseAdmin));
-            this.Write(";\r\n");
- } 
-            this.Write("  \r\n");
+            this.Write(";\r\n   END IF;\r\nEND\r\n$$;\r\n\r\n");
             return this.GenerationEnvironment.ToString();
         }
     }

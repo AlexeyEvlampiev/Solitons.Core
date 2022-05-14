@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Diagnostics;
 using Solitons.Data;
 using Solitons.Security.Postgres.Scripts;
@@ -9,22 +8,28 @@ namespace Solitons.Security.Postgres
     /// <summary>
     /// 
     /// </summary>
-    public sealed class PgSecurityManagementProvider : IDisposable
+    public sealed class PgSecurityManagementProvider
     {
         private readonly IDbConnectionFactory _connectionFactory;
-        private readonly IDbConnection _postgresDbConnection;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="connectionFactory"></param>
         [DebuggerNonUserCode]
         public PgSecurityManagementProvider(IDbConnectionFactory connectionFactory)
         {
-            connectionFactory.ThrowIfNullArgument(nameof(connectionFactory));
-            _connectionFactory = connectionFactory;
-            _postgresDbConnection = _connectionFactory.WithDatabase("postgres").CreateConnection();
-            _postgresDbConnection.Open();
+            _connectionFactory = connectionFactory
+                .ThrowIfNullArgument(nameof(connectionFactory))
+                .WithDatabase("postgres");
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public static bool IsValidPassword(string password)
         {
             if (password.IsNullOrWhiteSpace() || 
@@ -33,36 +38,83 @@ namespace Solitons.Security.Postgres
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="databaseName"></param>
+        /// <param name="roleName"></param>
+        /// <param name="newPassword"></param>
         public void ChangeRolePassword(string databaseName, string roleName, string newPassword)
         {
             roleName = GetRoleFullName(databaseName, roleName
                 .ThrowIfNullOrWhiteSpaceArgument(nameof(roleName)));
-            using var command = _postgresDbConnection.CreateCommand();
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            connection.Open();
             command.CommandText = $"ALTER ROLE {roleName} WITH PASSWORD '{newPassword}'";
             command.ExecuteNonQuery();
         }
 
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="databaseName"></param>
+        /// <param name="configRoles"></param>
+        /// <param name="configExtensions"></param>
+        /// <param name="namingRules"></param>
         public void ProvisionDatabase(
             string databaseName, 
-            Action<IPgRoleBuilder>? configRoles = null,
-            Action<IPgExtensionListBuilder>? configExtensions = null)
+            Action<PgRolesBuilder>? configRoles = null,
+            Action<IPgExtensionListBuilder>? configExtensions = null,
+            PgNamingRules? namingRules = null)
         {
-            var roles = new PgRoleBuilder();
+            namingRules ??= new PgNamingRules();
+            var roles = new PgRolesBuilder();
             var extensions = new PgExtensionListBuilder();
 
             configRoles?.Invoke(roles);
-            roles.Assert();
-
             configExtensions?.Invoke(extensions);
 
-            CreatePgRolesScriptRtt.Execute(_postgresDbConnection, databaseName, roles);
-            CreatePgDatabaseScriptRtt.Execute(_postgresDbConnection, databaseName);
+            var connection = _connectionFactory.CreateConnection();
+            var command = connection.CreateCommand();
 
-            using var dbConnection = _connectionFactory.WithDatabase(databaseName).CreateConnection();
-            dbConnection.Open();
-            CreateExtensionsScriptRtt.Execute(dbConnection, databaseName, extensions);
+            try
+            {
+                connection.Open();
+                command.CommandText = new CreatePgRolesScriptRtt(databaseName, roles, namingRules).ToString();
+                command.ExecuteNonQuery();
+
+                command.CommandText = $@"SELECT true FROM pg_database WHERE datname = '{databaseName}'";
+                bool databaseExists = true.Equals(command.ExecuteScalar());
+                if (false == databaseExists)
+                {
+                    command.CommandText = $@"CREATE DATABASE {databaseName} WITH OWNER {namingRules.BuildRoleFullName(databaseName,"admin")};";
+                    command.ExecuteNonQuery();
+                }
+
+                command.CommandText = new CreatePgDatabaseScriptRtt(databaseName, namingRules).ToString();
+                command.ExecuteNonQuery();
+                connection.Close();
+
+                connection.Dispose();
+                command.Dispose();
+
+                connection = _connectionFactory.WithDatabase(databaseName).CreateConnection();
+                command = connection.CreateCommand();
+                command.CommandText = new CreateExtensionsScriptRtt(databaseName, extensions, namingRules);
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+                connection.Dispose();
+                command.Dispose();
+            }
+            catch(Exception)
+            {
+                connection.Dispose();
+                command.Dispose();
+                throw;
+            }
         }
 
         /// <summary>
@@ -78,7 +130,12 @@ namespace Solitons.Security.Postgres
             {
                 throw new ArgumentException($"Specified roles cannot be deleted.");
             }
-            DropRolesByPrefixScriptRtt.Execute(_postgresDbConnection, prefix);
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            connection.Open();
+            command.CommandText = new DropRolesByPrefixScriptRtt(prefix).ToString();
+            command.ExecuteNonQuery();
         }
 
 
@@ -88,8 +145,21 @@ namespace Solitons.Security.Postgres
         /// <param name="databaseName"></param>
         public void DropDatabase(string databaseName)
         {
-            databaseName.ThrowIfNullOrWhiteSpaceArgument(nameof(databaseName));
-            DropDatabaseScriptRtt.Execute(_postgresDbConnection, databaseName);
+            databaseName = databaseName
+                .ThrowIfNullOrWhiteSpaceArgument(nameof(databaseName))
+                .Trim();
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = @$"
+                SELECT *, pg_terminate_backend(pid)
+                FROM pg_stat_activity 
+                WHERE pid <> pg_backend_pid()
+                AND datname = '{databaseName}';
+
+                DROP DATABASE IF EXISTS {databaseName};";
+            connection.Open();
+            command.ExecuteNonQuery();
         }
 
         private string GetRoleFullName(string databaseName, string roleName)
@@ -101,9 +171,5 @@ namespace Solitons.Security.Postgres
         }
 
 
-        void IDisposable.Dispose()
-        {
-            _postgresDbConnection.Dispose();
-        }
     }
 }

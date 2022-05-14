@@ -1,31 +1,20 @@
-﻿using System;
-using System.Data;
-
-namespace Solitons.Security.Postgres.Scripts
+﻿namespace Solitons.Security.Postgres.Scripts
 {
     public partial class CreatePgDatabaseScriptRtt
     {
-        private CreatePgDatabaseScriptRtt(string databaseName, bool exists)
+        private readonly PgNamingRules _namingRules;
+
+        internal CreatePgDatabaseScriptRtt(string databaseName, PgNamingRules namingRules)
         {
             DatabaseName = databaseName;
-            DatabaseExists = exists;
+            _namingRules = namingRules;
         }
 
-        public string DatabaseName { get; }
-        public bool DatabaseExists { get; }
-        public object DatabaseAdmin => $"{DatabaseName}_admin";
+        internal string DatabaseName { get; }
+
+        internal string DatabaseAdmin => _namingRules.BuildRoleFullName(DatabaseName, "admin");
 
 
-        public static bool Execute(IDbConnection connection, string databaseName)
-        {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-            if (databaseName == null) throw new ArgumentNullException(nameof(databaseName));
-            using var command = connection.CreateCommand();
-            command.CommandText = $"SELECT EXISTS(SELECT true FROM pg_database WHERE datname='{databaseName}');";
-            var exists = (command.ExecuteScalar() ?? false).Equals(true);
-            command.CommandText = new CreatePgDatabaseScriptRtt(databaseName, exists);
-            command.ExecuteNonQuery();
-            return (!exists);
-        }
+
     }
 }

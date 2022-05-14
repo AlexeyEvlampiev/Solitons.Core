@@ -7,40 +7,28 @@ namespace Solitons.Security.Postgres.Scripts
 {
     public partial class CreatePgRolesScriptRtt
     {
-        private readonly PgRoleBuilder _builder;
+        private readonly PgRolesBuilder _builder;
+        private readonly PgNamingRules _namingRules;
 
 
         [DebuggerNonUserCode]
-        private CreatePgRolesScriptRtt(string databaseName, PgRoleBuilder builder)
+        internal CreatePgRolesScriptRtt(string databaseName, PgRolesBuilder builder, PgNamingRules namingRules)
         {
             _builder = builder;
+            _namingRules = namingRules;
             DatabaseName = databaseName;
         }
 
-        public string DatabaseName { get; }
+        internal string DatabaseName { get; }
 
-        public string GetRoleFullName(string name) => $"{DatabaseName}_{name}";
+        internal string GetRoleFullName(string name) => _namingRules.BuildRoleFullName(DatabaseName, name);
 
-        internal IEnumerable<PgRoleBuilder.LoginRole> RolesWithLogin => _builder.LoginRoles;
+        internal IEnumerable<PgLoginRole> LoginRoles => _builder.LoginRoles;
 
-        internal IEnumerable<PgRoleBuilder.GroupRole> RouleGroups => _builder.GroupRoles;
+        internal IEnumerable<PgGroupRole> GroupRoles => _builder.GroupRoles;
 
 
-        internal static void Execute(IDbConnection connection, string databaseName, PgRoleBuilder roles)
-        {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-            if (databaseName == null) throw new ArgumentNullException(nameof(databaseName));
-            if (roles == null) throw new ArgumentNullException(nameof(roles));
-            roles.Assert();
 
- 
-
-            string rtt = new CreatePgRolesScriptRtt(databaseName, roles);
-            using var command = connection.CreateCommand();
-            command.CommandText = rtt;
-            command.ExecuteNonQuery();
-        }
-
-        private IEnumerable<PgRoleBuilder.LoginRole> GetLoginMembers(PgRoleBuilder.GroupRole groupRole) => _builder.GetLoginMembers(groupRole);
+        private IEnumerable<PgLoginRole> GetLoginMembers(PgGroupRole groupRole) => _builder.GetLoginMembers(groupRole);
     }
 }

@@ -6,39 +6,26 @@ namespace Solitons.Security.Postgres.Scripts
 {
     public partial class CreateExtensionsScriptRtt
     {
+        private readonly PgNamingRules _namingRules;
         private readonly PgExtensionListBuilder _extensions;
 
-        private CreateExtensionsScriptRtt(string databaseName, PgExtensionListBuilder extensions)
+        internal CreateExtensionsScriptRtt(string databaseName, PgExtensionListBuilder extensions, PgNamingRules namingRules)
         {
             DatabaseName = databaseName
                 .ThrowIfNullOrWhiteSpaceArgument(nameof(databaseName));
             _extensions = extensions.ThrowIfNullArgument(nameof(extensions));
+            _namingRules = namingRules.ThrowIfNullArgument(nameof(namingRules));
         }
 
 
         private string GetSchema(string extension) => _extensions.GetExtensionsSchema(extension);
 
-        public string DatabaseName { get; }
-        public IEnumerable<string> Schemas => _extensions.Schemas;
+        internal string DatabaseName { get; }
+        internal IEnumerable<string> Schemas => _extensions.Schemas;
 
-        public IEnumerable<string> Extensions => _extensions.Extensions;
+        internal IEnumerable<string> Extensions => _extensions.Extensions;
 
-        public string DbAdminRole => $"{DatabaseName}_admin";
-
-
-
-
-
-        internal static void Execute(IDbConnection connection, string databaseName, PgExtensionListBuilder extensions)
-        {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-            if (databaseName == null) throw new ArgumentNullException(nameof(databaseName));
-            if (extensions == null) throw new ArgumentNullException(nameof(extensions));
-            using var command = connection.CreateCommand();
-            command.CommandText = new CreateExtensionsScriptRtt(databaseName, extensions);
-            command.ExecuteNonQuery();
-        }
-
+        internal string DbAdminRole => _namingRules.BuildRoleFullName(DatabaseName, "admin");
 
     }
 }

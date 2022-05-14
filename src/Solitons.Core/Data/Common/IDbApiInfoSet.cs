@@ -16,5 +16,6 @@ namespace Solitons.Data.Common
         string GetRequestContentType(Guid commandId);
         string GetResponseContentType(Guid commandId);
         SchemaValidationCallback? GetSchemaValidationCallback(Guid contractId, string contentType);
+        bool IsSchedulable(Guid commandId);
     }
 }

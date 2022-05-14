@@ -27,6 +27,18 @@ namespace Solitons.Data
             IDatabaseApiCommandInfo command, 
             string content,
             CancellationToken cancellation = default);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="content"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        Task EnqueueAsync(
+            IDatabaseApiCommandInfo command,
+            string content,
+            CancellationToken cancellation = default);
     }
 
 }

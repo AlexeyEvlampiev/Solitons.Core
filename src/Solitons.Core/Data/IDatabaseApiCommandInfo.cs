@@ -16,6 +16,11 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
+        bool Scheduable { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         IDatabaseApiCommandDataContractInfo Request { get; }
 
         /// <summary>
@@ -23,5 +28,6 @@ namespace Solitons.Data
         /// </summary>
         IDatabaseApiCommandDataContractInfo Response { get; }
 
+        
     }
 }

@@ -35,7 +35,7 @@ namespace Solitons.Security.Postgres.Scripts
                     "\t\t\tPASSWORD NULL\r\n\t\t\tCONNECTION LIMIT 10;\r\n\tEND IF;\r\n\r\n\tGRANT ");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName("admin")));
             this.Write(" TO current_user;\r\nEND;\r\n$$;\r\n\r\n\r\n");
- foreach(var role in RolesWithLogin ){ 
+ foreach(var role in LoginRoles ){ 
             this.Write(" \r\n\r\nDO\r\n$$\r\nBEGIN\r\n\tIF EXISTS(SELECT 1 FROM pg_catalog.pg_roles WHERE  rolname =" +
                     " \'");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));
@@ -55,7 +55,7 @@ namespace Solitons.Security.Postgres.Scripts
             this.Write(";\r\nEND;\r\n$$;\r\n");
  } 
             this.Write(" \r\n\r\n");
- foreach(var role in RouleGroups ){ 
+ foreach(var role in GroupRoles ){ 
             this.Write(" \r\nDO\r\n$$\r\nBEGIN\r\n\tIF EXISTS(SELECT 1 FROM pg_catalog.pg_roles WHERE  rolname = \'" +
                     "");
             this.Write(this.ToStringHelper.ToStringWithCulture(GetRoleFullName(role.Name)));

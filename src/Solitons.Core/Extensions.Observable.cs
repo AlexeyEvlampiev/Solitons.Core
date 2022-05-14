@@ -23,7 +23,19 @@ namespace Solitons
             return self.Where(item => false == predicate.Invoke(item));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IObservable<T> SkipNulls<T>(this IObservable<T?> self) where T : class
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            return self.Skip(_ => _ is null)!;
+        }
 
-        
     }
 }

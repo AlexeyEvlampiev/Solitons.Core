@@ -105,6 +105,13 @@ namespace Solitons.Data.Common
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="commandId"></param>
+        /// <returns></returns>
+        public bool IsSchedulable(Guid commandId) => GetCommand(commandId).Schedulable;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public sealed class InfoSetData : BasicJsonDataTransferObject
         {
             /// <summary>
@@ -146,7 +153,7 @@ namespace Solitons.Data.Common
             /// <summary>
             /// 
             /// </summary>
-            [JsonPropertyName("scheduable")] public bool Scheduable { get; set; }
+            [JsonPropertyName("schedulable")] public bool Schedulable { get; set; }
 
             [JsonPropertyName("request")] public CommandDataContractData Request { get; set; } = new();
 
