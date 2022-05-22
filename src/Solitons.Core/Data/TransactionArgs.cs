@@ -6,13 +6,13 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public class CommandArgs : SerializationCallback, ICommandArgs
+    public class TransactionArgs : SerializationCallback, ITransactionArgs
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="commandId"></param>
-        protected CommandArgs(Guid commandId)
+        protected TransactionArgs(Guid commandId)
         {
             CommandId = commandId
                 .ThrowIfEmptyArgument(nameof(commandId));
@@ -23,6 +23,6 @@ namespace Solitons.Data
         /// </summary>
         protected Guid CommandId { get; }
 
-        Guid ICommandArgs.CommandId => CommandId;
+        Guid ITransactionArgs.TransactionTypeId => CommandId;
     }
 }

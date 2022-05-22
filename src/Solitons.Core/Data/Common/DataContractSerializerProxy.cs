@@ -122,27 +122,16 @@ namespace Solitons.Data.Common
         [DebuggerStepThrough]
         public object Deserialize(Guid typeId, string contentType, string content) => _innerSerializer.Deserialize(typeId, contentType, content);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="commandId"></param>
-        /// <param name="writer"></param>
-        [DebuggerStepThrough]
-        public void Pack(object dto, Guid commandId, IDataTransferPackageWriter writer)
+        public DataTransferPackage Pack(object dto)
         {
-            _innerSerializer.Pack(dto, commandId, writer);
+            return _innerSerializer.Pack(dto);
         }
 
+        public object Unpack(DataTransferPackage package)
+        {
+            return _innerSerializer.Unpack(package);
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="commandId"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public string Pack(object dto, Guid commandId) => _innerSerializer.Pack(dto, commandId);
 
         /// <summary>
         /// 
@@ -151,16 +140,8 @@ namespace Solitons.Data.Common
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public string Pack(ICommandArgs args) => _innerSerializer.Pack(args);
+        public string Pack(ITransactionArgs args) => _innerSerializer.Pack(args);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="commandId"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public object Unpack(string package, out Guid commandId) => _innerSerializer.Unpack(package, out commandId);
 
         /// <summary>
         /// 

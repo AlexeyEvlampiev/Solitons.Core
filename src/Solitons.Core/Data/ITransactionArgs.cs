@@ -5,25 +5,25 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface ICommandArgs
+    public interface ITransactionArgs
     {
         /// <summary>
         /// 
         /// </summary>
-        public Guid CommandId => GetType().GUID;
+        public Guid TransactionTypeId => GetType().GUID;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="commandId"></param>
         /// <returns></returns>
-        public static ICommandArgs CreateEmpty(Guid commandId) => new EmptyCommandArgs(commandId.ThrowIfEmptyArgument(nameof(commandId)));
+        public static ITransactionArgs CreateEmpty(Guid commandId) => new EmptyTransactionArgs(commandId.ThrowIfEmptyArgument(nameof(commandId)));
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="commandId"></param>
         /// <returns></returns>
-        public static ICommandArgs CreateEmpty(string commandId) => CreateEmpty(Guid.Parse(commandId.ThrowIfNullOrWhiteSpaceArgument(nameof(commandId))));
+        public static ITransactionArgs CreateEmpty(string commandId) => CreateEmpty(Guid.Parse(commandId.ThrowIfNullOrWhiteSpaceArgument(nameof(commandId))));
     }
 }

@@ -16,7 +16,6 @@ namespace Solitons.Data.Common
     {
         sealed record SchemaValidationKey(Guid DataContractId, string ContentType);
 
-        private readonly Dictionary<Guid, DataContractData> _dataContractById;
         private readonly Dictionary<Guid, CommandData> _commandById;
         private readonly Dictionary<SchemaValidationKey, SchemaValidationCallback?> _schemaValidationCallbackById;
 
@@ -26,7 +25,7 @@ namespace Solitons.Data.Common
             if (data == null) throw new ArgumentNullException(nameof(data));
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             ETag = data.ETag;
-            _dataContractById = data.DataContracts;
+            var dataContractById = data.DataContracts;
             _commandById = data.Commands;
             var validationKeys = data.Commands.Values.SelectMany(c => new[]
             {
@@ -38,7 +37,7 @@ namespace Solitons.Data.Common
                 key => key,
                 key =>
                 {
-                    if (_dataContractById.TryGetValue(key.DataContractId, out var contract))
+                    if (dataContractById.TryGetValue(key.DataContractId, out var contract))
                     {
                         if (contract.Base64SchemaByContentType.TryGetValue(key.ContentType, out var schema))
                         {

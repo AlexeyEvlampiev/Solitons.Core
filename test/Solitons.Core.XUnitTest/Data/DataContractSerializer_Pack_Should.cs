@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Moq;
 using Xunit;
 
 namespace Solitons.Data
@@ -10,48 +11,58 @@ namespace Solitons.Data
         [Fact]
         public void PackPlainDto()
         {
+            var clock = new Mock<IClock>();
+            clock
+                .Setup(i => i.UtcNow)
+                .Returns(DateTimeOffset.Parse("2022-01-01"));
+
             var dto = new MyDto() { Text = "This is a test" };
             var serializer = IDataContractSerializer
                 .CreateBuilder()
                 .RequireCustomGuidAnnotation(false)
                 .Add(typeof(MyDto), IMediaTypeSerializer.BasicJsonSerializer)
                 .Build();
-            var expectedCommandId = Guid.Parse("4b957593-43b3-4c48-be57-fd8b079699b9");
-            var package = serializer.Pack(dto, expectedCommandId);
-            var clone = (MyDto)serializer.Unpack(package, out var actualCommandId);
+
+            var expectedTransactionTypeId = Guid.Parse("4b957593-43b3-4c48-be57-fd8b079699b9");
+            
+
+            var package = serializer.Pack(dto);
+
+            package.TransactionTypeId = expectedTransactionTypeId;
+            package.TimeToLive = TimeSpan.FromMinutes(10);
+
+            var clone = (MyDto)serializer.Unpack(package);
             Assert.Equal(dto.Text, clone.Text);
-            Assert.Equal(expectedCommandId, actualCommandId);
+
         }
 
         [Fact]
         public void PackExplicitCommandArgs()
         {
-            var dto = new ExplicitCommandArgs() { Value = 321 };
+            var dto = new ExplicitTransactionArgs() { Value = 321 };
             var serializer = IDataContractSerializer
                 .CreateBuilder()
                 .RequireCustomGuidAnnotation(false)
-                .Add(typeof(ExplicitCommandArgs), IMediaTypeSerializer.BasicJsonSerializer)
+                .Add(typeof(ExplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer)
                 .Build();
-            var expectedCommandId = ((ICommandArgs)dto).CommandId;
+            var expectedCommandId = ((ITransactionArgs)dto).TransactionTypeId;
             var package = serializer.Pack(dto);
-            var clone = (ExplicitCommandArgs)serializer.Unpack(package, out var actualCommandId);
+            var clone = (ExplicitTransactionArgs)serializer.Unpack(package);
             Assert.Equal(dto.Value, clone.Value);
-            Assert.Equal(expectedCommandId, actualCommandId);
         }
 
         [Fact]
         public void PackImplicitCommandArgs()
         {
-            var dto = new ImplicitCommandArgs() { Value = 54321 };
+            var dto = new ImplicitTransactionArgs() { Value = 54321 };
             var serializer = IDataContractSerializer
                 .CreateBuilder()
                 .RequireCustomGuidAnnotation(false)
-                .Add(typeof(ImplicitCommandArgs), IMediaTypeSerializer.BasicJsonSerializer)
+                .Add(typeof(ImplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer)
                 .Build();
             var package = serializer.Pack(dto);
-            var clone = (ImplicitCommandArgs)serializer.Unpack(package, out var actualCommandId);
+            var clone = (ImplicitTransactionArgs)serializer.Unpack(package);
             Assert.Equal(dto.Value, clone.Value);
-            Assert.Equal(dto.GetType().GUID, actualCommandId);
         }
 
         public sealed class MyDto : BasicJsonDataTransferObject
@@ -60,14 +71,14 @@ namespace Solitons.Data
         }
 
         [Guid("b6fd4e7d-140a-44e1-b692-27ba49e92f6f")]
-        public sealed class ExplicitCommandArgs : BasicJsonDataTransferObject, ICommandArgs
+        public sealed class ExplicitTransactionArgs : BasicJsonDataTransferObject, ITransactionArgs
         {
-            Guid ICommandArgs.CommandId => Guid.Parse("07041ff2319d48ada77e62cb4eb086b7");
+            Guid ITransactionArgs.TransactionTypeId => Guid.Parse("07041ff2319d48ada77e62cb4eb086b7");
 
             public int Value { get; set; }
         }
 
-        public sealed class ImplicitCommandArgs : BasicXmlDataTransferObject, ICommandArgs
+        public sealed class ImplicitTransactionArgs : BasicXmlDataTransferObject, ITransactionArgs
         {
             public int Value { get; set; }
         }

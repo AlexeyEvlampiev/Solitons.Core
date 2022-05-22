@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Solitons.Data.Common
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IDbApiInfoSet
     {
         /// <summary>

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.Json;
-using Solitons.Data.Common;
+using System.Text;
 
 namespace Solitons.Data
 {
@@ -58,103 +57,6 @@ namespace Solitons.Data
         }
 
 
-        sealed class BasicDataTransferPackage : DataTransferPackageWriter, IDataTransferPackage
-        {
-            private readonly Dictionary<string, string> _data;
-
-            [DebuggerNonUserCode]
-            public BasicDataTransferPackage() 
-                : this(new Dictionary<string, string>())
-            {
-            }
-
-            [DebuggerNonUserCode]
-            private BasicDataTransferPackage(Dictionary<string, string> data)
-            {
-                _data = data;
-            }
-
-            public string ContentType
-            {
-                get => _data.TryGetValue("sys.contentType", out var value) ? value : "text/plain";
-                set => _data["sys.contentType"] = value.DefaultIfNullOrWhiteSpace("text/plain").Trim();
-            }
-
-            public Guid TypeId
-            {
-                get => _data.TryGetValue("sys.tid", out var value) ? Guid.TryParse(value, out var guid) ? guid : Guid.Empty : Guid.Empty;
-                set => _data["sys.tid"] = value.ThrowIfEmpty(()=> new InvalidOperationException("Type Id is required")).ToString("N");
-            }
-
-            public Guid CommandId
-            {
-                get => _data.TryGetValue("sys.cid", out var value) ? Guid.TryParse(value, out var guid) ? guid : Guid.Empty : Guid.Empty;
-                set => _data["sys.cid"] = value.ThrowIfEmpty(() => new InvalidOperationException("Type Id is required")).ToString("N");
-            }
-
-            public byte[] Content
-            {
-                get => _data.TryGetValue("sys.body", out var value) ? Convert.FromBase64String(value) : Array.Empty<byte>();
-                set => _data["sys.body"] = value
-                    .ThrowIfNull(() => new InvalidOperationException("Content is required"))
-                    .ToBase64String();
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="key"></param>
-            /// <param name="value"></param>
-            /// <returns></returns>
-            public bool TryGetProperty(string key, out string? value)
-            {
-                return _data.TryGetValue($"user.{key}", out value);
-            }
-
-            protected override void SetContent(byte[] content)
-            {
-                Content = content;
-            }
-
-            protected override void SetCommandId(Guid commandId)
-            {
-                CommandId = commandId;
-            }
-
-            protected override void SetContentType(string contentType)
-            {
-                ContentType = contentType;
-            }
-
-            protected override void SetTypeGuid(Guid guid)
-            {
-                TypeId = guid;
-            }
-
-
-            protected override void SetProperty(string key, string value)
-            {
-                _data[$"user.{key}"] = value;
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <returns></returns>
-            public override string ToString() => JsonSerializer.Serialize(_data);
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="package"></param>
-            /// <returns></returns>
-            public static BasicDataTransferPackage Parse(string package)
-            {
-                return new BasicDataTransferPackage(JsonSerializer
-                    .Deserialize<Dictionary<string, string>>(package)
-                    .ThrowIfNull(() => new InvalidOperationException()));
-            }
-        }
 
         /// <summary>
         /// 
@@ -407,59 +309,21 @@ namespace Solitons.Data
             throw new ArgumentOutOfRangeException($"'{typeId}' data contract type is not supported.", nameof(typeId));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="commandId"></param>
-        /// <param name="writer"></param>
-        public void Pack(object dto, Guid commandId, IDataTransferPackageWriter writer)
+        public DataTransferPackage Pack(object dto)
         {
-            if (dto == null) throw new ArgumentNullException(nameof(dto));
-            if (writer == null) throw new ArgumentNullException(nameof(writer));
-
-            string contentType = "application/json";
-            var content = dto is EmptyCommandArgs ? Array.Empty<byte>() : Serialize(dto, out contentType).ToUtf8Bytes();
-            writer.SetContentType(contentType);
-            writer.SetTypeId(dto.GetType().GUID);
-            writer.SetContent(content);
-            writer.SetCommandId(commandId);
-            writer.SetProperty("type", dto.GetType().Name);
-            writer.SetProperty("createdUtc", DateTime.UtcNow.ToString("O"));
+            var content = Serialize(dto, out var contentType);
+            var package = new DataTransferPackage(dto.GetType().GUID, content, contentType, Encoding.UTF8);
+            if (dto is ITransactionArgs args)
+                package.TransactionTypeId = args.TransactionTypeId;
+            return package;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="commandId"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public string Pack(object dto, Guid commandId)
+        public object Unpack(DataTransferPackage package)
         {
-            var writer = new BasicDataTransferPackage();
-            Pack(dto, commandId, writer);
-            return writer.ToString()!
-                .ThrowIfNullOrWhiteSpace(()=> new InvalidOperationException());
+            string content = package.Encoding.GetString(package.Content.ToArray());
+            return Deserialize(package.TypeId, package.ContentType, content);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="commandId"></param>
-        /// <returns></returns>
-        public object Unpack(string package, out Guid commandId)
-        {
-            var packageObj = BasicDataTransferPackage.Parse(package);
-            commandId = packageObj.CommandId;
-            if (packageObj.TypeId == typeof(EmptyCommandArgs).GUID)
-            {
-                return ICommandArgs.CreateEmpty(commandId);
-            }
-            var dto = Deserialize(packageObj.TypeId, packageObj.ContentType, packageObj.Content.ToUtf8String());
-            return dto;
-        }
 
         /// <summary>
         /// 

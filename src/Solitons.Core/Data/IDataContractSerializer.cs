@@ -107,29 +107,23 @@ public partial interface IDataContractSerializer
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     object Deserialize(Guid typeId, string contentType, string content);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <param name="commandId"></param>
-    /// <param name="writer"></param>
-    void Pack(object dto, Guid commandId, IDataTransferPackageWriter writer);
+
+    
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="dto"></param>
-    /// <param name="commandId"></param>
     /// <returns></returns>
-    string Pack(object dto, Guid commandId);
+    DataTransferPackage Pack(object dto);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="package"></param>
-    /// <param name="commandId"></param>
-    /// <returns></returns>
-    object Unpack(string package, out Guid commandId);
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="package"></param>
+/// <returns></returns>
+    object Unpack(DataTransferPackage package);
 
     /// <summary>
     /// 
@@ -147,22 +141,4 @@ public partial interface IDataContractSerializer
     [DebuggerNonUserCode]
     public static IDataContractSerializerBuilder CreateBuilder() => new DataContractSerializerBuilder(true);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="args"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    [DebuggerStepThrough]
-    public string Pack(ICommandArgs args)
-    {
-        if (args == null) throw new ArgumentNullException(nameof(args));
-        var commandId = args.CommandId
-            .ThrowIfEmpty(()=> new ArgumentException(nameof(args), $"{nameof(args)}.{nameof(args.CommandId)} is empty."));
-        if (args.GetType() == typeof(CommandArgs))
-        {
-            return Pack(new object(), commandId);
-        }
-        return Pack(args, commandId);
-    }
 }
