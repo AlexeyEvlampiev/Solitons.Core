@@ -80,32 +80,29 @@ public partial interface IDataContractSerializer
     /// 
     /// </summary>
     /// <param name="targetType"></param>
-    /// <param name="contentType"></param>
     /// <param name="content"></param>
+    /// <param name="contentType"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    object Deserialize(Type targetType, string contentType, string content);
+    object Deserialize(Type targetType, string content, string contentType);
 
     /// <summary>
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="contentType"></param>
     /// <param name="content"></param>
+    /// <param name="contentType"></param>
     /// <returns></returns>
-    T Deserialize<T>(string contentType, string content);
+    T Deserialize<T>(string content, string contentType);
+
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="typeId"></param>
-    /// <param name="contentType"></param>
     /// <param name="content"></param>
+    /// <param name="contentType"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    object Deserialize(Guid typeId, string contentType, string content);
+    object Deserialize(Guid typeId, string content, string contentType);
 
 
     

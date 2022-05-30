@@ -10,11 +10,12 @@ using Solitons.Data.Common.Postgres;
 using Solitons.Samples.Database.Models;
 using Solitons.Security.Postgres;
 
+
 namespace Solitons.Samples.Database
 {
     public static class SampleDb
     {
-        public static void DeprovisionDatabase(IDbConnectionFactory connectionFactory, string databaseName)
+        public static void DeprovisionDatabase(Solitons.Data.IDbConnectionFactory connectionFactory, string databaseName)
         {
             var provider = new PgSecurityManagementProvider(connectionFactory);
             provider.DropRolesByPrefix($"{databaseName}_");

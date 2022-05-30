@@ -10,6 +10,7 @@ using Solitons.Data;
 using Solitons.Diagnostics;
 using Solitons.Samples.Azure;
 using Solitons.Samples.Domain;
+using Solitons.Samples.Domain.Contracts;
 using Solitons.Samples.Frontend.Server;
 using Solitons.Security;
 
@@ -53,13 +54,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<ISampleDbApi>(serviceProviders =>
+builder.Services.AddSingleton<IDataContractSerializer>(SampleDataContractSerializer.Instance);
+builder.Services.AddScoped<IDatabaseRpcProvider>(serviceProviders =>
 {
     var caller = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
-    IDatabaseRpcProvider provider = new PgDatabaseRpcProvider(caller, pgConnectionString);
-    var databaseApi = provider.CreateProxy<ISampleDbApi>(SampleDataContractSerializer.Instance);
-    return databaseApi;
+    return new PgProcedureProvider(caller, pgConnectionString);
 });
+
+builder.Services.AddScoped<ImageGetCommand>();
+builder.Services.AddScoped<WeatherForecastCommand>();
 
 builder.Services.AddTransient<IAsyncLogger>(serviceProviders =>
 {

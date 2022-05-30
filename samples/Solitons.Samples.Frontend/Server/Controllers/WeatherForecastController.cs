@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Solitons.Diagnostics;
-using Solitons.Samples.Domain;
 using Solitons.Samples.Domain.Contracts;
 using Solitons.Samples.Frontend.Shared;
 
@@ -16,12 +15,12 @@ namespace Solitons.Samples.Frontend.Server.Controllers;
 [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes")]
 public class WeatherForecastController : ControllerBase
 {
-    private readonly ISampleDbApi _databaseApi;
+    private readonly WeatherForecastCommand _command;
     private readonly IAsyncLogger _logger;
 
-    public WeatherForecastController(ISampleDbApi databaseApi, IAsyncLogger logger)
+    public WeatherForecastController(WeatherForecastCommand command, IAsyncLogger logger)
     {
-        _databaseApi = databaseApi ?? throw new ArgumentNullException(nameof(databaseApi));
+        _command = command ?? throw new ArgumentNullException(nameof(command));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -30,7 +29,7 @@ public class WeatherForecastController : ControllerBase
     public async Task<WeatherForecast[]> Get()
     {
         await _logger.InfoAsync("Weather forecast requested...");
-        return await _databaseApi
+        return await _command
             .InvokeAsync(new WeatherForecastRequest())
             .ToObservable()
             .SelectMany(response => response.Items)

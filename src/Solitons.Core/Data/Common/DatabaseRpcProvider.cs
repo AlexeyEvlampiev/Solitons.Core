@@ -10,105 +10,47 @@ namespace Solitons.Data.Common
     /// </summary>
     public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="annotation"></param>
-        /// <returns></returns>
-        protected abstract IRpcHandler BuildRpcCommand(DbCommandAttribute annotation);
-
+        protected abstract Task<string> InvokeAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation);
+        protected abstract Task InvokeAsync(DatabaseRpcCommand commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation);
+        protected abstract Task SendAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation);
+        protected abstract Task SendAsync(DatabaseRpcCommand commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
 
         [DebuggerStepThrough]
-        async Task<object> IDatabaseRpcProvider.InvokeAsync(
-            DbCommandAttribute annotation,
-            object request,
-            IDataContractSerializer serializer,
-            Func<object, Task>? onResponse,
-            CancellationToken cancellation)
+        Task<string> IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation)
         {
-            if (annotation == null) throw new ArgumentNullException(nameof(annotation));
-            request = request.ThrowIfNullArgument(nameof(request));
+            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
             cancellation.ThrowIfCancellationRequested();
-
-            var rpc = BuildRpcCommand(annotation);
-            return await rpc.InvokeAsync(request, onResponse, cancellation);
+            return InvokeAsync(commandInfo, request, cancellation);
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        protected interface IRpcHandler
+        [DebuggerStepThrough]
+        Task IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommand commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation)
         {
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="request"></param>
-            /// <param name="onResponse"></param>
-            /// <param name="cancellation"></param>
-            /// <returns></returns>
-            Task<object> InvokeAsync(object request, Func<object, Task>? onResponse, CancellationToken cancellation);
+            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
+            callback = callback.ThrowIfNullArgument(nameof(callback));
+            cancellation.ThrowIfCancellationRequested();
+            return InvokeAsync(commandInfo, request, callback, cancellation);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        protected abstract class RpcHandler : IRpcHandler
+        [DebuggerStepThrough]
+        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation)
         {
-            private readonly IDataContractSerializer _serializer;
+            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
+            cancellation.ThrowIfCancellationRequested();
+            return SendAsync(commandInfo, request, cancellation);
+        }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="annotation"></param>
-            /// <param name="serializer"></param>
-            /// <exception cref="ArgumentNullException"></exception>
-            protected RpcHandler(DbCommandAttribute annotation, IDataContractSerializer serializer)
-            {
-                Annotation = annotation ?? throw new ArgumentNullException(nameof(annotation));
-                _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            protected DbCommandAttribute Annotation { get; }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="request"></param>
-            /// <param name="onResponse"></param>
-            /// <param name="cancellation"></param>
-            /// <returns></returns>
-            protected abstract Task<object> InvokeAsync(object request, Func<object, Task>? onResponse, CancellationToken cancellation);
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="request"></param>
-            /// <returns></returns>
-            protected string SerializeRequest(object request) =>
-                _serializer.Serialize(request, Annotation.RequestContentType);
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="response"></param>
-            /// <returns></returns>
-            protected object DeserializeResponse(string response) =>
-                _serializer.Deserialize(
-                    Annotation.ResponseType, 
-                    Annotation.ResponseContentType, 
-                    response);
-
-            [DebuggerStepThrough]
-            Task<object> IRpcHandler.InvokeAsync(object request, Func<object, Task>? onResponse, CancellationToken cancellation)
-            {
-                if (request == null) throw new ArgumentNullException(nameof(request));
-                cancellation.ThrowIfCancellationRequested();
-                return InvokeAsync(request, onResponse, cancellation);
-            }
+        [DebuggerStepThrough]
+        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommand commandInfo, string request, Func<Task> callback, CancellationToken cancellation)
+        {
+            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
+            callback = callback.ThrowIfNullArgument(nameof(callback));
+            cancellation.ThrowIfCancellationRequested();
+            return SendAsync(commandInfo, request, callback, cancellation);
         }
     }
 }

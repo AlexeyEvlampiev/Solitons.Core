@@ -262,7 +262,7 @@ namespace Solitons.Data
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public object Deserialize(Type targetType, string contentType, string content)
+        public object Deserialize(Type targetType, string content, string contentType)
         {
             if (targetType == null) throw new ArgumentNullException(nameof(targetType));
             if (contentType == null) throw new ArgumentNullException(nameof(contentType));
@@ -285,7 +285,7 @@ namespace Solitons.Data
         /// <param name="content"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public T Deserialize<T>(string contentType, string content) => (T)Deserialize(typeof(T), contentType, content);
+        public T Deserialize<T>(string content, string contentType) => (T)Deserialize(typeof(T), content, contentType);
 
         /// <summary>
         /// 
@@ -296,7 +296,7 @@ namespace Solitons.Data
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public object Deserialize(Guid typeId, string contentType, string content)
+        public object Deserialize(Guid typeId, string content, string contentType)
         {
             if (contentType == null) throw new ArgumentNullException(nameof(contentType));
             if (content == null) throw new ArgumentNullException(nameof(content));
@@ -321,7 +321,7 @@ namespace Solitons.Data
         public object Unpack(DataTransferPackage package)
         {
             string content = package.Encoding.GetString(package.Content.ToArray());
-            return Deserialize(package.TypeId, package.ContentType, content);
+            return Deserialize(package.TypeId, content, package.ContentType);
         }
 
 

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Solitons.Diagnostics;
-using Solitons.Samples.Domain;
 using Solitons.Samples.Domain.Contracts;
 using Solitons.Security;
 
@@ -14,13 +13,13 @@ namespace Solitons.Samples.Frontend.Server.Controllers
     [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes")]
     public class ImagesController : ControllerBase
     {
-        private readonly ISampleDbApi _databaseApi;
+        private readonly ImageGetCommand _imageGetCommand;
         private readonly ISecureBlobAccessUriBuilder _secureBlobAccessUriBuilder;
         private readonly IAsyncLogger _logger;
 
-        public ImagesController(ISampleDbApi databaseApi, ISecureBlobAccessUriBuilder secureBlobAccessUriBuilder, IAsyncLogger logger)
+        public ImagesController(ImageGetCommand imageGetCommand, ISecureBlobAccessUriBuilder secureBlobAccessUriBuilder, IAsyncLogger logger)
         {
-            _databaseApi = databaseApi ?? throw new ArgumentNullException(nameof(databaseApi));
+            _imageGetCommand = imageGetCommand;
             _secureBlobAccessUriBuilder = secureBlobAccessUriBuilder ?? throw new ArgumentNullException(nameof(secureBlobAccessUriBuilder));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -29,7 +28,7 @@ namespace Solitons.Samples.Frontend.Server.Controllers
         public async Task<IActionResult> GetAsync(Guid oid)
         {
             var request = new ImageGetRequest(oid);
-            var response = await _databaseApi.InvokeAsync(request);
+            var response = await _imageGetCommand.InvokeAsync(request);
             var ip = Request.HttpContext.Connection.RemoteIpAddress;
             
             var uri = _secureBlobAccessUriBuilder
@@ -44,7 +43,7 @@ namespace Solitons.Samples.Frontend.Server.Controllers
         public async Task<string> GetSourceAsync(Guid oid)
         {
             var request = new ImageGetRequest(oid);
-            var response = await _databaseApi.InvokeAsync(request);
+            var response = await _imageGetCommand.InvokeAsync(request);
             var ip = Request.HttpContext.Connection.RemoteIpAddress;
 
             var uri = _secureBlobAccessUriBuilder

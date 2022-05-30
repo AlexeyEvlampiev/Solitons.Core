@@ -50,7 +50,7 @@ namespace Solitons.Data
         /// </summary>
         /// <returns>Proxy instance</returns>
         [DebuggerNonUserCode]
-        public IMediaTypeSerializer AsDataTransferObjectSerializer() =>
+        public IMediaTypeSerializer AsMediaTypeSerializer() =>
             MediaTypeSerializerProxy.Wrap(this);
     }
 }

@@ -20,7 +20,7 @@ namespace Solitons
                 .Build();
             var content = target.Serialize(new MyClass() { Text = "This is a test" }, out var actualContentType);
             Assert.Equal("application/json", actualContentType);
-            var clone = target.Deserialize<MyClass>("application/json", content);
+            var clone = target.Deserialize<MyClass>(content,"application/json");
             Assert.Equal("This is a test", clone.Text);
             Assert.True(target.CanSerialize(typeof(MyClass), "application/xml"));
         }
@@ -37,7 +37,7 @@ namespace Solitons
                 .Build();
             var content = target.Serialize(new MyClass() { Text = "This is a test" }, out var actualContentType);
             Assert.Equal("application/xml", actualContentType);
-            var clone = target.Deserialize<MyClass>("application/xml", content);
+            var clone = target.Deserialize<MyClass>(content,"application/xml");
             Assert.Equal("This is a test", clone.Text);
             Assert.True(target.CanSerialize(typeof(MyClass), "application/json"));
         }
