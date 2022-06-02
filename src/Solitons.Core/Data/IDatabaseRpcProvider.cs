@@ -9,12 +9,12 @@ namespace Solitons.Data
     /// </summary>
     public interface IDatabaseRpcProvider
     {
-        Task<string> InvokeAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation);
+        Task<string> InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
 
-        Task InvokeAsync(DatabaseRpcCommand commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation);
+        Task InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation);
 
-        Task SendAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation);
+        Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
 
-        Task SendAsync(DatabaseRpcCommand commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
+        Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
     }
 }

@@ -22,14 +22,14 @@ namespace Solitons.Samples.Azure
             _caller = caller ?? throw new ArgumentNullException(nameof(caller));
             _connectionString = connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString));
         }
-        protected override Task<string> InvokeAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation)
+        protected override Task<string> InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
                 await using var command = new NpgsqlCommand($"SELECT api.{commandInfo.Procedure}(@request);", connection);
                 command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
-                var requestType = commandInfo.RequestInfo.ContentType switch
+                var requestType = commandInfo.Request.ContentType switch
                 {
                     "application/json" => NpgsqlDbType.Jsonb,
                     "application/xml" => NpgsqlDbType.Xml,
@@ -45,14 +45,14 @@ namespace Solitons.Samples.Azure
             });
         }
 
-        protected override Task InvokeAsync(DatabaseRpcCommand commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation)
+        protected override Task InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
                 await using var command = new NpgsqlCommand($"SELECT api.{commandInfo.Procedure}(@request);", connection);
                 command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
-                var requestType = commandInfo.RequestInfo.ContentType switch
+                var requestType = commandInfo.Request.ContentType switch
                 {
                     "application/json" => NpgsqlDbType.Jsonb,
                     "application/xml" => NpgsqlDbType.Xml,
@@ -69,14 +69,14 @@ namespace Solitons.Samples.Azure
             });
         }
 
-        protected override Task SendAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation)
+        protected override Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
                 await using var command = new NpgsqlCommand($"SELECT api.{commandInfo.Procedure}(@request);", connection);
                 command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
-                var requestType = commandInfo.RequestInfo.ContentType switch
+                var requestType = commandInfo.Request.ContentType switch
                 {
                     "application/json" => NpgsqlDbType.Jsonb,
                     "application/xml" => NpgsqlDbType.Xml,
@@ -90,14 +90,14 @@ namespace Solitons.Samples.Azure
             });
         }
 
-        protected override Task SendAsync(DatabaseRpcCommand commandInfo, string request, Func<Task> callback, CancellationToken cancellation)
+        protected override Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
                 await using var command = new NpgsqlCommand($"SELECT api.{commandInfo.Procedure}(@request);", connection);
                 command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
-                var requestType = commandInfo.RequestInfo.ContentType switch
+                var requestType = commandInfo.Request.ContentType switch
                 {
                     "application/json" => NpgsqlDbType.Jsonb,
                     "application/xml" => NpgsqlDbType.Xml,

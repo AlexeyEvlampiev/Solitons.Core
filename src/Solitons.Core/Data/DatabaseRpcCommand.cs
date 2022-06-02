@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,48 +9,42 @@ namespace Solitons.Data;
 /// </summary>
 public abstract class DatabaseRpcCommand
 {
+    private readonly Lazy<DatabaseRpcCommandMetadata> _metadata;
+
     /// <summary>
     /// 
     /// </summary>
-    public readonly record struct DataContract(Type DtoType, string ContentType);
-
-    internal DatabaseRpcCommand(
-        string procedure,
-        DataContract requestInfo,
-        DataContract responseInfo)
+    /// <param name="serializer"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    protected DatabaseRpcCommand(IDataContractSerializer serializer)
     {
-        RequestInfo = requestInfo;
-        ResponseInfo = responseInfo;
-        Procedure = procedure.ThrowIfNullOrWhiteSpaceArgument(nameof(procedure));
-
-        OperationTimeout = TimeSpan.FromSeconds(30);
-        IsolationLevel = IsolationLevel.ReadCommitted;
+        Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        _metadata = new Lazy<DatabaseRpcCommandMetadata>(() =>
+        {
+            var metadata = DatabaseRpcCommandMetadata.From(GetType());
+            metadata.Validate(serializer, errorMsg=> throw new InvalidOperationException(errorMsg));
+            return metadata;
+        });
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public string Procedure { get; }
+    protected IDataContractSerializer Serializer { get; }
 
     /// <summary>
     /// 
     /// </summary>
-    public DataContract RequestInfo { get; }
+    protected DatabaseRpcCommandMetadata Metadata => _metadata.Value;
 
     /// <summary>
     /// 
     /// </summary>
-    public DataContract ResponseInfo { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public TimeSpan OperationTimeout { get; protected init; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public IsolationLevel IsolationLevel { get; protected init; }
+    /// <returns></returns>
+    public sealed override string ToString()
+    {
+        return $"Procedure: {Metadata.Procedure}; {Metadata.Request.DtoType} => {Metadata.Response.DtoType}";
+    }
 }
 
 
@@ -63,57 +55,21 @@ public abstract class DatabaseRpcCommand
 /// <typeparam name="TResponse"></typeparam>
 public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcCommand
 {
-    private const string DefaultContentType = "application/json";
-
     private readonly IDatabaseRpcProvider _client;
-    private readonly IDataContractSerializer _serializer;
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="procedure"></param>
-    /// <param name="requestContentType"></param>
-    /// <param name="responseContentType"></param>
     /// <param name="client"></param>
     /// <param name="serializer"></param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     protected DatabaseRpcCommand(
-        string procedure, 
-        string requestContentType,
-        string responseContentType,
         IDatabaseRpcProvider client, 
-        IDataContractSerializer serializer) : base(procedure, 
-        new DataContract(typeof(TRequest), responseContentType), 
-        new DataContract(typeof(TResponse), responseContentType))
+        IDataContractSerializer serializer) : base(serializer)
     {
         _client = client.ThrowIfNullArgument(nameof(client));
-        _serializer = serializer.ThrowIfNullArgument(nameof(serializer));
-        if (false == _serializer.CanSerialize(typeof(TRequest), requestContentType))
-        {
-            throw new ArgumentOutOfRangeException($"{typeof(TRequest)} cannot be serialized to {requestContentType}");
-        }
-
-        if (false == _serializer.CanDeserialize(typeof(TResponse), responseContentType))
-        {
-            throw new ArgumentOutOfRangeException($"{typeof(TResponse)} cannot be deserialized from {responseContentType}");
-        }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="procedure"></param>
-    /// <param name="client"></param>
-    /// <param name="serializer"></param>
-    [DebuggerStepThrough]
-    protected DatabaseRpcCommand(
-        string procedure,
-        IDatabaseRpcProvider client,
-        IDataContractSerializer serializer) 
-        : this(procedure, DefaultContentType, DefaultContentType, client, serializer)
-    {
-        
-    }
 
     /// <summary>
     /// 
@@ -126,9 +82,9 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     {
         if (request is null) throw new ArgumentNullException(nameof(request));
         cancellation.ThrowIfCancellationRequested();
-        var requestString = _serializer.Serialize(request, RequestInfo.ContentType);
-        var responseString = await _client.InvokeAsync(this, requestString, cancellation);
-        var response = _serializer.Deserialize<TResponse>(responseString, ResponseInfo.ContentType);
+        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
+        var responseString = await _client.InvokeAsync(Metadata, requestString, cancellation);
+        var response = Serializer.Deserialize<TResponse>(responseString, Metadata.Response.ContentType);
         return response;
     }
 
@@ -146,12 +102,12 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
         if (request is null) throw new ArgumentNullException(nameof(request));
         callback.ThrowIfNullArgument(nameof(callback));
         cancellation.ThrowIfCancellationRequested();
-        var requestString = _serializer.Serialize(request, RequestInfo.ContentType);
-        await _client.InvokeAsync(this, requestString, OnResponse, cancellation);
+        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
+        await _client.InvokeAsync(Metadata, requestString, OnResponse, cancellation);
         
         Task OnResponse(string responseString)
         {
-            var response = _serializer.Deserialize<TResponse>(responseString, ResponseInfo.ContentType);
+            var response = Serializer.Deserialize<TResponse>(responseString, Metadata.Response.ContentType);
             return callback.Invoke(response);
         }
     }
@@ -168,8 +124,8 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     {
         if (request is null) throw new ArgumentNullException(nameof(request));
         cancellation.ThrowIfCancellationRequested();
-        var requestString = _serializer.Serialize(request, RequestInfo.ContentType);
-        return _client.SendAsync(this, requestString, cancellation);
+        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
+        return _client.SendAsync(Metadata, requestString, cancellation);
     }
 
     /// <summary>
@@ -184,8 +140,8 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     {
         if (request is null) throw new ArgumentNullException(nameof(request));
         cancellation.ThrowIfCancellationRequested();
-        var requestString = _serializer.Serialize(request, RequestInfo.ContentType);
-        return _client.SendAsync(this, requestString, callback, cancellation);
+        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
+        return _client.SendAsync(Metadata, requestString, callback, cancellation);
     }
 
 }

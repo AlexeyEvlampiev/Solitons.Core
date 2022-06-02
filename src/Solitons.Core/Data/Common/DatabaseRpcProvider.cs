@@ -10,13 +10,13 @@ namespace Solitons.Data.Common
     /// </summary>
     public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
     {
-        protected abstract Task<string> InvokeAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation);
-        protected abstract Task InvokeAsync(DatabaseRpcCommand commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation);
-        protected abstract Task SendAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation);
-        protected abstract Task SendAsync(DatabaseRpcCommand commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
+        protected abstract Task<string> InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
+        protected abstract Task InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation);
+        protected abstract Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
+        protected abstract Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
 
         [DebuggerStepThrough]
-        Task<string> IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation)
+        Task<string> IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
         {
             commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
@@ -25,7 +25,7 @@ namespace Solitons.Data.Common
         }
 
         [DebuggerStepThrough]
-        Task IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommand commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation)
+        Task IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation)
         {
             commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
@@ -35,7 +35,7 @@ namespace Solitons.Data.Common
         }
 
         [DebuggerStepThrough]
-        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommand commandInfo, string request, CancellationToken cancellation)
+        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
         {
             commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
@@ -44,7 +44,7 @@ namespace Solitons.Data.Common
         }
 
         [DebuggerStepThrough]
-        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommand commandInfo, string request, Func<Task> callback, CancellationToken cancellation)
+        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation)
         {
             commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
