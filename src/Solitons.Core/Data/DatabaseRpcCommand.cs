@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,18 +9,25 @@ namespace Solitons.Data;
 /// <summary>
 /// 
 /// </summary>
-public abstract class DatabaseRpcCommand
+public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 {
+    private readonly IDatabaseRpcProvider _provider;
+    private readonly IDataContractSerializer _serializer;
     private readonly Lazy<DatabaseRpcCommandMetadata> _metadata;
 
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="provider"></param>
     /// <param name="serializer"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    protected DatabaseRpcCommand(IDataContractSerializer serializer)
+    /// <exception cref="InvalidOperationException"></exception>
+    protected internal DatabaseRpcCommand(IDatabaseRpcProvider provider, IDataContractSerializer serializer)
     {
-        Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+
+
         _metadata = new Lazy<DatabaseRpcCommandMetadata>(() =>
         {
             var metadata = DatabaseRpcCommandMetadata.From(GetType());
@@ -27,10 +36,136 @@ public abstract class DatabaseRpcCommand
         });
     }
 
+    [DebuggerStepThrough]
+    bool IDatabaseRpcCommand.CanAccept(MediaContent request) => _serializer
+        .CanDeserialize(Metadata.Request.DtoType, request.ContentType);
+
+    async Task<MediaContent> IDatabaseRpcCommand.InvokeAsync(MediaContent request, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        if (false == _serializer.CanDeserialize(Metadata.Request.DtoType, request.ContentType))
+        {
+            throw new ArgumentOutOfRangeException(
+                $"Cannot deserialize {Metadata.Request.DtoType} from the '{request.ContentType}' content");
+        }
+
+        _serializer.Deserialize(Metadata.Request.DtoType, request.Content, request.ContentType);
+        request = request.Transform(TransformRequest);
+        var content = await _provider.InvokeAsync(Metadata, request.Content, cancellation);
+        var dto = _serializer.Deserialize(Metadata.Response.DtoType, content, Metadata.Response.ContentType);
+        content = _serializer.Serialize(dto, Metadata.Response.ContentType);
+        var response = new MediaContent(content, Metadata.Response.ContentType);
+        return response.Transform(TransformResponse);
+    }
+
+    async Task IDatabaseRpcCommand.SendAsync(MediaContent request, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        if (false == _serializer.CanDeserialize(Metadata.Request.DtoType, request.ContentType))
+        {
+            throw new ArgumentOutOfRangeException($"Cannot deserialize {Metadata.Request.DtoType} from the '{request.ContentType}' content");
+        }
+
+        request = request.Transform(TransformRequest);
+        _serializer.Deserialize(Metadata.Request.DtoType, request.Content, request.ContentType);
+        await _provider.SendAsync(Metadata, request.Content, cancellation);
+    }
+
     /// <summary>
     /// 
     /// </summary>
-    protected IDataContractSerializer Serializer { get; }
+    /// <param name="request"></param>
+    /// <param name="cancellation"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    protected async Task<object> GeneralizedInvokeAsync(object? request, CancellationToken cancellation = default)
+    {
+        if (request is null) throw new ArgumentNullException(nameof(request));
+        cancellation.ThrowIfCancellationRequested();
+        var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
+        requestString = TransformRequest(requestString);
+
+        var responseString = await _provider.InvokeAsync(Metadata, requestString, cancellation);
+        responseString = TransformResponse(responseString);
+        var response = _serializer.Deserialize(Metadata.Response.DtoType, responseString, Metadata.Response.ContentType);
+        return response;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="callback"></param>
+    /// <param name="cancellation"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    protected async Task GeneralizedInvokeAsync(object? request, Func<object, Task> callback, CancellationToken cancellation)
+    {
+        if (request is null) throw new ArgumentNullException(nameof(request));
+        callback.ThrowIfNullArgument(nameof(callback));
+        cancellation.ThrowIfCancellationRequested();
+
+        var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
+        requestString = TransformRequest(requestString);
+
+        await _provider.InvokeAsync(Metadata, requestString, OnResponse, cancellation);
+
+        Task OnResponse(string responseString)
+        {
+            responseString = TransformResponse(responseString);
+            var response = _serializer.Deserialize(Metadata.Response.DtoType, responseString, Metadata.Response.ContentType);
+            return callback.Invoke(response);
+        }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellation"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    protected Task GeneralizedSendAsync(object? request, CancellationToken cancellation)
+    {
+        if (request is null) throw new ArgumentNullException(nameof(request));
+        cancellation.ThrowIfCancellationRequested();
+        var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
+        requestString = TransformRequest(requestString);
+        return _provider.SendAsync(Metadata, requestString, cancellation);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="callback"></param>
+    /// <param name="cancellation"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    protected Task GeneralizedSendAsync(object? request, Func<Task> callback, CancellationToken cancellation)
+    {
+        if (request is null) throw new ArgumentNullException(nameof(request));
+        cancellation.ThrowIfCancellationRequested();
+        var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
+        requestString = TransformRequest(requestString);
+        return _provider.SendAsync(Metadata, requestString, callback, cancellation);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    protected virtual string TransformRequest(string content) => content;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    protected virtual string TransformResponse(string content) => content;
+
 
     /// <summary>
     /// 
@@ -55,19 +190,17 @@ public abstract class DatabaseRpcCommand
 /// <typeparam name="TResponse"></typeparam>
 public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcCommand
 {
-    private readonly IDatabaseRpcProvider _client;
-
     /// <summary>
     /// 
     /// </summary>
     /// <param name="client"></param>
     /// <param name="serializer"></param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
+    [DebuggerNonUserCode]
     protected DatabaseRpcCommand(
         IDatabaseRpcProvider client, 
-        IDataContractSerializer serializer) : base(serializer)
+        IDataContractSerializer serializer) : base(client, serializer)
     {
-        _client = client.ThrowIfNullArgument(nameof(client));
     }
 
 
@@ -78,14 +211,12 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     /// <param name="cancellation"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<TResponse> InvokeAsync(TRequest request, CancellationToken cancellation = default)
+    [DebuggerStepThrough]
+    public async Task<TResponse> InvokeAsync([DisallowNull] TRequest request, CancellationToken cancellation = default)
     {
-        if (request is null) throw new ArgumentNullException(nameof(request));
+        if (request == null) throw new ArgumentNullException(nameof(request));
         cancellation.ThrowIfCancellationRequested();
-        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
-        var responseString = await _client.InvokeAsync(Metadata, requestString, cancellation);
-        var response = Serializer.Deserialize<TResponse>(responseString, Metadata.Response.ContentType);
-        return response;
+        return (TResponse) (await GeneralizedInvokeAsync(request, cancellation));
     }
 
 
@@ -97,17 +228,17 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     /// <param name="cancellation"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task InvokeAsync(TRequest request, Func<TResponse, Task> callback, CancellationToken cancellation)
+    [DebuggerStepThrough]
+    public async Task<TResponse> InvokeAsync(TRequest request, Func<TResponse, Task> callback, CancellationToken cancellation)
     {
-        if (request is null) throw new ArgumentNullException(nameof(request));
-        callback.ThrowIfNullArgument(nameof(callback));
-        cancellation.ThrowIfCancellationRequested();
-        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
-        await _client.InvokeAsync(Metadata, requestString, OnResponse, cancellation);
-        
-        Task OnResponse(string responseString)
+        TResponse? response = default;
+        await GeneralizedInvokeAsync(request, OnResponse, cancellation);
+        return response ?? throw new InvalidOperationException();
+
+        [DebuggerStepThrough]
+        Task OnResponse(object responseObj)
         {
-            var response = Serializer.Deserialize<TResponse>(responseString, Metadata.Response.ContentType);
+            response = (TResponse)responseObj;
             return callback.Invoke(response);
         }
     }
@@ -120,13 +251,8 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     /// <param name="cancellation"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public Task SendAsync(TRequest request, CancellationToken cancellation)
-    {
-        if (request is null) throw new ArgumentNullException(nameof(request));
-        cancellation.ThrowIfCancellationRequested();
-        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
-        return _client.SendAsync(Metadata, requestString, cancellation);
-    }
+    [DebuggerStepThrough]
+    public Task SendAsync(TRequest request, CancellationToken cancellation) => GeneralizedSendAsync(request, cancellation);
 
     /// <summary>
     /// 
@@ -136,12 +262,6 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     /// <param name="cancellation"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public Task SendAsync(TRequest request, Func<Task> callback, CancellationToken cancellation)
-    {
-        if (request is null) throw new ArgumentNullException(nameof(request));
-        cancellation.ThrowIfCancellationRequested();
-        var requestString = Serializer.Serialize(request, Metadata.Request.ContentType);
-        return _client.SendAsync(Metadata, requestString, callback, cancellation);
-    }
-
+    [DebuggerStepThrough]
+    public Task SendAsync(TRequest request, Func<Task> callback, CancellationToken cancellation) => GeneralizedSendAsync(request, callback, cancellation);
 }

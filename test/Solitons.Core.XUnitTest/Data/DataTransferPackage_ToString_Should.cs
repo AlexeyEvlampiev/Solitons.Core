@@ -34,6 +34,9 @@ namespace Solitons.Data
                 TransactionTypeId = Guid.Parse("50dae5eb5b7d4f0aa71c6c445705c651")
             };
 
+
+            package.Properties.Add("Some property key", "Some property value");
+
             var packageString = package.ToString(fixedClock.Object);
             var clone = DataTransferPackage.Parse(packageString, fixedClock.Object);
             Assert.Equal(Guid.Parse("148b347e572148af8b91ae84cb04b70b"), clone.TypeId);
@@ -47,6 +50,9 @@ namespace Solitons.Data
             Assert.Equal("Some session ID", clone.SessionId);
             Assert.Equal("Some message ID", clone.MessageId);
             Assert.Equal(TimeSpan.FromMinutes(123), clone.TimeToLive);
+
+            Assert.Equal(1, clone.Properties.Count);
+            Assert.Equal(clone.Properties["Some property key"], "Some property value");
         }
     }
 }

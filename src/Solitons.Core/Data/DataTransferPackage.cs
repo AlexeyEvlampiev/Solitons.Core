@@ -12,6 +12,8 @@ namespace Solitons.Data
     /// </summary>
     public sealed class DataTransferPackage
     {
+
+        #region Metadata Keys
         private const string TypeIdKey = "sys.typeId";
         private const string ContentKey = "sys.content";
         private const string EncodingKey = "sys.encoding";
@@ -26,6 +28,8 @@ namespace Solitons.Data
         private const string ReplyToKey = "sys.replyTo";
         private const string ReplyToSessionIdKey = "sys.replyToSessionId";
         private const string ExpiredOnKey = "sys.expiredOn";
+        #endregion
+
 
         /// <summary>
         /// 
@@ -45,7 +49,7 @@ namespace Solitons.Data
             Content = content.ToBytes(encoding);
             ContentType = contentType;
             Encoding = encoding;
-
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
 
@@ -60,24 +64,84 @@ namespace Solitons.Data
             Content = content;
             ContentType = contentType;
             Encoding = encoding;
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// Gets the GUID associated with the serialized type
+        /// </summary>
         public Guid TypeId { get; }
 
+        /// <summary>
+        /// Gets the type of the package content.
+        /// </summary>
         public string ContentType { get; }
+
+        /// <summary>
+        /// Gets the package content.
+        /// </summary>
         public IReadOnlyList<byte> Content { get; }
+
+        /// <summary>
+        /// Gets the content encoding.
+        /// </summary>
         public Encoding Encoding { get; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the intended system transaction.
+        /// </summary>
         public Guid TransactionTypeId { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the identifier of the correlation.
+        /// </summary>
         public string? CorrelationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the session.
+        /// </summary>
         public string? SessionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier of the message.
+        /// This is a user-defined value that message brokers can use to identify duplicate messages.
+        /// </summary>
         public string? MessageId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the send to address.
+        /// </summary>
         public string? To { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sender address or identifier
+        /// </summary>
         public string? From { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content digital signature
+        /// </summary>
         public byte[]? Signature { get; set; }
+
+        /// <summary>
+        /// Gets or sets the address to reply to.
+        /// </summary>
         public string? ReplyTo { get; set; }
+
+        /// <summary>
+        /// Gets or sets the session identifier to reply to.
+        /// </summary>
         public string? ReplyToSessionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the message’s time to live value. This is the duration after which the message expires, starting from when the message is sent or serialized.
+        /// </summary>
         public TimeSpan? TimeToLive { get; set; }
+
+        /// <summary>
+        /// Gets the collection of custom properties
+        /// </summary>
+        public Dictionary<string, string> Properties { get; }
 
 
         /// <summary>
@@ -101,6 +165,13 @@ namespace Solitons.Data
                 [ContentTypeKey] = ContentType,
                 [TransactionTypeIdKey] = TransactionTypeId.ToString("N")
             };
+
+            foreach (var pair in Properties)
+            {
+                if (pair.Key.IsNullOrWhiteSpace() || pair.Value.IsNullOrWhiteSpace())
+                    continue;
+                data[pair.Key.Trim()] = pair.Value;
+            }
 
             if(false == CorrelationId.IsNullOrWhiteSpace()) 
                 data[CorrelationIdKey] = CorrelationId!;
@@ -219,6 +290,11 @@ namespace Solitons.Data
                 result.TimeToLive = ttl > TimeSpan.Zero ? ttl : TimeSpan.Zero;
             }
 
+            result.Properties.Clear();
+            foreach (var pair in data.Skip(item=> item.Key.StartsWith("sys.")))
+            {
+                result.Properties.Add(pair.Key, pair.Value);
+            }
 
             return result;
         }

@@ -22,8 +22,8 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="commandId"></param>
+        /// <param name="commandGuid"></param>
         /// <returns></returns>
-        public static ITransactionArgs CreateEmpty(string commandId) => CreateEmpty(Guid.Parse(commandId.ThrowIfNullOrWhiteSpaceArgument(nameof(commandId))));
+        public static ITransactionArgs CreateEmpty(string commandGuid) => CreateEmpty(Guid.Parse(commandGuid.ThrowIfNullOrWhiteSpaceArgument(nameof(commandGuid))));
     }
 }

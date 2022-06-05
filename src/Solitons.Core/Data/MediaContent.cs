@@ -1,23 +1,23 @@
-﻿namespace Solitons.Data
+﻿using System;
+
+namespace Solitons.Data
 {
     /// <summary>
     /// 
     /// </summary>
-    public sealed record MediaContent
+    public readonly record struct MediaContent
     {
-        private MediaContent(string content, string contentType)
-        {
-            Content = content.ThrowIfNullOrWhiteSpaceArgument(nameof(content));
-            ContentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
-        }
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="content"></param>
         /// <param name="contentType"></param>
-        /// <returns></returns>
-        public static MediaContent Create(string content, string contentType) => new MediaContent(content, contentType);
+        public MediaContent(string content, string contentType)
+        {
+            Content = content.ThrowIfNullOrWhiteSpaceArgument(nameof(content));
+            ContentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
+        }
+
 
         /// <summary>
         /// 
@@ -42,5 +42,16 @@
         /// 
         /// </summary>
         public string ContentType { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="transformation"></param>
+        /// <returns></returns>
+        public MediaContent Transform(Func<string, string> transformation)
+        {
+            var content = transformation.Invoke(Content);
+            return new MediaContent(content, ContentType);
+        }
     }
 }
