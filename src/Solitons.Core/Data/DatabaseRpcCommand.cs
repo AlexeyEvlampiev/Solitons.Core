@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -69,6 +70,27 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         request = request.Transform(TransformRequest);
         _serializer.Deserialize(Metadata.Request.DtoType, request.Content, request.ContentType);
         await _provider.SendAsync(Metadata, request.Content, cancellation);
+    }
+
+    Task IDatabaseRpcCommand.SendAsync(object dto, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        var self = (IDatabaseRpcCommand)this;
+        if (dto is MediaContent media)
+        {
+            return self.SendAsync(media, cancellation);
+        }
+
+        if (Metadata.Request.DtoType.IsInstanceOfType(dto))
+        {
+            var contentType = Metadata.Request.ContentType;
+            var content = _serializer.Serialize(dto, contentType);
+            return self.SendAsync(new MediaContent(content, contentType), cancellation);
+        }
+
+        throw new InvalidCastException(new StringBuilder("Invalid request DTO type")
+            .Append($" Expected: {Metadata.Request.DtoType}. Actual: {dto.GetType()}")
+            .ToString());
     }
 
     /// <summary>

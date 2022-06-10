@@ -58,7 +58,7 @@ builder.Services.AddSingleton<IDataContractSerializer>(SampleDataContractSeriali
 builder.Services.AddScoped<IDatabaseRpcProvider>(serviceProviders =>
 {
     var caller = serviceProviders.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal();
-    return new PgProcedureProvider(caller, pgConnectionString);
+    return new PgDatabaseRpcProvider(pgConnectionString);
 });
 
 builder.Services.AddScoped<ImageGetCommand>();
