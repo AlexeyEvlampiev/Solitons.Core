@@ -48,7 +48,7 @@ namespace Solitons
         /// <param name="createException"></param>
         /// <returns></returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ThrowIfNull(this string self, Func<Exception> createException)
+        public static string ThrowIfNull(this string? self, Func<Exception> createException)
         {
             if (createException == null) throw new ArgumentNullException(nameof(createException));
             if (self is null)
@@ -354,5 +354,6 @@ namespace Solitons
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
             return System.Convert.ToBase64String(self.ToBytes(encoding));
         }
+
     }
 }

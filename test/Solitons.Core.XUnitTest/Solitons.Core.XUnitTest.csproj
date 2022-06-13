@@ -13,6 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Security\Common\**" />
+    <EmbeddedResource Remove="Security\Common\**" />
+    <None Remove="Security\Common\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -79,7 +85,6 @@
   <ItemGroup>
     <Folder Include="Blobs\" />
     <Folder Include="Queues\" />
-    <Folder Include="Security\Common\" />
     <Folder Include="Tables\" />
     <Folder Include="Web\Common\" />
   </ItemGroup>

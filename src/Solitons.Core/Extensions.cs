@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -172,7 +173,7 @@ namespace Solitons
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
             return new MemoryStream(bytes);
         }
-    
+
 
         /// <summary>
         /// 
@@ -206,7 +207,7 @@ namespace Solitons
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
             if (self.TryGetTarget(out var result)) return result;
-            result = factory.Invoke().ThrowIfNull(()=>new ArgumentException($"Factory invocation returned null.", nameof(factory)));
+            result = factory.Invoke().ThrowIfNull(() => new ArgumentException($"Factory invocation returned null.", nameof(factory)));
             self.SetTarget(result);
             return result;
         }
@@ -227,7 +228,7 @@ namespace Solitons
             throw createException.Invoke() ?? throw new InvalidCastException($"'{self}' is not a well formed {expectedKind} uri.");
         }
 
-        public static T ThrowIfNotOfType<T>(this T self, Type expectedType, Func<Type,Exception> exceptionFactory) where T : class
+        public static T ThrowIfNotOfType<T>(this T self, Type expectedType, Func<Type, Exception> exceptionFactory) where T : class
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (self.GetType() == expectedType) return self;
@@ -238,7 +239,7 @@ namespace Solitons
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSuccessStatusCode(this HttpStatusCode statusCode)
         {
-            var x = (int) statusCode / 100;
+            var x = (int)statusCode / 100;
             return x == 2;
         }
 
@@ -394,7 +395,7 @@ namespace Solitons
         /// <exception cref="System.ArgumentException">self</exception>
         /// <exception cref="System.InvalidOperationException">Detected unbound captures.</exception>
         public static IEnumerable<KeyValuePair<Capture, Capture>> ZipCaptures(
-            this Match self, 
+            this Match self,
             string keyGroupName,
             string valueGroupName)
         {
@@ -512,6 +513,21 @@ namespace Solitons
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
             return encoding.GetString(self);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="cryptoTransform"></param>
+        /// <returns></returns>
+        public static byte[] Encrypt(this byte[] self, ICryptoTransform cryptoTransform)
+        {
+            using MemoryStream msEncrypt = new MemoryStream();
+            using CryptoStream csEncrypt = new CryptoStream(msEncrypt, cryptoTransform, CryptoStreamMode.Write);
+            csEncrypt.Write(self, 0, self.Length);
+            csEncrypt.FlushFinalBlock();
+            return msEncrypt.ToArray();
         }
     }
 }
