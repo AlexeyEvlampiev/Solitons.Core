@@ -10,7 +10,7 @@ namespace Solitons.Data.Spatial
     /// <summary>
     /// 
     /// </summary>
-    public struct BoundingBox
+    public readonly record struct BoundingBox
     {
         private const string InvalidCsvFormatMessage = "Invalid bounding box CSV format";
 

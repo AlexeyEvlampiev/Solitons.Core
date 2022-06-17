@@ -52,28 +52,10 @@ namespace Solitons.Data
             }
 
             public Type DataContractType { get; }
-            public IMediaTypeSerializer DefaultSerializer { get; set; }
+            public IMediaTypeSerializer DefaultSerializer { get; }
             public HashSet<string> SupportedContentTypes { get; }
         }
 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [Flags]
-        protected enum DataContractSerializerBehaviour
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            Default = 0,
-
-            /// <summary>
-            /// 
-            /// </summary>
-            RequireGuidAnnotation = 1
-        }
 
         /// <summary>
         /// Serializer builder

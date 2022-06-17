@@ -3,9 +3,6 @@
     /// <summary>
     /// Types of data transfer
     /// </summary>
-    /// <remarks>
-    /// Specifies the intended data transfer method.
-    /// </remarks>
     public enum DataTransferMethod
     {
         /// <summary>
