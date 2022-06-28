@@ -36,6 +36,5 @@ namespace Solitons
             if (self == null) throw new ArgumentNullException(nameof(self));
             return self.Skip(_ => _ is null)!;
         }
-
     }
 }

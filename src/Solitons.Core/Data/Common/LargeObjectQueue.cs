@@ -9,7 +9,7 @@ namespace Solitons.Data.Common
     /// </summary>
     public abstract class LargeObjectQueue : ILargeObjectQueue
     {
-        private const int EmptyQueueMinPullDelayInMilliseconds = 3000;
+        private const int EmptyQueueMinPullDelayInMilliseconds = 200;
         private readonly IDataContractSerializer _serializer;
 
         /// <summary>
@@ -68,6 +68,21 @@ namespace Solitons.Data.Common
         /// <param name="cancellation"></param>
         /// <returns></returns>
         protected abstract Task<DataTransferPackage> StoreAsideAsync(DataTransferPackage message, CancellationToken cancellation);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        protected abstract Task<DataTransferPackage> LoadAsync(object dto, CancellationToken cancellation);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        protected abstract bool IsReference(object dto);
 
         /// <summary>
         /// 
@@ -166,6 +181,16 @@ namespace Solitons.Data.Common
                 {
                     package = DataTransferPackage.Parse(message.Body);
                     dto = _serializer.Unpack(package);
+                    if (IsReference(dto))
+                    {
+                        package = await LoadAsync(dto, cancellation);
+                        dto = _serializer.Unpack(package);
+                        if (IsReference(dto))
+                        {
+                            await callback.OnUnpackingErrorAsync(message.Id, package,
+                                new NotSupportedException($"Double referencing is not supported"), cancellation);
+                        }
+                    }
                     await callback.ProcessAsync(package, dto, cancellation);
                     processed = true;
                     await message.DeleteAsync();
@@ -195,6 +220,5 @@ namespace Solitons.Data.Common
                 }
             }
         }
-
     }
 }

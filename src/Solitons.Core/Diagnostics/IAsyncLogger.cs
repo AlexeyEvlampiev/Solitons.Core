@@ -177,6 +177,7 @@ namespace Solitons.Diagnostics
         [DebuggerStepThrough]
         public IAsyncLogger WithProperties(IEnumerable<KeyValuePair<string, string>>? properties) => new AsyncLoggerProxy(this, builder => builder.WithProperties(properties));
 
+
         /// <summary>
         /// 
         /// </summary>
