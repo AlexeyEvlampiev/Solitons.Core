@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Solitons.Diagnostics;
 
 namespace Solitons.Data
 {
@@ -25,6 +26,7 @@ namespace Solitons.Data
         public DataContractSerializerBuilder(bool requireCustomGuidAnnotation)
         {
             _requireCustomGuidAnnotation = requireCustomGuidAnnotation;
+            _registrations.Add(new Registration(typeof(LogEntryData), IMediaTypeSerializer.BasicJsonSerializer));
         }
 
         /// <summary>

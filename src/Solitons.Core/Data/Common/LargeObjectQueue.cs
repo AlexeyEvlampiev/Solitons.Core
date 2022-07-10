@@ -10,8 +10,7 @@ namespace Solitons.Data.Common
     public abstract class LargeObjectQueue : ILargeObjectQueue
     {
         private const int EmptyQueueMinPullDelayInMilliseconds = 200;
-        private readonly IDataContractSerializer _serializer;
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -48,10 +47,13 @@ namespace Solitons.Data.Common
         /// <exception cref="ArgumentNullException"></exception>
         protected LargeObjectQueue(IDataContractSerializer serializer)
         {
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        protected IDataContractSerializer Serializer { get; }
 
         /// <summary>
         /// 
@@ -75,7 +77,7 @@ namespace Solitons.Data.Common
         /// <param name="dto"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        protected abstract Task<DataTransferPackage> LoadAsync(object dto, CancellationToken cancellation);
+        protected abstract Task<DataTransferPackage> DereferenceAsync(object dto, CancellationToken cancellation);
 
         /// <summary>
         /// 
@@ -114,7 +116,7 @@ namespace Solitons.Data.Common
             CancellationToken cancellation = default)
         {
             var actualMethod = preferredMethod;
-            var package = _serializer.Pack(dto);
+            var package = Serializer.Pack(dto);
             config?.Invoke(package);
             if (preferredMethod == DataTransferMethod.ByReference)
             {
@@ -180,11 +182,11 @@ namespace Solitons.Data.Common
                 try
                 {
                     package = DataTransferPackage.Parse(message.Body);
-                    dto = _serializer.Unpack(package);
+                    dto = Serializer.Unpack(package);
                     if (IsReference(dto))
                     {
-                        package = await LoadAsync(dto, cancellation);
-                        dto = _serializer.Unpack(package);
+                        package = await DereferenceAsync(dto, cancellation);
+                        dto = Serializer.Unpack(package);
                         if (IsReference(dto))
                         {
                             await callback.OnUnpackingErrorAsync(message.Id, package,

@@ -12,7 +12,6 @@ namespace Solitons.Data
     /// </summary>
     public sealed class DataTransferPackage
     {
-
         #region Metadata Keys
         private const string TypeIdKey = "sys.typeId";
         private const string ContentKey = "sys.content";
