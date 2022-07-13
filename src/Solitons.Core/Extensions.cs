@@ -529,5 +529,36 @@ namespace Solitons
             csEncrypt.FlushFinalBlock();
             return msEncrypt.ToArray();
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="genericTypeDefinition"></param>
+        /// <returns></returns>
+        public static bool IsSubclassOfGenericType(this Type self, Type genericTypeDefinition)
+        {
+            if (self.IsClass == false ||
+                genericTypeDefinition.IsGenericTypeDefinition == false)
+            {
+                return false;
+            }
+
+            for (var type = self;
+                 type is { IsClass: true } && type != typeof(object);
+                 type = type.BaseType)
+            {
+                if (type.IsGenericType)
+                {
+                    if (type.GetGenericTypeDefinition() == genericTypeDefinition)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }
