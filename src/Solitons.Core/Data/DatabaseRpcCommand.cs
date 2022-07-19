@@ -53,10 +53,10 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         _serializer.Deserialize(Metadata.Request.DtoType, request.Content, request.ContentType);
         request = request.Transform(TransformRequest);
         var content = await _provider.InvokeAsync(Metadata, request.Content, cancellation);
+        content = TransformResponse(content);
         var dto = _serializer.Deserialize(Metadata.Response.DtoType, content, Metadata.Response.ContentType);
         content = _serializer.Serialize(dto, Metadata.Response.ContentType);
-        var response = new MediaContent(content, Metadata.Response.ContentType);
-        return response.Transform(TransformResponse);
+        return new MediaContent(content, Metadata.Response.ContentType);
     }
 
     async Task IDatabaseRpcCommand.SendAsync(MediaContent request, CancellationToken cancellation)
