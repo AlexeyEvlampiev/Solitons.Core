@@ -7,7 +7,7 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDatabaseRpcProvider
+    public partial interface IDatabaseRpcProvider
     {
         /// <summary>
         /// 

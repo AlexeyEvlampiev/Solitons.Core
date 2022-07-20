@@ -16,6 +16,11 @@ namespace Solitons.Data.Common
         protected abstract Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
         protected abstract Task ProcessQueueAsync(string queueName, CancellationToken cancellation);
 
+        [DebuggerNonUserCode]
+        public IDatabaseRpcProvider WithCallback(IDatabaseRpcProviderCallback callback)
+        {
+            return DatabaseRpcProviderProxy.Wrap(this, callback);
+        }
 
         [DebuggerStepThrough]
         Task IDatabaseRpcProvider.ProcessQueueAsync(string queueName, CancellationToken cancellation)

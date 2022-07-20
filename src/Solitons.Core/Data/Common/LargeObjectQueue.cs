@@ -168,7 +168,7 @@ namespace Solitons.Data.Common
                 var message = await ReceiveMessageAsync(cancellation);
                 if (message is null)
                 {
-                    await Task.WhenAny(
+                    await Task.WhenAll(
                             callback.OnQueueIsEmptyAsync(cancellation),
                             Task.Delay(EmptyQueueMinPullDelayInMilliseconds, cancellation));
                     continue;
