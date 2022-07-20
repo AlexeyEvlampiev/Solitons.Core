@@ -34,7 +34,7 @@ namespace Solitons.Diagnostics
             Created = entry.Created;
             Level = entry.Level;
             Message = entry.Message;
-            Details = entry.Details;
+            Detail = entry.Detail;
             Tags = entry.Tags?
                 .Distinct(StringComparer.Ordinal)?
                 .ToList();
@@ -68,8 +68,8 @@ namespace Solitons.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        [JsonPropertyName("details")]
-        public string? Details { get; set; }
+        [JsonPropertyName("detail")]
+        public string? Detail { get; set; }
 
         /// <summary>
         /// 

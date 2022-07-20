@@ -17,7 +17,7 @@ namespace Solitons.Common
 
             var entry = new LogEntryData()
             {
-                Details = "Details go here...",
+                Detail = "Details go here...",
                 Message = "Message goes here",
                 Level = LogLevel.Error,
                 Properties = new Dictionary<string, string>()

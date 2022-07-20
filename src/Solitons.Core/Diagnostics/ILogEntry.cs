@@ -30,7 +30,7 @@ namespace Solitons.Diagnostics
         /// <summary>
         /// 
         /// </summary>
-        string? Details { get; }
+        string? Detail { get; }
 
         /// <summary>
         /// 

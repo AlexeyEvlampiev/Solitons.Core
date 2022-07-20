@@ -30,7 +30,7 @@ namespace Solitons.Diagnostics
                 var clone = LogEntryData.Parse(json);
                 Assert.True(comparer.Equals(entry, clone));
                 Assert.Equal("This is a test", clone.Message);
-                Assert.Equal("This is details", clone.Details);
+                Assert.Equal("This is details", clone.Detail);
                 Assert.Equal(new []{ "This is a tag" }, clone.Tags?.ToArray());
                 Assert.Equal(new[] { "My property key" }, clone.Properties?.Keys.ToArray());
                 Assert.Equal("My property value", clone.Properties!["My property key"]);

@@ -16,14 +16,14 @@ namespace Solitons.Diagnostics
         {
             Level = level;
             Message = message;
-            Details = details;
+            Detail = details;
         }
 
         public LogLevel Level { get; }
 
         public string Message { get; }
 
-        public string? Details { get; }
+        public string? Detail { get; }
 
         public DateTimeOffset Created { get; } = DateTimeOffset.UtcNow;
 

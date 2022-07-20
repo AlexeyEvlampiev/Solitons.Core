@@ -22,7 +22,7 @@ namespace Solitons.Diagnostics
             if (x.Level != y.Level) return false;
             if(x.Created != y.Created) return false;
             if (false == StringComparer.Ordinal.Equals(x.Message, y.Message)) return false;
-            if (false == StringComparer.Ordinal.Equals(x.Details, y.Details)) return false;
+            if (false == StringComparer.Ordinal.Equals(x.Detail, y.Detail)) return false;
 
             if(x.PropertyNames.Count() != y.PropertyNames.Count() ||
                x.Tags.Count() != y.Tags.Count())
