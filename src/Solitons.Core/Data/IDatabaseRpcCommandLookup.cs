@@ -20,6 +20,10 @@ public interface IDatabaseRpcCommandLookup
     /// <returns></returns>
     Type? FindCommandType(Guid oid);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     IEnumerable<Type> GetTypes();
 
     /// <summary>
