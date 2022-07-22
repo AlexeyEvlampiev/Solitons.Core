@@ -142,6 +142,17 @@ namespace Solitons.Data
         /// </summary>
         public Dictionary<string, string> Properties { get; }
 
+        /// <summary>
+        /// Sets the <see cref="TransactionTypeId"/> property to the specified command GUID
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public DataTransferPackage ForCommand<T>() where T : IDatabaseRpcCommand
+        {
+            this.TransactionTypeId = typeof(T).GUID;
+            return this;
+        }
+
 
         /// <summary>
         /// 
