@@ -13,6 +13,19 @@ namespace Solitons.Data.Common
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        protected virtual Task OnStartingAsync(CancellationToken cancellation)
+        {
+            Debug.WriteLine($"Starting {GetType()}");
+            return Task.CompletedTask;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="package"></param>
         /// <param name="dto"></param>
         /// <param name="cancellation"></param>
@@ -78,6 +91,14 @@ namespace Solitons.Data.Common
         {
             Debug.WriteLine($"{nameof(OnQueueIsEmptyAsync)}");
             return Task.CompletedTask;
+        }
+
+
+        [DebuggerStepThrough]
+        Task ILargeObjectQueueConsumerCallback.OnStartingAsync(CancellationToken cancellation)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            return OnStartingAsync(cancellation);
         }
 
         [DebuggerStepThrough]

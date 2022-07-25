@@ -163,6 +163,9 @@ namespace Solitons.Data.Common
         /// <returns></returns>
         public async Task ProcessAsync(ILargeObjectQueueConsumerCallback callback, CancellationToken cancellation)
         {
+            cancellation.ThrowIfCancellationRequested();
+            await callback.OnStartingAsync(cancellation);
+
             while (false == cancellation.IsCancellationRequested)
             {
                 var message = await ReceiveMessageAsync(cancellation);

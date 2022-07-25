@@ -93,6 +93,37 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
             .ToString());
     }
 
+    [DebuggerStepThrough]
+    Task IDatabaseRpcCommand.SendViaAsync(
+        ILargeObjectQueueProducer queue, 
+        object dto, 
+        Action<DataTransferPackage> config, 
+        CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        return SendViaAsync(queue, dto, package =>
+        {
+            config.Invoke(package);
+            package.TransactionTypeId = Metadata.CommandOid;
+        }, cancellation);
+    }
+
+    [DebuggerStepThrough]
+    Task IDatabaseRpcCommand.SendViaAsync(
+        ILargeObjectQueueProducer queue,
+        object dto,
+        CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        return SendViaAsync(
+            queue, 
+            dto, 
+            package => package.TransactionTypeId = Metadata.CommandOid, 
+            cancellation);
+    }
+
+
+
     /// <summary>
     /// 
     /// </summary>
@@ -139,6 +170,8 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
             return callback.Invoke(response);
         }
     }
+
+
 
 
     /// <summary>
@@ -201,6 +234,30 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     public sealed override string ToString()
     {
         return $"Procedure: {Metadata.Procedure}; {Metadata.Request.DtoType} => {Metadata.Response.DtoType}";
+    }
+
+
+    private Task SendViaAsync(
+        ILargeObjectQueueProducer queue,
+        object dto,
+        Action<DataTransferPackage> config,
+        CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+
+        if (Metadata.Request.DtoType.IsInstanceOfType(dto))
+        {
+            void OnSending(DataTransferPackage package)
+            {
+                config.Invoke(package);
+                package.TransactionTypeId = Metadata.CommandOid;
+            }
+            return queue.SendAsync(dto, DataTransferMethod.ByValue, OnSending, cancellation);
+        }
+
+        throw new InvalidCastException(new StringBuilder("Invalid request DTO type")
+            .Append($" Expected: {Metadata.Request.DtoType}. Actual: {dto.GetType()}")
+            .ToString());
     }
 }
 
@@ -286,4 +343,28 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse> : DatabaseRpcComma
     /// <exception cref="ArgumentNullException"></exception>
     [DebuggerStepThrough]
     public Task SendAsync(TRequest request, Func<Task> callback, CancellationToken cancellation) => GeneralizedSendAsync(request, callback, cancellation);
+
+
+    [DebuggerStepThrough]
+    Task SendViaAsync(
+        ILargeObjectQueueProducer queue,
+        [DisallowNull] TRequest dto,
+        Action<DataTransferPackage> config,
+        CancellationToken cancellation)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        cancellation.ThrowIfCancellationRequested();
+        return ((IDatabaseRpcCommand)this).SendViaAsync(queue, dto, config, cancellation);
+    }
+
+    [DebuggerStepThrough]
+    Task SendViaAsync(
+        ILargeObjectQueueProducer queue,
+        [DisallowNull] TRequest dto,
+        CancellationToken cancellation)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        cancellation.ThrowIfCancellationRequested();
+        return ((IDatabaseRpcCommand)this).SendViaAsync(queue, dto, cancellation);
+    }
 }
