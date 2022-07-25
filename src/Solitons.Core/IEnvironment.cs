@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Security;
+using System.Text.RegularExpressions;
 
 namespace Solitons
 {
@@ -709,6 +712,33 @@ public static void SetEnvironmentVariable(string variable, string? value, Enviro
                     ,target)
                 .ThrowIfNull($"Required environment variable is missing. Variable name: {variable}");
             return value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static string[] LoadCommandArgs(string file) => ParseCommandArgs(File.ReadAllText(file));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="commandLine"></param>
+        /// <returns></returns>
+        public static string[] ParseCommandArgs(string commandLine)
+        {
+            return Regex
+                .Matches(commandLine, "\"(?<arg>[^\"]*)\"|%(?<env>[\\w_]+)%|(?<arg>\\S+)")
+                .Select(m =>
+                {
+                    if (m.Groups["arg"].Success)
+                        return m.Groups["arg"].Value;
+                    var key = m.Groups["env"].Value;
+                    return Environment.GetEnvironmentVariable(key) ?? string.Empty;
+                })
+                .ToArray();
         }
     }
     

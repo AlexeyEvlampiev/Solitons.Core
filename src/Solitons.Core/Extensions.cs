@@ -285,7 +285,7 @@ namespace Solitons
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
-        public static T ThrowIfNull<T>(this T self, string message) where T : class
+        public static T ThrowIfNull<T>(this T? self, string message) where T : class
         {
             if (self is null)
             {
