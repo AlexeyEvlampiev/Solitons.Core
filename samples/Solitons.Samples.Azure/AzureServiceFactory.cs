@@ -20,14 +20,20 @@ namespace Solitons.Samples.Azure
 
         public AzureServiceFactory(IEnvironment environment)
         {
-            _environment = environment ?? throw new ArgumentNullException(nameof(environment));
+            _environment = environment
+                .ThrowIfNullArgument(nameof(environment))
+                .With(options =>
+                {
+                    options.EnvironmentVariableNotFound += (_, args) 
+                        => throw new InvalidOperationException($"{args.VariableName} environment variable is missing");
+                });
         }
 
 
         public IAsyncLogger GetLogger()
         {
-            var eventHubsConnectionString = _environment.GetRequiredEnvironmentVariable(EventHubsConnectionStringEnvVariable);
-            var storageConnectionString = _environment.GetRequiredEnvironmentVariable(StorageConnectionStringEnvVariable);
+            var eventHubsConnectionString = _environment.GetEnvironmentVariable(EventHubsConnectionStringEnvVariable);
+            var storageConnectionString = _environment.GetEnvironmentVariable(StorageConnectionStringEnvVariable);
             var logsBufferQueue = new QueueClient(storageConnectionString, "logs");
             var logsHub = new EventHubProducerClient(eventHubsConnectionString);
             IAsyncLogger logger = new BufferedAsyncLogger(logsBufferQueue, logsHub);
@@ -37,7 +43,7 @@ namespace Solitons.Samples.Azure
         public AzureSecureBlobAccessUriBuilder GetSecureBlobAccessUriBuilder()
         {
             var storageConnectionString =
-                _environment.GetRequiredEnvironmentVariable(StorageConnectionStringEnvVariable);
+                _environment.GetEnvironmentVariable(StorageConnectionStringEnvVariable);
             return new AzureSecureBlobAccessUriBuilder(storageConnectionString);
         }
 
@@ -45,13 +51,13 @@ namespace Solitons.Samples.Azure
         {
             return AzureActiveDirectoryB2CSettingsGroup
                 .Parse(_environment
-                    .GetRequiredEnvironmentVariable(AADB2CConnectionStringEnvVariable));
+                    .GetEnvironmentVariable(AADB2CConnectionStringEnvVariable));
         }
 
         public string GetPgConnectionString(Action<NpgsqlConnectionStringBuilder>? config = null)
         {
             var builder = new NpgsqlConnectionStringBuilder(_environment
-                .GetRequiredEnvironmentVariable(PostgresConnectionStringEnvVariable));
+                .GetEnvironmentVariable(PostgresConnectionStringEnvVariable));
             config?.Invoke(builder);
             return builder.ConnectionString;
         }

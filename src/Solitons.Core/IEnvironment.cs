@@ -18,34 +18,19 @@ namespace Solitons
         /// <returns> A string containing command-line arguments. </returns>
         string CommandLine { get; }
 
-        //
-        // Summary:
-        //     Gets or sets the fully qualified path of the current working directory.
-        //
-        // Returns:
-        //     The directory path.
-        //
-        // Exceptions:
-        //   T:System.ArgumentException:
-        //     Attempted to set to an empty string ("").
-        //
-        //   T:System.ArgumentNullException:
-        //     Attempted to set to null.
-        //
-        //   T:System.IO.IOException:
-        //     An I/O error occurred.
-        //
-        //   T:System.IO.DirectoryNotFoundException:
-        //     Attempted to set a local path that cannot be found.
-        //
-        //   T:System.Security.SecurityException:
-        //     The caller does not have the appropriate permission.
 
         /// <summary>
         /// Gets or sets the fully qualified path of the current working directory.
         /// </summary>
+        /// <returns>The directory path.</returns>
+        /// <exception cref="ArgumentNullException">Attempted to set to an empty string ("").</exception>
+        /// <exception cref="ArgumentNullException">An I/O error occurred.</exception>
+        /// <exception cref="IOException">An I/O error occurred.</exception>
+        /// <exception cref="DirectoryNotFoundException">Attempted to set a local path that cannot be found.</exception>
+        /// <exception cref="SecurityException">The caller does not have the appropriate permission.</exception>
         string CurrentDirectory { get; set; }
 
+        IEnvironment With(Action<EnvironmentClientConfig> options);
 
         /*
         //
@@ -697,22 +682,6 @@ public static void SetEnvironmentVariable(string variable, string? value, Enviro
         [DebuggerNonUserCode]
         public static IEnvironment System => SysEnvironment.Instance;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException">variable</exception>
-        /// <exception cref="NullReferenceException">variable</exception>
-        public string GetRequiredEnvironmentVariable(string variable, EnvironmentVariableTarget target = EnvironmentVariableTarget.Process)
-        {
-            var value = GetEnvironmentVariable(
-                    variable.ThrowIfNullOrWhiteSpaceArgument(nameof(variable))
-                    ,target)
-                .ThrowIfNull($"Required environment variable is missing. Variable name: {variable}");
-            return value;
-        }
 
         /// <summary>
         /// 

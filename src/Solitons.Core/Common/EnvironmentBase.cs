@@ -19,6 +19,15 @@ namespace Solitons.Common
             set => Environment.CurrentDirectory = value;
         }
 
+
+        [DebuggerStepThrough]
+        public IEnvironment With(Action<EnvironmentClientConfig> config)
+        {
+            var options = new EnvironmentClientConfig();
+            config?.Invoke(options);
+            return new EnvironmentProxy(this, options);
+        }
+
         /// <summary>
         /// 
         /// </summary>

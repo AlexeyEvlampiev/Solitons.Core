@@ -4,8 +4,11 @@ using Solitons.Configuration;
 namespace Solitons.Security.Azure
 {
     /// <summary>
-    /// 
+    /// Service principal credentials
     /// </summary>
+    /// <remarks>
+    /// client-id={value};client-secret={value};tenant-id={value};object-id={value}
+    /// </remarks>
     public sealed class ServicePrincipalCredentialSettingsGroup : SettingsGroup
     {
         /// <summary>

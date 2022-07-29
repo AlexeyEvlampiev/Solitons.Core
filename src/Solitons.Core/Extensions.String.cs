@@ -15,6 +15,15 @@ namespace Solitons
     public static partial class Extensions
     {
         /// <summary>
+        /// Returns <c>true</c> if this string is contains any number of printable characters, and <c>false</c> otherwise.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsPrintable(this string? input) => !(string.IsNullOrWhiteSpace(input));
+
+
+        /// <summary>
         /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
