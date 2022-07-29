@@ -17,8 +17,8 @@ namespace Solitons
         /// <summary>
         /// Returns <c>true</c> if this string is contains any number of printable characters, and <c>false</c> otherwise.
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">The string to test</param>
+        /// <returns><c>true</c> if this string is contains any number of printable characters, and <c>false</c> otherwise</returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsPrintable(this string? input) => !(string.IsNullOrWhiteSpace(input));
 
