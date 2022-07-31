@@ -14,7 +14,7 @@ namespace Solitons.Security.Azure
         /// <summary>
         /// The client ID of the application the service principal is associated with
         /// </summary>
-        [Setting("client-id", IsRequired = true, Pattern = @"(?is)client([-\s]*id)?")]
+        [Setting("client-id", IsRequired = true, Pattern = @"(?is)(?:client([-\s]*id)?|cid)")]
         public Guid ClientId { get; set; }
 
         /// <summary>
@@ -34,6 +34,18 @@ namespace Solitons.Security.Azure
         /// </summary>
         [Setting("object-id", IsRequired = false, Pattern = @"(?is)(obj(ect)?([-\s]*id)?|oid)")]
         public Guid? ObjectId { get; set; }
+
+        /// <summary>
+        /// Default Azure subscription id
+        /// </summary>
+        [Setting("default-subscription-id", IsRequired = false, Pattern = @"(?is)(?:def(?:ault)?-?)?(?:(?:subscription|subs?|s)-?)(?:id)?")]
+        public Guid? DefaultSubscriptionId { get; set; }
+
+        /// <summary>
+        /// Default Azure resource group
+        /// </summary>
+        [Setting("default-resource-group-name", IsRequired = false, Pattern = @"(?is)(?:def(?:ault)?-?)?(?:(?:resource|res|r)-?)(?:(?:group|grp|g)-?)(?:name)?")]
+        public string? DefaultResourceGroupName { get; set; }
 
         /// <summary>
         /// 
