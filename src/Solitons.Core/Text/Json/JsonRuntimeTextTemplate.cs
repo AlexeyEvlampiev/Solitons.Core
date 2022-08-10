@@ -17,7 +17,7 @@ namespace Solitons.Text.Json
         /// </summary>
         /// <param name="objectToConvert">The object to convert</param>
         /// <returns></returns>
-        protected override string ToStringWithCulture(object objectToConvert)
+        protected override string ToStringWithCulture(object? objectToConvert)
         {
             if (objectToConvert is null) return "null";
             if (objectToConvert is bool boolean)

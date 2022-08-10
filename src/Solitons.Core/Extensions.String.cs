@@ -134,6 +134,95 @@ namespace Solitons
         /// 
         /// </summary>
         /// <param name="self"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        /// <exception cref="NullOrWhiteSpaceStringException"></exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static string ThrowIfNullOrWhiteSpace(this string? self, string message)
+        {
+            if (string.IsNullOrWhiteSpace(self))
+            {
+                throw new NullOrWhiteSpaceStringException(message);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="NullOrWhiteSpaceStringException"></exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static string ThrowIfNullOrWhiteSpace(this string? self)
+        {
+            if (string.IsNullOrWhiteSpace(self))
+            {
+                throw new NullOrWhiteSpaceStringException();
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="createException"></param>
+        /// <returns></returns>
+        /// <exception cref="NullOrEmptyStringException"></exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static string ThrowIfNullOrEmpty(this string? self, Func<Exception> createException)
+        {
+            if (string.IsNullOrWhiteSpace(self))
+            {
+                var error = createException.Invoke() ?? throw new NullOrEmptyStringException();
+                throw error;
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        /// <exception cref="NullOrEmptyStringException"></exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static string ThrowIfNullOrEmpty(this string? self, string message)
+        {
+            if (string.IsNullOrWhiteSpace(self))
+            {
+                throw new NullOrEmptyStringException(message);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="NullOrEmptyStringException"></exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static string ThrowIfNullOrEmpty(this string? self)
+        {
+            if (string.IsNullOrWhiteSpace(self))
+            {
+                throw new NullOrEmptyStringException();
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
         /// <param name="parameterName"></param>
         /// <param name="message"></param>
         /// <returns></returns>

@@ -58,6 +58,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Common\Azure\ResourceManager\AutoScaleSettingsRtt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AutoScaleSettingsRtt.tt</DependentUpon>
+    </Compile>
     <Compile Update="Data\Common\Postgres\LoggingPgScriptRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -111,6 +116,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Common\Azure\ResourceManager\AutoScaleSettingsRtt.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>AutoScaleSettingsRtt.cs</LastGenOutput>
+    </None>
     <None Update="Data\Common\Postgres\LoggingPgScriptRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>LoggingPgScriptRtt.cs</LastGenOutput>
