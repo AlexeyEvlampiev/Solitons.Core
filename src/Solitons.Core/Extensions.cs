@@ -560,5 +560,65 @@ namespace Solitons
 
             return false;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="createException"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="NullReferenceException"></exception>
+        /// <exception cref="Exception">User constructed exception object</exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static T ThrowIfNull<T>(this T? self, Func<Exception> createException) where T : struct
+        {
+            if (createException == null) throw new ArgumentNullException(nameof(createException));
+            if (self.HasValue == false)
+            {
+                var error = createException.Invoke() ?? throw new NullReferenceException($"{nameof(createException)}() returned null.");
+                throw error;
+            }
+            return self.Value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        /// <exception cref="MissingValueException"></exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static T ThrowIfNull<T>(this T? self, string message) where T : struct
+        {
+            if (self.HasValue == false)
+            {
+                throw new MissingValueException(message);
+            }
+            return self.Value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="MissingValueException"></exception>
+        [DebuggerNonUserCode]
+        [return: NotNull]
+        public static T ThrowIfNull<T>(this T? self) where T : struct
+        {
+            if (self.HasValue == false)
+            {
+                throw new MissingValueException();
+            }
+            return self.Value;
+        }
     }
 }
