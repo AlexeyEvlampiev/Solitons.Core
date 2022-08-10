@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -619,6 +620,12 @@ namespace Solitons
                 throw new MissingValueException();
             }
             return self.Value;
+        }
+
+
+        public static TResult Convert<TSource, TResult>(this TSource self, Func<TSource, TResult> transform)
+        {
+            return transform.Invoke(self);
         }
     }
 }
