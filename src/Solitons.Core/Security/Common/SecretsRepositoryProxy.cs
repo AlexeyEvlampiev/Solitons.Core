@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Security.Common
@@ -50,6 +51,12 @@ namespace Solitons.Security.Common
         /// <returns></returns>
         [DebuggerStepThrough]
         public sealed override int GetHashCode() => _innerRepository.GetHashCode();
+
+        [DebuggerStepThrough]
+        public virtual Task<string[]> ListSecretNamesAsync(CancellationToken cancellation = default)
+        {
+            return _innerRepository.ListSecretNamesAsync(cancellation);
+        }
 
         /// <summary>
         /// 

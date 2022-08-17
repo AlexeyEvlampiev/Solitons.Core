@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Security
@@ -11,6 +12,13 @@ namespace Solitons.Security
     /// </summary>
     public partial interface ISecretsRepository
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        Task<string[]> ListSecretNamesAsync(CancellationToken cancellation = default);
+
         /// <summary>
         /// 
         /// </summary>

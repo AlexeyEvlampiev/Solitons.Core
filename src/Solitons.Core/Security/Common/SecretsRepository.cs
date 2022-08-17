@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Security.Common
@@ -9,6 +10,12 @@ namespace Solitons.Security.Common
     /// </summary>
     public abstract class SecretsRepository : ISecretsRepository
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        protected abstract Task<string[]> ListSecretNamesAsync(CancellationToken cancellation);
         /// <summary>
         /// 
         /// </summary>
@@ -52,6 +59,14 @@ namespace Solitons.Security.Common
         /// <param name="secretName"></param>
         /// <returns></returns>
         protected virtual bool IsValidSecretName(string secretName) => secretName.IsPrintable();
+
+        [DebuggerStepThrough]
+        Task<string[]> ISecretsRepository.ListSecretNamesAsync(CancellationToken cancellation)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            return ListSecretNamesAsync(cancellation);
+        }
+
 
         [DebuggerStepThrough]
         Task<string> ISecretsRepository.GetSecretAsync(string secretName)
