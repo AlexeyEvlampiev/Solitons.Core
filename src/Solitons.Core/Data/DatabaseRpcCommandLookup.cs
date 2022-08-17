@@ -14,6 +14,14 @@ namespace Solitons.Data
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly Dictionary<Guid, Type> _commandTypeByOid;
 
+        private DatabaseRpcCommandLookup(IEnumerable<Type> types)
+        {
+            _commandTypeByOid = types.ToDictionary(type => type.GUID);
+        }
+
+        [DebuggerStepThrough]
+        public IDatabaseRpcCommandLookup Where(Func<Type, bool> filter) => new DatabaseRpcCommandLookup(GetTypes().Where(filter));
+
         /// <summary>
         /// 
         /// </summary>

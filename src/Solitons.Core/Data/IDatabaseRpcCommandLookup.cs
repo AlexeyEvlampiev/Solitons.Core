@@ -29,6 +29,13 @@ public interface IDatabaseRpcCommandLookup
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    IDatabaseRpcCommandLookup Where(Func<Type, bool> filter);
+
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="sourceAssemblies"></param>
     /// <returns></returns>
     [DebuggerStepThrough]
@@ -48,6 +55,17 @@ public interface IDatabaseRpcCommandLookup
         return new DatabaseRpcCommandLookup(FluentArray
             .Create(sourceAssembly)
             .AsEnumerable());
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    [DebuggerStepThrough]
+    public IDatabaseRpcCommandLookup Subset<T>() where T : IDatabaseRpcCommand
+    {
+        return this.Where(type => typeof(T).IsAssignableFrom(type));
     }
 
     /// <summary>
