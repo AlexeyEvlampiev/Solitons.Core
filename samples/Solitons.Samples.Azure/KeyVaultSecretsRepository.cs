@@ -57,7 +57,7 @@ namespace Solitons.Samples.Azure
             string uri,
             ServicePrincipalCredentialSettingsGroup credentials) => Create(new Uri(uri), credentials);
 
-
+        public static ISecretsRepository From(SecretClient nativeClient) => new KeyVaultSecretsRepository(nativeClient);
 
 
         protected override async Task<string> GetSecretAsync(string secretName)

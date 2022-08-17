@@ -100,33 +100,43 @@ namespace Solitons.Data.Common
         /// <param name="content"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public object Deserialize(Type targetType, string contentType, string content) => _innerSerializer.Deserialize(targetType, contentType, content);
+        public object Deserialize(Type targetType, string content, string contentType) => _innerSerializer.Deserialize(targetType, content, contentType);
 
         /// <summary>
         /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="contentType"></param>
         /// <param name="content"></param>
+        /// <param name="contentType"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public T Deserialize<T>(string contentType, string content) => _innerSerializer.Deserialize<T>(contentType, content);
+        public T Deserialize<T>(string content, string contentType) => _innerSerializer.Deserialize<T>(content, contentType);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="typeId"></param>
-        /// <param name="contentType"></param>
         /// <param name="content"></param>
+        /// <param name="contentType"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public object Deserialize(Guid typeId, string contentType, string content) => _innerSerializer.Deserialize(typeId, contentType, content);
+        public object Deserialize(Guid typeId, string content, string contentType) => _innerSerializer.Deserialize(typeId, content, contentType);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         public DataTransferPackage Pack(object dto)
         {
             return _innerSerializer.Pack(dto);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="package"></param>
+        /// <returns></returns>
         public object Unpack(DataTransferPackage package)
         {
             return _innerSerializer.Unpack(package);
