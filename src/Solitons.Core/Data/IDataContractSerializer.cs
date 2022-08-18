@@ -127,6 +127,20 @@ public partial interface IDataContractSerializer
     /// </summary>
     /// <returns></returns>
     IEnumerable<Type> GetSupportedTypes();
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dtoTypeId"></param>
+    /// <returns></returns>
+    Type GetType(Guid dtoTypeId);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dtoTypeId"></param>
+    /// <returns></returns>
+    Type? GetTypeIfExists(Guid dtoTypeId);
 }
 
 public partial interface IDataContractSerializer

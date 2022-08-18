@@ -159,5 +159,15 @@ namespace Solitons.Data.Common
         /// <returns></returns>
         [DebuggerStepThrough]
         public IEnumerable<Type> GetSupportedTypes() => _innerSerializer.GetSupportedTypes();
+
+        public Type GetType(Guid dtoTypeId)
+        {
+            return _innerSerializer.GetType(dtoTypeId);
+        }
+
+        public Type? GetTypeIfExists(Guid dtoTypeId)
+        {
+            return _innerSerializer.GetTypeIfExists(dtoTypeId);
+        }
     }
 }

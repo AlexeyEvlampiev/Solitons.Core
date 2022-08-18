@@ -312,5 +312,17 @@ namespace Solitons.Data
         /// </summary>
         /// <returns></returns>
         public IEnumerable<Type> GetSupportedTypes() => _metadata.Values.Select(metadata => metadata.DataContractType);
+
+        public Type GetType(Guid dtoTypeId)
+        {
+            return GetTypeIfExists(dtoTypeId) ?? throw new ArgumentOutOfRangeException(nameof(dtoTypeId));
+        }
+
+        public Type? GetTypeIfExists(Guid dtoTypeId)
+        {
+            return _metadata.TryGetValue(dtoTypeId, out var metadata)
+                ? metadata.DataContractType
+                : null;
+        }
     }
 }
