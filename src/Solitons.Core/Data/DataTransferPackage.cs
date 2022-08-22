@@ -312,9 +312,34 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="signature"></param>
+        /// <exception cref="InvalidCastException"></exception>
+        public void SetSignature(object? signature)
+        {
+            if (signature is null)
+            {
+                Signature = null;
+            }
+            else if (signature is IEnumerable<byte> bytes)
+            {
+                Signature = bytes as byte[] ?? bytes.ToArray();
+            }
+            else
+            {
+                Signature = signature
+                    .ToString()
+                    .ThrowIfNull(()=> new InvalidCastException($"{signature.GetType()}.{nameof(ToString)} returned null reference."))
+                    .AsBase64Bytes();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="package"></param>
         /// <returns></returns>
         public static implicit operator string(DataTransferPackage package) => package.ToString();
+
     }
 
 }

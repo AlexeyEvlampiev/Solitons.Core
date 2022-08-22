@@ -14,6 +14,7 @@ namespace Solitons
     /// </summary>
     public static partial class Extensions
     {
+        private static readonly Lazy<Regex> Base64Regex = new(() => new Regex(@"(?xis-m)^[a-z0-9\+/]*={0,3}$"));
         /// <summary>
         /// Determines whether this string contains any number of printable characters.
         /// </summary>
@@ -22,6 +23,16 @@ namespace Solitons
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsPrintable(this string? input) => !(string.IsNullOrWhiteSpace(input));
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsBase64String(this string? input) => 
+            input != null &&
+            input.Length % 4 == 0 &&
+            Base64Regex.Value.IsMatch(input);
 
         /// <summary>
         /// 

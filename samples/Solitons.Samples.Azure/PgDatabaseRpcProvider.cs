@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Diagnostics;
-using System.Security.Claims;
 using Npgsql;
 using NpgsqlTypes;
 using Polly;

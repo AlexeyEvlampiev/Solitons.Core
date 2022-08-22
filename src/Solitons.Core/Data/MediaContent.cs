@@ -14,7 +14,15 @@ namespace Solitons.Data
         /// <param name="contentType"></param>
         public MediaContent(string content, string contentType)
         {
-            Content = content.ThrowIfNullOrWhiteSpaceArgument(nameof(content));
+            if ("text/plain".Equals(contentType, StringComparison.OrdinalIgnoreCase))
+            {
+                Content = content;
+            }
+            else
+            {
+                Content = content.ThrowIfNullOrWhiteSpaceArgument(nameof(content));
+            }
+
             ContentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
         }
 

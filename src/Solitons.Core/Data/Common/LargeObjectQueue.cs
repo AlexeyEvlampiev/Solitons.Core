@@ -58,10 +58,10 @@ namespace Solitons.Data.Common
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="body"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        protected abstract Task SendAsync(string message, CancellationToken cancellation);
+        protected abstract Task SendAsync(string body, CancellationToken cancellation);
 
         /// <summary>
         /// 
@@ -103,17 +103,23 @@ namespace Solitons.Data.Common
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="package"></param>
+        protected virtual void OnSending(DataTransferPackage package) {}
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="dto"></param>
         /// <param name="preferredMethod"></param>
         /// <param name="config"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task<DataTransferMethod> SendAsync(
+        async Task<DataTransferMethod> ILargeObjectQueueProducer.SendAsync(
             object dto,
-            DataTransferMethod preferredMethod = DataTransferMethod.ByValue,
-            Action<DataTransferPackage>? config = default,
-            CancellationToken cancellation = default)
+            DataTransferMethod preferredMethod,
+            Action<DataTransferPackage>? config,
+            CancellationToken cancellation)
         {
             var actualMethod = preferredMethod;
             var package = Serializer.Pack(dto);
