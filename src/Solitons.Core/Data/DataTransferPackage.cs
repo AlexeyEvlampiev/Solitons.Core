@@ -13,11 +13,11 @@ namespace Solitons.Data
     public sealed class DataTransferPackage
     {
         #region Metadata Keys
+        private const string IntentIdKey = "sys.intentId";
         private const string TypeIdKey = "sys.typeId";
         private const string ContentKey = "sys.content";
         private const string EncodingKey = "sys.encoding";
         private const string ContentTypeKey = "sys.contentType";
-        private const string TransactionTypeIdKey = "sys.trnTypeId";
         private const string CorrelationIdKey = "sys.correlationId";
         private const string SessionIdKey = "sys.sessionId";
         private const string MessageIdKey = "sys.messageId";
@@ -39,14 +39,29 @@ namespace Solitons.Data
         /// <param name="content"></param>
         /// <param name="contentType"></param>
         /// <param name="encoding"></param>
-        public DataTransferPackage(Guid typeId, string content, string contentType, Encoding encoding)
+        [DebuggerStepThrough]
+        public DataTransferPackage(Guid typeId, string content, string contentType, Encoding encoding) 
+            : this(typeId, typeId, content, contentType, encoding)
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="intentId"></param>
+        /// <param name="typeId"></param>
+        /// <param name="content"></param>
+        /// <param name="contentType"></param>
+        /// <param name="encoding"></param>
+        public DataTransferPackage(Guid intentId, Guid typeId, string content, string contentType, Encoding encoding)
         {
             content = content.ThrowIfNullArgument(nameof(content));
             contentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
             encoding = encoding.ThrowIfNullArgument(nameof(encoding));
 
+            IntentId = intentId.ThrowIfEmptyArgument(nameof(intentId));
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
-            TransactionTypeId = TypeId;
             Content = content.ToBytes(encoding);
             ContentType = contentType;
             Encoding = encoding;
@@ -54,14 +69,14 @@ namespace Solitons.Data
         }
 
 
-        private DataTransferPackage(Guid typeId, byte[] content, string contentType, Encoding encoding)
+        private DataTransferPackage(Guid intentId, Guid typeId, byte[] content, string contentType, Encoding encoding)
         {
             content = content.ThrowIfNullArgument(nameof(content));
             contentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
             encoding = encoding.ThrowIfNullArgument(nameof(encoding));
 
+            IntentId = intentId.ThrowIfEmptyArgument(nameof(intentId));
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
-            TransactionTypeId = TypeId;
             Content = content;
             ContentType = contentType;
             Encoding = encoding;
@@ -72,6 +87,11 @@ namespace Solitons.Data
         /// Gets the GUID associated with the serialized type
         /// </summary>
         public Guid TypeId { get; }
+
+        /// <summary>
+        /// Package intent GUID
+        /// </summary>
+        public Guid IntentId { get; }
 
         /// <summary>
         /// Gets the type of the package content.
@@ -88,10 +108,6 @@ namespace Solitons.Data
         /// </summary>
         public Encoding Encoding { get; }
 
-        /// <summary>
-        /// Gets or sets the identifier of the intended system transaction.
-        /// </summary>
-        public Guid TransactionTypeId { get; set; }
 
         /// <summary>
         /// Gets or sets the identifier of the correlation.
@@ -175,18 +191,6 @@ namespace Solitons.Data
         public Dictionary<string, string> Properties { get; }
 
         /// <summary>
-        /// Sets the <see cref="TransactionTypeId"/> property to the specified command GUID
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public DataTransferPackage ForCommand<T>() where T : IDatabaseRpcCommand
-        {
-            this.TransactionTypeId = typeof(T).GUID;
-            return this;
-        }
-
-
-        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
@@ -201,11 +205,11 @@ namespace Solitons.Data
         {
             var data = new Dictionary<string, string>
             {
+                [IntentIdKey] = IntentId.ToString("N"),
                 [TypeIdKey] = TypeId.ToString("N"),
                 [ContentKey] = Content.ToArray().ToBase64String(),
                 [EncodingKey] = Encoding.BodyName,
-                [ContentTypeKey] = ContentType,
-                [TransactionTypeIdKey] = TransactionTypeId.ToString("N")
+                [ContentTypeKey] = ContentType
             };
 
             foreach (var pair in Properties)
@@ -272,6 +276,12 @@ namespace Solitons.Data
                 throw new FormatException($"Type ID is missing");
             }
 
+            if (false == data.TryGetValue(IntentIdKey, out value) ||
+                false == Guid.TryParse(value, out var intentId))
+            {
+                throw new FormatException($"Intent ID is missing");
+            }
+
             if (false == data.TryGetValue(ContentKey, out var contentBase64))
             {
                 throw new FormatException($"Content is missing");
@@ -287,19 +297,11 @@ namespace Solitons.Data
                 throw new FormatException($"Encoding is missing");
             }
 
-            if (false == data.TryGetValue(TransactionTypeIdKey, out value) ||
-                false == Guid.TryParse(value, out var transactionTypeId))
-            {
-                throw new FormatException($"Transaction type ID is missing");
-            }
 
             var encoding = TryCatch
                 .Invoke(()=> Encoding.GetEncoding(encodingName), ex=> throw new FormatException("Unknown encoding type", ex));
             var content = Convert.FromBase64String(contentBase64);
-            var result = new DataTransferPackage(typeId, content, contentType,  encoding);
-
-            if (transactionTypeId != Guid.Empty)
-                result.TransactionTypeId = transactionTypeId;
+            var result = new DataTransferPackage(intentId, typeId, content, contentType,  encoding);
 
             if (data.TryGetValue(CorrelationIdKey, out value))
                 result.CorrelationId = value;

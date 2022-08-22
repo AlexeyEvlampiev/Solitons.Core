@@ -101,11 +101,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
-        return SendViaAsync(queue, dto, package =>
-        {
-            config.Invoke(package);
-            package.TransactionTypeId = Metadata.CommandOid;
-        }, cancellation);
+        return SendViaAsync(queue, dto, config, cancellation);
     }
 
     [DebuggerStepThrough]
@@ -117,8 +113,8 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         cancellation.ThrowIfCancellationRequested();
         return SendViaAsync(
             queue, 
-            dto, 
-            package => package.TransactionTypeId = Metadata.CommandOid, 
+            dto,
+            package=>{},
             cancellation);
     }
 
@@ -247,12 +243,12 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 
         if (Metadata.Request.DtoType.IsInstanceOfType(dto))
         {
-            void OnSending(DataTransferPackage package)
-            {
-                config.Invoke(package);
-                package.TransactionTypeId = Metadata.CommandOid;
-            }
-            return queue.SendAsync(dto, DataTransferMethod.ByValue, OnSending, cancellation);
+            var content = _serializer.Serialize(dto, Metadata.Request.ContentType);
+            content = TransformRequest(content);
+            var package = new DataTransferPackage(Metadata.CommandOid, content, Metadata.Request.ContentType, Encoding.UTF8);
+            config.Invoke(package);
+            
+            return queue.SendAsync(package, DataTransferMethod.ByValue, cancellation);
         }
 
         throw new InvalidCastException(new StringBuilder("Invalid request DTO type")

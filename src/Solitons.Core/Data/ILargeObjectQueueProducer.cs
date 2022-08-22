@@ -14,6 +14,18 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="package"></param>
+        /// <param name="preferredMethod"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        Task<DataTransferMethod> SendAsync(
+            DataTransferPackage package,
+            DataTransferMethod preferredMethod = DataTransferMethod.ByValue,
+            CancellationToken cancellation = default);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="dto"></param>
         /// <param name="preferredMethod"></param>
         /// <param name="config"></param>

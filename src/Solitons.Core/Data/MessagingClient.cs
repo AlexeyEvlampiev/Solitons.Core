@@ -81,7 +81,7 @@ namespace Solitons.Data
             var correlationId = Guid.NewGuid();
             var requestPackage = Pack(request, transactionTypeId, correlationId);
 
-            if (requestPackage.TransactionTypeId != transactionTypeId)
+            if (requestPackage.IntentId != transactionTypeId)
                 throw new InvalidOperationException($"");
 
             return Observable.Create<BrokeredResponse>(observer =>

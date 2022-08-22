@@ -114,12 +114,11 @@ public partial interface IDataContractSerializer
     /// <returns></returns>
     DataTransferPackage Pack(object dto);
 
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="package"></param>
-/// <returns></returns>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="package"></param>
+    /// <returns></returns>
     object Unpack(DataTransferPackage package);
 
     /// <summary>

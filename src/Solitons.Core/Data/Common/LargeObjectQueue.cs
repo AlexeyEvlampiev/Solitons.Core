@@ -161,6 +161,48 @@ namespace Solitons.Data.Common
             }
         }
 
+        async Task<DataTransferMethod> ILargeObjectQueueProducer.SendAsync(
+            DataTransferPackage package,
+            DataTransferMethod preferredMethod,
+            CancellationToken cancellation)
+        {
+            var actualMethod = preferredMethod;
+            if (preferredMethod == DataTransferMethod.ByReference)
+            {
+                var packageRef = await StoreAsideAsync(package, cancellation);
+                if (packageRef.Content.Count < package.Content.Count)
+                {
+                    package = packageRef;
+                    actualMethod = DataTransferMethod.ByReference;
+                }
+                else
+                {
+                    actualMethod = DataTransferMethod.ByValue;
+                }
+            }
+
+            try
+            {
+                await SendAsync(package.ToString(), cancellation);
+                return DataTransferMethod.ByValue;
+            }
+            catch (Exception e) when (
+                IsMessageOversizeError(e) &&
+                actualMethod == DataTransferMethod.ByValue &&
+                preferredMethod != DataTransferMethod.ByReference)
+            {
+                var packageRef = await StoreAsideAsync(package, cancellation);
+                if (packageRef.Content.Count >= package.Content.Count)
+                {
+                    throw new InvalidOperationException(
+                        $"Transient storage reference size > size of the object stored.");
+                }
+                
+                await SendAsync(packageRef.ToString(), cancellation);
+                return DataTransferMethod.ByReference;
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

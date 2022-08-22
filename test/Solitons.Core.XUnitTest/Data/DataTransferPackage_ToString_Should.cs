@@ -30,8 +30,7 @@ namespace Solitons.Data
                 ReplyToSessionId = "Reply to session ID", 
                 SignatureBase64 = "Signature goes here".ToUtf8Bytes().ToBase64String(), 
                 SessionId = "Some session ID", 
-                MessageId = "Some message ID", 
-                TransactionTypeId = Guid.Parse("50dae5eb5b7d4f0aa71c6c445705c651")
+                MessageId = "Some message ID"
             };
 
 
@@ -39,8 +38,7 @@ namespace Solitons.Data
 
             var packageString = package.ToString(fixedClock.Object);
             var clone = DataTransferPackage.Parse(packageString, fixedClock.Object);
-            Assert.Equal(Guid.Parse("148b347e572148af8b91ae84cb04b70b"), clone.TypeId);
-            Assert.Equal(Guid.Parse("50dae5eb5b7d4f0aa71c6c445705c651"), clone.TransactionTypeId);
+            Assert.Equal(Guid.Parse("148b347e572148af8b91ae84cb04b70b"), clone.IntentId);
             Assert.Equal("Some correlation ID", clone.CorrelationId);
             Assert.Equal("Some from- address", clone.From);
             Assert.Equal("Some to- address", clone.To);

@@ -28,7 +28,6 @@ namespace Solitons.Data
 
             var package = serializer.Pack(dto);
 
-            package.TransactionTypeId = expectedTransactionTypeId;
             package.TimeToLive = TimeSpan.FromMinutes(10);
 
             var clone = (MyDto)serializer.Unpack(package);
@@ -65,7 +64,9 @@ namespace Solitons.Data
             Assert.Equal(dto.Value, clone.Value);
         }
 
-        public sealed class MyDto : BasicJsonDataTransferObject
+        public sealed class MyDto :
+            BasicJsonDataTransferObject,
+            ITransactionArgs
         {
             public string Text { get; set; }
         }

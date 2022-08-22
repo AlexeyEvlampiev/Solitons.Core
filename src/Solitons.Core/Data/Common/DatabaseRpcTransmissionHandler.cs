@@ -46,7 +46,7 @@ namespace Solitons.Data.Common
             CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
-            var command = _commandFactory.Create(package.TransactionTypeId);
+            var command = _commandFactory.Create(package.IntentId);
             if (command is null)
             {
                 return OnRpcCommandNotFoundAsync(package, dto, cancellation);
