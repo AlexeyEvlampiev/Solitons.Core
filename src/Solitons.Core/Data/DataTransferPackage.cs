@@ -29,6 +29,8 @@ namespace Solitons.Data
         private const string ExpiredOnKey = "sys.expiredOn";
         #endregion
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string? _signatureBase64;
 
         /// <summary>
         /// 
@@ -117,10 +119,40 @@ namespace Solitons.Data
         /// </summary>
         public string? From { get; set; }
 
+
         /// <summary>
         /// Gets or sets the content digital signature
         /// </summary>
-        public byte[]? Signature { get; set; }
+        public string? SignatureBase64
+        {
+            [DebuggerNonUserCode]
+            get => _signatureBase64;
+            [DebuggerStepThrough]
+            set
+            {
+                if (value == null)
+                {
+                    _signatureBase64 = null;
+                }
+
+                _signatureBase64 = value.IsBase64String()
+                    ? value
+                    : throw new InvalidOperationException(
+                        $"The assigned value is not a valid base64 string");
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a digital signature bytes.
+        /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public byte[]? Signature
+        {
+            [DebuggerNonUserCode]
+            get => _signatureBase64?.AsBase64Bytes();
+            [DebuggerNonUserCode]
+            set => _signatureBase64 = value?.ToBase64String();
+        }
 
         /// <summary>
         /// Gets or sets the address to reply to.
@@ -198,8 +230,8 @@ namespace Solitons.Data
             if (false == From.IsNullOrWhiteSpace())
                 data[FromKey] = From!;
 
-            if (Signature is not null)
-                data[SignatureKey] = Signature.ToBase64String();
+            if (SignatureBase64.IsPrintable())
+                data[SignatureKey] = SignatureBase64!;
 
             if (false == ReplyTo.IsNullOrWhiteSpace())
                 data[ReplyToKey] = ReplyTo!;
@@ -285,7 +317,7 @@ namespace Solitons.Data
                 result.From = value;
 
             if (data.TryGetValue(SignatureKey, out value))
-                result.Signature = Convert.FromBase64String(value);
+                result.SignatureBase64 = value;
 
             if (data.TryGetValue(ReplyToKey, out value))
                 result.ReplyTo = value;
@@ -312,34 +344,9 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="signature"></param>
-        /// <exception cref="InvalidCastException"></exception>
-        public void SetSignature(object? signature)
-        {
-            if (signature is null)
-            {
-                Signature = null;
-            }
-            else if (signature is IEnumerable<byte> bytes)
-            {
-                Signature = bytes as byte[] ?? bytes.ToArray();
-            }
-            else
-            {
-                Signature = signature
-                    .ToString()
-                    .ThrowIfNull(()=> new InvalidCastException($"{signature.GetType()}.{nameof(ToString)} returned null reference."))
-                    .AsBase64Bytes();
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="package"></param>
         /// <returns></returns>
         public static implicit operator string(DataTransferPackage package) => package.ToString();
-
     }
 
 }

@@ -28,7 +28,7 @@ namespace Solitons.Data
                 To = "Some to- address", 
                 ReplyTo = "Reply to- address",
                 ReplyToSessionId = "Reply to session ID", 
-                Signature = "Signature goes here".ToUtf8Bytes(), 
+                SignatureBase64 = "Signature goes here".ToUtf8Bytes().ToBase64String(), 
                 SessionId = "Some session ID", 
                 MessageId = "Some message ID", 
                 TransactionTypeId = Guid.Parse("50dae5eb5b7d4f0aa71c6c445705c651")
@@ -46,7 +46,7 @@ namespace Solitons.Data
             Assert.Equal("Some to- address", clone.To);
             Assert.Equal("Reply to- address", clone.ReplyTo);
             Assert.Equal("Reply to session ID", clone.ReplyToSessionId);
-            Assert.Equal("Signature goes here", clone.Signature?.ToString(Encoding.ASCII));
+            Assert.Equal("Signature goes here".ToUtf8Bytes().ToBase64String(), clone.SignatureBase64);
             Assert.Equal("Some session ID", clone.SessionId);
             Assert.Equal("Some message ID", clone.MessageId);
             Assert.Equal(TimeSpan.FromMinutes(123), clone.TimeToLive);
