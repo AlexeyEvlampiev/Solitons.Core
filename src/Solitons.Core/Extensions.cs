@@ -84,6 +84,15 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullOrEmpty(this Guid? self) => self == null || self == Guid.Empty;
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="self"></param>
         /// <param name="createException"></param>
@@ -445,6 +454,44 @@ namespace Solitons
         /// 
         /// </summary>
         /// <param name="self"></param>
+        /// <param name="createException"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guid ThrowIfNullOrEmpty(this Guid? self, Func<Exception> createException)
+        {
+            if (self == null || self == Guid.Empty)
+            {
+                var error = createException.Invoke();
+                throw error;
+            }
+
+            return self.Value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        /// <exception cref="NullOrEmptyGuidException"></exception>
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guid ThrowIfNullOrEmpty(this Guid? self, string message)
+        {
+            if (self == null || self == Guid.Empty)
+            {
+                throw new NullOrEmptyGuidException(message);
+            }
+
+            return self.Value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public static Guid DefaultIfEmpty(this Guid self, Guid defaultValue)
@@ -621,10 +668,141 @@ namespace Solitons
             return self.Value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TResult Convert<TSource, TResult>(this TSource self, Func<TSource, TResult> transform) => 
+            transform.Invoke(self);
 
-        public static TResult Convert<TSource, TResult>(this TSource self, Func<TSource, TResult> transform)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <typeparam name="TException"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="transform"></param>
+        /// <param name="onError"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TResult Convert<TSource, TResult, TException>(
+            this TSource self, 
+            Func<TSource, TResult> transform, 
+            Action<TException> onError)
         {
-            return transform.Invoke(self);
+            try
+            {
+                return transform.Invoke(self);
+            }
+            catch (Exception ex) when(ex is TException targetEx)
+            {
+                onError.Invoke(targetEx);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="transform"></param>
+        /// <param name="onError"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TResult Convert<TSource, TResult>(
+            this TSource self,
+            Func<TSource, TResult> transform,
+            Action<Exception> onError)
+        {
+            try
+            {
+                return transform.Invoke(self);
+            }
+            catch (Exception ex)
+            {
+                onError.Invoke(ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <typeparam name="TException"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="transform"></param>
+        /// <param name="fallback"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TResult Convert<TSource, TResult, TException>(
+            this TSource self,
+            Func<TSource, TResult> transform,
+            Func<TException, TResult> fallback)
+        {
+            try
+            {
+                return transform.Invoke(self);
+            }
+            catch (Exception ex) when (ex is TException targetEx)
+            {
+                return fallback.Invoke(targetEx);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="transform"></param>
+        /// <param name="fallback"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TResult Convert<TSource, TResult>(
+            this TSource self,
+            Func<TSource, TResult> transform,
+            Func<Exception, TResult> fallback)
+        {
+            try
+            {
+                return transform.Invoke(self);
+            }
+            catch (Exception ex) 
+            {
+                return fallback.Invoke(ex);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="transform"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TSource Convert<TSource>(this TSource self, Action<TSource> transform)
+        {
+            transform.Invoke(self);
+            return self;
         }
     }
 }

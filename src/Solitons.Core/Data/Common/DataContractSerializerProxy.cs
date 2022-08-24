@@ -150,7 +150,7 @@ namespace Solitons.Data.Common
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public string Pack(ITransactionArgs args) => _innerSerializer.Pack(args);
+        public string Pack(IDistributedEventArgs args) => _innerSerializer.Pack(args);
 
 
         /// <summary>

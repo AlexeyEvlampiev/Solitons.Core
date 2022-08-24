@@ -8,16 +8,16 @@ namespace Solitons.Data.Common
     /// </summary>
     public abstract class DatabaseRpcTransmissionHandler : LargeObjectQueueConsumerCallback
     {
-        private readonly IDatabaseRpcCommandFactory _commandFactory;
+        private readonly IDatabaseRpcModule _module;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="commandFactory"></param>
+        /// <param name="module"></param>
         protected DatabaseRpcTransmissionHandler(
-            IDatabaseRpcCommandFactory commandFactory)
+            IDatabaseRpcModule module)
         {
-            _commandFactory = commandFactory;
+            _module = module;
         }
 
 
@@ -46,13 +46,13 @@ namespace Solitons.Data.Common
             CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
-            var command = _commandFactory.Create(package.IntentId);
-            if (command is null)
+            if (package.IntentId.IsNullOrEmpty() || 
+                false == _module.Contains(package.IntentId!.Value))
             {
                 return OnRpcCommandNotFoundAsync(package, dto, cancellation);
             }
 
-            return command.SendAsync(dto, cancellation);
+            return _module.SendAsync(package.IntentId!.Value, package, cancellation);
         }
     }
 }

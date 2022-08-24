@@ -294,10 +294,11 @@ namespace Solitons.Data
         public DataTransferPackage Pack(object dto)
         {
             var content = Serialize(dto, out var contentType);
-            var intentId = dto is ITransactionArgs args 
-                ? args.TransactionTypeId 
-                : dto.GetType().GUID;
-            var package = new DataTransferPackage(intentId, dto.GetType().GUID, content, contentType, Encoding.UTF8);
+            var package = new DataTransferPackage(dto.GetType().GUID, content, contentType, Encoding.UTF8);
+            if (dto is IDistributedEventArgs args)
+            {
+                package.IntentId = args.IntentId;
+            }
             return package;
         }
 

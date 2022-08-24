@@ -22,6 +22,7 @@ namespace Solitons.Data
                 "text/plain", 
                 Encoding.ASCII)
             {
+                IntentId = Guid.Parse("c5b0f055-47d3-4e0c-9d1b-e349a286b4e4"),
                 TimeToLive = TimeSpan.FromMinutes(123), 
                 CorrelationId = "Some correlation ID", 
                 From = "Some from- address",
@@ -38,7 +39,8 @@ namespace Solitons.Data
 
             var packageString = package.ToString(fixedClock.Object);
             var clone = DataTransferPackage.Parse(packageString, fixedClock.Object);
-            Assert.Equal(Guid.Parse("148b347e572148af8b91ae84cb04b70b"), clone.IntentId);
+            Assert.Equal(Guid.Parse("148b347e572148af8b91ae84cb04b70b"), clone.TypeId);
+            Assert.Equal(Guid.Parse("c5b0f055-47d3-4e0c-9d1b-e349a286b4e4"), clone.IntentId);
             Assert.Equal("Some correlation ID", clone.CorrelationId);
             Assert.Equal("Some from- address", clone.From);
             Assert.Equal("Some to- address", clone.To);

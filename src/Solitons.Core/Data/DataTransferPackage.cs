@@ -39,28 +39,12 @@ namespace Solitons.Data
         /// <param name="content"></param>
         /// <param name="contentType"></param>
         /// <param name="encoding"></param>
-        [DebuggerStepThrough]
-        public DataTransferPackage(Guid typeId, string content, string contentType, Encoding encoding) 
-            : this(typeId, typeId, content, contentType, encoding)
-        {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="intentId"></param>
-        /// <param name="typeId"></param>
-        /// <param name="content"></param>
-        /// <param name="contentType"></param>
-        /// <param name="encoding"></param>
-        public DataTransferPackage(Guid intentId, Guid typeId, string content, string contentType, Encoding encoding)
+        public DataTransferPackage(Guid typeId, string content, string contentType, Encoding encoding)
         {
             content = content.ThrowIfNullArgument(nameof(content));
             contentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
             encoding = encoding.ThrowIfNullArgument(nameof(encoding));
 
-            IntentId = intentId.ThrowIfEmptyArgument(nameof(intentId));
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
             Content = content.ToBytes(encoding);
             ContentType = contentType;
@@ -69,13 +53,12 @@ namespace Solitons.Data
         }
 
 
-        private DataTransferPackage(Guid intentId, Guid typeId, byte[] content, string contentType, Encoding encoding)
+        private DataTransferPackage(Guid typeId, byte[] content, string contentType, Encoding encoding)
         {
             content = content.ThrowIfNullArgument(nameof(content));
             contentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
             encoding = encoding.ThrowIfNullArgument(nameof(encoding));
 
-            IntentId = intentId.ThrowIfEmptyArgument(nameof(intentId));
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
             Content = content;
             ContentType = contentType;
@@ -91,7 +74,7 @@ namespace Solitons.Data
         /// <summary>
         /// Package intent GUID
         /// </summary>
-        public Guid IntentId { get; }
+        public Guid? IntentId { get; set; }
 
         /// <summary>
         /// Gets the type of the package content.
@@ -205,7 +188,6 @@ namespace Solitons.Data
         {
             var data = new Dictionary<string, string>
             {
-                [IntentIdKey] = IntentId.ToString("N"),
                 [TypeIdKey] = TypeId.ToString("N"),
                 [ContentKey] = Content.ToArray().ToBase64String(),
                 [EncodingKey] = Encoding.BodyName,
@@ -217,6 +199,11 @@ namespace Solitons.Data
                 if (pair.Key.IsNullOrWhiteSpace() || pair.Value.IsNullOrWhiteSpace())
                     continue;
                 data[pair.Key.Trim()] = pair.Value;
+            }
+
+            if (IntentId.HasValue)
+            {
+                data[IntentIdKey] = IntentId.Value.ToString("N");
             }
 
             if(false == CorrelationId.IsNullOrWhiteSpace()) 
@@ -248,6 +235,8 @@ namespace Solitons.Data
             return JsonSerializer.Serialize(data);
         }
 
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -276,12 +265,6 @@ namespace Solitons.Data
                 throw new FormatException($"Type ID is missing");
             }
 
-            if (false == data.TryGetValue(IntentIdKey, out value) ||
-                false == Guid.TryParse(value, out var intentId))
-            {
-                throw new FormatException($"Intent ID is missing");
-            }
-
             if (false == data.TryGetValue(ContentKey, out var contentBase64))
             {
                 throw new FormatException($"Content is missing");
@@ -298,10 +281,13 @@ namespace Solitons.Data
             }
 
 
-            var encoding = TryCatch
-                .Invoke(()=> Encoding.GetEncoding(encodingName), ex=> throw new FormatException("Unknown encoding type", ex));
+            var encoding = encodingName
+                .Convert(Encoding.GetEncoding, ex => throw new FormatException("Unknown encoding type", ex));
             var content = Convert.FromBase64String(contentBase64);
-            var result = new DataTransferPackage(intentId, typeId, content, contentType,  encoding);
+            var result = new DataTransferPackage(typeId, content, contentType,  encoding);
+
+            if(data.TryGetValue(IntentIdKey, out value))
+                result.IntentId = Guid.Parse(value);
 
             if (data.TryGetValue(CorrelationIdKey, out value))
                 result.CorrelationId = value;
@@ -349,6 +335,17 @@ namespace Solitons.Data
         /// <param name="package"></param>
         /// <returns></returns>
         public static implicit operator string(DataTransferPackage package) => package.ToString();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="package"></param>
+        public static implicit operator MediaContent(DataTransferPackage package)
+        {
+            var content = package.Encoding.GetString(package.Content.ToArray());
+            return new MediaContent(content, package.ContentType);
+        }
+
     }
 
 }

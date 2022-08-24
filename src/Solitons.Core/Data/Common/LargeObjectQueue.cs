@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -266,9 +267,15 @@ namespace Solitons.Data.Common
                     }
                     else if(callback.CanDeleteFailedMessage(exception))
                     {
-                        await TryCatch.Invoke(
-                            message.DeleteAsync,
-                            ex => callback.OnFailedDeletingMessageAsync(message.Id, package, dto, cancellation));
+                        try
+                        {
+                            await message.DeleteAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine(e.Message);
+                            await callback.OnFailedDeletingMessageAsync(message.Id, package, dto, cancellation);
+                        }
                     }
                 }
             }

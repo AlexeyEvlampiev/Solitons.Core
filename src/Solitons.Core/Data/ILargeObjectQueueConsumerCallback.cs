@@ -41,6 +41,7 @@ namespace Solitons.Data
         /// <returns></returns>
         Task OnMalformedMessageAsync(string messageId, Exception exception, CancellationToken cancellation);
 
+
         /// <summary>
         /// 
         /// </summary>

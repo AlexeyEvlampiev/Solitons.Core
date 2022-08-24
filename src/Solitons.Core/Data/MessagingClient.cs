@@ -136,11 +136,11 @@ namespace Solitons.Data
         /// <param name="cancellation"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public Task<BrokeredResponse> GetResponseAsync(ITransactionArgs args, CancellationToken cancellation = default)
+        public Task<BrokeredResponse> GetResponseAsync(IDistributedEventArgs args, CancellationToken cancellation = default)
         {
             args.ThrowIfNullArgument(nameof(args));
             cancellation.ThrowIfCancellationRequested();
-            return GetResponseAsync(args, args.TransactionTypeId, cancellation);
+            return GetResponseAsync(args, args.IntentId, cancellation);
         }
     }
 }

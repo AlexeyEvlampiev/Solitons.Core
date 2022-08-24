@@ -44,7 +44,7 @@ namespace Solitons.Data
                 .RequireCustomGuidAnnotation(false)
                 .Add(typeof(ExplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer)
                 .Build();
-            var expectedCommandId = ((ITransactionArgs)dto).TransactionTypeId;
+            var expectedCommandId = ((IDistributedEventArgs)dto).IntentId;
             var package = serializer.Pack(dto);
             var clone = (ExplicitTransactionArgs)serializer.Unpack(package);
             Assert.Equal(dto.Value, clone.Value);
@@ -66,20 +66,20 @@ namespace Solitons.Data
 
         public sealed class MyDto :
             BasicJsonDataTransferObject,
-            ITransactionArgs
+            IDistributedEventArgs
         {
             public string Text { get; set; }
         }
 
         [Guid("b6fd4e7d-140a-44e1-b692-27ba49e92f6f")]
-        public sealed class ExplicitTransactionArgs : BasicJsonDataTransferObject, ITransactionArgs
+        public sealed class ExplicitTransactionArgs : BasicJsonDataTransferObject, IDistributedEventArgs
         {
-            Guid ITransactionArgs.TransactionTypeId => Guid.Parse("07041ff2319d48ada77e62cb4eb086b7");
+            Guid IDistributedEventArgs.IntentId => Guid.Parse("07041ff2319d48ada77e62cb4eb086b7");
 
             public int Value { get; set; }
         }
 
-        public sealed class ImplicitTransactionArgs : BasicXmlDataTransferObject, ITransactionArgs
+        public sealed class ImplicitTransactionArgs : BasicXmlDataTransferObject, IDistributedEventArgs
         {
             public int Value { get; set; }
         }
