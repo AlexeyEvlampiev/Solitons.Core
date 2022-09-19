@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -60,6 +61,14 @@ namespace Solitons.Security
 
     public partial interface ISecretsRepository
     {
+        /// <summary>
+        /// Crates in-memory secrets repository
+        /// </summary>
+        /// <param name="secrets"></param>
+        /// <returns></returns>
+        public static ISecretsRepository Create(IDictionary<string, string> secrets) =>
+            new InMemorySecretsRepository(secrets);
+
         /// <summary>
         /// 
         /// </summary>
