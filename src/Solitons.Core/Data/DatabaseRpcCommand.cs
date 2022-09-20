@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Formats.Asn1;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,9 +52,9 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         }
 
         _serializer.Deserialize(Metadata.Request.DtoType, request.Content, request.ContentType);
-        request = request.Transform(TransformRequest);
+        request = await request.TransformAsync(TransformRequestAsync);
         var content = await _provider.InvokeAsync(Metadata, request.Content, cancellation);
-        content = TransformResponse(content);
+        content = await TransformResponseAsync(content);
         var dto = _serializer.Deserialize(Metadata.Response.DtoType, content, Metadata.Response.ContentType);
         content = _serializer.Serialize(dto, Metadata.Response.ContentType);
         return new MediaContent(content, Metadata.Response.ContentType);
@@ -67,7 +68,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
             throw new ArgumentOutOfRangeException($"Cannot deserialize {Metadata.Request.DtoType} from the '{request.ContentType}' content");
         }
 
-        request = request.Transform(TransformRequest);
+        request = await request.TransformAsync(TransformRequestAsync);
         _serializer.Deserialize(Metadata.Request.DtoType, request.Content, request.ContentType);
         await _provider.SendAsync(Metadata, request.Content, cancellation);
     }
@@ -132,10 +133,10 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         if (request is null) throw new ArgumentNullException(nameof(request));
         cancellation.ThrowIfCancellationRequested();
         var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
-        requestString = TransformRequest(requestString);
+        requestString = await TransformRequestAsync(requestString);
 
         var responseString = await _provider.InvokeAsync(Metadata, requestString, cancellation);
-        responseString = TransformResponse(responseString);
+        responseString = await TransformResponseAsync(responseString);
         var response = _serializer.Deserialize(Metadata.Response.DtoType, responseString, Metadata.Response.ContentType);
         return response;
     }
@@ -155,15 +156,15 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         cancellation.ThrowIfCancellationRequested();
 
         var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
-        requestString = TransformRequest(requestString);
+        requestString = await TransformRequestAsync(requestString);
 
         await _provider.InvokeAsync(Metadata, requestString, OnResponse, cancellation);
 
-        Task OnResponse(string responseString)
+        async Task OnResponse(string responseString)
         {
-            responseString = TransformResponse(responseString);
+            responseString = await TransformResponseAsync(responseString);
             var response = _serializer.Deserialize(Metadata.Response.DtoType, responseString, Metadata.Response.ContentType);
-            return callback.Invoke(response);
+            await callback.Invoke(response);
         }
     }
 
@@ -177,13 +178,13 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <param name="cancellation"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    protected Task GeneralizedSendAsync(object? request, CancellationToken cancellation)
+    protected async Task GeneralizedSendAsync(object? request, CancellationToken cancellation)
     {
         if (request is null) throw new ArgumentNullException(nameof(request));
         cancellation.ThrowIfCancellationRequested();
         var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
-        requestString = TransformRequest(requestString);
-        return _provider.SendAsync(Metadata, requestString, cancellation);
+        requestString = await TransformRequestAsync(requestString);
+        await _provider.SendAsync(Metadata, requestString, cancellation);
     }
 
     /// <summary>
@@ -194,13 +195,13 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <param name="cancellation"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    protected Task GeneralizedSendAsync(object? request, Func<Task> callback, CancellationToken cancellation)
+    protected async Task GeneralizedSendAsync(object? request, Func<Task> callback, CancellationToken cancellation)
     {
         if (request is null) throw new ArgumentNullException(nameof(request));
         cancellation.ThrowIfCancellationRequested();
         var requestString = _serializer.Serialize(request, Metadata.Request.ContentType);
-        requestString = TransformRequest(requestString);
-        return _provider.SendAsync(Metadata, requestString, callback, cancellation);
+        requestString = await TransformRequestAsync(requestString);
+        await _provider.SendAsync(Metadata, requestString, callback, cancellation);
     }
 
     /// <summary>
@@ -208,14 +209,14 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    protected virtual string TransformRequest(string content) => content;
+    protected virtual Task<string> TransformRequestAsync(string content) => Task.FromResult(content);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    protected virtual string TransformResponse(string content) => content;
+    protected virtual Task<string> TransformResponseAsync(string content) => Task.FromResult(content);
 
 
     /// <summary>
@@ -233,7 +234,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     }
 
 
-    private Task SendViaAsync(
+    private async Task SendViaAsync(
         ILargeObjectQueueProducer queue,
         object dto,
         Action<DataTransferPackage> config,
@@ -244,11 +245,11 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         if (Metadata.Request.DtoType.IsInstanceOfType(dto))
         {
             var content = _serializer.Serialize(dto, Metadata.Request.ContentType);
-            content = TransformRequest(content);
+            content = await TransformRequestAsync(content);
             var package = new DataTransferPackage(Metadata.CommandOid, content, Metadata.Request.ContentType, Encoding.UTF8);
             config.Invoke(package);
             
-            return queue.SendAsync(package, DataTransferMethod.ByValue, cancellation);
+            await queue.SendAsync(package, DataTransferMethod.ByValue, cancellation);
         }
 
         throw new InvalidCastException(new StringBuilder("Invalid request DTO type")

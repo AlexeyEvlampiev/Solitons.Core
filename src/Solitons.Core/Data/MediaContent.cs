@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Solitons.Data
 {
@@ -63,9 +64,9 @@ namespace Solitons.Data
         /// </summary>
         /// <param name="transformation"></param>
         /// <returns></returns>
-        public MediaContent Transform(Func<string, string> transformation)
+        public async Task<MediaContent> TransformAsync(Func<string, Task<string>> transformation)
         {
-            var content = transformation.Invoke(Content);
+            var content = await transformation.Invoke(Content);
             return new MediaContent(content, ContentType);
         }
     }
