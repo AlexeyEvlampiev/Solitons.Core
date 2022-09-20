@@ -65,12 +65,13 @@ namespace Solitons.Data
                 if (typeof(IDatabaseRpcCommand).IsAssignableFrom(commandType))
                 {
                     _commandTypes[commandType.GUID] = commandType;
-                    return;
                 }
-
-                throw new InvalidOperationException(new StringBuilder("Invalid RPC command type.")
-                    .Append($" The {commandType} type does not implement the required {typeof(IDatabaseRpcCommand)} interface.")
-                    .ToString());
+                else
+                {
+                    throw new InvalidOperationException(new StringBuilder("Invalid RPC command type.")
+                        .Append($" The {commandType} type does not implement the required {typeof(IDatabaseRpcCommand)} interface.")
+                        .ToString());
+                }
             }
         }
 
