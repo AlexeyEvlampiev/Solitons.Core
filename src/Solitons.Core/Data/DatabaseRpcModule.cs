@@ -44,7 +44,7 @@ namespace Solitons.Data
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException"></exception>
         [DebuggerNonUserCode]
-        private IDatabaseRpcCommand GetCommand(Guid commandId)
+        public IDatabaseRpcCommand GetCommand(Guid commandId)
         {
             commandId.ThrowIfEmptyArgument(nameof(commandId));
             if (_commandTypes.TryGetValue(commandId, out var commandType))
