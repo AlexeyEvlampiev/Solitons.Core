@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Solitons.Data
 {
+    /// <summary>
+    /// RPC routed invocation handler. 
+    /// </summary>
     sealed class DatabaseRpcModule : IDatabaseRpcModule
     {
         private readonly IReadOnlyDictionary<Guid, Type> _commandTypes;
