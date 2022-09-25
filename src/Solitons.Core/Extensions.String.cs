@@ -42,7 +42,7 @@ namespace Solitons
         /// <param name="convert"></param>
         /// <returns></returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Convert<T>(this string self, Func<string, T> convert)
+        public static T? Convert<T>(this string? self, Func<string, T> convert)
         {
             convert.ThrowIfNullArgument(nameof(convert));
             if (self == null) return default(T?);            
