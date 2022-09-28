@@ -10,10 +10,10 @@ namespace Solitons.Data.Common
     /// </summary>
     public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
     {
-        protected abstract Task<string> InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
-        protected abstract Task InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation);
-        protected abstract Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
-        protected abstract Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
+        protected abstract Task<string> InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation);
+        protected abstract Task InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task> callback, CancellationToken cancellation);
+        protected abstract Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation);
+        protected abstract Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation);
         protected abstract Task ProcessQueueAsync(string queueName, CancellationToken cancellation);
 
 
@@ -28,41 +28,41 @@ namespace Solitons.Data.Common
         }
 
         [DebuggerStepThrough]
-        Task<string> IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
+        Task<string> IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation)
         {
-            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            metadata = metadata.ThrowIfNullArgument(nameof(metadata));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
             cancellation.ThrowIfCancellationRequested();
-            return InvokeAsync(commandInfo, request, cancellation);
+            return InvokeAsync(metadata, request, cancellation);
         }
 
         [DebuggerStepThrough]
-        Task IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation)
+        Task IDatabaseRpcProvider.InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task> callback, CancellationToken cancellation)
         {
-            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            metadata = metadata.ThrowIfNullArgument(nameof(metadata));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
             callback = callback.ThrowIfNullArgument(nameof(callback));
             cancellation.ThrowIfCancellationRequested();
-            return InvokeAsync(commandInfo, request, callback, cancellation);
+            return InvokeAsync(metadata, request, callback, cancellation);
         }
 
         [DebuggerStepThrough]
-        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
+        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation)
         {
-            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            metadata = metadata.ThrowIfNullArgument(nameof(metadata));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
             cancellation.ThrowIfCancellationRequested();
-            return SendAsync(commandInfo, request, cancellation);
+            return SendAsync(metadata, request, cancellation);
         }
 
         [DebuggerStepThrough]
-        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation)
+        Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation)
         {
-            commandInfo = commandInfo.ThrowIfNullArgument(nameof(commandInfo));
+            metadata = metadata.ThrowIfNullArgument(nameof(metadata));
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
             callback = callback.ThrowIfNullArgument(nameof(callback));
             cancellation.ThrowIfCancellationRequested();
-            return SendAsync(commandInfo, request, callback, cancellation);
+            return SendAsync(metadata, request, callback, cancellation);
         }
 
     }

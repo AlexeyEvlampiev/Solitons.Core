@@ -12,40 +12,40 @@ namespace Solitons.Data
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="commandInfo"></param>
+        /// <param name="metadata"></param>
         /// <param name="request"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task<string> InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
+        Task<string> InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="commandInfo"></param>
+        /// <param name="metadata"></param>
         /// <param name="request"></param>
         /// <param name="callback"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation);
+        Task InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task> callback, CancellationToken cancellation);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="commandInfo"></param>
+        /// <param name="metadata"></param>
         /// <param name="request"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation);
+        Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="commandInfo"></param>
+        /// <param name="metadata"></param>
         /// <param name="request"></param>
         /// <param name="callback"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation);
+        Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation);
 
 
         /// <summary>

@@ -24,14 +24,14 @@ namespace Solitons.Samples.Azure
 
 
 
-        protected override Task<string> InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
+        protected override Task<string> InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
-                await using var command = new NpgsqlCommand($"SELECT api.{commandInfo.Procedure}(@request);", connection);
-                command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
-                var requestType = commandInfo.Request.ContentType switch
+                await using var command = new NpgsqlCommand($"SELECT api.{metadata.Procedure}(@request);", connection);
+                command.CommandTimeout = (int)metadata.OperationTimeout.TotalSeconds;
+                var requestType = metadata.Request.ContentType switch
                 {
                     "application/json" => NpgsqlDbType.Jsonb,
                     "application/xml" => NpgsqlDbType.Xml,
@@ -39,7 +39,7 @@ namespace Solitons.Samples.Azure
                 };
                 command.Parameters.AddWithValue("request", requestType, request);
                 await connection.OpenAsync(cancellation);
-                await using var transaction = await connection.BeginTransactionAsync(commandInfo.IsolationLevel, cancellation);
+                await using var transaction = await connection.BeginTransactionAsync(metadata.IsolationLevel, cancellation);
                 var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
                 var response = dbResponse.ToString() ?? throw new NullReferenceException();
                 await transaction.CommitAsync(CancellationToken.None);
@@ -47,14 +47,14 @@ namespace Solitons.Samples.Azure
             });
         }
 
-        protected override Task InvokeAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<string, Task> callback, CancellationToken cancellation)
+        protected override Task InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task> callback, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
-                await using var command = new NpgsqlCommand($"SELECT api.{commandInfo.Procedure}(@request);", connection);
-                command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
-                var requestType = commandInfo.Request.ContentType switch
+                await using var command = new NpgsqlCommand($"SELECT api.{metadata.Procedure}(@request);", connection);
+                command.CommandTimeout = (int)metadata.OperationTimeout.TotalSeconds;
+                var requestType = metadata.Request.ContentType switch
                 {
                     "application/json" => NpgsqlDbType.Jsonb,
                     "application/xml" => NpgsqlDbType.Xml,
@@ -62,7 +62,7 @@ namespace Solitons.Samples.Azure
                 };
                 command.Parameters.AddWithValue("request", requestType, request);
                 await connection.OpenAsync(cancellation);
-                await using var transaction = await connection.BeginTransactionAsync(commandInfo.IsolationLevel, cancellation);
+                await using var transaction = await connection.BeginTransactionAsync(metadata.IsolationLevel, cancellation);
                 var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
                 var response = dbResponse.ToString() ?? throw new NullReferenceException();
                 await callback.Invoke(response);
@@ -71,34 +71,34 @@ namespace Solitons.Samples.Azure
             });
         }
 
-        protected override Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, CancellationToken cancellation)
+        protected override Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
                 await using var command = new NpgsqlCommand($"SELECT api.rpc_enqueue(@oid, @request);", connection);
-                command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
+                command.CommandTimeout = (int)metadata.OperationTimeout.TotalSeconds;
                 command.Parameters.AddWithValue("request", request);
-                command.Parameters.AddWithValue("oid", commandInfo.CommandOid);
+                command.Parameters.AddWithValue("oid", metadata.CommandOid);
                 await connection.OpenAsync(cancellation);
-                await using var transaction = await connection.BeginTransactionAsync(commandInfo.IsolationLevel, cancellation);
+                await using var transaction = await connection.BeginTransactionAsync(metadata.IsolationLevel, cancellation);
                 await command.ExecuteNonQueryAsync(cancellation);
                 await transaction.CommitAsync(CancellationToken.None);
             });
         }
 
-        protected override Task SendAsync(DatabaseRpcCommandMetadata commandInfo, string request, Func<Task> callback, CancellationToken cancellation)
+        protected override Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
                 await using var connection = new NpgsqlConnection(_connectionString);
                 await using var command = new NpgsqlCommand($"SELECT api.rpc_enqueue(@oid, @request);", connection);
-                command.CommandTimeout = (int)commandInfo.OperationTimeout.TotalSeconds;
+                command.CommandTimeout = (int)metadata.OperationTimeout.TotalSeconds;
 
                 command.Parameters.AddWithValue("request", request);
-                command.Parameters.AddWithValue("oid", commandInfo.CommandOid);
+                command.Parameters.AddWithValue("oid", metadata.CommandOid);
                 await connection.OpenAsync(cancellation);
-                await using var transaction = await connection.BeginTransactionAsync(commandInfo.IsolationLevel, cancellation);
+                await using var transaction = await connection.BeginTransactionAsync(metadata.IsolationLevel, cancellation);
                 await command.ExecuteNonQueryAsync(cancellation);
                 await callback.Invoke();
                 await transaction.CommitAsync(CancellationToken.None);
