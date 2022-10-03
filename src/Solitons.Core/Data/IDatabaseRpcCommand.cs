@@ -32,14 +32,6 @@ namespace Solitons.Data
         /// <returns></returns>
         Task SendAsync(MediaContent request, CancellationToken cancellation = default);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidCastException"></exception>
-        Task SendAsync(object dto, CancellationToken cancellation = default);
 
         /// <summary>
         /// 

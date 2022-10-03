@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Solitons.Data
 {
@@ -60,14 +60,12 @@ namespace Solitons.Data
         public string ContentType { get; }
 
         /// <summary>
-        /// 
+        /// Creates new <see cref="MediaContent"/> structure using the given <paramref name="content"/>
+        /// and the instance <see cref="ContentType"/>
         /// </summary>
-        /// <param name="transformation"></param>
+        /// <param name="content"></param>
         /// <returns></returns>
-        public async Task<MediaContent> TransformAsync(Func<string, Task<string>> transformation)
-        {
-            var content = await transformation.Invoke(Content);
-            return new MediaContent(content, ContentType);
-        }
+        [DebuggerNonUserCode]
+        public MediaContent WithContent(string content) => new MediaContent(content, ContentType);
     }
 }

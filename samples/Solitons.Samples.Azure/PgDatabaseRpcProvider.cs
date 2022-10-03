@@ -23,8 +23,7 @@ namespace Solitons.Samples.Azure
         }
 
 
-
-        protected override Task<string> InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation)
+        protected override Task<T> InvokeAsync<T>(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task<T>> callback, CancellationToken cancellation)
         {
             return RetryPolicy.ExecuteAsync(async () =>
             {
@@ -41,33 +40,9 @@ namespace Solitons.Samples.Azure
                 await connection.OpenAsync(cancellation);
                 await using var transaction = await connection.BeginTransactionAsync(metadata.IsolationLevel, cancellation);
                 var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
-                var response = dbResponse.ToString() ?? throw new NullReferenceException();
+                var response = await callback.Invoke(dbResponse as string ?? throw new NullReferenceException());
                 await transaction.CommitAsync(CancellationToken.None);
-                return response;
-            });
-        }
-
-        protected override Task InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task> callback, CancellationToken cancellation)
-        {
-            return RetryPolicy.ExecuteAsync(async () =>
-            {
-                await using var connection = new NpgsqlConnection(_connectionString);
-                await using var command = new NpgsqlCommand($"SELECT api.{metadata.Procedure}(@request);", connection);
-                command.CommandTimeout = (int)metadata.OperationTimeout.TotalSeconds;
-                var requestType = metadata.Request.ContentType switch
-                {
-                    "application/json" => NpgsqlDbType.Jsonb,
-                    "application/xml" => NpgsqlDbType.Xml,
-                    _ => throw new NotImplementedException()
-                };
-                command.Parameters.AddWithValue("request", requestType, request);
-                await connection.OpenAsync(cancellation);
-                await using var transaction = await connection.BeginTransactionAsync(metadata.IsolationLevel, cancellation);
-                var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
-                var response = dbResponse.ToString() ?? throw new NullReferenceException();
-                await callback.Invoke(response);
-                await transaction.CommitAsync(CancellationToken.None);
-                return response;
+                return response!;
             });
         }
 

@@ -7,35 +7,23 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDatabaseRpcProvider
+    public  interface IDatabaseRpcProvider
     {
         /// <summary>
         /// 
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="metadata"></param>
         /// <param name="request"></param>
+        /// <param name="parseResponse"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task<string> InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation);
+        Task<T> InvokeAsync<T>(
+            DatabaseRpcCommandMetadata metadata, 
+            string request, 
+            Func<string, Task<T>> parseResponse, 
+            CancellationToken cancellation);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metadata"></param>
-        /// <param name="request"></param>
-        /// <param name="callback"></param>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
-        Task InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task> callback, CancellationToken cancellation);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="metadata"></param>
-        /// <param name="request"></param>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
-        Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation);
 
         /// <summary>
         /// 

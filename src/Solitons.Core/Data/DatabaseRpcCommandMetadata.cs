@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,8 +16,6 @@ namespace Solitons.Data
     /// </summary>
     public sealed record DatabaseRpcCommandMetadata
     {
-        private static readonly ConcurrentDictionary<Type, DatabaseRpcCommandMetadata> MetadataCache = new();
-
         /// <summary>
         /// 
         /// </summary>
@@ -32,7 +29,7 @@ namespace Solitons.Data
         /// <param name="type"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static DatabaseRpcCommandMetadata From(Type type) => MetadataCache.GetOrAdd(type, () => new DatabaseRpcCommandMetadata(type));
+        public static DatabaseRpcCommandMetadata Get(Type type) => new(type);
 
         /// <summary>
         /// 
@@ -40,8 +37,8 @@ namespace Solitons.Data
         /// <param name="assembly"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static IEnumerable<DatabaseRpcCommandMetadata> From(Assembly assembly) =>
-            From(FluentArray.Create(assembly));
+        public static IEnumerable<DatabaseRpcCommandMetadata> Get(Assembly assembly) =>
+            Get(FluentArray.Create(assembly));
 
         /// <summary>
         /// 
@@ -49,7 +46,7 @@ namespace Solitons.Data
         /// <param name="assembly"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static IEnumerable<DatabaseRpcCommandMetadata> From(params Assembly[] assembly)
+        public static IEnumerable<DatabaseRpcCommandMetadata> Get(params Assembly[] assembly)
         {
             if (assembly == null) throw new ArgumentNullException(nameof(assembly));
             var commandTypesByOid = new Dictionary<Guid, Type>();
@@ -79,7 +76,7 @@ namespace Solitons.Data
                 })
                 .Select(type =>
                 {
-                    var metadata = From(type);
+                    var metadata = Get(type);
                     if (commandTypesByOid.TryGetValue(metadata.CommandOid, out var duplicate))
                     {
                         throw new InvalidOperationException(new StringBuilder($"Detected duplicate {typeof(GuidAttribute)} declaration.")

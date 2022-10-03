@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,73 +21,75 @@ namespace Solitons.Data
 
 
         [DebuggerStepThrough]
-        public async Task<string> InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation)
+        public async Task<T> InvokeAsync<T>(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task<T>> parseResponse, CancellationToken cancellation)
         {
             try
             {
-                await _callback.OnStartingInvocationAsync(metadata, request, cancellation);
-                var response = await _innerProvider.InvokeAsync(metadata, request, cancellation);
-                await _callback.OnInvocationCompletedAsync(metadata, request, response, cancellation);
+                await _callback
+                    .OnStartingInvocationAsync(
+                        metadata, 
+                        request, 
+                        cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
+
+                var response = await _innerProvider.InvokeAsync(
+                    metadata, 
+                    request,
+                    ExtendedCallback, 
+                    cancellation);
+
+                string capturedResponseContent = string.Empty;
+                Task<T> ExtendedCallback(string responseContent)
+                {
+                    capturedResponseContent = responseContent;
+                    return parseResponse.Invoke(request);
+                }
+
+                await _callback
+                    .OnInvocationCompletedAsync(
+                        metadata, 
+                        request,
+                        capturedResponseContent, 
+                        cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
+
+
                 return response;
             }
             catch (Exception e)
             {
-                await _callback.OnInvocationErrorAsync(metadata, request, e, cancellation);
+                await _callback
+                    .OnInvocationErrorAsync(metadata, request, e, cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
                 throw;
             }
         }
 
-        [DebuggerStepThrough]
-        public async Task InvokeAsync(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task> callback, CancellationToken cancellation)
-        {
-            try
-            {
-                string? capturedResponse = null;
-                await _callback.OnStartingInvocationAsync(metadata, request, cancellation);
-                await _innerProvider.InvokeAsync(metadata, request, OnCompletedAsync, cancellation);
-                if (capturedResponse != null)
-                {
-                    await _callback.OnInvocationCompletedAsync(metadata, request, capturedResponse, cancellation);
-                }
-
-                Task OnCompletedAsync(string response)
-                {
-                    capturedResponse = response;
-                    return callback.Invoke(response);
-                }
-            }
-            catch (Exception e)
-            {
-                await _callback.OnInvocationErrorAsync(metadata, request, e, cancellation);
-                throw;
-            }
-
-        }
-
-        [DebuggerStepThrough]
-        public async Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation)
-        {
-            try
-            {
-                await _callback.OnSendingAsync(metadata, request, cancellation);
-                await _innerProvider.SendAsync(metadata, request, cancellation);
-                await _callback.OnSentAsync(metadata, request, cancellation);
-            }
-            catch (Exception e)
-            {
-                await _callback.OnSendingErrorAsync(metadata, request, e, cancellation);
-                throw;
-            }
-        }
 
         [DebuggerStepThrough]
         public async Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation)
         {
             try
             {
-                await _callback.OnSendingAsync(metadata, request, cancellation);
+                await _callback
+                    .OnSendingAsync(metadata, request, cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
+
                 await _innerProvider.SendAsync(metadata, request, callback, cancellation);
-                await _callback.OnSentAsync(metadata, request, cancellation);
+
+                await _callback
+                    .OnSentAsync(metadata, request, cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
             }
             catch (Exception e)
             {
@@ -98,13 +103,27 @@ namespace Solitons.Data
         {
             try
             {
-                await _callback.OnQueueProcessingStartedAsync(queueName, cancellation);
+                await _callback
+                    .OnQueueProcessingStartedAsync(queueName, cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
+
                 await _innerProvider.ProcessQueueAsync(queueName, cancellation);
-                await _callback.OnQueueProcessingFinishedAsync(queueName, cancellation);
+
+                await _callback
+                    .OnQueueProcessingFinishedAsync(queueName, cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
             }
             catch (Exception e)
             {
-                await _callback.OnQueueProcessingErrorAsync(queueName, e, cancellation);
+                await _callback
+                    .OnQueueProcessingErrorAsync(queueName, e, cancellation)
+                    .ToObservable()
+                    .OnErrorResumeNext(Observable.Empty<Unit>())
+                    .ToTask(cancellation);
                 throw;
             }
 

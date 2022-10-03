@@ -25,7 +25,7 @@ namespace Solitons.Data
             IsolationLevel expectedIsolationLevel, 
             string expectedTimeout)
         {
-            var metadata = DatabaseRpcCommandMetadata.From(targetCommandType);
+            var metadata = DatabaseRpcCommandMetadata.Get(targetCommandType);
 
             Assert.Equal(targetCommandType, metadata.CommandType);
 

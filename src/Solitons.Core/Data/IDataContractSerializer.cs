@@ -104,9 +104,6 @@ public partial interface IDataContractSerializer
     /// <returns></returns>
     object Deserialize(Guid typeId, string content, string contentType);
 
-
-    
-
     /// <summary>
     /// 
     /// </summary>
@@ -144,6 +141,44 @@ public partial interface IDataContractSerializer
 
 public partial interface IDataContractSerializer
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeId"></param>
+    /// <param name="mediaContent"></param>
+    /// <returns></returns>
+    [DebuggerStepThrough]
+    public object Deserialize(Guid typeId, MediaContent mediaContent) => 
+        Deserialize(typeId, mediaContent.Content, mediaContent.ContentType);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeId"></param>
+    /// <param name="input"></param>
+    /// <param name="contentType"></param>
+    /// <returns></returns>
+    public MediaContent Transform(
+        Guid typeId, 
+        MediaContent input, 
+        string contentType)
+    {
+        var dto = Deserialize(typeId, input);
+        var content = Serialize(dto, contentType);
+        return new MediaContent(content, contentType);
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="mediaContent"></param>
+    /// <returns></returns>
+    [DebuggerStepThrough]
+    public T Deserialize<T>(MediaContent mediaContent) =>
+        (T)Deserialize(typeof(T), mediaContent.Content, mediaContent.ContentType);
+
     /// <summary>
     /// 
     /// </summary>
