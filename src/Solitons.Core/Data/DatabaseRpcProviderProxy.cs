@@ -44,7 +44,7 @@ namespace Solitons.Data
                 Task<T> ExtendedCallback(string responseContent)
                 {
                     capturedResponseContent = responseContent;
-                    return parseResponse.Invoke(request);
+                    return parseResponse.Invoke(responseContent);
                 }
 
                 await _callback
