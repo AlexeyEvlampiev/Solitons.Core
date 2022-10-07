@@ -50,6 +50,7 @@ namespace Solitons
         sealed class SystemRandom : IRandom
         {
             Guid IRandom.Guid => Guid.NewGuid();
+
             int IRandom.Next() => Random.Shared.Next();
 
             int IRandom.Next(int maxValue) => Random.Shared.Next(maxValue);
