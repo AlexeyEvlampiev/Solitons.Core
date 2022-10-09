@@ -97,17 +97,17 @@ namespace Solitons
     public partial interface IRandom
     {
         /// <summary>
-        /// Creates a thread-safe <see cref="IRandom"/> instance that may be used concurrently from any thread.
+        /// Provides a thread-safe <see cref="IRandom"/> instance that may be used concurrently from any thread.
         /// </summary>
         /// <returns></returns>
-        public static IRandom Create() => From(Random.Shared);
+        public static readonly IRandom System = Wrap(Random.Shared);
 
         /// <summary>
         /// Creates a new instance of <see cref="IRandom"/> default implementation.
         /// </summary>
-        /// <param name="generator">Inner <see cref="Random"/> generator object.</param>
+        /// <param name="generator">The inner <see cref="Random"/> generator.</param>
         /// <returns></returns>
-        public static IRandom From(Random generator) => new RelayGenerator(generator);
+        public static IRandom Wrap(Random generator) => new RelayGenerator(generator);
 
         /// <summary>
         /// Default <see cref="IRandom"/> implementation.
