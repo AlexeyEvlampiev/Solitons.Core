@@ -133,11 +133,16 @@ namespace Solitons.Configuration
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="NullReferenceException"></exception>
         /// <exception cref="FormatException"></exception>
-        protected static T Parse<T>(string input) where T : SettingsGroup, new()
+        protected static T Parse<T>(string input) where T : SettingsGroup
         {
             if (input.IsNullOrWhiteSpace()) throw new ArgumentException($"Input string is required. {GetSynopsis<T>()}", nameof(input));
 
-            var settings = new T();
+            var settings = (T?)Activator.CreateInstance(typeof(T), true)!;
+            if (settings is null)
+            {
+                throw new InvalidOperationException($"{typeof(T)} parameterless constructor is missing");
+            }
+
             input = settings.PreProcess(input);
             if (input is null) throw new NullReferenceException($"{settings.GetType()}.{nameof(settings.PreProcess)} returned null.");
 
