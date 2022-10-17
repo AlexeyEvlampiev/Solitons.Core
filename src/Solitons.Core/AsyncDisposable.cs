@@ -20,6 +20,13 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static IAsyncDisposable Create(Func<Task> callback) => new RelayAsyncDisposable(callback);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
         protected  abstract ValueTask DisposeAsync();
 
