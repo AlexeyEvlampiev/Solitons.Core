@@ -45,19 +45,4 @@ namespace Solitons.Data
             IBasicXmlDataTransferObject.Parse<T>(xmlString.ThrowIfNullOrWhiteSpaceArgument(nameof(xmlString)));
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public static partial class XmlDataTransferObjectExtensions
-    {
-        /// <summary>
-        /// Parses this <see cref="string"/> as a xml object representation. 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="self"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static T ConvertTo<T>(this string self) where T : BasicXmlDataTransferObject, new() =>
-            IBasicXmlDataTransferObject.Parse<T>(self);
-    }
 }

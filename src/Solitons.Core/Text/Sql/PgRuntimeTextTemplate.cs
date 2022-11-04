@@ -22,7 +22,7 @@ namespace Solitons.Text.Sql
             return base.ToStringWithCulture(objectToConvert);
         }
 
-        public static string Quote(string text, bool isNullable = true)
+        protected static string Quote(string text, bool isNullable = true)
         {
             if (text is null)
             {
@@ -33,7 +33,7 @@ namespace Solitons.Text.Sql
             return text.Quote(QuoteType.SqlLiteral);
         }
 
-        public static string ArrayConstructor(string[] items, bool isNullable = true)
+        protected static string ArrayConstructor(string[] items, bool isNullable = true)
         {
             if (items is null)
             {

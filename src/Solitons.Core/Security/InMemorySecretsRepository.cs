@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Solitons.Security
 {
     sealed class InMemorySecretsRepository : SecretsRepository
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly ConcurrentDictionary<string, string> _secrets;
 
         public InMemorySecretsRepository(IDictionary<string, string> secrets)

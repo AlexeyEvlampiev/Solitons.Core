@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -17,6 +18,38 @@ namespace Solitons
 {
     public static partial class Extensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="callback"></param>
+        public static void Do(this IDbConnection self, Action<IDbCommand> callback)
+        {
+            using var command = self.CreateCommand();
+            callback.Invoke(command);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static T Do<T>(this IDbConnection self, Func<IDbCommand, T> callback)
+        {
+            using var command = self.CreateCommand();
+            return callback.Invoke(command);
+        }
+
+        public static T Do<T>(this IDbConnection self, string commandText, Func<IDbCommand, T> callback)
+        {
+            using var command = self.CreateCommand();
+            command.CommandText = commandText;
+            return callback.Invoke(command);
+        }
+
+
         /// <summary>
         /// Inverts this sort order
         /// </summary>

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using McMaster.Extensions.CommandLineUtils;
 using McMaster.Extensions.CommandLineUtils.Validation;
-using Solitons.Security.Postgres;
+using Solitons.Data.Management.Postgres.Common;
 
 namespace Solitons.Samples.Database.Validators
 {
@@ -11,7 +11,7 @@ namespace Solitons.Samples.Database.Validators
         {
             if (option.HasValue())
             {
-                if(PgSecurityManagementProvider.IsValidPassword(option.Value()))
+                if(PgDatabaseManager.IsValidPassword(option.Value()))
                     return ValidationResult.Success;
                 return new ValidationResult($"The postgres password is not valid.");
             }

@@ -93,15 +93,6 @@ namespace Solitons
             callback.Invoke(fluentList);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="self"></param>
-        /// <returns></returns>
-        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Queue<T> ToQueue<T>(this IEnumerable<T> self) =>
-            new(self ?? throw new ArgumentNullException(nameof(self)));
 
         /// <summary>
         /// 

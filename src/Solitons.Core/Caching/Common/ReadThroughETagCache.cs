@@ -34,7 +34,6 @@ namespace Solitons.Caching.Common
         /// <param name="maxEntityAge"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         [DebuggerStepThrough]
         protected sealed override async Task<T?> GetAsync(TimeSpan maxEntityAge, CancellationToken cancellation = default)
         {

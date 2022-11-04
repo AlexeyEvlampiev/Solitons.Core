@@ -85,10 +85,12 @@ namespace Solitons.Data
                 .SelectMany(a => a.GetTypes())
                 .ToList();
 
-            types.ForEach(type => mediaTypeSelector(type)
-                .SkipNulls()
-                .Distinct()
-                .ForEach(serializer => Add(type, serializer)));
+
+            types
+                .ForEach(type => mediaTypeSelector(type)
+                    .SkipNulls()
+                    .Distinct()
+                    .ForEach(serializer => Add(type, serializer)));
 
             var registeredContentTypes = _registrations
                 .Select(r => KeyValuePair.Create(r.DtoType, r.Serializer.TargetContentType.ToUpper()))
@@ -135,9 +137,24 @@ namespace Solitons.Data
         public IDataContractSerializer Build()
         {
             var serializer = new DataContractSerializer();
+            var types = new HashSet<Type>();
             foreach (var registration in _registrations)
             {
+                types.Add(registration.DtoType);
                 serializer.Register(registration.DtoType, registration.Serializer);
+            }
+
+            var uniqueTypeGuidViolations = types
+                .GroupBy(type => type.GUID)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Select(type => type.ToString()).Join())
+                .ToList();
+            if (uniqueTypeGuidViolations.Any())
+            {
+                throw new InvalidOperationException(
+                    new StringBuilder($"{typeof(Type)}.{nameof(Type.GUID)} uniqueness vialation.")
+                        .Append($" See types: {uniqueTypeGuidViolations.Join("; ")}")
+                        .ToString());
             }
 
             return serializer;

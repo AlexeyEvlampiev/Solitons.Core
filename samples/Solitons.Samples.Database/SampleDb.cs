@@ -5,58 +5,27 @@ using Npgsql;
 using Solitons.Samples.Database.Scripts.PostDeployment;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Solitons.Data;
-using Solitons.Data.Common.Postgres;
+using Solitons.Collections;
+using Solitons.Data.Management.Postgres.Common;
 using Solitons.Samples.Database.Models;
-using Solitons.Security.Postgres;
+using Solitons.Security;
 
 
 namespace Solitons.Samples.Database
 {
-    public static class SampleDb
+    public sealed class SampleDb : PgDatabaseManager
     {
-        public static void DeprovisionDatabase(Solitons.Data.IDbConnectionFactory connectionFactory, string databaseName)
+        private readonly ISecretsRepository _secrets;
+
+        public SampleDb(ISecretsRepository secrets) 
+            : base("sampledb", "sampledb_admin",FluentArray.Create("sampledb_app"))
         {
-            var provider = new PgSecurityManagementProvider(connectionFactory);
-            provider.DropRolesByPrefix($"{databaseName}_");
-            provider.DropDatabase(databaseName);
+            _secrets = secrets;
         }
 
-        public static void ProvisionDatabase(IDbConnectionFactory connectionFactory,
-            string databaseName,
-            string? adminPassword = null)
+        public override void Upgrade()
         {
-            var manager = new PgSecurityManagementProvider(connectionFactory);
-            manager.ProvisionDatabase(databaseName,
-                BuildRoles,
-                extensions=> extensions
-                    .With("hstore")
-                    .With("pgcrypto")
-                    .With("postgis")
-                    .With("pg_trgm"));
-
-            if (false == adminPassword.IsNullOrWhiteSpace())
-            {
-                manager.ChangeRolePassword(databaseName, "admin", adminPassword);
-            }
-        }
-
-        private static void BuildRoles(PgRolesBuilder roles)
-        {
-            var prospectRole = roles.AddGroupRole("prospect");
-            var customerRole = roles.AddGroupRole("customer");
-
-            roles.AddLoginRole("public_api", prospectRole, customerRole);
-            roles.AddLoginRole("private_api");
-        }
-
-
-        public static int Upgrade(
-            string connectionString,
-            SuperuserSettingsGroup[] superuserSettings,
-            SampleDbUpgradeOptions options)
-        {
-            connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString));
+            var connectionString = GetRoleConnectionString("SAMPLEDB-CONNECTION-STRING");
 
             var builder = new NpgsqlConnectionStringBuilder(connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString)))
             {
@@ -68,19 +37,18 @@ namespace Solitons.Samples.Database
 
             using var connection = new NpgsqlConnection(connectionString);
             connection.Open();
-            var steps = BuildUpgradeStepQueue(connectionString, superuserSettings, options);
-            while (steps.Count > 0)
-            {
-                var step = steps.Dequeue();
-                var result = step.PerformUpgrade();
-                if (result.Successful) continue;
-                return 1;
-            }
+            throw new NotImplementedException();
+            //var steps = BuildUpgradeStepQueue(connectionString, superuserSettings, options);
+            //while (steps.Count > 0)
+            //{
+            //    var step = steps.Dequeue();
+            //    var result = step.PerformUpgrade();
+            //    if (result.Successful) continue;
+            //}
 
-            return 0;
         }
 
-        private static Queue<UpgradeEngine> BuildUpgradeStepQueue(
+        private Queue<UpgradeEngine> BuildUpgradeStepQueue(
             string connectionString, 
             SuperuserSettingsGroup[] superuserSettings,
             SampleDbUpgradeOptions options)
@@ -110,19 +78,8 @@ namespace Solitons.Samples.Database
                 .Build());
 
 
-            var commonSql = new string[]
-            {
-                new CommonPgScriptRtt("system"),
-                new LoggingPgScriptRtt(LoggingPgScriptPartitioningOptions.ByYearQuarter,"system"),
-            }.Join(Environment.NewLine);
-            queue.Enqueue(DeployChanges.To
-                .PostgresqlDatabase(connectionString)
-                .JournalToPostgresqlTable("system", "schemaversions")
-                .LogTo(logger)
-                .LogScriptOutput()
-                .WithScript("common.sql", commonSql, new SqlScriptOptions(){ RunGroupOrder = -1 })
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), IsDeployment)
-                .Build());
+            
+  
             
             queue.Enqueue(DeployChanges.To
                 .PostgresqlDatabase(connectionString)
@@ -155,6 +112,28 @@ namespace Solitons.Samples.Database
             bool IsDeployment(string scriptPath) => Regex.IsMatch(scriptPath, @"scripts[.]deployment[.].*[.]sql", RegexOptions.IgnoreCase);
             bool IsPostDeployment(string scriptPath) => Regex.IsMatch(scriptPath, @"scripts[.]postdeployment[.].*[.]sql", RegexOptions.IgnoreCase);
             bool IsStabsScript(string scriptPath) => Regex.IsMatch(scriptPath, @"scripts[.]stubs[.].*[.]sql", RegexOptions.IgnoreCase);
+        }
+
+
+        protected override string? GetRoleConnectionStringIfExists(string loginRole)
+        {
+            var secretName = GetRoleConnectionStringSecretName(loginRole);
+            return _secrets.GetSecretIfExists(secretName);
+        }
+
+
+        protected override void SetRoleConnectionString(string loginRole, string loginConnectionString)
+        {
+            var secretName = GetRoleConnectionStringSecretName(loginRole);
+            _secrets.SetSecret(secretName, loginConnectionString);
+        }
+
+
+        private string GetRoleConnectionStringSecretName(string loginRole)
+        {
+            return loginRole
+                .Replace(@"\W+", m => string.Empty)
+                .Convert(key => $"{key}_CONNECTION_STRING")!;
         }
     }
 }

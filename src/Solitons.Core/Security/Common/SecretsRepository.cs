@@ -58,6 +58,7 @@ namespace Solitons.Security.Common
         /// </summary>
         /// <param name="secretName"></param>
         /// <returns></returns>
+        [DebuggerStepThrough]
         protected virtual bool IsValidSecretName(string secretName) => secretName.IsPrintable();
 
         [DebuggerStepThrough]

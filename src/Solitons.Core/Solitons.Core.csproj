@@ -78,30 +78,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SolitonsPgScriptRttOptions.tt</DependentUpon>
     </Compile>
-    <Compile Update="Security\Postgres\Scripts\CreatePgDatabaseScriptRtt.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CreatePgDatabaseScriptRtt.tt</DependentUpon>
-    </Compile>
     <Compile Update="Extensions.Numbers.generated.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Extensions.Numbers.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Security\Postgres\Scripts\CreateExtensionsScriptRtt.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CreateExtensionsScriptRtt.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Security\Postgres\Scripts\CreatePgRolesScriptRtt.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CreatePgRolesScriptRtt.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Security\Postgres\Scripts\DropRolesByPrefixScriptRtt.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DropRolesByPrefixScriptRtt.tt</DependentUpon>
     </Compile>
     <Compile Update="Text\RegexPatterns.generated.cs">
       <DesignTime>True</DesignTime>
@@ -132,25 +112,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SolitonsPgScriptRttOptions.generated.cs</LastGenOutput>
     </None>
-    <None Update="Security\Postgres\Scripts\CreatePgDatabaseScriptRtt.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>CreatePgDatabaseScriptRtt.cs</LastGenOutput>
-    </None>
-    <None Update="Security\Postgres\Scripts\CreateExtensionsScriptRtt.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>CreateExtensionsScriptRtt.cs</LastGenOutput>
-    </None>
     <None Update="Extensions.Numbers.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Extensions.Numbers.generated.cs</LastGenOutput>
-    </None>
-    <None Update="Security\Postgres\Scripts\CreatePgRolesScriptRtt.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>CreatePgRolesScriptRtt.cs</LastGenOutput>
-    </None>
-    <None Update="Security\Postgres\Scripts\DropRolesByPrefixScriptRtt.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>DropRolesByPrefixScriptRtt.cs</LastGenOutput>
     </None>
     <None Update="Text\RegexPatterns.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

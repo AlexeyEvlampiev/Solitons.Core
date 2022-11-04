@@ -2,10 +2,10 @@
 using Npgsql;
 using Sample.DbUp;
 using Solitons;
-using Solitons.Data;
 using Solitons.Samples.Database;
 using Solitons.Samples.Database.Models;
 using Solitons.Samples.Database.Validators;
+using Solitons.Security;
 
 Console.Title = Resources.ConsoleTitle;
 Console.WriteLine(Resources.AsciiArtHeader);
@@ -52,10 +52,10 @@ cli.Command("provision", provisionDb =>
             return 1;
         }
 
-        var connectionBuilder = IDbConnectionFactory.CreateGeneric(csBuilder);
-        SampleDb.ProvisionDatabase(connectionBuilder, databaseName, adminPassword);
-
-
+        var connectionBuilder = new NpgsqlConnectionFactory(csBuilder.ConnectionString);
+        var secrets = ISecretsRepository.InMemory();
+        var sampleDb = new SampleDb(secrets);
+        sampleDb.Deprovision(connectionBuilder);
         return 0;
     });
 });
@@ -85,14 +85,16 @@ cli.Command("deprovision", deprovisionDb =>
             ConsoleColor.Red.AsForegroundColor(() => Console.WriteLine($@"Postgres connection failed. {comment}"));
             return 1;
         }
-        var connectionBuilder = IDbConnectionFactory.CreateGeneric(csBuilder);
+        var connectionBuilder = new NpgsqlConnectionFactory(csBuilder.ConnectionString);
 
         var proceed = Prompt.GetYesNo($"Are you sure you want to deprovision the {databaseName} database?",
             defaultAnswer: false,
             promptColor: ConsoleColor.Yellow);
         if (proceed == false) return 0;
 
-        SampleDb.DeprovisionDatabase(connectionBuilder, databaseName ?? "sampledb");
+        var secrets = ISecretsRepository.InMemory();
+        var sampleDb = new SampleDb(secrets);
+        sampleDb.Deprovision(connectionBuilder);
         return 0;
     });
 });
@@ -136,8 +138,13 @@ cli.Command("upgrade", upgrade =>
                 upgradeOptions |= SampleDbUpgradeOptions.DropAllObjects;
             if (options.Stubs.HasValue())
                 upgradeOptions |= SampleDbUpgradeOptions.CreateStabRecords;
-            
-            return SampleDb.Upgrade(options.ConnectionString.Value(), superuserSettings, upgradeOptions);
+
+            var factory = new NpgsqlConnectionFactory(connection.ConnectionString);
+            var secrets = ISecretsRepository.InMemory(data => data
+                .Add("SAMPLEDB-CONNECTION-STRING", connection.ConnectionString));
+            var sampleDb = new SampleDb(secrets);
+            sampleDb.Upgrade();
+            return 0;
         }
         catch (Exception e)
         {
