@@ -1,0 +1,110 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".generated.cs" #><#
+	int maxArgsNumber = 16;
+	var argNumbers = Enumerable.Range(2, maxArgsNumber-1);
+	var ordinals = new Dictionary<int, string>(){
+		[01] = "first",
+		[02] = "second",
+		[03] = "third",
+		[04] = "fourth",
+		[05] = "fifth",
+		[06] = "sixth",
+		[07] = "seventh",
+		[08] = "eighth",
+		[09] = "ninth",
+		[10] = "tenth",
+		[11] = "eleventh",
+		[12] = "twelfth",
+		[13] = "thirteenth",
+		[14] = "fourteenth",
+		[15] = "fifteenth",
+		[16] = "sixteenth",
+	};
+#>
+using System;
+using System.Threading.Tasks;
+using System.Reactive;
+using System.Diagnostics;
+namespace Solitons;<# foreach(var argsNumber in argNumbers) { 
+	var argTypesDecl = string.Join(", ", Enumerable
+		.Range(1, argsNumber)
+		.Select(i => $"in T{i}"));
+	var methodArgs = string.Join(", ", Enumerable
+		.Range(1, argsNumber)
+		.Select(i => $"T{i} arg{i}"));
+#> 
+
+/// <summary>
+/// Encapsulates an asynchronous method that has <#= argsNumber #> parameters and returns a value of the type specified by the TResult parameter.
+/// </summary><# foreach(var ordinal in Enumerable.Range(1, argsNumber)){ #> 
+/// <typeparam name="T<#= ordinal #>">
+/// The type of the <#= ordinals[ordinal] #> parameter of the method that this delegate encapsulates.
+/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+///</typeparam><# } #> 
+/// <typeparam name="TResult">
+/// The type of the asynchronously return value of the method that this delegate encapsulates.
+/// This type parameter is covariant. That is, you can use either the type you specified or any type that is more derived.
+/// </typeparam><# foreach(var ordinal in Enumerable.Range(1, argsNumber)){ #> 
+/// <param name="arg<#= ordinal #>">The <#= ordinals[ordinal] #> parameter of the method that this delegate encapsulates.</param><# } #> 
+/// <returns>The return value of the method that this delegate encapsulates.</returns>
+public delegate Task<TResult> AsyncFunc<<#= argTypesDecl #>, TResult>(<#= methodArgs #>);
+<# } #> 
+
+public static partial class AsyncFunc
+{<# foreach(var argsNumber in argNumbers) { 
+	var argTypesDecl = string.Join(", ", Enumerable
+		.Range(1, argsNumber)
+		.Select(i => $"T{i}"));
+	var methodArgs = string.Join(", ", Enumerable
+		.Range(1, argsNumber)
+		.Select(i => $"T{i} arg{i}"));
+	var valuesCsv = string.Join(", ", Enumerable
+		.Range(1, argsNumber)
+		.Select(i => $"arg{i}"));
+#> 
+
+	/// <summary>
+	/// 
+	/// </summary><# foreach(var ordinal in Enumerable.Range(1, argsNumber)){ #> 
+	/// <typeparam name="T<#= ordinal #>">
+	/// The type of the <#= ordinals[ordinal] #> parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam><# } #> 
+	/// <param name="action"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<<#= argTypesDecl #>,Unit> Cast<<#= argTypesDecl #>>(Action<<#= argTypesDecl #>> action) => [DebuggerStepThrough] (<#= methodArgs #>) =>
+    {
+        action.Invoke(<#= valuesCsv #>);
+        return Task.FromResult(Unit.Default);
+    };
+
+<# } #>
+}
+
+public static partial class Extensions
+{<# foreach(var argsNumber in argNumbers) { 
+	var argTypesDecl = string.Join(", ", Enumerable
+		.Range(1, argsNumber)
+		.Select(i => $"T{i}"));
+	var methodArgs = string.Join(", ", Enumerable
+		.Range(1, argsNumber)
+		.Select(i => $"T{i} arg{i}"));
+#> 
+	/// <summary>
+	/// 
+	/// </summary><# foreach(var ordinal in Enumerable.Range(1, argsNumber)){ #> 
+	/// <typeparam name="T<#= ordinal #>">
+	/// The type of the <#= ordinals[ordinal] #> parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam><# } #> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <param name="func"></param>
+	/// <returns></returns>
+	public static AsyncFunc<<#= argTypesDecl #> , TResult> Cast<<#= argTypesDecl #>, TResult>(Func<<#= argTypesDecl #>, Task<TResult>> func) => new(func);
+	<# } #> 
+}

@@ -58,6 +58,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AsyncFunc.generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AsyncFunc.tt</DependentUpon>
+    </Compile>
     <Compile Update="Common\Azure\ResourceManager\AutoScaleSettingsRtt.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -96,6 +101,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="AsyncFunc.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AsyncFunc.generated.cs</LastGenOutput>
+    </None>
     <None Update="Common\Azure\ResourceManager\AutoScaleSettingsRtt.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>AutoScaleSettingsRtt.cs</LastGenOutput>

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,6 +12,12 @@ namespace Solitons.Data.Common
     /// </summary>
     public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
     {
+        protected enum OperationType
+        {
+            Invocation, 
+            Send
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -19,7 +27,8 @@ namespace Solitons.Data.Common
         /// <param name="callback"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        protected abstract Task<T> InvokeAsync<T>(DatabaseRpcCommandMetadata metadata,
+        protected abstract Task<T> InvokeAsync<T>(
+            DatabaseRpcCommandMetadata metadata,
             string request,
             Func<string, Task<T>> callback,
             CancellationToken cancellation);
@@ -28,6 +37,7 @@ namespace Solitons.Data.Common
         protected abstract Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation);
         protected abstract Task ProcessQueueAsync(string queueName, CancellationToken cancellation);
 
+        protected virtual bool IsTransientError(Exception exception) => false;
 
         [DebuggerNonUserCode]
         public IDatabaseRpcProvider WithCallback(IDatabaseRpcProviderCallback callback) => DatabaseRpcProviderProxy.Wrap(this, callback);
@@ -50,7 +60,36 @@ namespace Solitons.Data.Common
             request = request.ThrowIfNullOrWhiteSpaceArgument(nameof(request));
             parseResponse = parseResponse.ThrowIfNullArgument(nameof(parseResponse));
             cancellation.ThrowIfCancellationRequested();
-            return InvokeAsync(metadata, request, parseResponse, cancellation);
+
+            return Observable
+                .Defer(() => InvokeAsync(metadata, request, parseResponse, cancellation).ToObservable())
+                .RetryWhen(exceptions => GetRetries(OperationType.Invocation, metadata, request, exceptions))
+                .FirstAsync()
+                .ToTask(cancellation);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="operationType"></param>
+        /// <param name="metadata"></param>
+        /// <param name="request"></param>
+        /// <param name="exceptions"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        protected virtual IObservable<int> GetRetries(
+            OperationType operationType,
+            DatabaseRpcCommandMetadata metadata,
+            string request,
+            IObservable<Exception> exceptions)
+        {
+            return exceptions
+                .Where(IsTransientError)
+                .Take(3)
+                .SelectMany((exception, attempt) => Task
+                    .Delay(++attempt * 100)
+                    .ToObservable()
+                    .Select(_ => attempt));
         }
 
 
