@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using System.Reactive;
 using System.Diagnostics;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 namespace Solitons; 
 
 /// <summary>
@@ -1614,6 +1616,96 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2 , TResult> Cast<T1, T2, TResult>(Func<T1, T2, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, TResult> WithRetry<T1, T2, TResult, TSignal>(
+        this AsyncFunc<T1, T2, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, TResult> WithRetryOnError<T1, T2, TResult, TSignal>(
+        this AsyncFunc<T1, T2, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, TResult>(
+		this AsyncFunc<T1, T2, TResult>  self,
+		T1 arg1, T2 arg2)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1634,6 +1726,108 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3 , TResult> Cast<T1, T2, T3, TResult>(Func<T1, T2, T3, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, TResult> WithRetry<T1, T2, T3, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, TResult> WithRetryOnError<T1, T2, T3, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, TResult>(
+		this AsyncFunc<T1, T2, T3, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1658,6 +1852,120 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4 , TResult> Cast<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, TResult> WithRetry<T1, T2, T3, T4, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, TResult> WithRetryOnError<T1, T2, T3, T4, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1686,6 +1994,132 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5 , TResult> Cast<T1, T2, T3, T4, T5, TResult>(Func<T1, T2, T3, T4, T5, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, TResult> WithRetry<T1, T2, T3, T4, T5, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, TResult> WithRetryOnError<T1, T2, T3, T4, T5, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1718,6 +2152,144 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6 , TResult> Cast<T1, T2, T3, T4, T5, T6, TResult>(Func<T1, T2, T3, T4, T5, T6, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, TResult> WithRetry<T1, T2, T3, T4, T5, T6, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1754,6 +2326,156 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1794,6 +2516,168 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1838,6 +2722,180 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1886,6 +2944,192 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1938,6 +3182,204 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -1994,6 +3436,216 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -2054,6 +3706,228 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -2118,6 +3992,240 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -2186,6 +4294,252 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T15">
+	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T15">
+	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T15">
+	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15).ToObservable());
+	}
+	
+	
 	 
 	/// <summary>
 	/// 
@@ -2258,5 +4612,263 @@ public static partial class Extensions
 	/// <param name="func"></param>
 	/// <returns></returns>
 	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16 , TResult> Cast<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<TResult>> func) => new(func);
+
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T15">
+	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T16">
+	/// The type of the sixteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerNonUserCode]
+	public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult> WithRetry<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult> self,
+        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))
+                .WithRetry(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T15">
+	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T16">
+	/// The type of the sixteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <typeparam name="TSignal"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="signalFactory"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+    public static AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult, TSignal>(
+        this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
+        {
+            return AsyncFunc
+                .Cast([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+	
+	/// <summary>
+	/// 
+	/// </summary> 
+	/// <typeparam name="T1">
+	/// The type of the first parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T2">
+	/// The type of the second parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T3">
+	/// The type of the third parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T4">
+	/// The type of the fourth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T5">
+	/// The type of the fifth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T6">
+	/// The type of the sixth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T7">
+	/// The type of the seventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T8">
+	/// The type of the eighth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T9">
+	/// The type of the ninth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T10">
+	/// The type of the tenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T11">
+	/// The type of the eleventh parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T12">
+	/// The type of the twelfth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T13">
+	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T14">
+	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T15">
+	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="T16">
+	/// The type of the sixteenth parameter of the method that this delegate encapsulates.
+	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
+	///</typeparam> 
+	/// <typeparam name="TResult"></typeparam>
+	/// <param name="self"></param>
+	/// <param name="arg1"></param>
+	/// <param name="arg2"></param>
+	/// <returns></returns>
+	[DebuggerStepThrough]
+	public static IObservable<TResult> ToObservable<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(
+		this AsyncFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>  self,
+		T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
+	{
+		return Observable.Defer([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16).ToObservable());
+	}
+	
+	
 	 
 }
