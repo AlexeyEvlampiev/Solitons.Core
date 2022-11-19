@@ -9,21 +9,21 @@ using Xunit;
 namespace Solitons
 {
     // ReSharper disable once InconsistentNaming
-    public sealed class AsyncFunc_WithRetryOnError_Should
+    public sealed class Extensions_Func_WithRetryOnError_Should
     {
         [Theory]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 0, false)]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 1, false)]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 2, true)]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 100, true)]
-        public async Task ApplyRetryLogic(string responsesCsv, int retriesCount, bool expectedToSucceed)
+        public async Task ApplyRetryLogic(string responsesCsv, int maxRetryAttempts, bool expectedToSucceed)
         {
             var service = TestService.Create(responsesCsv);
 
             var func = service
-                .Convert(svc => AsyncFunc.Cast(svc.InvokeAsync))
+                .Convert(svc => AsyncFunc.Wrap(svc.InvokeAsync))
                 .WithRetryOnError(errors => errors
-                    .Take(retriesCount));
+                    .Take(maxRetryAttempts));
 
             if (expectedToSucceed)
             {
@@ -33,6 +33,8 @@ namespace Solitons
             {
                 await Assert.ThrowsAsync<TestException>(func.Invoke);
             }
+
+            Assert.True(service.InvocationsCount <= maxRetryAttempts+1);
         }
 
         sealed class TestException : Exception
@@ -56,11 +58,14 @@ namespace Solitons
 
             public static TestService Create(string httpStatusCodes) => new(httpStatusCodes);
 
+            public int InvocationsCount { get; private set; }
+
 
             public Task<HttpStatusCode> InvokeAsync()
             {
                 lock (_locker)
                 {
+                    InvocationsCount++;
                     var result = _responseSequence[_index++];
                     if (_index > _responseSequence.Length - 1)
                     {

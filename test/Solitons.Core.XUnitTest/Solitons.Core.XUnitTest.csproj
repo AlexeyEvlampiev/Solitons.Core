@@ -13,9 +13,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Blobs\**" />
+    <Compile Remove="Queues\**" />
     <Compile Remove="Security\Common\**" />
+    <Compile Remove="Tables\**" />
+    <EmbeddedResource Remove="Blobs\**" />
+    <EmbeddedResource Remove="Queues\**" />
     <EmbeddedResource Remove="Security\Common\**" />
+    <EmbeddedResource Remove="Tables\**" />
+    <None Remove="Blobs\**" />
+    <None Remove="Queues\**" />
     <None Remove="Security\Common\**" />
+    <None Remove="Tables\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,9 +92,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Blobs\" />
-    <Folder Include="Queues\" />
-    <Folder Include="Tables\" />
     <Folder Include="Web\Common\" />
   </ItemGroup>
 

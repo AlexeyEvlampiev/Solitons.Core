@@ -9,23 +9,24 @@ using Xunit;
 namespace Solitons
 {
     // ReSharper disable once InconsistentNaming
-    public sealed class AsyncFunc_WithRetry_Should
+    public sealed class Extensions_Func_WithRetry_Should
     {
         [Theory]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 0, HttpStatusCode.ServiceUnavailable)]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 1, HttpStatusCode.InternalServerError)]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 2, HttpStatusCode.OK)]
         [InlineData(@"ServiceUnavailable, InternalServerError, OK", 100, HttpStatusCode.OK)]
-        public async Task ApplyRetryLogic(string responsesCsv, int retriesCount, HttpStatusCode expectedResponse)
+        public async Task ApplyRetryLogic(string responsesCsv, int maxRetryAttempts, HttpStatusCode expectedResponse)
         {
             var service = TestService.Create(responsesCsv);
             var actualCode = await service
-                .Convert(svc => AsyncFunc.Cast(svc.InvokeAsync))
-                .WithRetry(response => response
+                .Convert(svc => AsyncFunc.Wrap(svc.InvokeAsync))
+                .WithRetryOnResult(responses => responses
                     .Where(code => code != HttpStatusCode.OK)
-                    .Take(retriesCount))
+                    .Take(maxRetryAttempts))
                 .Invoke();
             Assert.Equal(expectedResponse, actualCode);
+            Assert.True(service.InvocationsCount <= maxRetryAttempts + 1);
         }
 
 
@@ -47,11 +48,13 @@ namespace Solitons
 
             public static TestService Create(string httpStatusCodes) => new(httpStatusCodes);
 
+            public int InvocationsCount { get; private set; }
 
             public Task<HttpStatusCode> InvokeAsync()
             {
                 lock (_locker)
                 {
+                    InvocationsCount++;
                     var result = _responseSequence[_index++];
                     if (_index > _responseSequence.Length - 1)
                     {

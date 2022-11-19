@@ -3,27 +3,11 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons;
-
-
-/// <summary>
-/// 
-/// </summary>
-/// <typeparam name="TResult"></typeparam>
-/// <returns></returns>
-public delegate Task<TResult> AsyncFunc<TResult>();
-
-/// <summary>
-/// 
-/// </summary>
-/// <typeparam name="T"></typeparam>
-/// <typeparam name="TResult"></typeparam>
-/// <param name="arg"></param>
-/// <returns></returns>
-public delegate Task<TResult> AsyncFunc<in T, TResult>(T arg);
 
 
 
@@ -37,11 +21,11 @@ public static partial class AsyncFunc
     /// </summary>
     /// <param name="action"></param>
     /// <returns></returns>
-    [DebuggerStepThrough]
-    public static AsyncFunc<Unit> Cast(Action action) => [DebuggerStepThrough] () =>
+    [DebuggerNonUserCode]
+    public static Func<Task> Wrap(Action action) => [DebuggerStepThrough] () =>
     {
         action.Invoke();
-        return Task.FromResult(Unit.Default);
+        return Task.CompletedTask;
     };
 
     /// <summary>
@@ -51,7 +35,7 @@ public static partial class AsyncFunc
     /// <param name="action"></param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public static AsyncFunc<T,Unit> Cast<T>(Action<T> action) => [DebuggerStepThrough] (T arg) =>
+    public static Func<T,Task> Wrap<T>(Action<T> action) => [DebuggerStepThrough] (T arg) =>
     {
         action.Invoke(arg);
         return Task.FromResult(Unit.Default);
@@ -63,8 +47,8 @@ public static partial class AsyncFunc
     /// <typeparam name="TResult"></typeparam>
     /// <param name="func"></param>
     /// <returns></returns>
-    [DebuggerNonUserCode]
-    public static AsyncFunc<TResult> Cast<TResult>(Func<Task<TResult>> func) => new(func);
+    [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Func<Task<TResult>> Wrap<TResult>(Func<Task<TResult>> func) => func;
 
     /// <summary>
     /// 
@@ -73,7 +57,8 @@ public static partial class AsyncFunc
     /// <typeparam name="TResult"></typeparam>
     /// <param name="func"></param>
     /// <returns></returns>
-    public static AsyncFunc<T, TResult> Cast<T, TResult>(Func<T, Task<TResult>> func) => new(func);
+    [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Func<T, Task<TResult>> Wrap<T, TResult>(Func<T, Task<TResult>> func) => func;
 
     /// <summary>
     /// 
@@ -83,8 +68,8 @@ public static partial class AsyncFunc
     /// <param name="handler"></param>
     /// <param name="toRetrySignals"></param>
     /// <returns></returns>
-    public static async Task<TResult> Invoke<TResult, TSignal>(
-        AsyncFunc<TResult> handler,
+    internal static async Task<TResult> Invoke<TResult, TSignal>(
+        Func<Task<TResult>> handler,
         Func<IObservable<TResult>, IObservable<TSignal>> toRetrySignals)
     {
         var responses = new Subject<TResult>();
@@ -103,8 +88,8 @@ public static partial class AsyncFunc
             var shouldRetry = await Observable
                 .Return(result)
                 .Convert(toRetrySignals)
-                .Take(1)
-                .Any();
+                .Select(_ => true)
+                .FirstOrDefaultAsync();
             if (!shouldRetry)
             {
                 return result;
@@ -122,8 +107,8 @@ public static partial class AsyncFunc
     /// <param name="handler"></param>
     /// <param name="toRetrySignals"></param>
     /// <returns></returns>
-    public static async Task<TResult> Invoke<TResult, TSignal>(
-        AsyncFunc<TResult> handler, 
+    internal static async Task<TResult> Invoke<TResult, TSignal>(
+        Func<Task<TResult>> handler, 
         Func<IObservable<Exception>, IObservable<TSignal>> toRetrySignals)
     {
         var responses = new Subject<Exception>();
@@ -145,9 +130,9 @@ public static partial class AsyncFunc
                 var shouldRetry = await Observable
                     .Return(e)
                     .Convert(toRetrySignals)
-                    .Take(1)
+                    .Select(_ => true)
                     .TakeWhile(_ => cts.IsCancellationRequested == false)
-                    .Any();
+                    .FirstOrDefaultAsync();
                 if (!shouldRetry)
                 {
                     throw;
@@ -159,6 +144,3 @@ public static partial class AsyncFunc
     }
 
 }
-
-
-
