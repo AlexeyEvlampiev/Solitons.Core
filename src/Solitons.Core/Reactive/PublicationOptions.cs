@@ -89,7 +89,11 @@ namespace Solitons.Reactive
         /// <returns></returns>
         internal IObservable<Unit> GetExpirationSignal(T next)
         {
-            return _expirationSignalFactory.Invoke(next);
+            return _expirationSignalFactory
+                .Invoke(next)
+                .FirstOrDefaultAsync()
+                .ToTask()
+                .ToObservable();
         }
     }
 }
