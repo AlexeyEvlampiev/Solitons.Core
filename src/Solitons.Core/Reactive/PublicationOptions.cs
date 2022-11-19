@@ -71,10 +71,9 @@ namespace Solitons.Reactive
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
         /// <param name="cacheExpirationInterval"></param>
         /// <returns></returns>
-        public PublicationOptions<T> ReadThroughCache<TResult>(TimeSpan cacheExpirationInterval)
+        public PublicationOptions<T> ReadThroughCache(TimeSpan cacheExpirationInterval)
         {
             _expirationSignalFactory = (_) => Task
                 .Delay(cacheExpirationInterval)
