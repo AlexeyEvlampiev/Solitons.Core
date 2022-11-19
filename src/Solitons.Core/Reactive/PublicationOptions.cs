@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive;
+using System.Reactive.Threading.Tasks;
+using System.Threading.Tasks;
 
 namespace Solitons.Reactive
 {
@@ -62,6 +64,21 @@ namespace Solitons.Reactive
         {
             _expirationSignalFactory = (value) => cacheExpirationPolicy
                 .Invoke(value)
+                .Select(_ => Unit.Default);
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="cacheExpirationInterval"></param>
+        /// <returns></returns>
+        public PublicationOptions<T> ReadThroughCache<TResult>(TimeSpan cacheExpirationInterval)
+        {
+            _expirationSignalFactory = (_) => Task
+                .Delay(cacheExpirationInterval)
+                .ToObservable()
                 .Select(_ => Unit.Default);
             return this;
         }

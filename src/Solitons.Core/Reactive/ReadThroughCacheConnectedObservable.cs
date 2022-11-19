@@ -18,6 +18,7 @@ sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, IConnec
         _innerObservable = source
             .Do(next =>
             {
+
                 _cache = Observable
                     .Return(next)
                     .TakeUntil(options.GetExpirationSignal(next));
@@ -27,8 +28,9 @@ sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, IConnec
 
     protected override IDisposable SubscribeCore(IObserver<T> observer)
     {
-        _cache.Subscribe(observer);
-        return _innerObservable.Subscribe(observer);
+        return _cache
+            .Concat(_innerObservable)
+            .Subscribe(observer);
     }
 
     public IDisposable Connect()
