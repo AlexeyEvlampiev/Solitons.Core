@@ -19,10 +19,11 @@ sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, IConnec
         _innerObservable = source
             .Do(next =>
             {
+                var expiration = options
+                    .GetCacheExpirationSignal(next);
                 _cache = Observable
                     .Return(next)
-                    .TakeUntil(options
-                        .GetExpirationSignal(next));
+                    .TakeUntil(expiration);
             })
             .Publish();
     }

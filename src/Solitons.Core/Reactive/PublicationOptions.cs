@@ -87,7 +87,7 @@ namespace Solitons.Reactive
         /// </summary>
         /// <param name="next"></param>
         /// <returns></returns>
-        internal IObservable<Unit> GetExpirationSignal(T next)
+        internal IObservable<Unit> GetCacheExpirationSignal(T next)
         {
             return _expirationSignalFactory
                 .Invoke(next)
