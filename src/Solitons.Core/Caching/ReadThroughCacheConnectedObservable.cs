@@ -4,16 +4,13 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive;
 
-namespace Solitons.Reactive;
+namespace Solitons.Caching;
 
-public static class ReadThroughCacheConnectedObservable
-{
-    public static ReadThroughCacheConnectedObservable<T> Create<T>(IObservable<T> source)
-    {
-        return new ReadThroughCacheConnectedObservable<T>(source);
-    }
-}
-public sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, IConnectableObservable<T>
+/// <summary>
+/// 
+/// </summary>
+/// <typeparam name="T"></typeparam>
+sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, IConnectableObservable<T>
 {
     private readonly IConnectableObservable<T> _source;
     private IObservable<T> _cache = Observable.Empty<T>();
@@ -23,16 +20,17 @@ public sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, 
     internal ReadThroughCacheConnectedObservable(IObservable<T> source)
     {
         _source = source
-            .Do(next =>
-            {
-                _cache = Observable.Return(next);
-                CacheUpdatedUtc = DateTime.UtcNow;
-            })
+            .Do(next => _cache = Observable.Return(next))
             .Publish();
     }
 
-    public DateTime? CacheUpdatedUtc { get; private set; }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="observer"></param>
+    /// <returns></returns>
     protected override IDisposable SubscribeCore(IObserver<T> observer)
     {
         return _cache
@@ -40,6 +38,10 @@ public sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, 
             .Subscribe(observer);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public IDisposable Connect()
     {
         return _source.Connect();
