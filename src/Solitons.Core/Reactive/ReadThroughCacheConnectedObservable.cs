@@ -3,40 +3,45 @@ using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive;
-using System.Reactive.Threading.Tasks;
 
 namespace Solitons.Reactive;
 
-sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, IConnectableObservable<T>
+public static class ReadThroughCacheConnectedObservable
 {
-
-    private readonly IConnectableObservable<T> _innerObservable;
+    public static ReadThroughCacheConnectedObservable<T> Create<T>(IObservable<T> source)
+    {
+        return new ReadThroughCacheConnectedObservable<T>(source);
+    }
+}
+public sealed class ReadThroughCacheConnectedObservable<T> : ObservableBase<T>, IConnectableObservable<T>
+{
+    private readonly IConnectableObservable<T> _source;
     private IObservable<T> _cache = Observable.Empty<T>();
 
+
     [DebuggerStepThrough]
-    internal ReadThroughCacheConnectedObservable(IObservable<T> source, PublicationOptions<T> options)
+    internal ReadThroughCacheConnectedObservable(IObservable<T> source)
     {
-        _innerObservable = source
+        _source = source
             .Do(next =>
             {
-                var expiration = options
-                    .GetCacheExpirationSignal(next);
-                _cache = Observable
-                    .Return(next)
-                    .TakeUntil(expiration);
+                _cache = Observable.Return(next);
+                CacheUpdatedUtc = DateTime.UtcNow;
             })
             .Publish();
     }
 
+    public DateTime? CacheUpdatedUtc { get; private set; }
+
     protected override IDisposable SubscribeCore(IObserver<T> observer)
     {
         return _cache
-            .Concat(_innerObservable)
+            .Concat(_source)
             .Subscribe(observer);
     }
 
     public IDisposable Connect()
     {
-        return _innerObservable.Connect();
+        return _source.Connect();
     }
 }
