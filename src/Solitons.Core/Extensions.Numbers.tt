@@ -15,6 +15,14 @@
 	typeof(TimeSpan), 
 	typeof(DateTime) , 
 	typeof(DateTimeOffset) };
+
+	var numericTypes = new []{ 
+	typeof(int), 
+	typeof(byte), 
+	typeof(long), 
+	typeof(decimal), 
+	typeof(float), 
+	typeof(double) };
 #>
 namespace Solitons
 {
@@ -23,8 +31,30 @@ namespace Solitons
     using System.Runtime.CompilerServices;
 
 	public static partial class Extensions
-	{<# foreach(var type in types){ #> 
-		
+	{<# foreach(var type in numericTypes){ #> 
+		/// <summary>
+		/// Returns the smaller of two numbers.
+		/// </summary>
+		/// <param name="val1">The first of two numbers to compare.</param>
+		/// <param name="val2">The second of two numbers to compare.</param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static <#= type #> Min(this <#= type #> val1, <#= type #> val2) => Math.Min(val1, val2);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="val1"></param>
+		/// <param name="val2"></param>
+		/// <returns></returns>
+		public static <#= type #> Max(this <#= type #> val1, <#= type #> val2) => Math.Max(val1, val2);
+	<# } #> 
+	}
+
+
+	public static partial class Extensions
+	{<# foreach(var type in types){ #> 				
+
 		/// <summary>
 		/// 
 		/// </summary>

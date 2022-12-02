@@ -6,7 +6,114 @@
 
 	public static partial class Extensions
 	{ 
-		
+		/// <summary>
+		/// Returns the smaller of two numbers.
+		/// </summary>
+		/// <param name="val1">The first of two numbers to compare.</param>
+		/// <param name="val2">The second of two numbers to compare.</param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int32 Min(this System.Int32 val1, System.Int32 val2) => Math.Min(val1, val2);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="val1"></param>
+		/// <param name="val2"></param>
+		/// <returns></returns>
+		public static System.Int32 Max(this System.Int32 val1, System.Int32 val2) => Math.Max(val1, val2);
+	 
+		/// <summary>
+		/// Returns the smaller of two numbers.
+		/// </summary>
+		/// <param name="val1">The first of two numbers to compare.</param>
+		/// <param name="val2">The second of two numbers to compare.</param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Byte Min(this System.Byte val1, System.Byte val2) => Math.Min(val1, val2);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="val1"></param>
+		/// <param name="val2"></param>
+		/// <returns></returns>
+		public static System.Byte Max(this System.Byte val1, System.Byte val2) => Math.Max(val1, val2);
+	 
+		/// <summary>
+		/// Returns the smaller of two numbers.
+		/// </summary>
+		/// <param name="val1">The first of two numbers to compare.</param>
+		/// <param name="val2">The second of two numbers to compare.</param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Int64 Min(this System.Int64 val1, System.Int64 val2) => Math.Min(val1, val2);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="val1"></param>
+		/// <param name="val2"></param>
+		/// <returns></returns>
+		public static System.Int64 Max(this System.Int64 val1, System.Int64 val2) => Math.Max(val1, val2);
+	 
+		/// <summary>
+		/// Returns the smaller of two numbers.
+		/// </summary>
+		/// <param name="val1">The first of two numbers to compare.</param>
+		/// <param name="val2">The second of two numbers to compare.</param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Decimal Min(this System.Decimal val1, System.Decimal val2) => Math.Min(val1, val2);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="val1"></param>
+		/// <param name="val2"></param>
+		/// <returns></returns>
+		public static System.Decimal Max(this System.Decimal val1, System.Decimal val2) => Math.Max(val1, val2);
+	 
+		/// <summary>
+		/// Returns the smaller of two numbers.
+		/// </summary>
+		/// <param name="val1">The first of two numbers to compare.</param>
+		/// <param name="val2">The second of two numbers to compare.</param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Single Min(this System.Single val1, System.Single val2) => Math.Min(val1, val2);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="val1"></param>
+		/// <param name="val2"></param>
+		/// <returns></returns>
+		public static System.Single Max(this System.Single val1, System.Single val2) => Math.Max(val1, val2);
+	 
+		/// <summary>
+		/// Returns the smaller of two numbers.
+		/// </summary>
+		/// <param name="val1">The first of two numbers to compare.</param>
+		/// <param name="val2">The second of two numbers to compare.</param>
+		/// <returns></returns>
+		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static System.Double Min(this System.Double val1, System.Double val2) => Math.Min(val1, val2);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="val1"></param>
+		/// <param name="val2"></param>
+		/// <returns></returns>
+		public static System.Double Max(this System.Double val1, System.Double val2) => Math.Max(val1, val2);
+	 
+	}
+
+
+	public static partial class Extensions
+	{ 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -193,8 +300,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -381,8 +488,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -569,8 +676,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -757,8 +864,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -945,8 +1052,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -1133,8 +1240,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -1321,8 +1428,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -1509,8 +1616,8 @@
 					: new ArgumentOutOfRangeException(message, paramName);
 			}
 			return self;
-		} 
-		
+		} 				
+
 		/// <summary>
 		/// 
 		/// </summary>
