@@ -37,22 +37,6 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="self"></param>
-        /// <param name="convert"></param>
-        /// <returns></returns>
-        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T? Convert<T>(this string? self, Func<string, T> convert)
-        {
-            convert.ThrowIfNullArgument(nameof(convert));
-            if (self == null) return default(T?);            
-            return convert(self);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="self"></param>
         /// <returns></returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
