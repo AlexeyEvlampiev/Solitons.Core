@@ -24,6 +24,8 @@ namespace Solitons.Data
         /// </summary>
         /// <param name="commandGuid"></param>
         /// <returns></returns>
-        public static IDistributedEventArgs CreateEmpty(string commandGuid) => CreateEmpty(Guid.Parse(commandGuid.ThrowIfNullOrWhiteSpaceArgument(nameof(commandGuid))));
+        public static IDistributedEventArgs CreateEmpty(string commandGuid) => CreateEmpty(ThrowIf
+            .NullOrWhiteSpaceArgument(commandGuid, nameof(commandGuid))
+            .Convert(Guid.Parse));
     }
 }

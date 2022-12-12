@@ -6,12 +6,12 @@ namespace Solitons
     /// <summary>
     /// 
     /// </summary>
-    public sealed class NullOrEmptyGuidException : NullOrWhiteSpaceStringException
+    public sealed class NullOrEmptyValueException : NullOrWhiteSpaceStringException
     {
         /// <summary>
         /// 
         /// </summary>
-        public NullOrEmptyGuidException()
+        public NullOrEmptyValueException()
         {
         }
 
@@ -19,7 +19,7 @@ namespace Solitons
         /// 
         /// </summary>
         /// <param name="message"></param>
-        public NullOrEmptyGuidException(string message) 
+        public NullOrEmptyValueException(string message) 
             : base(message)
         {
         }
@@ -29,7 +29,7 @@ namespace Solitons
         /// </summary>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public NullOrEmptyGuidException(string message, Exception innerException) 
+        public NullOrEmptyValueException(string message, Exception innerException) 
             : base(message, innerException)
         {
         }

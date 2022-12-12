@@ -43,7 +43,7 @@ namespace Solitons.Data
         [DebuggerStepThrough]
         public async Task<TransientStorageReceipt> UploadAsync(byte[] bytes, TimeSpan expiresAfter, CancellationToken cancellation = default)
         {
-            bytes.ThrowIfNullArgument(nameof(bytes));
+            ThrowIf.NullArgument(bytes, nameof(bytes));
             expiresAfter.ThrowIfArgumentLessThan(TimeSpan.Zero, nameof(expiresAfter));
             cancellation.ThrowIfCancellationRequested();
             await using var stream = new MemoryStream(bytes);

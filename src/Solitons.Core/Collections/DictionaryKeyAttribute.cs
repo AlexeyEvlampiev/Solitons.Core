@@ -14,7 +14,7 @@ namespace Solitons.Collections
         /// <param name="name"></param>
         public DictionaryKeyAttribute(string name)
         {
-            Name = name.ThrowIfNullOrWhiteSpaceArgument(nameof(name));
+            Name = ThrowIf.NullOrWhiteSpaceArgument(name, "Name is required", nameof(name));
         }
 
         /// <summary>

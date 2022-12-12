@@ -25,24 +25,32 @@ public abstract class PgDatabaseManager
         string databaseOwner,
         IEnumerable<string> loginRoles)
     { ;
-        DatabaseName = databaseName
-            .ThrowIfNullOrWhiteSpaceArgument(nameof(databaseName))
+        DatabaseName = ThrowIf
+            .NullOrWhiteSpaceArgument(databaseName, nameof(databaseName))
             .Trim();
-        DatabaseOwner = databaseOwner
-            .ThrowIfNullOrWhiteSpaceArgument(nameof(databaseOwner))
+        DatabaseOwner = ThrowIf
+            .NullOrWhiteSpaceArgument(databaseOwner, nameof(databaseOwner))
             .Trim();
         _loginRoles = loginRoles
-            .Select(role => role
-                .ThrowIfNullArgument($"Dtabase role name is missing")
-                .Trim())
+            .Do(role => ThrowIf.NullOrEmpty(role, $"Database role name is missing"))
+            .Select(role => role.Trim())
             .ToHashSet(StringComparer.Ordinal);
         _loginRoles.Remove(DatabaseOwner);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public string DatabaseName { get; }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public string DatabaseOwner { get; }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract void Upgrade();
     
     protected abstract string? GetRoleConnectionStringIfExists(string loginRole);

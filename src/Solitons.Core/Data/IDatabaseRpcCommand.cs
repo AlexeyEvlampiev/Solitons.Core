@@ -22,7 +22,9 @@ namespace Solitons.Data
         /// <param name="request"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task<MediaContent> InvokeAsync(MediaContent request, CancellationToken cancellation = default);
+        Task<MediaContent> InvokeAsync(
+            MediaContent request, 
+            CancellationToken cancellation = default);
 
         /// <summary>
         /// 
@@ -30,8 +32,20 @@ namespace Solitons.Data
         /// <param name="request"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        Task SendAsync(MediaContent request, CancellationToken cancellation = default);
+        Task SendAsync(
+            MediaContent request, 
+            CancellationToken cancellation = default);
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        Task<MediaContent> WhatIfAsync(
+            MediaContent request, 
+            CancellationToken cancellation = default);
 
         /// <summary>
         /// 

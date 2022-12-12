@@ -166,14 +166,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="createException"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyStringException"></exception>
+        /// <exception cref="NullOrEmptyValueException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrEmpty(this string? self, Func<Exception> createException)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                var error = createException.Invoke() ?? throw new NullOrEmptyStringException();
+                var error = createException.Invoke() ?? throw new NullOrEmptyValueException();
                 throw error;
             }
             return self;
@@ -185,14 +185,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyStringException"></exception>
+        /// <exception cref="NullOrEmptyValueException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrEmpty(this string? self, string message)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                throw new NullOrEmptyStringException(message);
+                throw new NullOrEmptyValueException(message);
             }
             return self;
         }
@@ -202,14 +202,14 @@ namespace Solitons
         /// </summary>
         /// <param name="self"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyStringException"></exception>
+        /// <exception cref="NullOrEmptyValueException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrEmpty(this string? self)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                throw new NullOrEmptyStringException();
+                throw new NullOrEmptyValueException();
             }
             return self;
         }
@@ -225,6 +225,7 @@ namespace Solitons
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
+        [Obsolete(@"Use ThrowIf.NullOrWhiteSpaceArgument instead.", true)]
         public static string ThrowIfNullOrWhiteSpaceArgument(this string self, string parameterName, string? message = null)
         {
             if (string.IsNullOrWhiteSpace(self))
@@ -373,7 +374,6 @@ namespace Solitons
         /// <returns>A quoted string</returns>
         public static string Quote(this string self, QuoteType quoteType = QuoteType.Double)
         {
-            if (self is null) return null;
             switch (quoteType)
             {
                 case QuoteType.Double:

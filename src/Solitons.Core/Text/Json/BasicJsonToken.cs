@@ -33,12 +33,9 @@ namespace Solitons.Text.Json
         [DebuggerStepThrough]
         protected static T Parse<T>(string input) where T : BasicJsonToken, new()
         {
-            input = input.ThrowIfNullOrWhiteSpaceArgument(nameof(input));
-            
-            var bytes = input
-                .ThrowIfNullOrWhiteSpaceArgument(nameof(input))
-                .AsBase64Bytes();
-            var json = bytes.ToUtf8String();
+            var json = ThrowIf.NullOrWhiteSpaceArgument(input, nameof(input))
+                .AsBase64Bytes()
+                .ToUtf8String();
             return JsonSerializer.Deserialize<T>(json) 
                    ?? throw new FormatException();
         }

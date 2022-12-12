@@ -24,8 +24,8 @@ namespace Solitons.Samples.Azure
         private KeyVaultSecretsRepository(Uri vaultUri, TokenCredential credential)
         {
             _nativeClient = new SecretClient(
-                vaultUri.ThrowIfNullArgument(nameof(vaultUri)),
-                credential.ThrowIfNullArgument(nameof(credential)));
+                ThrowIf.NullArgument(vaultUri, nameof(vaultUri)),
+                ThrowIf.NullArgument(credential, nameof(credential)));
         }
 
         private KeyVaultSecretsRepository(string keyVaultUrl, string tenantId, string clientId, string clientSecret)

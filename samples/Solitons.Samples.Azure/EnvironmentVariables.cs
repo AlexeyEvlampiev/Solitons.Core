@@ -20,8 +20,8 @@ namespace Solitons.Samples.Azure
         public static string GetPgConnectionString(Action<NpgsqlConnectionStringBuilder>? config = null, IEnvironment? env = null)
         {
             env ??= IEnvironment.System;
-            var builder = new NpgsqlConnectionStringBuilder(env
-                .ThrowIfNullArgument(nameof(env))
+            var builder = new NpgsqlConnectionStringBuilder(
+                ThrowIf.NullArgument(env, nameof(env))
                 .GetEnvironmentVariable(PostgresConnectionStringEnvVariable)
                 .ThrowIfNullOrWhiteSpace(() =>
                     new InvalidOperationException($"{PostgresConnectionStringEnvVariable} environment variable is missing.")));

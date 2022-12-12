@@ -41,9 +41,9 @@ namespace Solitons.Data
         /// <param name="encoding"></param>
         public DataTransferPackage(Guid typeId, string content, string contentType, Encoding encoding)
         {
-            content = content.ThrowIfNullArgument(nameof(content));
-            contentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
-            encoding = encoding.ThrowIfNullArgument(nameof(encoding));
+            content = ThrowIf.NullArgument(content, nameof(content));
+            contentType = ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType)).Trim();
+            encoding = ThrowIf.NullArgument(encoding, nameof(encoding));
 
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
             Content = content.ToBytes(encoding);
@@ -55,9 +55,9 @@ namespace Solitons.Data
 
         private DataTransferPackage(Guid typeId, byte[] content, string contentType, Encoding encoding)
         {
-            content = content.ThrowIfNullArgument(nameof(content));
-            contentType = contentType.ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)).Trim();
-            encoding = encoding.ThrowIfNullArgument(nameof(encoding));
+            content = ThrowIf.NullArgument(content, nameof(content));
+            contentType = ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType)).Trim();
+            encoding = ThrowIf.NullArgument(encoding, nameof(encoding));
 
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
             Content = content;
@@ -255,9 +255,10 @@ namespace Solitons.Data
         /// <exception cref="FormatException"></exception>
         internal static DataTransferPackage Parse(string package, IClock clock)
         {
-            var data = JsonSerializer.Deserialize<Dictionary<string, string>>(package
-                .ThrowIfNullOrWhiteSpaceArgument(nameof(package)));
-            if (data is null) throw new FormatException($"Invalid json");
+            var data = ThrowIf
+                .NullOrWhiteSpaceArgument(package, nameof(package))
+                .Convert(text => JsonSerializer.Deserialize<Dictionary<string, string>>(text))
+                .ThrowIfNull($"Invalid json");
 
             if (false == data.TryGetValue(TypeIdKey, out var value) ||
                 false == Guid.TryParse(value, out var typeId))

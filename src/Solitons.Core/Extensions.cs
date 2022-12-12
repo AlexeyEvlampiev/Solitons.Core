@@ -21,6 +21,30 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="predicate"></param>
+        /// <param name="errorFactory"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T ThrowIf<T>(
+            this T self, 
+            Func<bool> predicate, 
+            Func<Exception> errorFactory)
+        {
+            if (predicate.Invoke())
+            {
+                throw errorFactory.Invoke();
+            }
+
+            return self;
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
         public static byte[] ReadAllBytes(this BinaryReader reader)
@@ -58,6 +82,14 @@ namespace Solitons
             return callback.Invoke(command);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="commandText"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
         public static T Do<T>(this IDbConnection self, string commandText, Func<IDbCommand, T> callback)
         {
             using var command = self.CreateCommand();
@@ -366,6 +398,7 @@ namespace Solitons
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
+        [Obsolete(@"Use ThrowIf.NullArgument instead.", true)]
         public static T ThrowIfNullArgument<T>(this T self, string parameterName, string? message = null) where T : class
         {
             if (self is null)
@@ -524,14 +557,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyGuidException"></exception>
+        /// <exception cref="NullOrEmptyValueException"></exception>
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid ThrowIfNullOrEmpty(this Guid? self, string message)
         {
             if (self == null || self == Guid.Empty)
             {
-                throw new NullOrEmptyGuidException(message);
+                throw new NullOrEmptyValueException(message);
             }
 
             return self.Value;

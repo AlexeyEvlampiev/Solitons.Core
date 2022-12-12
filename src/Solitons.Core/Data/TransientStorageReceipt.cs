@@ -26,12 +26,11 @@ namespace Solitons.Data
         public TransientStorageReceipt(ITransientStorage source, string token, DateTimeOffset expiresOn)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            Token = token.ThrowIfNullOrWhiteSpaceArgument(nameof(token));
+            Token = ThrowIf.NullOrWhiteSpaceArgument(token, nameof(token));
             ExpiresOnUtc = expiresOn.DateTime.ThrowIfArgumentLessOrEqual(DateTime.UtcNow, nameof(expiresOn));
             var sourceType = source.GetType();
             TransientStorageId = sourceType.GUID;
             TransientStorageName = sourceType.FullName ?? sourceType.GUID.ToString();
-            Token = token.ThrowIfNullOrWhiteSpaceArgument(nameof(token));
             DataTransferMethod = DataTransferMethod.ByReference;
             ExpiresOnUtc = expiresOn.DateTime;
         }
@@ -77,11 +76,16 @@ namespace Solitons.Data
             return json.ToBase64(Encoding.UTF8);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="receipt"></param>
+        /// <returns></returns>
         public static TransientStorageReceipt Parse(string receipt)
         {
-            var json = Convert
-                .FromBase64String(receipt
-                    .ThrowIfNullOrWhiteSpaceArgument(nameof(receipt)))
+            var json = ThrowIf
+                .NullOrWhiteSpaceArgument(receipt, nameof(receipt))
+                .AsBase64Bytes()
                 .ToUtf8String();
             var fields = JsonSerializer
                 .Deserialize<Dictionary<string, string>>(json)
@@ -89,6 +93,12 @@ namespace Solitons.Data
             return new TransientStorageReceipt(fields);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static TransientStorageReceipt CreateInMemoryStorageReceipt(byte[] bytes)
         {
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));

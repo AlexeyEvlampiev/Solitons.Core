@@ -41,8 +41,10 @@ namespace Solitons.Data
         /// <param name="xmlString"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        protected static T Parse<T>(string xmlString) where T : BasicXmlDataTransferObject, new() => 
-            IBasicXmlDataTransferObject.Parse<T>(xmlString.ThrowIfNullOrWhiteSpaceArgument(nameof(xmlString)));
+        protected static T Parse<T>(string xmlString) where T : BasicXmlDataTransferObject, new() =>
+            ThrowIf
+                .NullOrWhiteSpaceArgument(xmlString, nameof(xmlString))
+                .Convert(IBasicXmlDataTransferObject.Parse<T>);
     }
 
 }

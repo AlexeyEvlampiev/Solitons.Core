@@ -19,7 +19,7 @@ namespace Solitons.Samples.Azure
 
         public PgDatabaseRpcProvider(string connectionString)
         {
-            _connectionString = connectionString.ThrowIfNullOrWhiteSpaceArgument(nameof(connectionString));
+            _connectionString = ThrowIf.NullOrWhiteSpaceArgument(connectionString, nameof(connectionString));
         }
 
 
@@ -42,6 +42,29 @@ namespace Solitons.Samples.Azure
                 var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
                 var response = await callback.Invoke(dbResponse as string ?? throw new NullReferenceException());
                 await transaction.CommitAsync(CancellationToken.None);
+                return response!;
+            });
+        }
+
+        protected override Task<T> WhatIfAsync<T>(DatabaseRpcCommandMetadata metadata, string request, Func<string, Task<T>> callback, CancellationToken cancellation)
+        {
+            return RetryPolicy.ExecuteAsync(async () =>
+            {
+                await using var connection = new NpgsqlConnection(_connectionString);
+                await using var command = new NpgsqlCommand($"SELECT api.{metadata.Procedure}(@request);", connection);
+                command.CommandTimeout = (int)metadata.OperationTimeout.TotalSeconds;
+                var requestType = metadata.Request.ContentType switch
+                {
+                    "application/json" => NpgsqlDbType.Jsonb,
+                    "application/xml" => NpgsqlDbType.Xml,
+                    _ => throw new NotImplementedException()
+                };
+                command.Parameters.AddWithValue("request", requestType, request);
+                await connection.OpenAsync(cancellation);
+                await using var transaction = await connection.BeginTransactionAsync(metadata.IsolationLevel, cancellation);
+                var dbResponse = await command.ExecuteScalarAsync(cancellation) ?? new NullReferenceException();
+                var response = await callback.Invoke(dbResponse as string ?? throw new NullReferenceException());
+                await transaction.RollbackAsync(CancellationToken.None);
                 return response!;
             });
         }

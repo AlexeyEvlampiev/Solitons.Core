@@ -28,7 +28,8 @@ namespace Solitons.Net
         /// </summary>
         /// <param name="address"></param>
         [DebuggerStepThrough]
-        public IpAddressRangeSettingsGroup(IPAddress address) : this(address.ThrowIfNullArgument(nameof(address)), address){}
+        public IpAddressRangeSettingsGroup(IPAddress address) 
+            : this(ThrowIf.NullArgument(address, nameof(address)), address){}
 
         /// <summary>
         /// 
@@ -76,7 +77,7 @@ namespace Solitons.Net
         /// <exception cref="FormatException"></exception>
         public static IpAddressRangeSettingsGroup Parse(string text)
         {
-            text.ThrowIfNullOrWhiteSpaceArgument(nameof(text));
+            ThrowIf.NullOrWhiteSpaceArgument(text, nameof(text));
             if (text.Contains("-"))
             {
                 var parts = Regex.Split(text, @"\s*-\s*");

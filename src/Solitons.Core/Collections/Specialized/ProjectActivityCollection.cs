@@ -121,8 +121,7 @@ namespace Solitons.Collections.Specialized
         /// <returns></returns>
         [DebuggerStepThrough]
         public ProjectActivity Add(string id, int effortInDays, ProjectActivity dependency) => 
-            Add(id, effortInDays, Yield(dependency
-                .ThrowIfNullArgument(nameof(dependency))));
+            Add(id, effortInDays, Yield(ThrowIf.NullArgument(dependency, nameof(dependency))));
 
         /// <summary>
         /// 
@@ -146,12 +145,10 @@ namespace Solitons.Collections.Specialized
         public ProjectActivity Add(string id, int effortInDays, IEnumerable<ProjectActivity> dependencies)
         {
             var activity = new ProjectActivity(
-                id
-                    .ThrowIfNullOrWhiteSpaceArgument(nameof(id)),
+                ThrowIf.NullOrWhiteSpaceArgument(id, "Activity id is required", nameof(id)),
                 effortInDays
                     .ThrowIfArgumentLessThan(0, nameof(effortInDays)),
-                dependencies
-                    .ThrowIfNullArgument(nameof(dependencies))
+                ThrowIf.NullArgument(dependencies, nameof(dependencies))
                     .Do(dependency=>
                     {
                         if (_project.Contains(dependency) == false)

@@ -92,8 +92,8 @@ namespace Solitons.Data
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
-            serializer = MediaTypeSerializerProxy.Wrap(serializer
-                .ThrowIfNullArgument(nameof(serializer)));
+            serializer = MediaTypeSerializerProxy.Wrap(ThrowIf
+                .NullArgument(serializer, nameof(serializer)));
 
 
             var key = new SerializerKey(type.GUID, serializer.TargetContentType);
@@ -204,8 +204,8 @@ namespace Solitons.Data
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             if (contentType == null) throw new ArgumentNullException(nameof(contentType));
 
-            var key = new SerializerKey(obj.GetType().GUID, contentType
-                .ThrowIfNullOrWhiteSpaceArgument(nameof(contentType)));
+            var key = new SerializerKey(obj.GetType().GUID,
+                ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType)));
 
             if (_serializers.TryGetValue(key, out var value))
             {

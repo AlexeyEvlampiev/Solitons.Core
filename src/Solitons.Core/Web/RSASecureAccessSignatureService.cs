@@ -15,15 +15,15 @@ namespace Solitons.Web
         /// 
         /// </summary>
         /// <param name="rsa"></param>
-        public RSASecureAccessSignatureService(RSACryptoServiceProvider rsa)
+        public RSASecureAccessSignatureService(RSACryptoServiceProvider rsa) 
+            : this(rsa, IClock.System)
         {
-            _rsa = rsa.ThrowIfNullArgument(nameof(rsa));
         }
 
         internal RSASecureAccessSignatureService(RSACryptoServiceProvider rsa, IClock clock)
         {
-            if (clock != null) _clock = clock;
-            _rsa = rsa.ThrowIfNullArgument(nameof(rsa));
+            _clock = clock ?? IClock.System;
+            _rsa = ThrowIf.NullArgument(rsa, nameof(rsa));
         }
 
         ///// <summary>

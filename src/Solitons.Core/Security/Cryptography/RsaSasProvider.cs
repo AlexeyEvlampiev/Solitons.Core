@@ -5,31 +5,49 @@ using System.Text.RegularExpressions;
 
 namespace Solitons.Security.Cryptography
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class RsaSasProvider
     {
         private const string DefaultDelimiter = "&sig=";
         private readonly string _delimiter;
         private readonly Regex _sasRegex;
 
+        /// <summary>
+        /// 
+        /// </summary>
         [DebuggerStepThrough]
         protected RsaSasProvider() : this(DefaultDelimiter)
         {
             
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delimiter"></param>
         protected RsaSasProvider(string delimiter)
         {
-            _delimiter = delimiter
-                .ThrowIfNullOrWhiteSpaceArgument(nameof(delimiter));
+            _delimiter = ThrowIf.NullOrWhiteSpaceArgument(delimiter, nameof(delimiter));
             _sasRegex = new($@"^(?<data>.+){delimiter}(?<sig>\S+?)$",
                 RegexOptions.Compiled |
                 RegexOptions.RightToLeft);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static RsaSasProvider CreateDefault() => new DefaultRsaSasProvider(DefaultDelimiter);
 
-        public static RsaSasProvider CreateDefault(string delimiter) => new DefaultRsaSasProvider(delimiter
-            .ThrowIfNullOrWhiteSpaceArgument(nameof(delimiter)));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delimiter"></param>
+        /// <returns></returns>
+        public static RsaSasProvider CreateDefault(string delimiter) => 
+            new DefaultRsaSasProvider(ThrowIf.NullOrWhiteSpaceArgument(delimiter, nameof(delimiter)));
 
         protected abstract object CreateHashAlg();
 

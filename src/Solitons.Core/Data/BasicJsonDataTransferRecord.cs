@@ -22,8 +22,9 @@ namespace Solitons.Data
         [DebuggerStepThrough]
         protected static T Parse<T>(string text) where T : BasicJsonDataTransferObject
         {
-            return IBasicJsonDataTransferObject.Parse<T>(text
-                .ThrowIfNullOrWhiteSpaceArgument(nameof(text)));
+            return ThrowIf
+                .NullOrWhiteSpaceArgument(text, nameof(text))
+                .Convert(IBasicJsonDataTransferObject.Parse<T>);
         }
     }
 }
