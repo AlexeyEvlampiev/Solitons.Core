@@ -52,16 +52,8 @@ namespace Solitons
         /// <param name="createException"></param>
         /// <returns></returns>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ThrowIfNull(this string? self, Func<Exception> createException)
-        {
-            if (createException == null) throw new ArgumentNullException(nameof(createException));
-            if (self is null)
-            {
-                var error = createException.Invoke() ?? throw new NullReferenceException($"{nameof(createException)}() returned null.");
-                throw error;
-            }
-            return self;
-        }
+        public static string ThrowIfNull(this string? self, Func<Exception> createException) => 
+            Solitons.ThrowIf.NullReference(self, createException);
 
         /// <summary>
         /// 
@@ -131,14 +123,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrWhiteSpaceStringException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrWhiteSpace(this string? self, string message)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                throw new NullOrWhiteSpaceStringException(message);
+                throw new InvalidOperationException(message);
             }
             return self;
         }
@@ -148,14 +140,14 @@ namespace Solitons
         /// </summary>
         /// <param name="self"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrWhiteSpaceStringException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrWhiteSpace(this string? self)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                throw new NullOrWhiteSpaceStringException();
+                throw new InvalidOperationException();
             }
             return self;
         }
@@ -166,14 +158,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="createException"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrEmpty(this string? self, Func<Exception> createException)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                var error = createException.Invoke() ?? throw new NullOrEmptyValueException();
+                var error = createException.Invoke() ?? throw new InvalidOperationException();
                 throw error;
             }
             return self;
@@ -185,14 +177,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrEmpty(this string? self, string message)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                throw new NullOrEmptyValueException(message);
+                throw new InvalidOperationException(message);
             }
             return self;
         }
@@ -202,14 +194,14 @@ namespace Solitons
         /// </summary>
         /// <param name="self"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static string ThrowIfNullOrEmpty(this string? self)
         {
             if (string.IsNullOrWhiteSpace(self))
             {
-                throw new NullOrEmptyValueException();
+                throw new InvalidOperationException();
             }
             return self;
         }

@@ -30,31 +30,31 @@ namespace Solitons.Diagnostics
 
 
         [DebuggerStepThrough]
-        public Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict)
+        public Task LogAsync(
+            string callerMemberName,
+            string callerFilePath,
+            int callerLineNumber, 
+            LogLevel level, 
+            string message, 
+            string? details,
+            Action<ILogEntryBuilder>? config = null, 
+            LogMode mode = LogMode.Strict)
         {
             config = config is null
                 ? _innerConfig
                 : _innerConfig + config;
-            return _innerLogger.LogAsync(level, message, config, mode);
+
+            return _innerLogger.LogAsync(
+                callerMemberName, 
+                callerFilePath, 
+                callerLineNumber,
+                level, 
+                message,
+                details,
+                config, 
+                mode);
         }
 
-        [DebuggerStepThrough]
-        public Task LogAsync(LogLevel level, string message, string details, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict)
-        {
-            config = config is null
-                ? _innerConfig
-                : _innerConfig + config;
-            return _innerLogger.LogAsync(level, message, details, config, mode);
-        }
-
-        [DebuggerStepThrough]
-        public Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict)
-        {
-            config = config is null
-                ? _innerConfig
-                : _innerConfig + config;
-            return _innerLogger.LogAsync(level, ex, config, mode);
-        }
 
         [DebuggerStepThrough]
         public IObservable<ILogEntry> AsObservable() => _innerLogger.AsObservable();

@@ -136,7 +136,7 @@ namespace Solitons.Data
         /// <param name="cancellation"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public Task<BrokeredResponse> GetResponseAsync(IDistributedEventArgs args, CancellationToken cancellation = default)
+        public Task<BrokeredResponse> GetResponseAsync(IRemoteTriggerArgs args, CancellationToken cancellation = default)
         {
             ThrowIf.NullArgument(args, nameof(args));
             cancellation.ThrowIfCancellationRequested();

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 
 namespace Solitons.Data
 {
@@ -8,6 +10,22 @@ namespace Solitons.Data
     /// </summary>
     public readonly record struct MediaContent
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public static readonly IEqualityComparer<string> ContentTypeComparer = MediaContentTypeEqualityComparer.Instance;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="content"></param>
+        [DebuggerStepThrough]
+        public MediaContent(string content) 
+            : this(content, "text/plain")
+        {
+            
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -65,5 +83,17 @@ namespace Solitons.Data
         /// <returns></returns>
         [DebuggerNonUserCode]
         public MediaContent WithContent(string content) => new MediaContent(content, ContentType);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="content"></param>
+        public static implicit operator string(MediaContent content) => content.Content;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => Content;
     }
 }

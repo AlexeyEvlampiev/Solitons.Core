@@ -43,13 +43,13 @@ namespace Solitons
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid NullOrEmpty(Guid? guid)
         {
             if (guid == null || guid == Guid.Empty)
             {
-                throw new NullOrEmptyValueException();
+                throw new InvalidOperationException();
             }
 
             return guid.Value;
@@ -61,13 +61,13 @@ namespace Solitons
         /// <param name="guid"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid NullOrEmpty(Guid? guid, string message)
         {
             if (guid == null || guid == Guid.Empty)
             {
-                throw new NullOrEmptyValueException(message);
+                throw new InvalidOperationException(message);
             }
 
             return guid.Value;
@@ -95,13 +95,13 @@ namespace Solitons
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid NullOrEmptyArgument(Guid? guid)
         {
             if (guid == null || guid == Guid.Empty)
             {
-                throw new NullOrEmptyArgumentException();
+                throw new ArgumentOutOfRangeException();
             }
 
             return guid.Value;
@@ -113,13 +113,13 @@ namespace Solitons
         /// <param name="guid"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid NullOrEmptyArgument(Guid? guid, string paramName)
         {
             if (guid == null || guid == Guid.Empty)
             {
-                throw new NullOrEmptyArgumentException($"{paramName} required", paramName);
+                throw new ArgumentOutOfRangeException(paramName, $"{paramName} required.");
             }
 
             return guid.Value;
@@ -133,13 +133,13 @@ namespace Solitons
         /// <param name="paramName"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid NullOrEmptyArgument(Guid? guid, string paramName, string message)
         {
             if (guid == null || guid == Guid.Empty)
             {
-                throw new NullOrEmptyArgumentException(message, paramName);
+                throw new ArgumentOutOfRangeException(message, paramName);
             }
 
             return guid.Value;
@@ -151,13 +151,13 @@ namespace Solitons
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrEmpty(string? value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrEmptyValueException();
+                throw new ArgumentOutOfRangeException();
             }
 
             return value;
@@ -169,13 +169,13 @@ namespace Solitons
         /// <param name="value"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrEmpty(string? value, string message)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrEmptyValueException(message);
+                throw new InvalidOperationException(message);
             }
 
             return value;
@@ -203,13 +203,13 @@ namespace Solitons
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrEmptyArgument(string? value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrEmptyArgumentException();
+                throw new ArgumentOutOfRangeException();
             }
 
             return value;
@@ -219,15 +219,15 @@ namespace Solitons
         /// 
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="paramName</param>
+        /// <param name="paramName"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrEmptyArgument(string? value, string paramName)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrEmptyArgumentException(paramName);
+                throw new ArgumentOutOfRangeException(paramName);
             }
 
             return value;
@@ -240,13 +240,13 @@ namespace Solitons
         /// <param name="paramName"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrEmptyArgument(string? value, string paramName, string message)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrEmptyArgumentException(message, paramName);
+                throw new ArgumentOutOfRangeException(message, paramName);
             }
 
             return value;
@@ -258,13 +258,13 @@ namespace Solitons
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrWhiteSpaceStringException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrWhiteSpace(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new NullOrWhiteSpaceStringException();
+                throw new InvalidOperationException();
             }
 
             return value;
@@ -276,13 +276,13 @@ namespace Solitons
         /// <param name="value"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrWhiteSpaceStringException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrWhiteSpace(string? value, string message)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new NullOrWhiteSpaceStringException(message);
+                throw new InvalidOperationException(message);
             }
 
             return value;
@@ -312,13 +312,13 @@ namespace Solitons
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrWhiteSpaceArgument(string? value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrWhiteSpaceStringArgumentException();
+                throw new ArgumentOutOfRangeException();
             }
 
             return value;
@@ -330,13 +330,13 @@ namespace Solitons
         /// <param name="value"></param>
         /// <param name="paramName"></param>
         /// <returns><paramref name="value"/></returns>
-        /// <exception cref="NullOrWhiteSpaceStringException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrWhiteSpaceArgument(string? value, string paramName)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrWhiteSpaceStringArgumentException($"{paramName} is required.", paramName);
+                throw new ArgumentOutOfRangeException($"{paramName} is required.", paramName);
             }
 
             return value;
@@ -349,13 +349,13 @@ namespace Solitons
         /// <param name="paramName"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrWhiteSpaceStringArgumentException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NullOrWhiteSpaceArgument(string? value, string paramName, string message)
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new NullOrWhiteSpaceStringArgumentException(message, paramName);
+                throw new ArgumentOutOfRangeException(paramName, message);
             }
 
             return value;
@@ -392,6 +392,20 @@ namespace Solitons
             return value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="createException"></param>
+        /// <returns></returns>
+        [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T NullReference<T>(T? value, Func<Exception> createException)
+        {
+            if (value is null)
+                throw createException.Invoke();
+            return value;
+        }
 
         /// <summary>
         /// 

@@ -81,26 +81,24 @@ namespace Solitons.Data.Common
         /// <param name="contentType"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public string Serialize(object obj, string contentType) => _innerSerializer.Serialize(obj, contentType);
+        public MediaContent Serialize(object obj, string contentType) => _innerSerializer.Serialize(obj, contentType);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="obj"></param>
-        /// <param name="contentType"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public string Serialize(object obj, out string contentType) => _innerSerializer.Serialize(obj, out contentType);
+        public MediaContent Serialize(object obj) => _innerSerializer.Serialize(obj);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="targetType"></param>
-        /// <param name="contentType"></param>
+        /// <param name="typeId"></param>
         /// <param name="content"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public object Deserialize(Type targetType, string content, string contentType) => _innerSerializer.Deserialize(targetType, content, contentType);
+        public object Deserialize(Guid typeId, MediaContent content) => _innerSerializer.Deserialize(typeId, content);
 
         /// <summary>
         /// 
@@ -150,7 +148,7 @@ namespace Solitons.Data.Common
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerStepThrough]
-        public string Pack(IDistributedEventArgs args) => _innerSerializer.Pack(args);
+        public string Pack(IRemoteTriggerArgs args) => _innerSerializer.Pack(args);
 
 
         /// <summary>
@@ -165,9 +163,9 @@ namespace Solitons.Data.Common
             return _innerSerializer.GetType(dtoTypeId);
         }
 
-        public Type? GetTypeIfExists(Guid dtoTypeId)
+        public Type? GetTypeIfRegistered(Guid dtoTypeId)
         {
-            return _innerSerializer.GetTypeIfExists(dtoTypeId);
+            return _innerSerializer.GetTypeIfRegistered(dtoTypeId);
         }
     }
 }

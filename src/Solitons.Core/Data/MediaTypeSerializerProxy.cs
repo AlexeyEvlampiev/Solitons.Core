@@ -21,6 +21,7 @@ namespace Solitons.Data
                 : new MediaTypeSerializerProxy(innerSerialize);
         }
 
+
         public string TargetContentType
         {
             [DebuggerStepThrough]

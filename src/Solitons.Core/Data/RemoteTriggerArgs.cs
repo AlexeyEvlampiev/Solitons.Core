@@ -6,13 +6,13 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public class DistributedEventArgs : SerializationCallback, IDistributedEventArgs
+    public class RemoteTriggerArgs : SerializationCallback, IRemoteTriggerArgs
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="intentId"></param>
-        protected DistributedEventArgs(Guid intentId)
+        protected RemoteTriggerArgs(Guid intentId)
         {
             IntentId = intentId
                 .ThrowIfEmptyArgument(nameof(intentId));
@@ -23,6 +23,6 @@ namespace Solitons.Data
         /// </summary>
         protected Guid IntentId { get; }
 
-        Guid IDistributedEventArgs.IntentId => IntentId;
+        Guid IRemoteTriggerArgs.IntentId => IntentId;
     }
 }

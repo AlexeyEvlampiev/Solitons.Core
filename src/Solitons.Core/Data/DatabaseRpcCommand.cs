@@ -454,7 +454,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 
         if (Metadata.Request.DtoType.IsInstanceOfType(dto))
         {
-            var content = _serializer.Serialize(dto, Metadata.Request.ContentType);
+            string content = _serializer.Serialize(dto, Metadata.Request.ContentType);
             content = await TransformRequestAsync(content, cancellation);
             var package = new DataTransferPackage(Metadata.CommandOid, content, Metadata.Request.ContentType, Encoding.UTF8);
             config.Invoke(package);

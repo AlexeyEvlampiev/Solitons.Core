@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Solitons.Diagnostics
@@ -13,33 +14,25 @@ namespace Solitons.Diagnostics
         /// <summary>
         /// Logs the specified message asynchronously.
         /// </summary>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
         /// <param name="level">The log level</param>
-        /// <param name="message">The log message</param>
+        /// <param name="message">The message to be logged</param>
+        /// <param name="details"></param>
         /// <param name="config">The log entry configuration callback</param>
-        /// <param name="mode">The logging mode</param>
+        /// <param name="mode">he logging mode</param>
         /// <returns></returns>
-        Task LogAsync(LogLevel level, string message, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict);
+        Task LogAsync(
+            string callerMemberName,
+            string callerFilePath,
+            int callerLineNumber,
+            LogLevel level, 
+            string message,
+            string? details,
+            Action<ILogEntryBuilder>? config, 
+            LogMode mode = LogMode.Strict);
 
-        /// <summary>
-        /// Logs the specified message asynchronously.
-        /// </summary>
-        /// <param name="level">The log level</param>
-        /// <param name="message">The log message</param>
-        /// <param name="details">The details text</param>
-        /// <param name="config">The log entry configuration callback</param>
-        /// <param name="mode">The logging mode</param>
-        /// <returns></returns>
-        Task LogAsync(LogLevel level, string message, string details, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict);
-
-        /// <summary>
-        /// Logs the specified exception asynchronously.
-        /// </summary>
-        /// <param name="level">The log level</param>
-        /// <param name="ex">The exception</param>
-        /// <param name="config">The log entry configuration callback</param>
-        /// <param name="mode">The logging mode</param>
-        /// <returns></returns>
-        Task LogAsync(LogLevel level, Exception ex, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict);
 
         /// <summary>
         /// 
@@ -67,24 +60,69 @@ namespace Solitons.Diagnostics
         /// </summary>
         public static IAsyncLogger Console => ConsoleAsyncLogger.Instance;
 
-        /// <summary>
-        /// Logs the specified error message asynchronously.
-        /// </summary>
-        /// <param name="message">The message text</param>
-        /// <param name="config">The log entry configuration callback</param>
-        /// <param name="mode">The logging mode</param>
-        [DebuggerStepThrough]
-        public Task ErrorAsync(string message, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict) => LogAsync(LogLevel.Error, message, config, mode);
 
         /// <summary>
         /// Logs the specified error message asynchronously.
         /// </summary>
         /// <param name="message">The message text</param>
-        /// <param name="details">The details text</param>
         /// <param name="config">The log entry configuration callback</param>
         /// <param name="mode">The logging mode</param>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
         [DebuggerStepThrough]
-        public Task ErrorAsync(string message, string details, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict) => LogAsync(LogLevel.Error, message, details, config, mode);
+        public Task ErrorAsync(
+            string message,
+            Action<ILogEntryBuilder>? config = null,
+            LogMode mode = LogMode.Strict,
+            [CallerMemberName] string callerMemberName = "",
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] int callerLineNumber = -1)
+        {
+            return LogAsync(
+                callerMemberName,
+                callerFilePath,
+                callerLineNumber,
+                LogLevel.Error,
+                message,
+                null,
+                config,
+                mode);
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="details"></param>
+        /// <param name="config"></param>
+        /// <param name="mode"></param>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public Task ErrorAsync(
+            string message,
+            string details,
+            Action<ILogEntryBuilder>? config = null,
+            LogMode mode = LogMode.Strict,
+            [CallerMemberName] string callerMemberName = "",
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] int callerLineNumber = -1)
+        {
+            return LogAsync(
+                callerMemberName,
+                callerFilePath,
+                callerLineNumber,
+                LogLevel.Error,
+                message,
+                details,
+                config,
+                mode);
+        }
 
 
         /// <summary>
@@ -93,9 +131,29 @@ namespace Solitons.Diagnostics
         /// <param name="ex"></param>
         /// <param name="config"></param>
         /// <param name="mode">The logging mode</param>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public Task ErrorAsync(Exception ex, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict) => LogAsync(LogLevel.Error, ex.Message, ex.ToString(), config, mode);
+        public Task ErrorAsync(
+            Exception ex, 
+            Action<ILogEntryBuilder>? config = null, 
+            LogMode mode = LogMode.Strict,
+            [CallerMemberName] string callerMemberName = "",
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] int callerLineNumber = -1)
+        {
+            return LogAsync(
+                callerMemberName,
+                callerFilePath,
+                callerLineNumber,
+                LogLevel.Error,
+                ex.Message,
+                ex.ToString(),
+                config,
+                mode);
+        }
 
         /// <summary>
         /// Logs the specified warning message asynchronously.
@@ -103,8 +161,28 @@ namespace Solitons.Diagnostics
         /// <param name="message">The message text</param>
         /// <param name="config">The log entry configuration callback</param>
         /// <param name="mode">The logging mode</param>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
         [DebuggerStepThrough]
-        public Task WarningAsync(string message, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict) => LogAsync(LogLevel.Warning, message, config, mode);
+        public Task WarningAsync(
+            string message, 
+            Action<ILogEntryBuilder>? config = null, 
+            LogMode mode = LogMode.Strict,
+            [CallerMemberName] string callerMemberName = "",
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] int callerLineNumber = -1)
+        {
+            return LogAsync(
+                callerMemberName,
+                callerFilePath,
+                callerLineNumber,
+                LogLevel.Warning,
+                message,
+                null,
+                config,
+                mode);
+        }
 
         /// <summary>
         /// Logs the specified warning message asynchronously.
@@ -113,8 +191,29 @@ namespace Solitons.Diagnostics
         /// <param name="details">The details text</param>
         /// <param name="config">The log entry configuration callback</param>
         /// <param name="mode">The logging mode</param>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
         [DebuggerStepThrough]
-        public Task WarningAsync(string message, string details, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict) => LogAsync(LogLevel.Warning, message, details, config, mode);
+        public Task WarningAsync(
+            string message, 
+            string details, 
+            Action<ILogEntryBuilder>? config = null, 
+            LogMode mode = LogMode.Strict,
+            [CallerMemberName] string callerMemberName = "",
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] int callerLineNumber = -1)
+        {
+            return LogAsync(
+                callerMemberName,
+                callerFilePath,
+                callerLineNumber,
+                LogLevel.Warning,
+                message,
+                details,
+                config,
+                mode);
+        }
 
         /// <summary>
         /// Logs the specified information message asynchronously.
@@ -122,8 +221,28 @@ namespace Solitons.Diagnostics
         /// <param name="message">The message text</param>
         /// <param name="config">The log entry configuration callback</param>
         /// <param name="mode">The logging mode</param>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
         [DebuggerStepThrough]
-        public Task InfoAsync(string message, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict) => LogAsync(LogLevel.Info, message, config, mode);
+        public Task InfoAsync(
+            string message, 
+            Action<ILogEntryBuilder>? config = null, 
+            LogMode mode = LogMode.Strict,
+            [CallerMemberName] string callerMemberName = "",
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] int callerLineNumber = -1)
+        {
+            return LogAsync(
+                callerMemberName,
+                callerFilePath,
+                callerLineNumber,
+                LogLevel.Info,
+                message,
+                null,
+                config,
+                mode);
+        }
 
         /// <summary>
         /// Logs the specified information message asynchronously.
@@ -132,8 +251,29 @@ namespace Solitons.Diagnostics
         /// <param name="details">The details text</param>
         /// <param name="config">The log entry configuration callback</param>
         /// <param name="mode">The logging mode</param>
+        /// <param name="callerMemberName"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
         [DebuggerStepThrough]
-        public Task InfoAsync(string message, string details, Action<ILogEntryBuilder>? config = null, LogMode mode = LogMode.Strict) => LogAsync(LogLevel.Info, message, details, config, mode);
+        public Task InfoAsync(
+            string message, 
+            string details, 
+            Action<ILogEntryBuilder>? config = null, 
+            LogMode mode = LogMode.Strict,
+            [CallerMemberName] string callerMemberName = "",
+            [CallerFilePath] string callerFilePath = "",
+            [CallerLineNumber] int callerLineNumber = -1)
+        {
+            return LogAsync(
+                callerMemberName,
+                callerFilePath,
+                callerLineNumber,
+                LogLevel.Info,
+                message,
+                details,
+                config,
+                mode);
+        }
 
         /// <summary>
         /// Creates a new instance of <see cref="IAsyncLogger"/> that automatically adds the specified tag to every log entry.

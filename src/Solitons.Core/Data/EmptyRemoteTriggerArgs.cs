@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 namespace Solitons.Data
 {
     [Guid("92dddc48-0ccf-4151-ba2f-16dd62cba379")]
-    sealed class EmptyDistributedEventArgs : DistributedEventArgs
+    sealed class EmptyRemoteTriggerArgs : RemoteTriggerArgs
     {
-        public EmptyDistributedEventArgs(Guid intentId) : base(intentId)
+        public EmptyRemoteTriggerArgs(Guid intentId) : base(intentId)
         {
         }
 

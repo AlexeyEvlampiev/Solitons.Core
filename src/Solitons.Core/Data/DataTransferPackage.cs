@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Mime;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 
@@ -31,6 +33,19 @@ namespace Solitons.Data
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string? _signatureBase64;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="typeId"></param>
+        /// <param name="mediaContent"></param>
+        /// <param name="encoding"></param>
+        [DebuggerStepThrough]
+        public DataTransferPackage(Guid typeId, MediaContent mediaContent, Encoding encoding) 
+            : this(typeId, mediaContent.Content, mediaContent.ContentType, encoding)
+        {
+
+        }
 
         /// <summary>
         /// 

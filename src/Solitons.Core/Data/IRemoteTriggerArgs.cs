@@ -5,7 +5,7 @@ namespace Solitons.Data
     /// <summary>
     /// 
     /// </summary>
-    public interface IDistributedEventArgs
+    public interface IRemoteTriggerArgs
     {
         /// <summary>
         /// 
@@ -17,14 +17,14 @@ namespace Solitons.Data
         /// </summary>
         /// <param name="commandId"></param>
         /// <returns></returns>
-        public static IDistributedEventArgs CreateEmpty(Guid commandId) => new EmptyDistributedEventArgs(commandId.ThrowIfEmptyArgument(nameof(commandId)));
+        public static IRemoteTriggerArgs CreateEmpty(Guid commandId) => new EmptyRemoteTriggerArgs(commandId.ThrowIfEmptyArgument(nameof(commandId)));
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="commandGuid"></param>
         /// <returns></returns>
-        public static IDistributedEventArgs CreateEmpty(string commandGuid) => CreateEmpty(ThrowIf
+        public static IRemoteTriggerArgs CreateEmpty(string commandGuid) => CreateEmpty(ThrowIf
             .NullOrWhiteSpaceArgument(commandGuid, nameof(commandGuid))
             .Convert(Guid.Parse));
     }

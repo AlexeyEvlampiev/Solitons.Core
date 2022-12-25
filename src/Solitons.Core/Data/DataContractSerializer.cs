@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Microsoft.VisualBasic;
+using Solitons.Collections;
 
 namespace Solitons.Data
 {
@@ -17,6 +19,13 @@ namespace Solitons.Data
         {
             private readonly string _contentType;
 
+            [DebuggerNonUserCode]
+            public SerializerKey(Type type, string contentType) 
+                : this(type.GUID, contentType)
+            {
+            }
+
+            [DebuggerNonUserCode]
             public SerializerKey(Guid typeId, string contentType)
             {
                 TypeId = typeId;
@@ -48,7 +57,7 @@ namespace Solitons.Data
             {
                 DataContractType = dataContractType;
                 DefaultSerializer = defaultSerializer;
-                SupportedContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                SupportedContentTypes = new HashSet<string>(MediaContentTypeEqualityComparer.Instance);
             }
 
             public Type DataContractType { get; }
@@ -71,15 +80,38 @@ namespace Solitons.Data
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Dictionary<Guid, Metadata> _metadata = new();
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Dictionary<string, string> _contentTypeNames
+            = new Dictionary<string, string>(MediaContentTypeEqualityComparer.Instance)
+            {
+                ["application/json"] = "application/json",
+                ["application/xml"] = "application/xml",
+                ["text/html"] = "text/html",
+                ["text/plain"] = "text/plain",
+                ["text/csv"] = "text/csv",
+            };
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private static string _typeRegistrationMethods = string.Join(", ", new[]
+        {
+            nameof(IDataContractSerializerBuilder.Add),
+            nameof(IDataContractSerializerBuilder.AddAssemblyTypes),
+        });
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly Lazy<string> _registeredContentTypesCsv;
+
+
         #endregion
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static IDataContractSerializerBuilder CreateBuilder() => new DataContractSerializerBuilder(false);
+        internal DataContractSerializer()
+        {
+            _registeredContentTypesCsv = new Lazy<string>(() => _metadata.Values
+                .SelectMany(v => v.SupportedContentTypes)
+                .Distinct(MediaContentTypeEqualityComparer.Instance)
+                .OrderBy(_ => _, StringComparer.OrdinalIgnoreCase)
+                .Join(", "));
+        }
 
 
         /// <summary>
@@ -90,23 +122,61 @@ namespace Solitons.Data
         /// <exception cref="ArgumentNullException"></exception>
         internal void Register(Type type, IMediaTypeSerializer serializer)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
+            type = ThrowIf.NullArgument(type, nameof(type));
 
-            serializer = MediaTypeSerializerProxy.Wrap(ThrowIf
-                .NullArgument(serializer, nameof(serializer)));
+            var targetContentType = _contentTypeNames
+                .GetOrAdd(
+                    serializer.TargetContentType, 
+                    serializer.TargetContentType);
 
+            serializer = ThrowIf
+                .NullArgument(serializer, nameof(serializer))
+                .Convert(MediaTypeSerializerProxy.Wrap);
 
-            var key = new SerializerKey(type.GUID, serializer.TargetContentType);
+            var key = new SerializerKey(type, targetContentType);
             var value = new SerializerValue(type, serializer);
             _serializers[key] = value;
+
             if (_metadata.TryGetValue(type.GUID, out var metadata) == false)
             {
                 metadata = new Metadata(type, serializer);
                 _metadata.Add(type.GUID, metadata);
             }
 
-            metadata.SupportedContentTypes.Add(serializer.TargetContentType);
+            metadata.SupportedContentTypes.Add(targetContentType);
         }
+
+        private static string BuildDataTypeOutOfRangeMessage(Type type)
+        {
+            return new StringBuilder($"{type} data type is not registered.")
+                .Append($" Use the following {typeof(IDataContractSerializerBuilder)} methods to configure the serializer: {_typeRegistrationMethods}.")
+                .ToString();
+        }
+
+        private string BuildDataTypeOutOfRangeMessage(Guid typeId)
+        {
+            return new StringBuilder($"{typeId} data type is not registered.")
+                .Append($" Use the following {typeof(IDataContractSerializerBuilder)} methods to configure the serializer: {_typeRegistrationMethods}.")
+                .ToString();
+        }
+
+        private static string BuildContentTypeOutOfRangeMessage(Type type, string contentType)
+        {
+            return new StringBuilder($"The {contentType.Trim()} serialization is not configured for {type}.")
+                .Append($" Use the following {typeof(IDataContractSerializerBuilder)} methods to configure the serializer: {_typeRegistrationMethods}.")
+                .ToString();
+        }
+
+
+        private string BuildContentTypeOutOfRangeMessage(string contentType)
+        {
+            return new StringBuilder($"The {contentType.Trim()} serialization is not configured.")
+                .Append($" Configured content types: {_registeredContentTypesCsv}.")
+                .Append($" Use the following {typeof(IDataContractSerializerBuilder)} methods if applicable: {_typeRegistrationMethods}.")
+                .ToString();
+        }
+
+
 
         /// <summary>
         /// 
@@ -127,7 +197,7 @@ namespace Solitons.Data
         {
             if (_metadata.TryGetValue(type.GUID, out var metadata))
             {
-                contentType = metadata.DefaultSerializer.TargetContentType;
+                contentType = _contentTypeNames[metadata.DefaultSerializer.TargetContentType];
                 return true;
             }
 
@@ -169,10 +239,12 @@ namespace Solitons.Data
         {
             if (_metadata.TryGetValue(typeId, out var metadata))
             {
-                return metadata.SupportedContentTypes.AsEnumerable();
+                foreach (var contentType in metadata.SupportedContentTypes)
+                {
+                    yield return contentType;
+                }
             }
 
-            return Enumerable.Empty<string>();
         }
 
         /// <summary>
@@ -180,15 +252,8 @@ namespace Solitons.Data
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public IEnumerable<string> GetSupportedContentTypes(Type type)
-        {
-            if (_metadata.TryGetValue(type.GUID, out var metadata))
-            {
-                return metadata.SupportedContentTypes.AsEnumerable();
-            }
-
-            return Enumerable.Empty<string>();
-        }
+        public IEnumerable<string> GetSupportedContentTypes(Type type) => 
+            GetSupportedContentTypes(type.GUID);
 
         /// <summary>
         /// 
@@ -199,64 +264,111 @@ namespace Solitons.Data
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public string Serialize(object obj, string contentType)
+        public MediaContent Serialize(object obj, string contentType)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
-            if (contentType == null) throw new ArgumentNullException(nameof(contentType));
+            obj = ThrowIf
+                .NullArgument(obj, nameof(obj))
+                .Convert(dto =>
+                {
+                    if (_metadata.ContainsKey(dto.GetType().GUID))
+                    {
+                        return dto;
+                    }
+                    var message = BuildDataTypeOutOfRangeMessage(dto.GetType());
+                    throw new ArgumentOutOfRangeException(nameof(obj), message);
+                });
 
-            var key = new SerializerKey(obj.GetType().GUID,
-                ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType)));
+            contentType = ThrowIf
+                .NullOrWhiteSpaceArgument(contentType, nameof(contentType))
+                .Convert(ct =>
+                {
+                    if (_contentTypeNames.TryGetValue(ct, out var actualContentType))
+                    {
+                        return actualContentType;
+                    }
+
+                    string message = BuildContentTypeOutOfRangeMessage(obj.GetType(), ct);
+                    throw new ArgumentOutOfRangeException(nameof(contentType), message);
+                });
+
+
+            var key = new SerializerKey(obj.GetType(), contentType);
 
             if (_serializers.TryGetValue(key, out var value))
             {
-                return value.Serializer.Serialize(obj);
+                var content = value.Serializer.Serialize(obj);
+
+                return new MediaContent(content, contentType);
             }
 
-            throw new ArgumentOutOfRangeException($"{obj.GetType()} data contract type is not supported.", nameof(obj));
+            string message = BuildContentTypeOutOfRangeMessage(obj.GetType(), contentType);
+            throw new ArgumentOutOfRangeException(nameof(contentType), message);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="obj"></param>
-        /// <param name="contentType"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public string Serialize(object obj, out string contentType)
+        public MediaContent Serialize(object obj)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            obj = ThrowIf.NullArgument(obj, nameof(obj));
             if (_metadata.TryGetValue(obj.GetType().GUID, out var metadata))
             {
-                contentType = metadata.DefaultSerializer.TargetContentType;
-                return metadata.DefaultSerializer.Serialize(obj);
+                var contentType = _contentTypeNames[metadata.DefaultSerializer.TargetContentType];
+                var content = metadata.DefaultSerializer.Serialize(obj);
+                return new MediaContent(content, contentType);
             }
 
-            throw new ArgumentOutOfRangeException($"{obj.GetType()} data contract type is not supported.", nameof(obj));
+            var message = BuildDataTypeOutOfRangeMessage(obj.GetType());
+            throw new ArgumentOutOfRangeException(nameof(obj), message);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="targetType"></param>
-        /// <param name="contentType"></param>
-        /// <param name="content"></param>
+        /// <param name="typeId"></param>
+        /// <param name="mediaContent"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public object Deserialize(Type targetType, string content, string contentType)
+        public object Deserialize(Guid typeId, MediaContent mediaContent)
         {
-            if (targetType == null) throw new ArgumentNullException(nameof(targetType));
-            if (contentType == null) throw new ArgumentNullException(nameof(contentType));
-            if (content == null) throw new ArgumentNullException(nameof(content));
-
-            var key = new SerializerKey(targetType.GUID, contentType);
-            if (_serializers.TryGetValue(key, out var value))
+            typeId = ThrowIf.NullOrEmptyArgument(typeId, nameof(typeId));
+            if (_metadata.TryGetValue(typeId, out var metadata) == false)
             {
-                return value.Serializer.Deserialize(content, value.DataContractType);
+                throw new ArgumentOutOfRangeException(
+                    nameof(mediaContent),
+                    BuildDataTypeOutOfRangeMessage(typeId));
             }
 
-            throw new ArgumentOutOfRangeException($"'{targetType}' data contract type is not supported.", nameof(targetType));
+            mediaContent = ThrowIf
+                .NullArgument(mediaContent, nameof(mediaContent))
+                .Convert(md =>
+                {
+                    if (_contentTypeNames.TryGetValue(md.ContentType, out var actualContentType))
+                    {
+                        return new MediaContent(md.Content, actualContentType);
+                    }
+
+                    var message = BuildContentTypeOutOfRangeMessage(md.ContentType);
+                    throw new ArgumentOutOfRangeException(nameof(mediaContent), message);
+                });
+
+            var key = new SerializerKey(typeId, mediaContent.ContentType);
+            if (_serializers.TryGetValue(key, out var value))
+            {
+                return value.Serializer
+                    .Deserialize(mediaContent.Content, value.DataContractType);
+            }
+
+            var message = BuildContentTypeOutOfRangeMessage(
+                metadata.DataContractType, 
+                mediaContent.ContentType);
+
+            throw new ArgumentOutOfRangeException(nameof(mediaContent), message);
         }
 
         /// <summary>
@@ -267,7 +379,7 @@ namespace Solitons.Data
         /// <param name="content"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public T Deserialize<T>(string content, string contentType) => (T)Deserialize(typeof(T), content, contentType);
+        public T Deserialize<T>(string content, string contentType) => (T)Deserialize(typeof(T).GUID, content, contentType);
 
         /// <summary>
         /// 
@@ -293,9 +405,9 @@ namespace Solitons.Data
 
         public DataTransferPackage Pack(object dto)
         {
-            var content = Serialize(dto, out var contentType);
-            var package = new DataTransferPackage(dto.GetType().GUID, content, contentType, Encoding.UTF8);
-            if (dto is IDistributedEventArgs args)
+            var content = Serialize(dto);
+            var package = new DataTransferPackage(dto.GetType().GUID, content, Encoding.UTF8);
+            if (dto is IRemoteTriggerArgs args)
             {
                 package.IntentId = args.IntentId;
             }
@@ -317,10 +429,10 @@ namespace Solitons.Data
 
         public Type GetType(Guid dtoTypeId)
         {
-            return GetTypeIfExists(dtoTypeId) ?? throw new ArgumentOutOfRangeException(nameof(dtoTypeId));
+            return GetTypeIfRegistered(dtoTypeId) ?? throw new ArgumentOutOfRangeException(nameof(dtoTypeId));
         }
 
-        public Type? GetTypeIfExists(Guid dtoTypeId)
+        public Type? GetTypeIfRegistered(Guid dtoTypeId)
         {
             return _metadata.TryGetValue(dtoTypeId, out var metadata)
                 ? metadata.DataContractType

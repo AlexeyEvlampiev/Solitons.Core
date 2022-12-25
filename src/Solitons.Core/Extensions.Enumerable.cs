@@ -220,6 +220,29 @@ namespace Solitons
         /// <typeparam name="TValue"></typeparam>
         /// <param name="self"></param>
         /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> self, TKey key, TValue defaultValue)
+        {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (self.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+
+            self[key] = defaultValue;
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="key"></param>
         /// <param name="factory"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>

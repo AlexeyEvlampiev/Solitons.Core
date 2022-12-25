@@ -64,26 +64,15 @@ public partial interface IDataContractSerializer
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    string Serialize(object obj, string contentType);
+    MediaContent Serialize(object obj, string contentType);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="obj"></param>
-    /// <param name="contentType"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    string Serialize(object obj, out string contentType);
+    MediaContent Serialize(object obj);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="targetType"></param>
-    /// <param name="content"></param>
-    /// <param name="contentType"></param>
-    /// <returns></returns>
-    object Deserialize(Type targetType, string content, string contentType);
 
     /// <summary>
     /// 
@@ -100,9 +89,8 @@ public partial interface IDataContractSerializer
     /// </summary>
     /// <param name="typeId"></param>
     /// <param name="content"></param>
-    /// <param name="contentType"></param>
     /// <returns></returns>
-    object Deserialize(Guid typeId, string content, string contentType);
+    object Deserialize(Guid typeId, MediaContent content);
 
     /// <summary>
     /// 
@@ -136,7 +124,7 @@ public partial interface IDataContractSerializer
     /// </summary>
     /// <param name="dtoTypeId"></param>
     /// <returns></returns>
-    Type? GetTypeIfExists(Guid dtoTypeId);
+    Type? GetTypeIfRegistered(Guid dtoTypeId);
 }
 
 public partial interface IDataContractSerializer
@@ -144,12 +132,48 @@ public partial interface IDataContractSerializer
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="typeId"></param>
-    /// <param name="mediaContent"></param>
+    /// <param name="obj"></param>
+    /// <param name="contentType"></param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public object Deserialize(Guid typeId, MediaContent mediaContent) => 
-        Deserialize(typeId, mediaContent.Content, mediaContent.ContentType);
+    public string Serialize(object obj, out string contentType)
+    {
+        var content = Serialize(obj);
+        contentType = content.ContentType;
+        return content.Content;
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="typeId"></param>
+    /// <param name="content"></param>
+    /// <param name="contentType"></param>
+    /// <returns></returns>
+    [DebuggerStepThrough]
+    public object Deserialize(Guid typeId, string content, string contentType) => 
+        Deserialize(typeId, new MediaContent(content, contentType));
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="content"></param>
+    /// <param name="contentType"></param>
+    /// <returns></returns>
+    [DebuggerStepThrough]
+    public object Deserialize(Type type, string content, string contentType) =>
+        Deserialize(type.GUID, new MediaContent(content, contentType));
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    [DebuggerStepThrough]
+    object Deserialize(Type type, MediaContent content) => Deserialize(type.GUID, content);
 
     /// <summary>
     /// 
@@ -179,11 +203,17 @@ public partial interface IDataContractSerializer
     public T Deserialize<T>(MediaContent mediaContent) =>
         (T)Deserialize(typeof(T), mediaContent.Content, mediaContent.ContentType);
 
+
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="config"></param>
     /// <returns></returns>
-    [DebuggerNonUserCode]
-    public static IDataContractSerializerBuilder CreateBuilder() => new DataContractSerializerBuilder(true);
-
+    [DebuggerStepThrough]
+    public static IDataContractSerializer Build(Action<IDataContractSerializerBuilder> config)
+    {
+        var builder = new DataContractSerializerBuilder(true);
+        config?.Invoke(builder);
+        return builder.Build();
+    }
 }

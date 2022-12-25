@@ -18,10 +18,9 @@ namespace Solitons.Data
 
             var dto = new MyDto() { Text = "This is a test" };
             var serializer = IDataContractSerializer
-                .CreateBuilder()
-                .RequireCustomGuidAnnotation(false)
-                .Add(typeof(MyDto), IMediaTypeSerializer.BasicJsonSerializer)
-                .Build();
+                .Build(builder => builder
+                    .RequireCustomGuidAnnotation(false)
+                    .Add(typeof(MyDto), IMediaTypeSerializer.BasicJsonSerializer));
 
             var expectedTransactionTypeId = Guid.Parse("4b957593-43b3-4c48-be57-fd8b079699b9");
             
@@ -40,11 +39,10 @@ namespace Solitons.Data
         {
             var dto = new ExplicitTransactionArgs() { Value = 321 };
             var serializer = IDataContractSerializer
-                .CreateBuilder()
-                .RequireCustomGuidAnnotation(false)
-                .Add(typeof(ExplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer)
-                .Build();
-            var expectedCommandId = ((IDistributedEventArgs)dto).IntentId;
+                .Build(builder => builder
+                    .RequireCustomGuidAnnotation(false)
+                    .Add(typeof(ExplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer));
+            var expectedCommandId = ((IRemoteTriggerArgs)dto).IntentId;
             var package = serializer.Pack(dto);
             var clone = (ExplicitTransactionArgs)serializer.Unpack(package);
             Assert.Equal(dto.Value, clone.Value);
@@ -55,10 +53,9 @@ namespace Solitons.Data
         {
             var dto = new ImplicitTransactionArgs() { Value = 54321 };
             var serializer = IDataContractSerializer
-                .CreateBuilder()
-                .RequireCustomGuidAnnotation(false)
-                .Add(typeof(ImplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer)
-                .Build();
+                .Build(builder => builder
+                    .RequireCustomGuidAnnotation(false)
+                    .Add(typeof(ImplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer));
             var package = serializer.Pack(dto);
             var clone = (ImplicitTransactionArgs)serializer.Unpack(package);
             Assert.Equal(dto.Value, clone.Value);
@@ -66,20 +63,20 @@ namespace Solitons.Data
 
         public sealed class MyDto :
             BasicJsonDataTransferObject,
-            IDistributedEventArgs
+            IRemoteTriggerArgs
         {
             public string Text { get; set; }
         }
 
         [Guid("b6fd4e7d-140a-44e1-b692-27ba49e92f6f")]
-        public sealed class ExplicitTransactionArgs : BasicJsonDataTransferObject, IDistributedEventArgs
+        public sealed class ExplicitTransactionArgs : BasicJsonDataTransferObject, IRemoteTriggerArgs
         {
-            Guid IDistributedEventArgs.IntentId => Guid.Parse("07041ff2319d48ada77e62cb4eb086b7");
+            Guid IRemoteTriggerArgs.IntentId => Guid.Parse("07041ff2319d48ada77e62cb4eb086b7");
 
             public int Value { get; set; }
         }
 
-        public sealed class ImplicitTransactionArgs : BasicXmlDataTransferObject, IDistributedEventArgs
+        public sealed class ImplicitTransactionArgs : BasicXmlDataTransferObject, IRemoteTriggerArgs
         {
             public int Value { get; set; }
         }

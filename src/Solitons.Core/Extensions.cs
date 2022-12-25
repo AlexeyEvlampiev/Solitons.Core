@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Collections;
 using Solitons.Data;
 
 namespace Solitons
@@ -557,14 +558,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="NullOrEmptyValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Guid ThrowIfNullOrEmpty(this Guid? self, string message)
         {
             if (self == null || self == Guid.Empty)
             {
-                throw new NullOrEmptyValueException(message);
+                throw new InvalidOperationException(message);
             }
 
             return self.Value;
@@ -583,6 +584,13 @@ namespace Solitons
                 : self;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="parameterName"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
@@ -605,6 +613,8 @@ namespace Solitons
         /// <param name="self">The time span to be converted.</param>
         /// <param name="cancellation">The cancellation token.</param>
         /// <param name="throwOnCancellation">if set to <c>true</c> the <see cref="OperationCanceledException"/> errors occurred during the method execution are passed to the called.</param>
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task DelayAsync(this TimeSpan self, CancellationToken cancellation, bool throwOnCancellation = false)
         {
             try
@@ -618,9 +628,25 @@ namespace Solitons
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToBase64String(this byte[] self) =>
             System.Convert.ToBase64String(self ?? throw new NullReferenceException());
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [DebuggerNonUserCode]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToUtf8String(this byte[] self)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
@@ -720,14 +746,14 @@ namespace Solitons
         /// <param name="self"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        /// <exception cref="MissingValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static T ThrowIfNull<T>(this T? self, string message) where T : struct
         {
             if (self.HasValue == false)
             {
-                throw new MissingValueException(message);
+                throw new InvalidOperationException(message);
             }
             return self.Value;
         }
@@ -738,15 +764,16 @@ namespace Solitons
         /// <typeparam name="T"></typeparam>
         /// <param name="self"></param>
         /// <returns></returns>
-        /// <exception cref="MissingValueException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         [DebuggerNonUserCode]
         [return: NotNull]
         public static T ThrowIfNull<T>(this T? self) where T : struct
         {
             if (self.HasValue == false)
             {
-                throw new MissingValueException();
+                throw new InvalidOperationException();
             }
+
             return self.Value;
         }
 
