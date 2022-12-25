@@ -212,7 +212,7 @@ public partial interface IDataContractSerializer
     [DebuggerStepThrough]
     public static IDataContractSerializer Build(Action<IDataContractSerializerBuilder> config)
     {
-        var builder = new DataContractSerializerBuilder(true);
+        var builder = new DataContractSerializerBuilder();
         config?.Invoke(builder);
         return builder.Build();
     }

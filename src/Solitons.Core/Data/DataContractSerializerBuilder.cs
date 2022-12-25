@@ -14,34 +14,37 @@ namespace Solitons.Data
     /// </summary>
     sealed class DataContractSerializerBuilder : IDataContractSerializerBuilder
     {
-        private bool _requireCustomGuidAnnotation = false;
+        private bool _ignoreMissingCustomGuidAnnotation = false;
         private readonly HashSet<Registration> _cache = new();
         private readonly List<Registration> _registrations = new();
+
+        [DebuggerNonUserCode]
         sealed record Registration(Type DtoType, IMediaTypeSerializer Serializer);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="requireCustomGuidAnnotation"></param>
-        public DataContractSerializerBuilder(bool requireCustomGuidAnnotation)
+        /// <param name="ignoreMissingCustomGuidAnnotation"></param>
+        [DebuggerStepThrough]
+        public DataContractSerializerBuilder(bool ignoreMissingCustomGuidAnnotation = false)
         {
-            _requireCustomGuidAnnotation = requireCustomGuidAnnotation;
+            _ignoreMissingCustomGuidAnnotation = ignoreMissingCustomGuidAnnotation;
             _registrations.Add(new Registration(typeof(LogEntryData), IMediaTypeSerializer.BasicJsonSerializer));
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="requireCustomGuidAnnotation"></param>
+        /// <param name="ignoreMissingCustomGuidAnnotation"></param>
         /// <returns></returns>
         [DebuggerNonUserCode]
-        public static DataContractSerializerBuilder Create(bool requireCustomGuidAnnotation = true) => new(requireCustomGuidAnnotation);
+        public static DataContractSerializerBuilder Create(bool ignoreMissingCustomGuidAnnotation = false) => new(ignoreMissingCustomGuidAnnotation);
 
 
         [DebuggerNonUserCode]
-        public IDataContractSerializerBuilder RequireCustomGuidAnnotation(bool @switch)
+        public IDataContractSerializerBuilder IgnoreMissingCustomGuidAnnotation(bool @switch)
         {
-            _requireCustomGuidAnnotation = @switch;
+            _ignoreMissingCustomGuidAnnotation = @switch;
             return this;
         }
 
@@ -57,7 +60,7 @@ namespace Solitons.Data
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (serializer == null) throw new ArgumentNullException(nameof(serializer));
 
-            if (_requireCustomGuidAnnotation &&
+            if (!_ignoreMissingCustomGuidAnnotation &&
                 false == Attribute.IsDefined(type, typeof(GuidAttribute)))
             {
                 throw new InvalidOperationException(new StringBuilder($"{typeof(GuidAttribute)} annotation is missing.")

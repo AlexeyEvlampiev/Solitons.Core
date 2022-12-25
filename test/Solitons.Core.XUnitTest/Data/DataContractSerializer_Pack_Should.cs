@@ -11,15 +11,10 @@ namespace Solitons.Data
         [Fact]
         public void PackPlainDto()
         {
-            var clock = new Mock<IClock>();
-            clock
-                .Setup(i => i.UtcNow)
-                .Returns(DateTimeOffset.Parse("2022-01-01"));
-
             var dto = new MyDto() { Text = "This is a test" };
             var serializer = IDataContractSerializer
                 .Build(builder => builder
-                    .RequireCustomGuidAnnotation(false)
+                    .IgnoreMissingCustomGuidAnnotation(true)
                     .Add(typeof(MyDto), IMediaTypeSerializer.BasicJsonSerializer));
 
             var expectedTransactionTypeId = Guid.Parse("4b957593-43b3-4c48-be57-fd8b079699b9");
@@ -40,7 +35,7 @@ namespace Solitons.Data
             var dto = new ExplicitTransactionArgs() { Value = 321 };
             var serializer = IDataContractSerializer
                 .Build(builder => builder
-                    .RequireCustomGuidAnnotation(false)
+                    .IgnoreMissingCustomGuidAnnotation(true)
                     .Add(typeof(ExplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer));
             var expectedCommandId = ((IRemoteTriggerArgs)dto).IntentId;
             var package = serializer.Pack(dto);
@@ -54,7 +49,7 @@ namespace Solitons.Data
             var dto = new ImplicitTransactionArgs() { Value = 54321 };
             var serializer = IDataContractSerializer
                 .Build(builder => builder
-                    .RequireCustomGuidAnnotation(false)
+                    .IgnoreMissingCustomGuidAnnotation(true)
                     .Add(typeof(ImplicitTransactionArgs), IMediaTypeSerializer.BasicJsonSerializer));
             var package = serializer.Pack(dto);
             var clone = (ImplicitTransactionArgs)serializer.Unpack(package);

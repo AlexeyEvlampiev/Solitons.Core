@@ -392,15 +392,27 @@ namespace Solitons.Data
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public object Deserialize(Guid typeId, string content, string contentType)
         {
-            if (contentType == null) throw new ArgumentNullException(nameof(contentType));
-            if (content == null) throw new ArgumentNullException(nameof(content));
+            typeId = ThrowIf.NullOrEmptyArgument(typeId, nameof(typeId));
+            if (_metadata.TryGetValue(typeId, out var metadata) == false)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(typeId), 
+                    BuildDataTypeOutOfRangeMessage(typeId));
+            }
+
+            content = ThrowIf.NullArgument(content, nameof(content));
+            contentType = ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType));
+
             var key = new SerializerKey(typeId, contentType);
             if (_serializers.TryGetValue(key, out var value))
             {
                 return value.Serializer.Deserialize(content, value.DataContractType);
             }
 
-            throw new ArgumentOutOfRangeException($"'{typeId}' data contract type is not supported.", nameof(typeId));
+            var message = BuildContentTypeOutOfRangeMessage(
+                metadata.DataContractType,
+                contentType);
+            throw new ArgumentOutOfRangeException(nameof(contentType), message);
         }
 
         public DataTransferPackage Pack(object dto)

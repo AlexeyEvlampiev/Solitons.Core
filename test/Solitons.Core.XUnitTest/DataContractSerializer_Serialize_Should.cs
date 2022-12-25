@@ -13,7 +13,7 @@ namespace Solitons
         {
             var target = IDataContractSerializer
                 .Build(builder => builder
-                    .RequireCustomGuidAnnotation(false)
+                    .IgnoreMissingCustomGuidAnnotation(true)
                     .Add(typeof(MyClass),
                         IMediaTypeSerializer.BasicJsonSerializer,
                         IMediaTypeSerializer.BasicXmlSerializer));
@@ -30,7 +30,7 @@ namespace Solitons
         {
             var target = IDataContractSerializer
                 .Build(builder => builder
-                    .RequireCustomGuidAnnotation(false)
+                    .IgnoreMissingCustomGuidAnnotation(true)
                     .Add(typeof(MyClass),
                         IMediaTypeSerializer.BasicXmlSerializer,
                         IMediaTypeSerializer.BasicJsonSerializer));

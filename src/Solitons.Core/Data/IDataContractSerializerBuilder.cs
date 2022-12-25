@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Solitons.Data
 {
@@ -15,7 +17,7 @@ namespace Solitons.Data
         /// </summary>
         /// <param name="switch"></param>
         /// <returns></returns>
-        IDataContractSerializerBuilder RequireCustomGuidAnnotation(bool @switch);
+        IDataContractSerializerBuilder IgnoreMissingCustomGuidAnnotation(bool @switch);
 
         /// <summary>
         /// 
@@ -51,11 +53,50 @@ namespace Solitons.Data
         /// <param name="mediaTypeSerializers"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         IDataContractSerializerBuilder Add(Type dtoType, params IMediaTypeSerializer[] mediaTypeSerializers)
         {
             if (dtoType == null) throw new ArgumentNullException(nameof(dtoType));
             if (mediaTypeSerializers == null) throw new ArgumentNullException(nameof(mediaTypeSerializers));
+            if (mediaTypeSerializers.Length == 0)
+            {
+                var implicitSerializers = new List<IMediaTypeSerializer>();
+
+                if (typeof(BasicJsonDataTransferObject).IsAssignableFrom(dtoType) ||
+                    typeof(BasicJsonDataTransferRecord).IsAssignableFrom(dtoType))
+                {
+                    implicitSerializers.Add(new BasicJsonMediaTypeSerializer());
+                }
+               
+                if (typeof(BasicXmlDataTransferObject).IsAssignableFrom(dtoType))
+                {
+                    implicitSerializers.Add(new BasicXmlMediaTypeSerializer());
+                }
+
+                if (typeof(IBasicJsonDataTransferObject).IsAssignableFrom(dtoType) &&
+                    implicitSerializers.OfType<BasicJsonMediaTypeSerializer>().Any() == false)
+                {
+                    implicitSerializers.Add(new BasicJsonMediaTypeSerializer());
+                }
+
+                if (typeof(IBasicXmlDataTransferObject).IsAssignableFrom(dtoType) &&
+                    implicitSerializers.OfType<BasicXmlMediaTypeSerializer>().Any() == false)
+                {
+                    implicitSerializers.Add(new BasicXmlMediaTypeSerializer());
+                }
+
+                if (implicitSerializers.Any())
+                {
+                    mediaTypeSerializers = implicitSerializers.ToArray();
+                }
+            }
+
+            if (mediaTypeSerializers.Length == 0)
+            {
+                throw new ArgumentException(new StringBuilder($"Media type serializers collection is required.")
+                    .Append($" Implicit media type serializer for {dtoType} could not be determined.")
+                    .ToString(), nameof(mediaTypeSerializers));
+            }
             Array.ForEach(mediaTypeSerializers, mts=> Add(dtoType, mts));
             return this;
         }
