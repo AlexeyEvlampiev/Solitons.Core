@@ -92,6 +92,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Diagnostics\" />
     <Folder Include="Web\Common\" />
   </ItemGroup>
 

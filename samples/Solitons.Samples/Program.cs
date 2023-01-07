@@ -1,6 +1,7 @@
 ﻿
 
 using System.Collections;
+using System.Security.Claims;
 using Solitons;
 using Solitons.Configuration;
 using Solitons.Data;
@@ -9,7 +10,8 @@ using Solitons.Diagnostics;
 
 UsingSettingsGroupExample.Run();
 
-await UsingDefaultLoggerExample.RunAsync();
+await UsingDefaultConsoleLoggerExample.RunAsync();
+await UsingCustomConsoleLoggerExample.RunAsync();
 await UsingCustomLoggerExample.RunAsync();
 
 

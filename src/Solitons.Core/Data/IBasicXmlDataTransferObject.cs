@@ -20,7 +20,7 @@ namespace Solitons.Data
         /// </summary>
         /// <returns>The XML- string object representation</returns>
         [DebuggerStepThrough]
-        public string ToXmlString()
+        public sealed string ToXmlString()
         {
             var callback = this as ISerializationCallback;
             var serializer = new XmlSerializer(GetType());
@@ -42,12 +42,7 @@ namespace Solitons.Data
         [DebuggerNonUserCode]
         public static T Parse<T>(string xmlString) where T : IBasicXmlDataTransferObject, new()
         {
-            var serializer = new XmlSerializer(typeof(T));
-            using var reader = new StringReader(xmlString);
-            var obj = serializer.Deserialize(reader);
-            if(obj is IDeserializationCallback callback)
-                callback.OnDeserialization(typeof(IBasicXmlDataTransferObject));
-            return (T) obj;
+            return (T) Parse(xmlString, typeof(T));
         }
 
         /// <summary>
@@ -64,7 +59,7 @@ namespace Solitons.Data
             var obj = serializer.Deserialize(reader);
             if (obj is IDeserializationCallback callback)
                 callback.OnDeserialization(typeof(IBasicXmlDataTransferObject));
-            return obj;
+            return obj ?? new FormatException();
         }
     }
 

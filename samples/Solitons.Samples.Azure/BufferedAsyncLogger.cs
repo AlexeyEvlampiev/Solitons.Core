@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Queues;
@@ -32,13 +33,12 @@ namespace Solitons.Samples.Azure
 
 
 
-        protected override async Task LogAsync(ILogEntry entry)
+        protected override async Task LogAsync(LogEventArgs args)
         {
             try
             {
-                var data = entry
-                    .AsDataTransferObject()
-                    .ToJsonString()
+                var data = args
+                    .Content
                     .ToUtf8Bytes();
                 await _bufferQueue.SendMessageAsync(new BinaryData(data));
             }

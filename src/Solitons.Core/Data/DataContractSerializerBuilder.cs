@@ -29,7 +29,6 @@ namespace Solitons.Data
         public DataContractSerializerBuilder(bool ignoreMissingCustomGuidAnnotation = false)
         {
             _ignoreMissingCustomGuidAnnotation = ignoreMissingCustomGuidAnnotation;
-            _registrations.Add(new Registration(typeof(LogEntryData), IMediaTypeSerializer.BasicJsonSerializer));
         }
 
         /// <summary>

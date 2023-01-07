@@ -1,4 +1,7 @@
-﻿namespace Solitons.Diagnostics;
+﻿using System.Security.Principal;
+using System.Text.Json.Nodes;
+
+namespace Solitons.Diagnostics;
 
 public static class UsingCustomLoggerExample
 {
@@ -8,11 +11,15 @@ public static class UsingCustomLoggerExample
             .Create()
             .WithTags("example", "custom implementation")
             .WithProperty("machine", Environment.MachineName)
-            .WithProperty("user", Environment.UserName);
+            .WithProperty("user", Environment.UserName)
+            .WithPrincipal(new GenericPrincipal(
+                new GenericIdentity("DemoUser", "DemoAuth"), new[] { "DemoAdmin" }));
 
-        await logger.InfoAsync("Information goes here", details: "Should be in green");
-        await logger.WarningAsync("Warning goes here", details: "Should be in yellow");
-        await logger.ErrorAsync("Error goes here", details: "Should be in red");
+
+        await logger.InfoAsync("Information goes here");
+        await logger.WarningAsync("Warning goes here");
+        await logger.ErrorAsync("Error goes here");
+
     }
 
 
@@ -20,29 +27,10 @@ public static class UsingCustomLoggerExample
     {
         public static IAsyncLogger Create() => new CustomAsyncLogger();
 
-        protected override Task LogAsync(ILogEntry entry)
+        protected override Task LogAsync(LogEventArgs args)
         {
-            var json = entry.ToJsonString(indented: true);
-
-            Console.WriteLine(new string('=', 50));
-
-            var color = Console.ForegroundColor;
-            try
-            {
-                Console.ForegroundColor = entry.Level switch
-                {
-                    LogLevel.Error => ConsoleColor.Red,
-                    LogLevel.Warning => ConsoleColor.DarkYellow,
-                    _ => ConsoleColor.Green
-                };
-                Console.WriteLine(json);
-                return Task.CompletedTask;
-            }
-            finally
-            {
-                // Restore the original text color
-                Console.ForegroundColor = color;
-            }
+            Console.WriteLine(args.Content);
+            return Task.CompletedTask;
         }
     }
 }

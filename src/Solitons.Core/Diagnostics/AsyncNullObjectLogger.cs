@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Security.Principal;
+using System.Threading.Tasks;
 using Solitons.Diagnostics.Common;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Solitons.Diagnostics
 {
@@ -9,6 +12,8 @@ namespace Solitons.Diagnostics
 
         private AsyncNullObjectLogger() { }
 
-        protected override Task LogAsync(ILogEntry entry) => Task.CompletedTask;
+        [DebuggerNonUserCode]
+        protected override Task LogAsync(LogEventArgs args) => Task.CompletedTask;
+
     }
 }

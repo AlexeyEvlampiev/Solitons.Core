@@ -19,7 +19,7 @@ namespace Solitons.Data
         /// </summary>
         /// <returns>The JSON- string object representation</returns>
         [DebuggerStepThrough]
-        public string ToJsonString()
+        public sealed string ToJsonString()
         {
             var callback = this as ISerializationCallback;
             callback?.OnSerializing(null);
@@ -37,10 +37,7 @@ namespace Solitons.Data
         [DebuggerNonUserCode]
         public static T Parse<T>(string jsonString) where T : IBasicJsonDataTransferObject
         {
-            var obj = JsonSerializer.Deserialize<T>(jsonString);
-            if (obj is IDeserializationCallback callback)
-                callback.OnDeserialization(null);
-            return (T)obj;
+            return (T)Parse(jsonString, typeof(T));
         }
 
         /// <summary>
@@ -52,10 +49,10 @@ namespace Solitons.Data
         [DebuggerStepThrough]
         public static object Parse(string jsonString, Type returnType)
         {
-            var obj = JsonSerializer.Deserialize(jsonString,returnType);
+            var obj = JsonSerializer.Deserialize(jsonString, returnType);
             if (obj is IDeserializationCallback callback)
                 callback.OnDeserialization(null);
-            return obj;
+            return obj ?? throw new FormatException();
         }
     }
 

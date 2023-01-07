@@ -43,6 +43,7 @@ namespace Solitons.Collections
         public static FluentDictionary<TKey, TValue> Create<TKey, TValue>() where TKey : notnull => 
             new (new Dictionary<TKey, TValue>());
 
+
         /// <summary>
         /// 
         /// </summary>

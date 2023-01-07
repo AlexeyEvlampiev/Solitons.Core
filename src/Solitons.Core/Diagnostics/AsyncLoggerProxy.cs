@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Solitons.Diagnostics.Common;
+using System;
 using System.Diagnostics;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace Solitons.Diagnostics
@@ -8,17 +10,20 @@ namespace Solitons.Diagnostics
     {
         #region Private Fields
         private readonly IAsyncLogger _innerLogger;
-        private readonly Action<ILogEntryBuilder> _innerConfig;
+        private readonly Action<ILogStringBuilder> _innerConfig;
+        private readonly IPrincipal? _principal;
         #endregion
 
-
         [DebuggerNonUserCode]
-        internal AsyncLoggerProxy(IAsyncLogger innerLogger, Action<ILogEntryBuilder> innerConfig)
+        internal AsyncLoggerProxy(
+            IAsyncLogger innerLogger, 
+            Action<ILogStringBuilder> innerConfig)
         {
             if (innerLogger is AsyncLoggerProxy other)
             {
                 _innerLogger = other._innerLogger;
                 _innerConfig = other._innerConfig + innerConfig;
+                _principal = other._principal;
             }
             else
             {
@@ -27,40 +32,43 @@ namespace Solitons.Diagnostics
             }
         }
 
+        internal AsyncLoggerProxy(
+            IAsyncLogger innerLogger,
+            Action<ILogStringBuilder> innerConfig,
+            IPrincipal principal) 
+            : this(innerLogger, innerConfig)
+        {
+            _principal = principal;
+        }
 
-
-        [DebuggerStepThrough]
-        public Task LogAsync(
-            string callerMemberName,
-            string callerFilePath,
-            int callerLineNumber, 
+        Task IAsyncLogger.LogAsync(
             LogLevel level, 
-            string message, 
-            string? details,
-            Action<ILogEntryBuilder>? config = null, 
-            LogMode mode = LogMode.Strict)
+            string message,
+            LogMode mode, 
+            IPrincipal? principal,
+            string callerMemberName,
+            string callerFilePath, 
+            int callerLineNumber, 
+            Action<ILogStringBuilder>? config)
         {
             config = config is null
                 ? _innerConfig
                 : _innerConfig + config;
-
             return _innerLogger.LogAsync(
+                level,
+                message,
+                mode, 
+                _principal,
                 callerMemberName, 
                 callerFilePath, 
-                callerLineNumber,
-                level, 
-                message,
-                details,
-                config, 
-                mode);
+                callerLineNumber, 
+                config);
         }
 
 
         [DebuggerStepThrough]
-        public IObservable<ILogEntry> AsObservable() => _innerLogger.AsObservable();
+        public IObservable<LogEventArgs> AsObservable() => _innerLogger.AsObservable();
         
-        [DebuggerStepThrough]
-        public IObserver<ILogEntry> AsObserver() => _innerLogger.AsObserver();
 
         [DebuggerStepThrough]
         public override string ToString() => _innerLogger.ToString() ?? _innerLogger.GetType().ToString();

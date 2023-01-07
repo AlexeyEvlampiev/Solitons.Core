@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,8 +25,7 @@ var logger = azureServiceFactory
     .GetLogger()
     .WithAssemblyInfo(Assembly.GetExecutingAssembly())
     .WithEnvironmentInfo()
-    .WithAppletId(appletId)
-    .FireAndForget(AppletEvent.StartingUp);
+    .WithAppletId(appletId);
 
 
 var adB2CSettings = new ConfigurationBuilder()
@@ -91,7 +91,8 @@ if (app.Environment.IsDevelopment())
     app.UseMachinePublicIpAsRemoteAddress();
     logger
         .AsObservable()
-        .Subscribe(IAsyncLogger.Console.AsObserver());
+        .Do(log => Console.WriteLine(log.Content))
+        .Subscribe();
     Trace.Listeners.Add(new ConsoleTraceListener());
 }
 else

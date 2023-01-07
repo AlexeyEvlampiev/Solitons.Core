@@ -15,17 +15,12 @@ namespace Solitons.Samples.Domain
         public static IAsyncLogger WithEnvironmentInfo(this IAsyncLogger self)
         {
             if (self == null) throw new ArgumentNullException(nameof(self));
-            return self.WithProperties(new Dictionary<string, string>()
+            return self.WithProperties(new Dictionary<string, object>()
             {
                 [LogPropertyNames.MachineName] = Environment.MachineName,
                 [LogPropertyNames.OSVersion] = Environment.OSVersion.ToString()
             });
         }
 
-        public static IAsyncLogger FireAndForget(this IAsyncLogger self, AppletEvent appletEvent)
-        {
-            self.InfoAsync(appletEvent.ToString(), "Applet event");
-            return self;
-        }
     }
 }

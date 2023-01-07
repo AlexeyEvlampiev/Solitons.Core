@@ -1,11 +1,14 @@
-﻿namespace Solitons.Diagnostics;
+﻿using Solitons.Diagnostics.Common;
 
-public static class UsingDefaultLoggerExample
+namespace Solitons.Diagnostics;
+
+public static class UsingDefaultConsoleLoggerExample
 {
     public static async Task RunAsync()
     {
         // Create a console logger with default tags and properties
-        var logger = IAsyncLogger.Console
+        var logger = new ConsoleAsyncLogger()
+            .AsAsyncLogger()
             .WithTags("example", "console")
             .WithProperty("machine", Environment.MachineName)
             .WithProperty("user", Environment.UserName);
@@ -24,10 +27,7 @@ public static class UsingDefaultLoggerExample
     {
         // Extend logger configurations
         logger = logger
-            .WithProperty("method", nameof(ExecuteWithLoggingAsync));
-
-
-        await logger.InfoAsync("Some message",
-            details: $"Thread ID: {Thread.CurrentThread.ManagedThreadId}");
+            .WithProperty("thread", Thread.CurrentThread.ManagedThreadId.ToString());
+        await logger.InfoAsync("Message goes here.");
     }
 }
