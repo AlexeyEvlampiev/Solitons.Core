@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Solitons.Diagnostics.Common;
 
 namespace Solitons.Diagnostics
@@ -113,7 +114,7 @@ namespace Solitons.Diagnostics
         /// <param name="value">The property value.</param>
         /// <returns>Extended <see cref="IAsyncLogger"/> instance</returns>
         [DebuggerStepThrough]
-        public sealed IAsyncLogger WithProperty(string name, object value) => new AsyncLoggerProxy(this, builder => builder.WithProperty(name, value));
+        public sealed IAsyncLogger WithProperty(string name, dynamic value) => new AsyncLoggerProxy(this, builder => builder.WithProperty(name, value));
 
         /// <summary>
         /// Creates a new instance of <see cref="IAsyncLogger"/> that automatically adds the specified property to every log entry.
@@ -266,6 +267,5 @@ namespace Solitons.Diagnostics
                 callerLineNumber,
                 config);
         }
-
     }
 }

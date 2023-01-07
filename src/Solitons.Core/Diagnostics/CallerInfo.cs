@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Solitons.Diagnostics
@@ -16,16 +17,19 @@ namespace Solitons.Diagnostics
         /// <summary>
         /// 
         /// </summary>
+        [JsonPropertyName("name")]
         public string MemberName { get; init; }
 
         /// <summary>
         /// 
         /// </summary>
+        [JsonPropertyName("file")]
         public string FilePath { get; init; }
 
         /// <summary>
         /// 
         /// </summary>
+        [JsonPropertyName("line")]
         public int LineNumber { get; init; }
 
         /// <summary>

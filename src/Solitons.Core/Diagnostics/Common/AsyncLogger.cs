@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -33,26 +35,62 @@ namespace Solitons.Diagnostics.Common
         /// <returns></returns>
         protected abstract Task LogAsync(LogEventArgs args);
 
-        sealed class LogJsonBuilder : Dictionary<string, object?>, ILogStringBuilder
+        /// <summary>
+        /// 
+        /// </summary>
+        protected class LogJsonBuilder : Dictionary<string, object?>, ILogStringBuilder
         {
+            private readonly HashSet<string> _tags = new(StringComparer.Ordinal);
+            private readonly JsonSerializerOptions _options = new JsonSerializerOptions()
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public LogJsonBuilder() 
+            {
+                Add("tags", _tags);
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="options"></param>
+            public LogJsonBuilder(JsonSerializerOptions options) : this()
+            {
+                _options = options;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="name"></param>
+            /// <param name="value"></param>
+            /// <returns></returns>
             public ILogStringBuilder WithProperty(string name, object value)
             {
                 base[name] = value;
                 return this;
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="tag"></param>
+            /// <returns></returns>
             public ILogStringBuilder WithTags(string tag)
             {
-                if (base.ContainsKey(tag) == false)
-                {
-                    base[tag] = null;
-                }
-
+                _tags.Add(tag);
                 return this;
             }
 
-
-            public override string ToString() => JsonSerializer.Serialize(this);
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString() => JsonSerializer.Serialize(this, _options);
         }
 
         /// <summary>
@@ -80,7 +118,7 @@ namespace Solitons.Diagnostics.Common
             CallerInfo sourceInfo)
         {
             ILogStringBuilder builder = new LogJsonBuilder()
-                .WithProperty("level", level.ToString())
+                .WithProperty("level", level.ToString().ToLower())
                 .WithProperty("message", message);
 
             principal ??= Thread.CurrentPrincipal;
@@ -92,12 +130,7 @@ namespace Solitons.Diagnostics.Common
             }
 
             builder
-                .WithProperty("source", new
-                {
-                    name = sourceInfo.MemberName,
-                    file = sourceInfo.FilePath,
-                    line = sourceInfo.LineNumber
-                });
+                .WithProperty("source", sourceInfo);
             return builder;
         }
 

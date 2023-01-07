@@ -15,9 +15,13 @@ public static class UsingCustomConsoleLoggerExample
     {
         var logger = new CustomConsoleLogger()
             .AsAsyncLogger()
-            .WithTags("example", "custom implementation")
-            .WithProperty("machine", Environment.MachineName)
-            .WithProperty("user", Environment.UserName)
+            .WithTags("tag1", "tag2", "tag3")
+            .WithProperty("env", new
+            {
+                machine = Environment.MachineName,
+                user = Environment.UserName,
+                os = Environment.OSVersion.VersionString
+            })
             .WithPrincipal(new GenericPrincipal(
                 new GenericIdentity("DemoUser", "DemoAuth"), new[] { "DemoAdmin" }));
 
