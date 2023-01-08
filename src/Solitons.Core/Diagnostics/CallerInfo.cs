@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -14,6 +15,41 @@ namespace Solitons.Diagnostics
     /// </summary>
     public readonly struct CallerInfo : IEquatable<CallerInfo>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="memberName"></param>
+        /// <param name="filePath"></param>
+        /// <param name="lineNumber"></param>
+        public CallerInfo(
+            [CallerMemberName] string memberName = "",
+            [CallerFilePath] string filePath = "",
+            [CallerLineNumber] int lineNumber = -1)
+        {
+            MemberName = memberName;
+            FilePath = filePath;
+            LineNumber = lineNumber;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="memberName"></param>
+        /// <param name="filePath"></param>
+        /// <param name="lineNumber"></param>
+        /// <returns></returns>
+        public static CallerInfo Create(
+            [CallerMemberName]string memberName = "", 
+            [CallerFilePath]string filePath = "", 
+            [CallerLineNumber]int lineNumber = -1)
+        {
+            return new CallerInfo()
+            {
+                MemberName = memberName,
+                FilePath = filePath,
+                LineNumber = lineNumber
+            };
+        }
         /// <summary>
         /// 
         /// </summary>
