@@ -19,7 +19,7 @@ namespace Solitons.Samples.Azure
 
         public PgDatabaseRpcProvider(string connectionString)
         {
-            _connectionString = ThrowIf.NullOrWhiteSpaceArgument(connectionString, nameof(connectionString));
+            _connectionString = ThrowIf.ArgumentNullOrWhiteSpace(connectionString, nameof(connectionString));
         }
 
 

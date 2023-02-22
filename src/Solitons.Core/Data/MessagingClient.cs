@@ -75,7 +75,7 @@ namespace Solitons.Data
         /// <exception cref="InvalidOperationException"></exception>
         public IObservable<BrokeredResponse> GetResponses(object request, Guid transactionTypeId)
         {
-            request = ThrowIf.NullArgument(request, nameof(request));
+            request = ThrowIf.ArgumentNull(request, nameof(request));
             transactionTypeId = transactionTypeId.ThrowIfEmptyArgument(nameof(transactionTypeId));
 
             var correlationId = Guid.NewGuid();
@@ -119,7 +119,7 @@ namespace Solitons.Data
         /// <returns></returns>
         public async Task<BrokeredResponse> GetResponseAsync(object request, Guid commandId, CancellationToken cancellation = default)
         {
-            request = ThrowIf.NullArgument(request, nameof(request));
+            request = ThrowIf.ArgumentNull(request, nameof(request));
             commandId = commandId.ThrowIfEmptyArgument(nameof(commandId));
             cancellation.ThrowIfCancellationRequested();
 
@@ -138,7 +138,7 @@ namespace Solitons.Data
         [DebuggerStepThrough]
         public Task<BrokeredResponse> GetResponseAsync(IRemoteTriggerArgs args, CancellationToken cancellation = default)
         {
-            ThrowIf.NullArgument(args, nameof(args));
+            ThrowIf.ArgumentNull(args, nameof(args));
             cancellation.ThrowIfCancellationRequested();
             return GetResponseAsync(args, args.IntentId, cancellation);
         }

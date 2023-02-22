@@ -148,9 +148,9 @@ namespace Solitons.Data.Common
             Func<string, Task<T>> parseResponse,
             CancellationToken cancellation)
         {
-            metadata = ThrowIf.NullArgument(metadata, nameof(metadata));
-            request = ThrowIf.NullOrWhiteSpaceArgument(request, nameof(request));
-            parseResponse = ThrowIf.NullArgument(parseResponse, nameof(parseResponse));
+            metadata = ThrowIf.ArgumentNull(metadata, nameof(metadata));
+            request = ThrowIf.ArgumentNullOrWhiteSpace(request, nameof(request));
+            parseResponse = ThrowIf.ArgumentNull(parseResponse, nameof(parseResponse));
             ThrowIf.Cancelled(cancellation);
 
             string capturedResponse = string.Empty;
@@ -197,9 +197,9 @@ namespace Solitons.Data.Common
             Func<string, Task<T>> parseResponse,
             CancellationToken cancellation)
         {
-            metadata = ThrowIf.NullArgument(metadata, nameof(metadata));
-            request = ThrowIf.NullOrWhiteSpaceArgument(request, nameof(request));
-            parseResponse = ThrowIf.NullArgument(parseResponse, nameof(parseResponse));
+            metadata = ThrowIf.ArgumentNull(metadata, nameof(metadata));
+            request = ThrowIf.ArgumentNullOrWhiteSpace(request, nameof(request));
+            parseResponse = ThrowIf.ArgumentNull(parseResponse, nameof(parseResponse));
             ThrowIf.Cancelled(cancellation);
 
             string capturedResponse = string.Empty;
@@ -268,9 +268,9 @@ namespace Solitons.Data.Common
         [DebuggerStepThrough]
         async Task IDatabaseRpcProvider.SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation)
         {
-            metadata = ThrowIf.NullArgument(metadata, nameof(metadata));
-            request = ThrowIf.NullOrWhiteSpaceArgument(request, nameof(request));
-            callback = ThrowIf.NullArgument(callback, nameof(callback));
+            metadata = ThrowIf.ArgumentNull(metadata, nameof(metadata));
+            request = ThrowIf.ArgumentNullOrWhiteSpace(request, nameof(request));
+            callback = ThrowIf.ArgumentNull(callback, nameof(callback));
             cancellation = ThrowIf.Cancelled(cancellation);
 
             try

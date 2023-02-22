@@ -12,8 +12,8 @@
         /// <param name="package"></param>
         public BrokeredResponse(object dto, DataTransferPackage package)
         {
-            Dto = ThrowIf.NullArgument(dto, nameof(dto));
-            Package = ThrowIf.NullArgument(package, nameof(package));
+            Dto = ThrowIf.ArgumentNull(dto, nameof(dto));
+            Package = ThrowIf.ArgumentNull(package, nameof(package));
         }
 
         /// <summary>

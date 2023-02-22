@@ -26,7 +26,7 @@ namespace Solitons.Data
         public TransientStorageReceipt(ITransientStorage source, string token, DateTimeOffset expiresOn)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            Token = ThrowIf.NullOrWhiteSpaceArgument(token, nameof(token));
+            Token = ThrowIf.ArgumentNullOrWhiteSpace(token, nameof(token));
             ExpiresOnUtc = expiresOn.DateTime.ThrowIfArgumentLessOrEqual(DateTime.UtcNow, nameof(expiresOn));
             var sourceType = source.GetType();
             TransientStorageId = sourceType.GUID;
@@ -84,7 +84,7 @@ namespace Solitons.Data
         public static TransientStorageReceipt Parse(string receipt)
         {
             var json = ThrowIf
-                .NullOrWhiteSpaceArgument(receipt, nameof(receipt))
+                .ArgumentNullOrWhiteSpace(receipt, nameof(receipt))
                 .AsBase64Bytes()
                 .ToUtf8String();
             var fields = JsonSerializer

@@ -19,7 +19,6 @@ public static class UsingCustomLoggerExample
         await logger.InfoAsync("Information goes here");
         await logger.WarningAsync("Warning goes here");
         await logger.ErrorAsync("Error goes here");
-
     }
 
 
@@ -29,7 +28,7 @@ public static class UsingCustomLoggerExample
 
         protected override Task LogAsync(LogEventArgs args)
         {
-            Console.WriteLine(args.Content);
+            // Your custom logging goes here
             return Task.CompletedTask;
         }
     }

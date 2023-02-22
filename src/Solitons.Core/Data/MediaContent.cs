@@ -34,12 +34,12 @@ namespace Solitons.Data
         public MediaContent(string content, string contentType)
         {
             ContentType = ThrowIf
-                .NullOrWhiteSpaceArgument(contentType, nameof(contentType))
+                .ArgumentNullOrWhiteSpace(contentType, nameof(contentType))
                 .Trim();
 
             Content = "text/plain".Equals(ContentType, StringComparison.OrdinalIgnoreCase) 
                 ? content 
-                : ThrowIf.NullOrWhiteSpaceArgument(content, nameof(content));
+                : ThrowIf.ArgumentNullOrWhiteSpace(content, nameof(content));
             
         }
 

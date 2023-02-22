@@ -93,7 +93,7 @@ namespace Solitons.Security.Common
 
             return GetOrSetSecretAsync(
                 secretName, 
-                ThrowIf.NullOrWhiteSpaceArgument(defaultValue, nameof(defaultValue)));
+                ThrowIf.ArgumentNullOrWhiteSpace(defaultValue, nameof(defaultValue)));
         }
 
         [DebuggerStepThrough]
@@ -103,7 +103,7 @@ namespace Solitons.Security.Common
                 throw new ArgumentException($"'{secretName}' is not a valid secret name.");
             return SetSecretAsync(
                 secretName, 
-                ThrowIf.NullOrWhiteSpaceArgument(secretValue, nameof(secretValue)));
+                ThrowIf.ArgumentNullOrWhiteSpace(secretValue, nameof(secretValue)));
         }
 
         [DebuggerStepThrough]

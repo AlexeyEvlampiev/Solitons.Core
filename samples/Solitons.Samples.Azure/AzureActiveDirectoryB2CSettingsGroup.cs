@@ -57,7 +57,7 @@ namespace Solitons.Samples.Azure
         public static AzureActiveDirectoryB2CSettingsGroup Parse(string text)
         {
             return ThrowIf
-                .NullOrWhiteSpaceArgument(text, nameof(text))
+                .ArgumentNullOrWhiteSpace(text, nameof(text))
                 .Convert(Parse<AzureActiveDirectoryB2CSettingsGroup>);
         }
     }

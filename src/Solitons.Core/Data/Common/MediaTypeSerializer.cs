@@ -54,8 +54,8 @@ namespace Solitons.Data.Common
         object IMediaTypeSerializer.Deserialize(string content, Type targetType)
         {
             var obj = Deserialize(
-                ThrowIf.NullArgument(content, nameof(content)), 
-                ThrowIf.NullArgument(targetType, nameof(targetType)))
+                ThrowIf.ArgumentNull(content, nameof(content)), 
+                ThrowIf.ArgumentNull(targetType, nameof(targetType)))
                 .ThrowIfNull(()=> new InvalidOperationException(new StringBuilder($"Could not deserialize from the '{TargetContentType}' content.")
                     .Append($" Target type: {targetType}")
                     .ToString()));

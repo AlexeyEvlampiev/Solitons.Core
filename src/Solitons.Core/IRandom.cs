@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Solitons
@@ -92,6 +93,21 @@ namespace Solitons
         /// </summary>
         /// <returns>A single-precision floating point number that is greater than or equal to 0.0, and less than 1.0.</returns>
         float NextSingle();
+    }
+
+    public partial interface IRandom
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public sealed T Choice<T>(IReadOnlyList<T> list)
+        {
+            var index = NextInt32(0, list.Count - 1);
+            return list[index];
+        }
     }
 
     public partial interface IRandom

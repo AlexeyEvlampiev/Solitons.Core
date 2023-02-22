@@ -27,7 +27,7 @@ namespace Solitons.Samples.Database
         {
             var connectionString = GetRoleConnectionString("SAMPLEDB-CONNECTION-STRING");
 
-            var builder = new NpgsqlConnectionStringBuilder(ThrowIf.NullOrWhiteSpaceArgument(connectionString, nameof(connectionString)))
+            var builder = new NpgsqlConnectionStringBuilder(ThrowIf.ArgumentNullOrWhiteSpace(connectionString, nameof(connectionString)))
             {
                 ApplicationName = Resources.ConsoleTitle,
                 Timeout = 60,

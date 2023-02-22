@@ -122,7 +122,7 @@ namespace Solitons.Data
         /// <exception cref="ArgumentNullException"></exception>
         internal void Register(Type type, IMediaTypeSerializer serializer)
         {
-            type = ThrowIf.NullArgument(type, nameof(type));
+            type = ThrowIf.ArgumentNull(type, nameof(type));
 
             var targetContentType = _contentTypeNames
                 .GetOrAdd(
@@ -130,7 +130,7 @@ namespace Solitons.Data
                     serializer.TargetContentType);
 
             serializer = ThrowIf
-                .NullArgument(serializer, nameof(serializer))
+                .ArgumentNull(serializer, nameof(serializer))
                 .Convert(MediaTypeSerializerProxy.Wrap);
 
             var key = new SerializerKey(type, targetContentType);
@@ -267,7 +267,7 @@ namespace Solitons.Data
         public MediaContent Serialize(object obj, string contentType)
         {
             obj = ThrowIf
-                .NullArgument(obj, nameof(obj))
+                .ArgumentNull(obj, nameof(obj))
                 .Convert(dto =>
                 {
                     if (_metadata.ContainsKey(dto.GetType().GUID))
@@ -279,7 +279,7 @@ namespace Solitons.Data
                 });
 
             contentType = ThrowIf
-                .NullOrWhiteSpaceArgument(contentType, nameof(contentType))
+                .ArgumentNullOrWhiteSpace(contentType, nameof(contentType))
                 .Convert(ct =>
                 {
                     if (_contentTypeNames.TryGetValue(ct, out var actualContentType))
@@ -314,7 +314,7 @@ namespace Solitons.Data
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public MediaContent Serialize(object obj)
         {
-            obj = ThrowIf.NullArgument(obj, nameof(obj));
+            obj = ThrowIf.ArgumentNull(obj, nameof(obj));
             if (_metadata.TryGetValue(obj.GetType().GUID, out var metadata))
             {
                 var contentType = _contentTypeNames[metadata.DefaultSerializer.TargetContentType];
@@ -336,7 +336,7 @@ namespace Solitons.Data
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public object Deserialize(Guid typeId, MediaContent mediaContent)
         {
-            typeId = ThrowIf.NullOrEmptyArgument(typeId, nameof(typeId));
+            typeId = ThrowIf.ArgumentNullOrEmpty(typeId, nameof(typeId));
             if (_metadata.TryGetValue(typeId, out var metadata) == false)
             {
                 throw new ArgumentOutOfRangeException(
@@ -345,7 +345,7 @@ namespace Solitons.Data
             }
 
             mediaContent = ThrowIf
-                .NullArgument(mediaContent, nameof(mediaContent))
+                .ArgumentNull(mediaContent, nameof(mediaContent))
                 .Convert(md =>
                 {
                     if (_contentTypeNames.TryGetValue(md.ContentType, out var actualContentType))
@@ -392,7 +392,7 @@ namespace Solitons.Data
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public object Deserialize(Guid typeId, string content, string contentType)
         {
-            typeId = ThrowIf.NullOrEmptyArgument(typeId, nameof(typeId));
+            typeId = ThrowIf.ArgumentNullOrEmpty(typeId, nameof(typeId));
             if (_metadata.TryGetValue(typeId, out var metadata) == false)
             {
                 throw new ArgumentOutOfRangeException(
@@ -400,8 +400,8 @@ namespace Solitons.Data
                     BuildDataTypeOutOfRangeMessage(typeId));
             }
 
-            content = ThrowIf.NullArgument(content, nameof(content));
-            contentType = ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType));
+            content = ThrowIf.ArgumentNull(content, nameof(content));
+            contentType = ThrowIf.ArgumentNullOrWhiteSpace(contentType, nameof(contentType));
 
             var key = new SerializerKey(typeId, contentType);
             if (_serializers.TryGetValue(key, out var value))

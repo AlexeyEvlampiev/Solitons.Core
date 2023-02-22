@@ -56,9 +56,9 @@ namespace Solitons.Data
         /// <param name="encoding"></param>
         public DataTransferPackage(Guid typeId, string content, string contentType, Encoding encoding)
         {
-            content = ThrowIf.NullArgument(content, nameof(content));
-            contentType = ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType)).Trim();
-            encoding = ThrowIf.NullArgument(encoding, nameof(encoding));
+            content = ThrowIf.ArgumentNull(content, nameof(content));
+            contentType = ThrowIf.ArgumentNullOrWhiteSpace(contentType, nameof(contentType)).Trim();
+            encoding = ThrowIf.ArgumentNull(encoding, nameof(encoding));
 
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
             Content = content.ToBytes(encoding);
@@ -70,9 +70,9 @@ namespace Solitons.Data
 
         private DataTransferPackage(Guid typeId, byte[] content, string contentType, Encoding encoding)
         {
-            content = ThrowIf.NullArgument(content, nameof(content));
-            contentType = ThrowIf.NullOrWhiteSpaceArgument(contentType, nameof(contentType)).Trim();
-            encoding = ThrowIf.NullArgument(encoding, nameof(encoding));
+            content = ThrowIf.ArgumentNull(content, nameof(content));
+            contentType = ThrowIf.ArgumentNullOrWhiteSpace(contentType, nameof(contentType)).Trim();
+            encoding = ThrowIf.ArgumentNull(encoding, nameof(encoding));
 
             TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
             Content = content;
@@ -271,7 +271,7 @@ namespace Solitons.Data
         internal static DataTransferPackage Parse(string package, IClock clock)
         {
             var data = ThrowIf
-                .NullOrWhiteSpaceArgument(package, nameof(package))
+                .ArgumentNullOrWhiteSpace(package, nameof(package))
                 .Convert(text => JsonSerializer.Deserialize<Dictionary<string, string>>(text))
                 .ThrowIfNull($"Invalid json");
 

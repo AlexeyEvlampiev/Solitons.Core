@@ -26,7 +26,7 @@ namespace Solitons.Data
         /// </summary>
         public DatabaseRpcCommandAttribute(string procedure)
         {
-            Procedure = ThrowIf.NullOrWhiteSpaceArgument(procedure, nameof(procedure));
+            Procedure = ThrowIf.ArgumentNullOrWhiteSpace(procedure, nameof(procedure));
             RequestContentType = DefaultContentType;
             ResponseContentType = DefaultContentType;
             IsolationLevel = IsolationLevel.ReadCommitted;

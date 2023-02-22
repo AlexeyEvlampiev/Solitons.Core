@@ -26,10 +26,10 @@ public abstract class PgDatabaseManager
         IEnumerable<string> loginRoles)
     { ;
         DatabaseName = ThrowIf
-            .NullOrWhiteSpaceArgument(databaseName, nameof(databaseName))
+            .ArgumentNullOrWhiteSpace(databaseName, nameof(databaseName))
             .Trim();
         DatabaseOwner = ThrowIf
-            .NullOrWhiteSpaceArgument(databaseOwner, nameof(databaseOwner))
+            .ArgumentNullOrWhiteSpace(databaseOwner, nameof(databaseOwner))
             .Trim();
         _loginRoles = loginRoles
             .Do(role => ThrowIf.NullOrEmpty(role, $"Database role name is missing"))

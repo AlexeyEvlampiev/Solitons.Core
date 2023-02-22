@@ -55,7 +55,7 @@ namespace Solitons.Collections
         /// <param name="collection"></param>
         /// <returns></returns>
         public static KeyValuePairCollection<TKey, TValue> Create<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> collection) => 
-            new(ThrowIf.NullArgument(collection, nameof(collection)).ToList());
+            new(ThrowIf.ArgumentNull(collection, nameof(collection)).ToList());
 
         /// <summary>
         /// 

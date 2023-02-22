@@ -297,7 +297,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <exception cref="ArgumentNullException"></exception>
     protected virtual async Task<object> InvokeAsync(object requestDto, CancellationToken cancellation = default)
     {
-        ThrowIf.NullArgument(requestDto, nameof(requestDto));
+        ThrowIf.ArgumentNull(requestDto, nameof(requestDto));
         ThrowIf.Cancelled(cancellation);
         var request = _serializer
             .Serialize(requestDto, Metadata.Request.ContentType)
@@ -331,7 +331,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <returns></returns>
     protected virtual async Task<object> WhatIfAsync(object requestDto, CancellationToken cancellation = default)
     {
-        ThrowIf.NullArgument(requestDto, nameof(requestDto));
+        ThrowIf.ArgumentNull(requestDto, nameof(requestDto));
         ThrowIf.Cancelled(cancellation);
 
         return await _serializer
@@ -361,7 +361,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <exception cref="ArgumentNullException"></exception>
     protected virtual async Task SendAsync(object requestDto, CancellationToken cancellation)
     {
-        ThrowIf.NullArgument(requestDto, nameof(requestDto));
+        ThrowIf.ArgumentNull(requestDto, nameof(requestDto));
         ThrowIf.Cancelled(cancellation);
         await _serializer
             .Serialize(requestDto, Metadata.Request.ContentType)
@@ -503,7 +503,7 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse>
         [DisallowNull] TRequest requestDto, 
         CancellationToken cancellation = default)
     {
-        ThrowIf.NullArgument(requestDto, nameof(requestDto));
+        ThrowIf.ArgumentNull(requestDto, nameof(requestDto));
         ThrowIf.Cancelled(cancellation);
         var result = await base.InvokeAsync(requestDto, cancellation);
         return (TResponse)result;
@@ -520,7 +520,7 @@ public abstract class DatabaseRpcCommand<TRequest, TResponse>
         [DisallowNull] TRequest requestDto,
         CancellationToken cancellation = default)
     {
-        ThrowIf.NullArgument(requestDto, nameof(requestDto));
+        ThrowIf.ArgumentNull(requestDto, nameof(requestDto));
         ThrowIf.Cancelled(cancellation);
         var result = await base.WhatIfAsync(requestDto, cancellation);
         return (TResponse)result;

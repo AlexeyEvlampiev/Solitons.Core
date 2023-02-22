@@ -25,7 +25,7 @@ namespace Solitons.Data
         /// <param name="commandGuid"></param>
         /// <returns></returns>
         public static IRemoteTriggerArgs CreateEmpty(string commandGuid) => CreateEmpty(ThrowIf
-            .NullOrWhiteSpaceArgument(commandGuid, nameof(commandGuid))
+            .ArgumentNullOrWhiteSpace(commandGuid, nameof(commandGuid))
             .Convert(Guid.Parse));
     }
 }

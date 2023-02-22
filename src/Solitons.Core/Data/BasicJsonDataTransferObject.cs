@@ -40,7 +40,7 @@ namespace Solitons.Data
         protected static T Parse<T>(string text) where T : BasicJsonDataTransferObject
         {
             return ThrowIf
-                .NullOrWhiteSpaceArgument(text, nameof(text))
+                .ArgumentNullOrWhiteSpace(text, nameof(text))
                 .Convert(IBasicJsonDataTransferObject.Parse<T>);
         }
     }

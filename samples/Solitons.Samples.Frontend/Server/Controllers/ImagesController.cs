@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Solitons.Diagnostics;
@@ -27,6 +28,7 @@ namespace Solitons.Samples.Frontend.Server.Controllers
         [HttpGet(), Route("{oid}")]
         public async Task<IActionResult> GetAsync(Guid oid)
         {
+     
             var request = new ImageGetRequest(oid);
             var response = await _imageGetCommand.InvokeAsync(request);
             var ip = Request.HttpContext.Connection.RemoteIpAddress;

@@ -100,7 +100,7 @@ namespace Solitons
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guid NullOrEmptyArgument(
+        public static Guid ArgumentNullOrEmpty(
             Guid? guid, 
             string? message = null, 
             [CallerArgumentExpression("guid")]string paramName = "")
@@ -187,7 +187,7 @@ namespace Solitons
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string NullOrEmptyArgument(
+        public static string ArgumentNullOrEmpty(
             string? value, 
             string? message = null, 
             [CallerArgumentExpression("value")]string paramName = "")
@@ -278,7 +278,7 @@ namespace Solitons
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string NullOrWhiteSpaceArgument(string? value, string? message = null, [CallerArgumentExpression("value")] string paramName = "")
+        public static string ArgumentNullOrWhiteSpace(string? value, string? message = null, [CallerArgumentExpression("value")] string paramName = "")
         {
             if (value == null)
             {
@@ -349,7 +349,7 @@ namespace Solitons
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T NullArgument<T>(T? value, string? message = null, [CallerArgumentExpression("value")]string paramName = "")
+        public static T ArgumentNull<T>(T? value, string? message = null, [CallerArgumentExpression("value")]string paramName = "")
         {
             if (value is null)
             {

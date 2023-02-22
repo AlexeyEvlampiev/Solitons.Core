@@ -21,7 +21,7 @@ namespace Solitons.Samples.Azure
         public AzureServiceFactory(IEnvironment environment)
         {
             _environment = ThrowIf
-                .NullArgument(environment, nameof(environment))
+                .ArgumentNull(environment, nameof(environment))
                 .With(options =>
                 {
                     options.EnvironmentVariableNotFound += (_, args) 

@@ -13,8 +13,8 @@ public static class UsingCustomConsoleLoggerExample
 {
     public static async Task RunAsync()
     {
-        var logger = new CustomConsoleLogger()
-            .AsAsyncLogger()
+        var logger = CustomConsoleLogger
+            .Create()
             .WithTags("tag1", "tag2", "tag3")
             .WithProperty("env", new
             {
@@ -33,6 +33,12 @@ public static class UsingCustomConsoleLoggerExample
 
     sealed class CustomConsoleLogger : ConsoleAsyncLogger
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public new static IAsyncLogger Create() => new CustomConsoleLogger();
+
         protected override void Log(LogEventArgs args, TextWriter writer)
         {
             writer.WriteLine(JsonNode.Parse(args.Content));

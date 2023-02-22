@@ -23,7 +23,7 @@ namespace Solitons.Web
         internal RSASecureAccessSignatureService(RSACryptoServiceProvider rsa, IClock clock)
         {
             _clock = clock ?? IClock.System;
-            _rsa = ThrowIf.NullArgument(rsa, nameof(rsa));
+            _rsa = ThrowIf.ArgumentNull(rsa, nameof(rsa));
         }
 
         ///// <summary>

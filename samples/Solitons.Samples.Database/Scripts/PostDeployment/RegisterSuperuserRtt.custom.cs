@@ -8,7 +8,7 @@ namespace Solitons.Samples.Database.Scripts.PostDeployment
 
         public RegisterSuperuserRtt(IEnumerable<SuperuserSettingsGroup> emails)
         {
-            _settings = ThrowIf.NullArgument(emails, nameof(emails));
+            _settings = ThrowIf.ArgumentNull(emails, nameof(emails));
         }
 
         public string ValuesCsv => _settings.Select(e=> $"('{e.Email}', '{e.OrganizationId}'::uuid)").Join();

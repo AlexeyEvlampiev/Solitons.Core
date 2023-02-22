@@ -29,7 +29,7 @@ namespace Solitons.Security.Cryptography
         /// <param name="delimiter"></param>
         protected RsaSasProvider(string delimiter)
         {
-            _delimiter = ThrowIf.NullOrWhiteSpaceArgument(delimiter, nameof(delimiter));
+            _delimiter = ThrowIf.ArgumentNullOrWhiteSpace(delimiter, nameof(delimiter));
             _sasRegex = new($@"^(?<data>.+){delimiter}(?<sig>\S+?)$",
                 RegexOptions.Compiled |
                 RegexOptions.RightToLeft);
@@ -47,7 +47,7 @@ namespace Solitons.Security.Cryptography
         /// <param name="delimiter"></param>
         /// <returns></returns>
         public static RsaSasProvider CreateDefault(string delimiter) => 
-            new DefaultRsaSasProvider(ThrowIf.NullOrWhiteSpaceArgument(delimiter, nameof(delimiter)));
+            new DefaultRsaSasProvider(ThrowIf.ArgumentNullOrWhiteSpace(delimiter, nameof(delimiter)));
 
         protected abstract object CreateHashAlg();
 
