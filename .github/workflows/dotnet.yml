@@ -10,9 +10,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: ['6.0.x', '7.0.x']
     env:
      projectpath: ./src/Solitons.Core/Solitons.Core.csproj
      buildconfiguration: release
@@ -21,10 +18,14 @@ jobs:
      nugetsource: https://api.nuget.org/v3/index.json
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET
+    - name: Setup .NET 6
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: ${{ matrix.dotnet-version }}
+        dotnet-version: 6.x
+    - name: Setup .NET 7
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.x        
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
