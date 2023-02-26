@@ -4,11 +4,11 @@
     <PackageId>Solitons.Core</PackageId>
     <VersionPrefix>1.0.1</VersionPrefix>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <RootNamespace>Solitons</RootNamespace>
     <Authors>Alexey Evlampiev</Authors>
     <Company>Solitons</Company>
-    <Description>Solitons.Core is a .NET base class library providing interfaces and implementations for types, algorithms, and utility functions common for cloud software systems.</Description>
+    <Description>Solitons.Core is a .NET library for cloud software development that offers interfaces, algorithms, and utility functions for efficient data processing and visualization. With its comprehensive features, developers can save time and resources while building scalable and reliable solutions for modern cloud computing..</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
