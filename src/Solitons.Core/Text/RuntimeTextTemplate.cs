@@ -8,35 +8,45 @@ using System.Threading;
 namespace Solitons.Text
 {
     /// <summary>
-    /// 
+    /// Represents a base class for generating text templates.
     /// </summary>
     public abstract class RuntimeTextTemplate
     {
         #region Fields
-        private List<string> _errors;
-        private List<string> _warnings;
+        private List<string>? _errors;
+        private List<string>? _warnings;
         private readonly List<int> _indentLengths = new();
         private bool _endsWithNewline;
-        private IFormatProvider _formatProvider;
-        private Dictionary<string, object> _session;
+        private IFormatProvider _formatProvider = System.Globalization.CultureInfo.InvariantCulture;
+        private Dictionary<string, object> _session = new();
         private readonly object _syncObject = new();
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RuntimeTextTemplate"/> class.
+        /// </summary>
         protected RuntimeTextTemplate()
         {
+            CurrentIndent = String.Empty;
             GenerationEnvironment = new StringBuilder();
             ToStringHelper = new ToStringInstanceHelper(this);
         }
 
         /// <summary>
-        /// 
+        /// Implicitly converts an instance of the <see cref="RuntimeTextTemplate"/> class to a string.
         /// </summary>
-        /// <param name="template"></param>
-        /// <returns></returns>
-        public static implicit operator string(RuntimeTextTemplate template) => template?.ToString();
+        /// <param name="template">The <see cref="RuntimeTextTemplate"/> instance to be converted.</param>
+        public static implicit operator string(RuntimeTextTemplate template) => template.ToString();
 
+        /// <summary>
+        /// When overridden in a derived class, transforms the text template.
+        /// </summary>
         public abstract string TransformText();
 
+        /// <summary>
+        /// When overridden in a derived class, performs additional transformations on the generated text.
+        /// </summary>
+        /// <param name="text">The generated text.</param>
         protected virtual string PostTransformText(string text) => text;
 
         public sealed override string ToString()
@@ -64,8 +74,9 @@ namespace Solitons.Text
 
 
         /// <summary>
-        /// This is called from the compile/run appdomain to convert objects within an expression block to a string
+        /// When overridden in a derived class, converts an object within an expression block to a string using the specified format provider.
         /// </summary>
+        /// <param name="objectToConvert">The object to convert.</param>
         protected virtual string ToStringWithCulture(object objectToConvert)
         {
             if ((objectToConvert == null))
@@ -88,28 +99,28 @@ namespace Solitons.Text
 
         #region Properties
         /// <summary>
-        /// The string builder that generation-time code is using to assemble generated output
+        /// Gets the string builder that generation-time code is using to assemble generated output.
         /// </summary>
         protected StringBuilder GenerationEnvironment { get; }
 
         /// <summary>
-        /// The error collection for the generation process
+        /// Gets the errors generated during the transformation process.
         /// </summary>
         public IEnumerable<string> Errors => _errors?.AsEnumerable() ?? Enumerable.Empty<string>();
 
         /// <summary>
-        /// The warning collection for the generation process
+        /// Gets the warnings generated during the transformation process.
         /// </summary>
         public IEnumerable<string> Warnings => _warnings?.AsEnumerable() ?? Enumerable.Empty<string>();
 
 
         /// <summary>
-        /// Gets the current indent we use when adding lines to the output
+        /// Gets the current indentation string.
         /// </summary>
         public string CurrentIndent { get; private set; }
 
         /// <summary>
-        /// Current transformation session
+        /// Gets or sets the session information.
         /// </summary>
         public virtual Dictionary<string, object> Session
         {
@@ -120,9 +131,11 @@ namespace Solitons.Text
         #endregion
 
         #region Transform-time helpers
+
         /// <summary>
-        /// Write text directly into the generated output
+        /// Writes text directly into the generated output.
         /// </summary>
+        /// <param name="textToAppend">The text to append.</param>
         public void Write(string textToAppend)
         {
             if (string.IsNullOrEmpty(textToAppend))
@@ -162,48 +175,62 @@ namespace Solitons.Text
                 GenerationEnvironment.Append(textToAppend);
             }
         }
+
         /// <summary>
-        /// Write text directly into the generated output
+        /// Writes a line of text directly into the generated output.
         /// </summary>
+        /// <param name="textToAppend">The text to append.</param>
         public void WriteLine(string textToAppend)
         {
             Write(textToAppend);
             GenerationEnvironment.AppendLine();
             _endsWithNewline = true;
         }
+
         /// <summary>
-        /// Write formatted text directly into the generated output
+        /// Writes formatted text directly into the generated output.
         /// </summary>
+        /// <param name="format">The format string.</param>
+        /// <param name="args">The arguments to format.</param>
         public void Write(string format, params object[] args)
         {
             Write(string.Format(System.Globalization.CultureInfo.CurrentCulture, format, args));
         }
+
         /// <summary>
-        /// Write formatted text directly into the generated output
+        /// Writes a line of formatted text directly into the generated output.
         /// </summary>
+        /// <param name="format">The format string.</param>
+        /// <param name="args">The arguments to format.</param>
         public void WriteLine(string format, params object[] args)
         {
             WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, format, args));
         }
+
         /// <summary>
-        /// Raise an error
+        /// Raises an error with the specified message.
         /// </summary>
+        /// <param name="message">The error message.</param>
         public void Error(string message)
         {
             LazyInitializer.EnsureInitialized(ref _errors, () => new List<string>());
             _errors.Add(message);
         }
+
         /// <summary>
-        /// Raise a warning
+        /// Raises a warning with the specified message.
         /// </summary>
+        /// <param name="message">The warning message.</param>
         public void Warning(string message)
         {
             LazyInitializer.EnsureInitialized(ref _warnings, () => new List<string>());
             _warnings.Add(message);
         }
+
         /// <summary>
-        /// Increase the indent
+        /// Increases the current indentation level.
         /// </summary>
+        /// <param name="indent">The string to use for indentation.</param>
         public void PushIndent(string indent)
         {
             if ((indent == null))
@@ -214,9 +241,11 @@ namespace Solitons.Text
             CurrentIndent = (CurrentIndent + indent);
             _indentLengths.Add(indent.Length);
         }
+
         /// <summary>
-        /// Remove the last indent that was added with PushIndent
+        /// Decreases the current indentation level.
         /// </summary>
+        /// <returns>The removed indentation string.</returns>
         public string PopIndent()
         {
             var returnValue = "";
@@ -232,8 +261,9 @@ namespace Solitons.Text
             }
             return returnValue;
         }
+
         /// <summary>
-        /// Remove any indentation
+        /// Removes any current indentation.
         /// </summary>
         public void ClearIndent()
         {
@@ -267,15 +297,16 @@ namespace Solitons.Text
             }
 
             /// <summary>
-            /// This is called from the compile/run appdomain to convert objects within an expression block to a string
+            /// Converts an object within an expression block to a culture-oriented string representation.
             /// </summary>
+            /// <param name="objectToConvert">The object to convert.</param>
+            /// <returns>The string representation of the object.</returns>
             [DebuggerStepThrough]
             public string ToStringWithCulture(object objectToConvert) => _rtt.ToStringWithCulture(objectToConvert);
 
         }
-
         /// <summary>
-        /// Helper to produce culture-oriented representation of an object as a string
+        /// Helper to produce culture-oriented representation of an object as a string.
         /// </summary>
         protected ToStringInstanceHelper ToStringHelper { get; } 
 

@@ -13,9 +13,9 @@ namespace Solitons
     public partial interface IEnvironment
     {
         /// <summary>
-        /// Gets the command line for this process.
+        /// Gets the context line for this process.
         /// </summary>
-        /// <returns> A string containing command-line arguments. </returns>
+        /// <returns> A string containing context-line arguments. </returns>
         string CommandLine { get; }
 
 
@@ -433,17 +433,17 @@ namespace Solitons
 
         //
         // Summary:
-        //     Returns a string array containing the command-line arguments for the current
+        //     Returns a string array containing the context-line arguments for the current
         //     process.
         //
         // Returns:
-        //     An array of strings where each element contains a command-line argument. The
+        //     An array of strings where each element contains a context-line argument. The
         //     first element is the executable file name, and the following zero or more elements
-        //     contain the remaining command-line arguments.
+        //     contain the remaining context-line arguments.
         //
         // Exceptions:
         //   T:System.NotSupportedException:
-        //     The system does not support command-line arguments.
+        //     The system does not support context-line arguments.
         public static string[] GetCommandLineArgs()
         {
             throw null;

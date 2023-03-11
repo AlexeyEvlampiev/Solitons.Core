@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Moq;
 using Xunit;
 
 namespace Solitons.Data

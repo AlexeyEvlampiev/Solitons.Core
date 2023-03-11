@@ -56,7 +56,7 @@ namespace Solitons.Data
                 return (IDatabaseRpcCommand)command!;
             }
 
-            throw new KeyNotFoundException($"The module does not include the {commandId} command.");
+            throw new KeyNotFoundException($"The module does not include the {commandId} context.");
         }
     }
 }

@@ -431,7 +431,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     }
 
     /// <summary>
-    /// Gets the command RPC descriptor
+    /// Gets the context RPC descriptor
     /// </summary>
     protected DatabaseRpcCommandMetadata Metadata { get; }
 

@@ -270,6 +270,29 @@ namespace Solitons
                 : self!;
         }
 
+
+        /// <summary>
+        /// Returns a default value if the input string is null, empty, or consists only of whitespace characters.
+        /// </summary>
+        /// <param name="self">The input string to check for null or whitespace.</param>
+        /// <param name="defaultValue">A function that returns the default value to use if the input string is null or whitespace.</param>
+        /// <returns>Returns the input string if it is not null or whitespace; otherwise, returns the default value.</returns>
+        /// <remarks>
+        /// This method is an extension method that can be called on any string object. If the input string is null, empty, or consists only of whitespace characters,
+        /// the method invokes the specified default value function to generate a default value to return instead. The method uses the <see cref="string.IsNullOrWhiteSpace(string)"/> method
+        /// to check if the input string is null, empty, or consists only of whitespace characters.
+        /// </remarks>
+        /// <exception cref="System.ArgumentNullException">Thrown if the input string is null and no default value function is provided.</exception>
+        /// <returns>Returns a non-null string value.</returns>
+        [return: NotNull]
+        public static string DefaultIfNullOrWhiteSpace(this string? self, Func<string> defaultValue)
+        {
+            return self.IsNullOrWhiteSpace()
+                ? defaultValue.Invoke()
+                : self!;
+        }
+
+
         /// <summary>
         /// Defaults if null or empty.
         /// </summary>

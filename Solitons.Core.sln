@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Samples.Frontend.C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{D630A1EC-7CF1-4646-8360-FE3EA9EC564F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solitons.Samples", "samples\Solitons.Samples\Solitons.Samples.csproj", "{3C67810E-BB49-4899-A503-3A251D3D9323}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Samples", "samples\Solitons.Samples\Solitons.Samples.csproj", "{3C67810E-BB49-4899-A503-3A251D3D9323}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

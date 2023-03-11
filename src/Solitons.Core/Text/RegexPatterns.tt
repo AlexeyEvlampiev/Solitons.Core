@@ -13,22 +13,25 @@ namespace Solitons.Text
 {
     public static partial class RegexPatterns
     {
+        /// <summary>
+        /// Contains regular expression patterns for matching UUIDs in various formats.
+        /// </summary>
         public static class Uuid
         {
             /// <summary>
-            /// 
+            /// Matches UUIDs in a loose format without braces, with each segment separated by a hyphen.
             /// </summary>
-            public const string LooseWithoutBrakets = @"<#= guidLooseWithoutBrakets #>";
+            public const string LooseFormatNoBraces = @"<#= guidLooseWithoutBrakets #>";
 
             /// <summary>
-            /// 
+            /// Matches UUIDs in a loose format with optional braces, with each segment separated by a hyphen.
             /// </summary>
-            public const string Loose = "<#= guidLoose #>";
+            public const string LooseFormatWithBraces = "<#= guidLoose #>";
 
             /// <summary>
-            /// 
+            /// Matches UUIDs in a strict format, requiring either no braces or braces surrounding the entire UUID, with each segment separated by a hyphen.
             /// </summary>
-            public const string Strict = "<#= guidStrict #>";
+            public const string StrictFormat = "<#= guidStrict #>";
         }
     }
 }

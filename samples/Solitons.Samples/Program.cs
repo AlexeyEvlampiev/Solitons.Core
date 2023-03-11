@@ -1,17 +1,12 @@
-﻿
-
-using System.Collections;
-using System.Security.Claims;
-using Solitons;
-using Solitons.Configuration;
-using Solitons.Data;
+﻿using Solitons.Configuration;
 using Solitons.Diagnostics;
+using Solitons.Net.Http;
 
 
-UsingSettingsGroupExample.Run();
+//UsingSettingsGroupExample.Run();
+//await UsingDefaultConsoleLoggerExample.RunAsync();
+//await UsingCustomConsoleLoggerExample.RunAsync();
+//await UsingCustomLoggerExample.RunAsync();
 
-await UsingDefaultConsoleLoggerExample.RunAsync();
-await UsingCustomConsoleLoggerExample.RunAsync();
-await UsingCustomLoggerExample.RunAsync();
 
-
+await UsingHttpServerHandler.RunAsync();

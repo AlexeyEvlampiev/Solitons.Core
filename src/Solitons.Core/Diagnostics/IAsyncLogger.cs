@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using Solitons.Diagnostics.Common;
 
 namespace Solitons.Diagnostics;
 

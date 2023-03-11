@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -317,7 +316,7 @@ public static class ThrowIf
     /// <returns>The original value if it is not null.</returns>
     /// <exception cref="NullReferenceException">Thrown if the given value is null.</exception>
     [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T NullReference<T>(T? value, string message, [CallerArgumentExpression("value")] string argExpression = "")
+    public static T NullReference<T>(T? value, string? message = null, [CallerArgumentExpression("value")] string argExpression = "")
     {
         if (value is null)
         {

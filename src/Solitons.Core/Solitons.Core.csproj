@@ -135,4 +135,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Web\Common\" />
+  </ItemGroup>
+
 </Project>

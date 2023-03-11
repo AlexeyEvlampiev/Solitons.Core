@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Solitons.Data;

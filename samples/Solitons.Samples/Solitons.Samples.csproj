@@ -9,6 +9,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+	  <PackageReference Include="Npgsql" Version="7.0.2" />
+	  <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\..\src\Solitons.Core\Solitons.Core.csproj" />
 	</ItemGroup>
 

@@ -1,5 +1,4 @@
-﻿using Solitons.Diagnostics.Common;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Threading.Tasks;

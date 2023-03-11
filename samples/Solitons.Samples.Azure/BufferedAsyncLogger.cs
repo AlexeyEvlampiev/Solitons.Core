@@ -2,11 +2,9 @@
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Security.Cryptography;
-using System.Security.Principal;
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Queues;
-using Solitons.Data;
 using Solitons.Diagnostics;
 using Solitons.Diagnostics.Common;
 

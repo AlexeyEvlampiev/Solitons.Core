@@ -78,7 +78,7 @@ namespace Solitons.Data.Common
             string request,
             CancellationToken cancellation)
         {
-            Debug.WriteLine($"Sending command: {metadata.Procedure}");
+            Debug.WriteLine($"Sending context: {metadata.Procedure}");
             return Task.CompletedTask;
         }
 
@@ -114,7 +114,7 @@ namespace Solitons.Data.Common
             Exception exception,
             CancellationToken cancellation)
         {
-            Trace.TraceError($"Sending command failed: {metadata.Procedure}; Error: {exception}");
+            Trace.TraceError($"Sending context failed: {metadata.Procedure}; Error: {exception}");
             return Task.CompletedTask;
         }
 

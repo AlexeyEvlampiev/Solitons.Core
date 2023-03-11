@@ -56,8 +56,8 @@ namespace Solitons.Data
                 if (commandType.IsInterface || 
                     commandType.IsAbstract)
                 {
-                    throw new InvalidOperationException(new StringBuilder("Invalid RPC command type.")
-                        .Append(" Interfaces and asbtract classes cannot be registered as RPC command types.")
+                    throw new InvalidOperationException(new StringBuilder("Invalid RPC context type.")
+                        .Append(" Interfaces and asbtract classes cannot be registered as RPC context types.")
                         .Append($" See type {commandType}.")
                         .ToString());
                 }
@@ -68,7 +68,7 @@ namespace Solitons.Data
                 }
                 else
                 {
-                    throw new InvalidOperationException(new StringBuilder("Invalid RPC command type.")
+                    throw new InvalidOperationException(new StringBuilder("Invalid RPC context type.")
                         .Append($" The {commandType} type does not implement the required {typeof(IDatabaseRpcCommand)} interface.")
                         .ToString());
                 }

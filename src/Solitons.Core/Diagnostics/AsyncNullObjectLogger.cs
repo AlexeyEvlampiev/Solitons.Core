@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using Solitons.Diagnostics.Common;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Solitons.Diagnostics
 {

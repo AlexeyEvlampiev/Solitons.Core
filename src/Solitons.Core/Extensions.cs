@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -12,7 +13,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Solitons.Collections;
 using Solitons.Data;
 
 namespace Solitons
@@ -73,6 +73,21 @@ namespace Solitons
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="self"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static async Task DoAsync(this DbConnection self, Func<DbCommand, Task> callback)
+        {
+            await using var command = self.CreateCommand();
+            await callback.Invoke(command);
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="self"></param>
         /// <param name="callback"></param>
@@ -82,6 +97,20 @@ namespace Solitons
             using var command = self.CreateCommand();
             return callback.Invoke(command);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="self"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static async Task<T> DoAsync<T>(this DbConnection self, Func<DbCommand, Task<T>> callback)
+        {
+            await using var command = self.CreateCommand();
+            return await callback.Invoke(command);
+        }
+
 
         /// <summary>
         /// 
