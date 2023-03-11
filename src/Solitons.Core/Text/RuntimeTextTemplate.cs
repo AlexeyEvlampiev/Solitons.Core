@@ -49,6 +49,10 @@ namespace Solitons.Text
         /// <param name="text">The generated text.</param>
         protected virtual string PostTransformText(string text) => text;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public sealed override string ToString()
         {
             lock (_syncObject)
