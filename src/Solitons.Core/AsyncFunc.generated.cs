@@ -1469,6 +1469,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -1494,6 +1496,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, Task> WithRetryOnError<T1, T2, TSignal>(
+        this Func<T1, T2, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2))
@@ -1584,6 +1603,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -1613,6 +1634,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, Task> WithRetryOnError<T1, T2, T3, TSignal>(
+        this Func<T1, T2, T3, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3))
@@ -1717,6 +1755,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -1750,6 +1790,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, Task> WithRetryOnError<T1, T2, T3, T4, TSignal>(
+        this Func<T1, T2, T3, T4, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4))
@@ -1868,6 +1925,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -1905,6 +1964,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, Task> WithRetryOnError<T1, T2, T3, T4, T5, TSignal>(
+        this Func<T1, T2, T3, T4, T5, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
@@ -2037,6 +2113,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -2078,6 +2156,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
@@ -2224,6 +2319,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -2269,6 +2366,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
@@ -2429,6 +2543,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -2478,6 +2594,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
@@ -2652,6 +2785,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -2705,6 +2840,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
@@ -2893,6 +3045,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -2950,6 +3104,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
@@ -3152,6 +3323,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -3213,6 +3386,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
@@ -3429,6 +3619,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -3494,6 +3686,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
@@ -3724,6 +3933,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -3793,6 +4004,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
@@ -4037,6 +4265,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -4110,6 +4340,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
@@ -4368,6 +4615,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -4445,6 +4694,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
@@ -4717,6 +4983,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -4798,6 +5066,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TSignal>(
+        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))

@@ -119,6 +119,8 @@ public static partial class Extensions
                 .Invoke();
         }
     }
+
+
 	
 	/// <summary>
 	/// 
@@ -140,6 +142,23 @@ public static partial class Extensions
         return Invoke;
         [DebuggerStepThrough]
         Task<TResult> Invoke(<#= methodArgs #>)
+        {
+            return AsyncFunc
+                .Wrap([DebuggerStepThrough]() => self.Invoke(<#= argsCsv #>))
+                .WithRetryOnError(signalFactory)
+                .Invoke();
+        }
+    }
+
+
+	[DebuggerStepThrough]
+    public static Func<<#= argTypesDecl #>, Task> WithRetryOnError<<#= argTypesDecl #>, TSignal>(
+        this Func<<#= argTypesDecl #>, Task>  self,
+        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+    {
+        return Invoke;
+        [DebuggerStepThrough]
+        Task Invoke(<#= methodArgs #>)
         {
             return AsyncFunc
                 .Wrap([DebuggerStepThrough]() => self.Invoke(<#= argsCsv #>))

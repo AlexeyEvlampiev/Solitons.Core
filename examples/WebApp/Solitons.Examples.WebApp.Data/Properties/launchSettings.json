@@ -1,0 +1,24 @@
+{
+  "profiles": {
+    "Deploy WebAppDb": {
+      "commandName": "Project",
+      "commandLineArgs": "deploy --secrets user --timeout 10000"
+    },
+    "Drop & Recreate WebAppDb": {
+      "commandName": "Project",
+      "commandLineArgs": "drop recreate --secrets user --timeout 10000"
+    },
+    "Help": {
+      "commandName": "Project",
+      "commandLineArgs": "--help"
+    },
+    "Help Deploy": {
+      "commandName": "Project",
+      "commandLineArgs": "deploy --help"
+    },
+    "Help Drop": {
+      "commandName": "Project",
+      "commandLineArgs": "drop --help"
+    }
+  }
+}

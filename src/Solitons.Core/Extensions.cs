@@ -296,10 +296,10 @@ namespace Solitons
 
 
         /// <summary>
-        /// 
+        /// Sets the console foreground color to the specified color and invokes the provided action.
         /// </summary>
-        /// <param name="self"></param>
-        /// <param name="callback"></param>
+        /// <param name="self">The color to set the console foreground to.</param>
+        /// <param name="callback">The action to invoke.</param>
         [DebuggerStepThrough]
         public static void AsForegroundColor(this ConsoleColor self, Action callback)
         {
