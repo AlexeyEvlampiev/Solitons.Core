@@ -27,13 +27,13 @@ jobs:
       with:
         dotnet-version: 7.x        
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Solitons.Core.sln
     - name: Build
-      run: dotnet build --no-restore --configuration ${buildconfiguration}
+      run: dotnet build Solitons.Core.sln --no-restore --configuration ${buildconfiguration}
     - name: Test
       env:
        AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
-      run: dotnet test --no-build --verbosity normal   
+      run: dotnet test Solitons.Core.sln --no-build --verbosity normal   
     - name: Pack
       env:
        versionsuffix: 'alpha.${{env.runId}}'
