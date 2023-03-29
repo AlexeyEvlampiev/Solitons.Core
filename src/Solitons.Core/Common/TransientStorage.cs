@@ -26,10 +26,7 @@ namespace Solitons.Common
         {
             var att = (GuidAttribute)GetType()
                 .GetCustomAttribute(typeof(GuidAttribute))
-                .ThrowIfNull(()=> new InvalidOperationException(new StringBuilder()
-                    .Append($"{typeof(GuidAttribute)} annotation is missing.")
-                    .Append($" See type {GetType()}")
-                    .ToString()));
+                .ThrowIfNull();
             _id = Guid.Parse(att.Value);
 
         }
@@ -95,10 +92,7 @@ namespace Solitons.Common
             var stream = await DownloadAsync(receipt, cancellation);
             return stream
                 .ThrowIfNull($"{GetType()}.{nameof(DownloadAsync)} returned null.")
-                .ThrowIfCanNotRead(()=> new InvalidOperationException(new StringBuilder()
-                    .Append($"{GetType()}.{nameof(DownloadAsync)} returned invalid stream object.")
-                    .Append($" {nameof(Stream.CanRead)} is false.")
-                    .ToString()));
+                .ThrowIfCanNotRead();
         }
     }
 }

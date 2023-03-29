@@ -30,6 +30,7 @@ public sealed class ConsoleKeypressObservable : ObservableBase<char>
             .ToTask(cancellation);
     }
 
+
     public static Task<bool> GetYesNoAsync(string question, CancellationToken cancellation = default)
     {
         Console.WriteLine(question);
@@ -53,6 +54,7 @@ public sealed class ConsoleKeypressObservable : ObservableBase<char>
             var c = _transform.Invoke(key.KeyChar);
             if (_options.Contains(c))
             {
+                Console.Write(c);
                 observer.OnNext(c);
                 observer.OnCompleted();
                 break;

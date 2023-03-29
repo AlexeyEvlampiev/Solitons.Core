@@ -14,8 +14,7 @@ namespace Solitons.Data
         /// <param name="intentId"></param>
         protected RemoteTriggerArgs(Guid intentId)
         {
-            IntentId = intentId
-                .ThrowIfEmptyArgument(nameof(intentId));
+            IntentId = ThrowIf.ArgumentNullOrEmpty(intentId);
         }
 
         /// <summary>

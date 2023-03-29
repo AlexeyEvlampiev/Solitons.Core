@@ -89,7 +89,7 @@ namespace Solitons.Data
                 .ToUtf8String();
             var fields = JsonSerializer
                 .Deserialize<Dictionary<string, string>>(json)
-                .ThrowIfNull(()=> new InvalidOperationException());
+                .ThrowIfNull();
             return new TransientStorageReceipt(fields);
         }
 

@@ -9,10 +9,14 @@
 
   <ItemGroup>
     <None Remove="Scripts\migrations\000-000-000.sql" />
+    <None Remove="Scripts\setup\api.customer_list.sql" />
+    <None Remove="Scripts\setup\api.http_invoke.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Scripts\migrations\000-000-000.sql" />
+    <EmbeddedResource Include="Scripts\setup\api.customer_list.sql" />
+    <EmbeddedResource Include="Scripts\setup\api.http_invoke.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,10 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Solitons.Examples.WebApp.Azure\Solitons.Examples.WebApp.Azure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Scripts\setup\" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -366,5 +367,82 @@ public static class ThrowIf
         }
                 
         return value;
+    }
+
+    /// <summary>
+    /// Throws an <see cref="InvalidOperationException"/> if the specified <paramref name="value"/> stream cannot be read.
+    /// </summary>
+    /// <typeparam name="T">The type of the stream to check for readability.</typeparam>
+    /// <param name="value">The stream object to check for readability.</param>
+    /// <param name="message">The optional message to include in the exception if the stream is not readable.</param>
+    /// <param name="paramName">The optional name of the parameter that contains the stream object.</param>
+    /// <returns>The <paramref name="value"/> stream object if it is readable.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the specified <paramref name="value"/> stream is not readable.</exception>
+    [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T CanNotRead<T>(T value, string? message = null, [CallerArgumentExpression("value")] string paramName = "") where T : Stream
+    {
+        return value.CanRead 
+            ? value
+            : throw new InvalidOperationException(message
+                .DefaultIfNullOrWhiteSpace($"{paramName}.{nameof(value.CanRead)} is false."));
+    }
+
+    /// <summary>
+    /// Verifies whether the given <paramref name="value"/> of type <see cref="Stream"/> is readable.
+    /// </summary>
+    /// <typeparam name="T">The type of the stream object.</typeparam>
+    /// <param name="value">The <see cref="Stream"/> object to be checked for readability.</param>
+    /// <param name="message">The custom message to include in the <see cref="ArgumentException"/> if the <paramref name="value"/> is not readable.</param>
+    /// <param name="paramName">The name of the parameter to include in the <see cref="ArgumentException"/> if the <paramref name="value"/> is not readable.</param>
+    /// <returns>The original <paramref name="value"/> if it is readable.</returns>
+    /// <exception cref="ArgumentException">Thrown if the given <paramref name="value"/> is not readable.</exception>
+    [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T CanNotReadArgument<T>(T value, string? message = null, [CallerArgumentExpression("value")] string paramName = "") where T : Stream
+    {
+        if (false == value.CanRead)
+        {
+            message = message.DefaultIfNullOrWhiteSpace($"The given stream {paramName}.{nameof(Stream.CanRead)} is false.");
+            throw new ArgumentException(message, paramName);
+        }
+        return value;
+    }
+
+    /// <summary>
+    /// Throws an <see cref="InvalidOperationException"/> with the specified message if the specified <paramref name="value"/> is not writable.
+    /// </summary>
+    /// <typeparam name="T">The type of the stream object to check.</typeparam>
+    /// <param name="value">The stream object to check for writability.</param>
+    /// <param name="message">The optional message to include in the exception if the <paramref name="value"/> is not writable.</param>
+    /// <param name="paramName">The name of the parameter that contains the <paramref name="value"/>. This is automatically set by the compiler.</param>
+    /// <returns>The original <paramref name="value"/> if it is writable.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the specified <paramref name="value"/> is not writable.</exception>
+    [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T CanNotWrite<T>(T value, string? message = null, [CallerArgumentExpression("value")] string paramName = "") where T : Stream
+    {
+        return value.CanWrite
+            ? value
+            : throw new InvalidOperationException(message
+                .DefaultIfNullOrWhiteSpace($"{paramName}.{nameof(value.CanWrite)} is false."));
+    }
+
+
+    /// <summary>
+    /// Checks if the specified <paramref name="value"/> of type <typeparamref name="T"/> can be written to and returns it if it can.
+    /// Otherwise, throws an <see cref="ArgumentException"/> with an optional error <paramref name="message"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the <paramref name="value"/> that must inherit from <see cref="Stream"/>.</typeparam>
+    /// <param name="value">The <see cref="Stream"/> to check if can be written to.</param>
+    /// <param name="message">The optional error message to include in the <see cref="ArgumentException"/> if <paramref name="value"/> cannot be written to.</param>
+    /// <param name="paramName">The name of the parameter that represents the <paramref name="value"/> being checked.</param>
+    /// <returns>The original <paramref name="value"/> if it can be written to.</returns>
+    /// <exception cref="ArgumentException">Thrown if the <paramref name="value"/> cannot be written to.</exception>
+    [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T CanNotWriteArgument<T>(T value, string? message = null, [CallerArgumentExpression("value")] string paramName = "") where T : Stream
+    {
+        return value.CanWrite
+            ? value
+            : throw new ArgumentException(message
+                .DefaultIfNullOrWhiteSpace($"{paramName}.{nameof(value.CanWrite)} is false."), 
+                paramName);
     }
 }

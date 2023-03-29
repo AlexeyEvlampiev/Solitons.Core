@@ -49,7 +49,7 @@ namespace Solitons.Data
         [DebuggerNonUserCode]
         public IDatabaseRpcCommand GetCommand(Guid commandId)
         {
-            commandId.ThrowIfEmptyArgument(nameof(commandId));
+            ThrowIf.ArgumentNullOrEmpty(commandId);
             if (_commandTypes.TryGetValue(commandId, out var commandType))
             {
                 var command = _provider.GetService(commandType);

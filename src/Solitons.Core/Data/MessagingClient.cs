@@ -76,7 +76,7 @@ namespace Solitons.Data
         public IObservable<BrokeredResponse> GetResponses(object request, Guid transactionTypeId)
         {
             request = ThrowIf.ArgumentNull(request, nameof(request));
-            transactionTypeId = transactionTypeId.ThrowIfEmptyArgument(nameof(transactionTypeId));
+            transactionTypeId = ThrowIf.ArgumentNullOrEmpty(transactionTypeId);
 
             var correlationId = Guid.NewGuid();
             var requestPackage = Pack(request, transactionTypeId, correlationId);
@@ -120,7 +120,7 @@ namespace Solitons.Data
         public async Task<BrokeredResponse> GetResponseAsync(object request, Guid commandId, CancellationToken cancellation = default)
         {
             request = ThrowIf.ArgumentNull(request, nameof(request));
-            commandId = commandId.ThrowIfEmptyArgument(nameof(commandId));
+            commandId = ThrowIf.ArgumentNullOrEmpty(commandId);
             cancellation.ThrowIfCancellationRequested();
 
             return await GetResponses(request, commandId)

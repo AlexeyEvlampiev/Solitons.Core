@@ -58,7 +58,7 @@ namespace Solitons.Data
             contentType = ThrowIf.ArgumentNullOrWhiteSpace(contentType, nameof(contentType)).Trim();
             encoding = ThrowIf.ArgumentNull(encoding, nameof(encoding));
 
-            TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
+            TypeId = ThrowIf.ArgumentNullOrEmpty(typeId);
             Content = content.ToBytes(encoding);
             ContentType = contentType;
             Encoding = encoding;
@@ -72,7 +72,7 @@ namespace Solitons.Data
             contentType = ThrowIf.ArgumentNullOrWhiteSpace(contentType, nameof(contentType)).Trim();
             encoding = ThrowIf.ArgumentNull(encoding, nameof(encoding));
 
-            TypeId = typeId.ThrowIfEmptyArgument(nameof(typeId));
+            TypeId = ThrowIf.ArgumentNullOrEmpty(typeId);
             Content = content;
             ContentType = contentType;
             Encoding = encoding;

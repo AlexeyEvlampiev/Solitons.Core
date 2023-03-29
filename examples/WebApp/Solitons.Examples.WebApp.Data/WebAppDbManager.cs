@@ -152,6 +152,7 @@ public sealed class WebAppDbManager : PgManager
 
         var setup = DeployChanges.To
             .PostgresqlDatabase(connectionString)
+            .WithVariablesDisabled()
             .WithScriptsEmbeddedInAssembly(
                 Assembly.GetExecutingAssembly(),
                 IsSetupScript)
@@ -181,7 +182,7 @@ public sealed class WebAppDbManager : PgManager
 
         bool IsSetupScript(string path)
         {
-            var isMatch = Regex.IsMatch(path, @"(?i)\.scripts\.setup\.[^\.]+\.sql$");
+            var isMatch = Regex.IsMatch(path, @"(?i)\.scripts\.setup\..+\.sql$");
             return isMatch;
         }
     }

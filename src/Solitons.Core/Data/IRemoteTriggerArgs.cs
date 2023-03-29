@@ -17,7 +17,8 @@ namespace Solitons.Data
         /// </summary>
         /// <param name="commandId"></param>
         /// <returns></returns>
-        public static IRemoteTriggerArgs CreateEmpty(Guid commandId) => new EmptyRemoteTriggerArgs(commandId.ThrowIfEmptyArgument(nameof(commandId)));
+        public static IRemoteTriggerArgs CreateEmpty(Guid commandId) => new EmptyRemoteTriggerArgs(
+            ThrowIf.ArgumentNullOrEmpty(commandId));
 
         /// <summary>
         /// 

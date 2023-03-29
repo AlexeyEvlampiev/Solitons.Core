@@ -107,17 +107,24 @@ class Program : IWebAppDbManagerCallback
             .Create(connectionString, secrets);
 
 
-        ConsoleColor.Yellow.AsForegroundColor(() => Console.Write(FluentArray
-            .Create($"You are about to drop the entire '{manager.Database}' database.",
-                $"This action cannot be undone.",
-                $"Are you sure you want to proceed? (Y/N):")
-            .Join(Environment.NewLine)));
-        bool approved = await ConsoleKeypressObservable
-            .GetYesNoAsync(cts.Token);
+        bool approved = ConsoleColor.Yellow.AsForegroundColor(() =>
+        {
+            Console.Write(FluentArray
+                .Create($"You are about to drop the entire '{manager.Database}' database.",
+                    $"This action cannot be undone.",
+                    $"Are you sure you want to proceed? (Y/N):")
+                .Join(Environment.NewLine));
+            return ConsoleKeypressObservable
+                .GetYesNoAsync(cts.Token)
+                .GetAwaiter()
+                .GetResult();
+        });
+        
         if (approved == false)
         {
             return 0;
         }
+        Console.WriteLine();
 
         try
         {

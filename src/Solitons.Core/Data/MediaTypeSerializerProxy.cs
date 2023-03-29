@@ -43,7 +43,7 @@ namespace Solitons.Data
         {
             return _innerSerializer
                 .Deserialize(content, targetType)
-                .ThrowIfNull(() => new InvalidOperationException($"{_innerSerializer.GetType()}.{nameof(Serialize)} returned null."));
+                .ThrowIfNull($"{_innerSerializer.GetType()}.{nameof(Serialize)} returned null.");
         }
 
         [DebuggerStepThrough]

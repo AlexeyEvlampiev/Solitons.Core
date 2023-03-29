@@ -54,12 +54,12 @@ namespace Solitons.Data.Common
         object IMediaTypeSerializer.Deserialize(string content, Type targetType)
         {
             var obj = Deserialize(
-                ThrowIf.ArgumentNull(content, nameof(content)), 
-                ThrowIf.ArgumentNull(targetType, nameof(targetType)))
-                .ThrowIfNull(()=> new InvalidOperationException(new StringBuilder($"Could not deserialize from the '{TargetContentType}' content.")
-                    .Append($" Target type: {targetType}")
-                    .ToString()));
-            if(obj is IDeserializationCallback callback)
+                    ThrowIf.ArgumentNull(content, nameof(content)),
+                    ThrowIf.ArgumentNull(targetType, nameof(targetType)))
+                .ThrowIfNull(
+                    $"Could not deserialize from the '{TargetContentType}' content." +
+                    $" Target type: {targetType}");
+            if (obj is IDeserializationCallback callback)
                 callback.OnDeserialization(this);
             return obj;
         }
