@@ -58,19 +58,61 @@ COMMENT ON COLUMN api.http_response.body IS 'The body of the response.';
 CREATE TABLE api.http_route
 (
 	"id" BIGINT GENERATED ALWAYS AS IDENTITY,
+	method_regex_pattern text NOT NULL DEFAULT('^get$'),
 	uri_regex_pattern text NOT NULL,
 	version_regex_pattern text NOT NULL DEFAULT('^\d{1,3}(\.\d{1,3}){1,3}$'),
 	"function" text NOT NULL,
 	command text GENERATED ALWAYS AS ('SELECT * FROM api.'||"function"||'($1);') STORED,
+	isolation_level text NOT NULL DEFAULT('ReadCommitted'),
 	PRIMARY KEY(object_id),
+	CONSTRAINT method_regex_pattern CHECK (NOT '' ~ method_regex_pattern),
 	CONSTRAINT uri_regex_pattern_is_valid CHECK (NOT '' ~ uri_regex_pattern),
 	CONSTRAINT version_regex_pattern_is_valid CHECK (NOT '' ~ version_regex_pattern)
 ) INHERITS(system.gc_object);
 
 CREATE UNIQUE INDEX ix_http_route_id ON api.http_route("id" DESC) 
+INCLUDE(method_regex_pattern, uri_regex_pattern, version_regex_pattern)
 WHERE deleted_utc IS NULL;
 
 CREATE UNIQUE INDEX ix_http_route_object_id ON api.http_route(object_id) 
+INCLUDE(method_regex_pattern, uri_regex_pattern, version_regex_pattern)
 WHERE deleted_utc IS NULL;
 
 
+
+
+CREATE TABLE api.user
+(
+	external_id varchar(150) NOT NULL UNIQUE,
+	PRIMARY KEY(object_id),
+	CONSTRAINT external_id_is_valid CHECK (external_id ~ '^\S{8,100}$')
+) INHERITS(system.gc_object);
+
+CREATE UNIQUE INDEX ux_api_user_object_id ON api.user(external_id)
+WHERE deleted_utc IS NULL;
+
+
+CREATE TABLE api.role
+(
+	id varchar(150) NOT NULL UNIQUE,
+	PRIMARY KEY(object_id)	
+) INHERITS(system.gc_object);
+
+CREATE UNIQUE INDEX ux_api_role_object_id ON api.role(id)
+WHERE deleted_utc IS NULL;
+
+
+CREATE TABLE api.user_role
+(
+	user_object_id uuid NOT NULL REFERENCES api.user(object_id),
+	role_object_id uuid NOT NULL REFERENCES api.role(object_id),
+	PRIMARY KEY(user_object_id, role_object_id)	
+);
+
+
+CREATE TABLE api.http_route_role
+(
+	http_route_object_id uuid NOT NULL REFERENCES api.http_route(object_id),
+	role_object_id uuid NOT NULL REFERENCES api.role(object_id),
+	PRIMARY KEY(http_route_object_id, role_object_id)	
+);

@@ -19,12 +19,14 @@ $body$;
 
 INSERT INTO api.http_route(
 	object_id, 
+	method_regex_pattern,
 	version_regex_pattern, 
 	uri_regex_pattern, 
 	"function")
 VALUES(
-	'c1dba4b4-5f5e-47d0-b30e-eff0c24e04bf', 
-	'^\d{1,3}(\.\d{1,3}){1,3}$', 
+	'c1dba4b4-5f5e-47d0-b30e-eff0c24e04bf',
+	'^get$',
+	'^\d{1,3}(\.\d{1,3}){0,3}$', 
 	'/customers', 
 	'customer_list')
 ON CONFLICT(object_id) DO UPDATE SET 	
@@ -32,3 +34,10 @@ ON CONFLICT(object_id) DO UPDATE SET
 	uri_regex_pattern = EXCLUDED.uri_regex_pattern,
 	"function" = EXCLUDED.function,
 	deleted_utc = null;
+	
+/*
+select * from api.http_invoke(
+	'get', 
+	'/customers?v=1.0',
+	'JWT-Sub=>f02c29f4');
+*/

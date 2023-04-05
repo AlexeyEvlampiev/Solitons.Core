@@ -11,10 +11,14 @@
     <None Remove="Scripts\migrations\000-000-000.sql" />
     <None Remove="Scripts\setup\api.customer_list.sql" />
     <None Remove="Scripts\setup\api.http_invoke.sql" />
+    <None Remove="Scripts\setup\api.vw_user_http_route.sql" />
+    <None Remove="Scripts\setup\ref-data.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Scripts\migrations\000-000-000.sql" />
+    <EmbeddedResource Include="Scripts\setup\api.vw_user_http_route.sql" />
+    <EmbeddedResource Include="Scripts\setup\ref-data.sql" />
     <EmbeddedResource Include="Scripts\setup\api.customer_list.sql" />
     <EmbeddedResource Include="Scripts\setup\api.http_invoke.sql" />
   </ItemGroup>
