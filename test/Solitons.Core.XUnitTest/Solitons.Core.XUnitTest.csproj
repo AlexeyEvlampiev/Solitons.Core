@@ -14,14 +14,17 @@
 
   <ItemGroup>
     <Compile Remove="Blobs\**" />
+    <Compile Remove="Diagnostics\**" />
     <Compile Remove="Queues\**" />
     <Compile Remove="Security\Common\**" />
     <Compile Remove="Tables\**" />
     <EmbeddedResource Remove="Blobs\**" />
+    <EmbeddedResource Remove="Diagnostics\**" />
     <EmbeddedResource Remove="Queues\**" />
     <EmbeddedResource Remove="Security\Common\**" />
     <EmbeddedResource Remove="Tables\**" />
     <None Remove="Blobs\**" />
+    <None Remove="Diagnostics\**" />
     <None Remove="Queues\**" />
     <None Remove="Security\Common\**" />
     <None Remove="Tables\**" />
@@ -92,7 +95,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Diagnostics\" />
     <Folder Include="Web\Common\" />
   </ItemGroup>
 
