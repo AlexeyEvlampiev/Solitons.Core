@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -60,6 +61,18 @@ public sealed record AzureDatabricksDevOpsTokens
             await acquireDatabricksTokenTask,
             await acquireManagementTokenTask);
     }
+
+    /// <summary>
+    /// Asynchronously gets a new instance of the <see cref="AzureDatabricksDevOpsTokens"/> class using the specified Azure Active Directory credentials.
+    /// </summary>
+    /// <param name="credentials">The Azure Active Directory credentials to use for authentication.</param>
+    /// <param name="cancellation">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a new instance of the <see cref="AzureDatabricksDevOpsTokens"/> class.</returns>
+    [DebuggerStepThrough]
+    public static Task<AzureDatabricksDevOpsTokens> GetAsync(
+        IAzureClientSecretCredentials credentials,
+        CancellationToken cancellation = default) =>
+        GetAsync(credentials.TenantId, credentials.ClientId, credentials.ClientSecret, cancellation);
 
     // ReSharper disable once InconsistentNaming
     sealed class AADClient
