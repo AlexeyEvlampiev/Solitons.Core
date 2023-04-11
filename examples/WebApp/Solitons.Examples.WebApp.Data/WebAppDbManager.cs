@@ -31,7 +31,7 @@ public sealed class WebAppDbManager : PgManager
     private WebAppDbManager(
         string connectionString,
         ISecretsRepository secrets)
-        : this(connectionString, secrets, new WebAppDbManageConfig())
+        : this(connectionString, secrets, new WebAppDbManagerConfig())
     {
 
     }

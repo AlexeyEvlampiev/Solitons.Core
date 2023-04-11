@@ -7,9 +7,9 @@ using Solitons.Examples.WebApp.Azure;
 
 namespace Solitons.Examples.WebApp.Data;
 
-sealed record WebAppDbManageConfig : PgManagerConfig
+sealed record WebAppDbManagerConfig : PgManagerConfig
 {
-    public WebAppDbManageConfig() : base("webappdb")
+    public WebAppDbManagerConfig() : base("webappdb")
     {
         RoleConnectionStringSecretKeys = FluentDictionary
             .Create<string, string>()

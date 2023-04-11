@@ -217,8 +217,8 @@ namespace Solitons
         [DebuggerNonUserCode]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull]
-        [Obsolete(@"Use ThrowIf.NullOrWhiteSpaceArgument instead.", true)]
-        public static string ThrowIfNullOrWhiteSpaceArgument(this string self, string parameterName, string? message = null)
+        [Obsolete(@"Use ThrowIf.ArgumentNullOrWhiteSpace instead.", true)]
+        public static string ThrowIfArgumentNullOrWhiteSpace(this string self, string parameterName, string? message = null)
         {
             if (string.IsNullOrWhiteSpace(self))
             {

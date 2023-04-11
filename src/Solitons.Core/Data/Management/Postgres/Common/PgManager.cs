@@ -209,7 +209,7 @@ public abstract class PgManager : IPgManager
     /// <param name="role">The role for which to retrieve the connection string.</param>
     /// <param name="cancellation">The cancellation token to use.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    protected abstract Task<string> GetSecretIfExistsAsync(
+    protected abstract Task<string?> GetSecretIfExistsAsync(
         string role, 
         CancellationToken cancellation);
 
