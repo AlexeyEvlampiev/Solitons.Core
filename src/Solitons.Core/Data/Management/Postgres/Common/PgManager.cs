@@ -79,7 +79,7 @@ public abstract class PgManager : IPgManager
             };
 
             var currentValueIsValid = await FluentObservable
-                .Defer(() => GetSecretIfExistsAsync(role, cancellation))
+                .Defer(() => GetSecretIfExistsAsync(secretKey, cancellation))
                 .Where(cs => cs.IsPrintable())
                 .SelectMany(async cs =>
                 {
