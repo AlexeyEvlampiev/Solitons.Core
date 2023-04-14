@@ -297,7 +297,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <exception cref="ArgumentNullException"></exception>
     protected virtual async Task<object> InvokeAsync(object requestDto, CancellationToken cancellation = default)
     {
-        ThrowIf.ArgumentNull(requestDto, nameof(requestDto));
+        ThrowIf.ArgumentNull(requestDto);
         ThrowIf.Cancelled(cancellation);
         var request = _serializer
             .Serialize(requestDto, Metadata.Request.ContentType)
