@@ -83,12 +83,21 @@ public abstract class PgManager : IPgManager
                 .Where(cs => cs.IsPrintable())
                 .SelectMany(async cs =>
                 {
-                    var actual = ExtractConnectionInfo(cs);
+                    var actual = ExtractConnectionInfo(cs!);
                     if (actual.Equals(expected))
                     {
-                        await using var conn = CreateDbConnection(cs!);
-                        await conn.OpenAsync(cancellation);
-                        return true;
+                        var valid = await FluentObservable
+                            .Defer(async () =>
+                            {
+                                await using var conn = CreateDbConnection(cs!);
+                                await conn.OpenAsync(cancellation);
+                                return true;
+                            })
+                            .RetryWhen(ShouldRetry(cancellation));
+                        if (valid)
+                        {
+                            return true;
+                        }
                     }
 
                     await OnInvalidConnectionStringAsync(
@@ -100,6 +109,7 @@ public abstract class PgManager : IPgManager
                     return false;
                 })
                 .RetryWhen(ShouldRetry(cancellation))
+                .OnErrorResumeNext(Observable.Return(false))
                 .FirstOrDefaultAsync(_ => _);
 
             if (currentValueIsValid)
@@ -228,7 +238,7 @@ public abstract class PgManager : IPgManager
         IObservable<Unit> ToSignals(IObservable<Exception> exceptions)
         {
             return exceptions
-                .SelectMany((ex, attempt) =>
+                .SelectMany([DebuggerStepThrough] (ex, attempt) =>
                 {
                     if (ex is not DbException { IsTransient: true })
                     {
