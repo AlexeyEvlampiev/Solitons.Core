@@ -115,7 +115,8 @@ public abstract class AsyncLogger : IAsyncLogger
     {
         ILogStringBuilder builder = new LogJsonBuilder()
             .WithProperty("level", level.ToString().ToLower())
-            .WithProperty("message", message);
+            .WithProperty("message", message)
+            .WithProperty("createdUtc", DateTime.UtcNow.ToString("O"));
 
         principal ??= Thread.CurrentPrincipal;
         var identity = principal?.Identity;
