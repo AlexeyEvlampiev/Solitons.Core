@@ -1,18 +1,17 @@
-﻿namespace Solitons.Data
+﻿namespace Solitons.Data;
+
+/// <summary>
+/// Specifies the data transfer method for transferring objects between client and server.
+/// </summary>
+public enum DataTransferMethod
 {
     /// <summary>
-    /// Types of data transfer
+    /// The object is transferred by value.
     /// </summary>
-    public enum DataTransferMethod
-    {
-        /// <summary>
-        /// By value
-        /// </summary>
-        ByValue = 0,
+    ByValue = 0,
 
-        /// <summary>
-        /// By reference
-        /// </summary>
-        ByReference = 1
-    }
+    /// <summary>
+    /// The object is transferred by reference.
+    /// </summary>
+    ByReference = 1
 }

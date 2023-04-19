@@ -1,56 +1,55 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Solitons.Data
+namespace Solitons.Data;
+
+/// <summary>
+/// Represents a serializer that supports serialization and deserialization of objects with a specified content type.
+/// </summary>
+public partial interface IMediaTypeSerializer
 {
     /// <summary>
-    /// Represents a Content Type constraint serializer.
+    /// Gets the content type that this serializer can handle.
     /// </summary>
-    public partial interface IMediaTypeSerializer
-    {
-        /// <summary>
-        /// Gets the serializer constraint content type.
-        /// </summary>
-        string TargetContentType { get; }
+    string TargetContentType { get; }
 
-        /// <summary>
-        /// Returns a string representation of the specified object, encoded according to the declared content type specifications (see <see cref="TargetContentType"/>).
-        /// </summary>
-        /// <param name="obj">The object to be serialized</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="obj"/></exception>
-        /// <exception cref="NotSupportedException"><paramref name="obj"/></exception>
-        string Serialize(object obj);
+    /// <summary>
+    /// Serializes the specified object into a string representation encoded according to the declared content type specifications (see <see cref="TargetContentType"/>).
+    /// </summary>
+    /// <param name="obj">The object to be serialized.</param>
+    /// <returns>A string representation of the serialized object.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="obj"/> is null.</exception>
+    /// <exception cref="NotSupportedException">Thrown when serialization of <paramref name="obj"/> is not supported by this serializer.</exception>
+    string Serialize(object obj);
 
-        /// <summary>
-        /// Returns an object deserialized from the specified content string.
-        /// </summary>
-        /// <param name="content">Objects string representation</param>
-        /// <param name="targetType">Target object type</param>
-        /// <returns>Deserialized object</returns>
-        /// <exception cref="ArgumentException"><paramref name="content"/> or <paramref name="targetType"/></exception>
-        object Deserialize(string content, Type targetType);
-    }
+    /// <summary>
+    /// Deserializes the specified string representation into an object of the specified type.
+    /// </summary>
+    /// <param name="content">A string representation of the serialized object.</param>
+    /// <param name="targetType">The type of object to deserialize into.</param>
+    /// <returns>The deserialized object.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="content"/> or <paramref name="targetType"/> is not valid.</exception>
+    object Deserialize(string content, Type targetType);
+}
 
 
-    public partial interface IMediaTypeSerializer
-    {
-        /// <summary>
-        /// Default basic JSON serializer instance
-        /// </summary>
-        public static readonly IMediaTypeSerializer BasicJsonSerializer = new BasicJsonMediaTypeSerializer();
+public partial interface IMediaTypeSerializer
+{
+    /// <summary>
+    /// Default basic JSON serializer instance.
+    /// </summary>
+    public static readonly IMediaTypeSerializer BasicJsonSerializer = new BasicJsonMediaTypeSerializer();
 
-        /// <summary>
-        /// Default basic XML serializer instance
-        /// </summary>
-        public static readonly IMediaTypeSerializer BasicXmlSerializer = new BasicXmlMediaTypeSerializer();
+    /// <summary>
+    /// Default basic XML serializer instance.
+    /// </summary>
+    public static readonly IMediaTypeSerializer BasicXmlSerializer = new BasicXmlMediaTypeSerializer();
 
-        /// <summary>
-        /// Extends this object behaviour with additional assertions for methods and properties. 
-        /// </summary>
-        /// <returns>Proxy instance</returns>
-        [DebuggerNonUserCode]
-        public IMediaTypeSerializer AsMediaTypeSerializer() =>
-            MediaTypeSerializerProxy.Wrap(this);
-    }
+    /// <summary>
+    /// Extends this object behaviour with additional assertions for methods and properties.
+    /// </summary>
+    /// <returns>A proxy instance of <see cref="IMediaTypeSerializer"/>.</returns>
+    [DebuggerNonUserCode]
+    public IMediaTypeSerializer AsMediaTypeSerializer() =>
+        MediaTypeSerializerProxy.Wrap(this);
 }
