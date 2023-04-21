@@ -3,12 +3,12 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
-namespace Solitons.Configuration;
+namespace Solitons.Text.Json;
 
 /// <summary>
 /// Provides methods for serializing and deserializing JSON objects to and from Base64-encoded strings.
 /// </summary>
-public abstract record Base64JsonToken 
+public abstract record Base64JsonToken
 {
     /// <summary>
     /// Returns a Base64-encoded JSON string representation of the current <see cref="Base64JsonToken"/> object.
@@ -17,6 +17,7 @@ public abstract record Base64JsonToken
     public sealed override string ToString() => JsonSerializer
         .Serialize<object>(this)
         .ToBase64(Encoding.UTF8);
+
 
     /// <summary>
     /// Converts a <see cref="Base64JsonToken"/> object to a Base64-encoded JSON string.
@@ -37,14 +38,14 @@ public abstract record Base64JsonToken
         try
         {
             var json = Encoding.UTF8.GetString(base64.AsBase64Bytes());
-            var obj = (T?)JsonSerializer.Deserialize<T>(json);
+            var obj = JsonSerializer.Deserialize<T>(json);
             return obj ?? throw new FormatException($"Deserialization of {typeof(T)} failed: the JSON string was null or empty.");
         }
         catch (JsonException e)
         {
             throw new FormatException($"Deserialization of {typeof(T)} failed: {e.Message}", e);
         }
-        catch (Exception e) when(e is not FormatException)
+        catch (Exception e) when (e is not FormatException)
         {
             throw new FormatException($"Deserialization of {typeof(T)} failed: an unexpected error occurred.", e);
         }
