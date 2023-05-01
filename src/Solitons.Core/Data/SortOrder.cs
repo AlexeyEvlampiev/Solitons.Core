@@ -1,21 +1,20 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Solitons.Data
+namespace Solitons.Data;
+
+/// <summary>
+/// Represents sort order
+/// </summary>
+public enum SortOrder : byte
 {
     /// <summary>
-    /// Represents sort order
+    /// Ascending order
     /// </summary>
-    public enum SortOrder : byte
-    {
-        /// <summary>
-        /// Ascending order
-        /// </summary>
-        [EnumMember(Value = "asc")]
-        Asc = 0,
-        /// <summary>
-        /// Descending
-        /// </summary>
-        [EnumMember(Value = "desc")]
-        Desc = 1
-    }
+    [EnumMember(Value = "asc")]
+    Asc = 0,
+    /// <summary>
+    /// Descending
+    /// </summary>
+    [EnumMember(Value = "desc")]
+    Desc = 1
 }
