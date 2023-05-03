@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
+using Solitons.Common;
 
-namespace Solitons.Text.Json;
+namespace Solitons.Data;
 
 /// <summary>
 /// Provides methods for serializing and deserializing JSON objects to and from Base64-encoded strings.
 /// </summary>
-public abstract record Base64JsonToken
+public abstract record Base64JsonToken :
+    ISerializationCallback,
+    IBasicJsonDataTransferObject
 {
     /// <summary>
     /// Returns a Base64-encoded JSON string representation of the current <see cref="Base64JsonToken"/> object.
@@ -50,4 +54,31 @@ public abstract record Base64JsonToken
             throw new FormatException($"Deserialization of {typeof(T)} failed: an unexpected error occurred.", e);
         }
     }
+
+    /// <summary>
+    /// Invoked when the deserialization process has completed.
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    protected virtual void OnDeserialization(object? sender) { }
+
+    /// <summary>
+    /// Invoked before the serialization process begins.
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    protected virtual void OnSerializing(object? sender) { }
+
+    /// <summary>
+    /// Invoked after the serialization process has completed.
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    protected virtual void OnSerialized(object? sender) { }
+
+    [DebuggerStepThrough]
+    void IDeserializationCallback.OnDeserialization(object? sender) => OnDeserialization(sender);
+
+    [DebuggerStepThrough]
+    void ISerializationCallback.OnSerializing(object? sender) => OnSerializing(sender);
+
+    [DebuggerStepThrough]
+    void ISerializationCallback.OnSerialized(object? sender) => OnSerialized(sender);
 }
