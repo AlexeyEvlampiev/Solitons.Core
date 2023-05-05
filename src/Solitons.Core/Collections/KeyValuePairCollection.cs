@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Solitons.Collections;
 
@@ -88,6 +89,35 @@ public static class KeyValuePairCollection
         return collection is KeyValuePairCollection<TKey, TValue> other
             ? other
             : new KeyValuePairCollection<TKey, TValue>(collection);
+    }
+
+    /// <summary>
+    /// Parses a string in CSV format into a collection of key-value pairs.
+    /// </summary>
+    /// <param name="csvLine">The input CSV string.</param>
+    /// <param name="delimiter">The delimiter character used to separate fields in the CSV string (default is ',').</param>
+    /// <returns>A KeyValuePairCollection containing the parsed key-value pairs.</returns>
+    /// <exception cref="FormatException">Thrown when an individual key-value pair in the CSV string is not in the format 'key=value'.</exception>
+    public static KeyValuePairCollection<string, string> ParseCsvLine(string csvLine, char delimiter = ',')
+    {
+        var equationRegex = new Regex(@"^(?<key>[^=]+)=(?<value>.+)$");
+        var pairs = Regex
+            .Split(csvLine, $@"\s*[{delimiter}]\s*(?=[^=\s]+\s*[=]\s*[^=\s{delimiter}]+)")
+            .Where(equation => equation.IsPrintable())
+            .Select(equation =>
+            {
+                var match = equationRegex.Match(equation.Trim());
+                if (match.Success)
+                {
+                    var (key, value) = (
+                        match.Groups["key"].Value.Trim(),
+                        match.Groups["value"].Value.Trim());
+                    return KeyValuePair.Create(key, value);
+                }
+
+                throw new FormatException($"Input string '{equation}' is not in the format 'key=value'");
+            });
+        return KeyValuePairCollection.Create(pairs);
     }
 }
 
