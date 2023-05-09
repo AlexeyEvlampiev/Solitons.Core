@@ -3,7 +3,7 @@
 namespace Solitons.Data;
 
 /// <summary>
-/// Defines methods to handle the serialization and deserialization of an object.
+/// Defines methods to handle the serialization and deserialization events.
 /// </summary>
 public interface ISerializationCallback : IDeserializationCallback
 {
