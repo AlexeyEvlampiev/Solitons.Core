@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
@@ -12,6 +13,31 @@ namespace Solitons.Reactive;
 /// </summary>
 public static partial class FluentObservable
 {
+    /// <summary>
+    /// Returns an observable sequence that contains the specified items.
+    /// </summary>
+    /// <typeparam name="T">The type of the items in the sequence.</typeparam>
+    /// <param name="items">The items to include in the sequence.</param>
+    /// <returns>An observable sequence that contains the specified items.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<T> SelectMany<T>(params T[] items)
+    {
+        return items.ToObservable();
+    }
+
+    /// <summary>
+    /// Returns an observable sequence that contains the specified items, using the specified scheduler for notifications.
+    /// </summary>
+    /// <typeparam name="T">The type of the items in the sequence.</typeparam>
+    /// <param name="scheduler">The scheduler to use for notifications.</param>
+    /// <param name="items">The items to include in the sequence.</param>
+    /// <returns>An observable sequence that contains the specified items, using the specified scheduler for notifications.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<T> SelectMany<T>(IScheduler scheduler, params T[] items)
+    {
+        return items.ToObservable(scheduler);
+    }
+
     /// <summary>
     /// Returns an observable sequence that, when subscribed to, will execute the specified asynchronous task and return a single Unit value upon completion.
     /// </summary>
