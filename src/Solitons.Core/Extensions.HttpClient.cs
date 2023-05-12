@@ -11,6 +11,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Net.Http;
 
 namespace Solitons;
 
@@ -97,5 +98,33 @@ public static partial class Extensions
 
             })
             .LastOrDefaultAsync() ?? response;
+    }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="FluentHttpClient"/> with the specified request factory.
+    /// </summary>
+    /// <param name="self">The <see cref="HttpClient"/> instance.</param>
+    /// <param name="requestFactory">The request factory function.</param>
+    /// <returns>A new instance of <see cref="FluentHttpClient"/> configured with the request factory.</returns>
+    public static FluentHttpClient WithRequest(
+        this HttpClient self,
+        Func<HttpRequestMessage> requestFactory) => new FluentHttpClient(self, requestFactory);
+
+    /// <summary>
+    /// Creates a new <see cref="FluentHttpClient"/> with the specified URL and optional request configuration.
+    /// </summary>
+    /// <param name="self">The <see cref="HttpClient"/> instance.</param>
+    /// <param name="url">The URL for the HTTP request.</param>
+    /// <param name="config">An optional delegate to configure the <see cref="HttpRequestMessage"/>.</param>
+    /// <returns>A new <see cref="FluentHttpClient"/> instance.</returns>
+    [DebuggerNonUserCode]
+    public static FluentHttpClient WithUrl(this HttpClient self, string url, Action<HttpRequestMessage>? config = null)
+    {
+        return self.WithRequest([DebuggerStepThrough]() =>
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            config?.Invoke(request);
+            return request;
+        });
     }
 }

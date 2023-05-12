@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Reactive;
@@ -13,6 +14,19 @@ namespace Solitons.Reactive;
 /// </summary>
 public static partial class FluentObservable
 {
+    /// <summary>
+    /// Creates an observable sequence that completes after a specified relative due time.
+    /// </summary>
+    /// <param name="milliseconds">The delay time, in milliseconds, before the observable sequence completes.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the delay.</param>
+    /// <returns>An observable sequence that completes after a delay.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<Unit> Delay(int milliseconds, CancellationToken cancellation) =>
+        Task.Delay(milliseconds, cancellation)
+            .ToObservable();
+
+
+
     /// <summary>
     /// Returns an observable sequence that contains the specified items.
     /// </summary>

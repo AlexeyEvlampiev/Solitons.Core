@@ -2,13 +2,75 @@
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace Solitons;
 
 public static partial class Extensions
 {
+    /// <summary>
+    /// Delays the emission of items in an <see cref="IObservable{T}"/> sequence by the specified duration.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the source sequence.</typeparam>
+    /// <param name="source">The source <see cref="IObservable{T}"/> sequence.</param>
+    /// <param name="milliseconds">The duration to delay each item in milliseconds.</param>
+    /// <param name="cancellation">The <see cref="CancellationToken"/> that can be used to cancel the delay.</param>
+    /// <returns>An <see cref="IObservable{T}"/> sequence that delays the emission of items.</returns>
+    public static IObservable<T> Delay<T>(this IObservable<T> source, int milliseconds, CancellationToken cancellation)
+    {
+        return source
+            .SelectMany(async item =>
+            {
+                await Task
+                    .Delay(milliseconds, cancellation)
+                    .ConfigureAwait(false);
+                return item;
+            });
+    }
+
+    /// <summary>
+    /// Delays the emission of items in an <see cref="IObservable{T}"/> sequence based on a delay selector function.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the source sequence.</typeparam>
+    /// <param name="source">The source <see cref="IObservable{T}"/> sequence.</param>
+    /// <param name="delaySelector">A function that provides the delay duration based on the sequence number of each item.</param>
+    /// <param name="cancellation">The <see cref="CancellationToken"/> that can be used to cancel the delay.</param>
+    /// <returns>An <see cref="IObservable{T}"/> sequence that delays the emission of items.</returns>
+    public static IObservable<T> Delay<T>(this IObservable<T> source, Func<int, int> delaySelector, CancellationToken cancellation = default)
+    {
+        return source
+            .SelectMany(async (item, sequenceNumber) =>
+            {
+                var delayDuration = delaySelector(sequenceNumber);
+                await Task
+                    .Delay(delayDuration , cancellation)
+                    .ConfigureAwait(false);
+                return item;
+            });
+    }
+
+    /// <summary>
+    /// Filters the elements of an observable sequence based on a predicate.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the source sequence.</typeparam>
+    /// <param name="source">The observable sequence to filter.</param>
+    /// <param name="predicate">A function to test each element for a condition. If the condition returns true, the element is excluded from the observable sequence.</param>
+    /// <returns>
+    /// An observable sequence that contains elements from the input sequence that do not satisfy the condition specified by <paramref name="predicate"/>.
+    /// </returns>
+    /// <remarks>
+    /// This method is similar to the Where extension method, but it inverts the predicate, effectively implementing an "Except" operation.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static IObservable<T> Except<T>(this IObservable<T> source, Func<T, bool> predicate)
+    {
+        return source.Where(_ => predicate.Invoke(_) == false);
+    }
+
     /// <summary>
     /// 
     /// </summary>
