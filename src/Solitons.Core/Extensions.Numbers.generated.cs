@@ -7,106 +7,130 @@
 	public static partial class Extensions
 	{ 
 		/// <summary>
-		/// Returns the smaller of two numbers.
+		/// Determines and returns the greater value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1">The first of two numbers to compare.</param>
-		/// <param name="val2">The second of two numbers to compare.</param>
-		/// <returns></returns>
+		/// <param name="self">The current instance of System.Int32.</param>
+		/// <param name="threshold">The System.Int32 number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Int32 value.
+		/// </returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static System.Int32 Min(this System.Int32 val1, System.Int32 val2) => Math.Min(val1, val2);
+		public static System.Int32 Min(this System.Int32 self, System.Int32 threshold) => Math.Max(self, threshold);
 
 		/// <summary>
-		/// 
+		/// Determines and returns the smaller value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1"></param>
-		/// <param name="val2"></param>
-		/// <returns></returns>
-		public static System.Int32 Max(this System.Int32 val1, System.Int32 val2) => Math.Max(val1, val2);
+		/// <param name="self">The current instance of System.Int32.</param>
+		/// <param name="threshold">The System.Int32 number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Int32 value.
+		/// </returns>
+		public static System.Int32 Max(this System.Int32 self, System.Int32 threshold) => Math.Min(self, threshold);
 	 
 		/// <summary>
-		/// Returns the smaller of two numbers.
+		/// Determines and returns the greater value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1">The first of two numbers to compare.</param>
-		/// <param name="val2">The second of two numbers to compare.</param>
-		/// <returns></returns>
+		/// <param name="self">The current instance of System.Byte.</param>
+		/// <param name="threshold">The System.Byte number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Byte value.
+		/// </returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static System.Byte Min(this System.Byte val1, System.Byte val2) => Math.Min(val1, val2);
+		public static System.Byte Min(this System.Byte self, System.Byte threshold) => Math.Max(self, threshold);
 
 		/// <summary>
-		/// 
+		/// Determines and returns the smaller value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1"></param>
-		/// <param name="val2"></param>
-		/// <returns></returns>
-		public static System.Byte Max(this System.Byte val1, System.Byte val2) => Math.Max(val1, val2);
+		/// <param name="self">The current instance of System.Byte.</param>
+		/// <param name="threshold">The System.Byte number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Byte value.
+		/// </returns>
+		public static System.Byte Max(this System.Byte self, System.Byte threshold) => Math.Min(self, threshold);
 	 
 		/// <summary>
-		/// Returns the smaller of two numbers.
+		/// Determines and returns the greater value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1">The first of two numbers to compare.</param>
-		/// <param name="val2">The second of two numbers to compare.</param>
-		/// <returns></returns>
+		/// <param name="self">The current instance of System.Int64.</param>
+		/// <param name="threshold">The System.Int64 number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Int64 value.
+		/// </returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static System.Int64 Min(this System.Int64 val1, System.Int64 val2) => Math.Min(val1, val2);
+		public static System.Int64 Min(this System.Int64 self, System.Int64 threshold) => Math.Max(self, threshold);
 
 		/// <summary>
-		/// 
+		/// Determines and returns the smaller value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1"></param>
-		/// <param name="val2"></param>
-		/// <returns></returns>
-		public static System.Int64 Max(this System.Int64 val1, System.Int64 val2) => Math.Max(val1, val2);
+		/// <param name="self">The current instance of System.Int64.</param>
+		/// <param name="threshold">The System.Int64 number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Int64 value.
+		/// </returns>
+		public static System.Int64 Max(this System.Int64 self, System.Int64 threshold) => Math.Min(self, threshold);
 	 
 		/// <summary>
-		/// Returns the smaller of two numbers.
+		/// Determines and returns the greater value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1">The first of two numbers to compare.</param>
-		/// <param name="val2">The second of two numbers to compare.</param>
-		/// <returns></returns>
+		/// <param name="self">The current instance of System.Decimal.</param>
+		/// <param name="threshold">The System.Decimal number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Decimal value.
+		/// </returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static System.Decimal Min(this System.Decimal val1, System.Decimal val2) => Math.Min(val1, val2);
+		public static System.Decimal Min(this System.Decimal self, System.Decimal threshold) => Math.Max(self, threshold);
 
 		/// <summary>
-		/// 
+		/// Determines and returns the smaller value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1"></param>
-		/// <param name="val2"></param>
-		/// <returns></returns>
-		public static System.Decimal Max(this System.Decimal val1, System.Decimal val2) => Math.Max(val1, val2);
+		/// <param name="self">The current instance of System.Decimal.</param>
+		/// <param name="threshold">The System.Decimal number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Decimal value.
+		/// </returns>
+		public static System.Decimal Max(this System.Decimal self, System.Decimal threshold) => Math.Min(self, threshold);
 	 
 		/// <summary>
-		/// Returns the smaller of two numbers.
+		/// Determines and returns the greater value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1">The first of two numbers to compare.</param>
-		/// <param name="val2">The second of two numbers to compare.</param>
-		/// <returns></returns>
+		/// <param name="self">The current instance of System.Single.</param>
+		/// <param name="threshold">The System.Single number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Single value.
+		/// </returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static System.Single Min(this System.Single val1, System.Single val2) => Math.Min(val1, val2);
+		public static System.Single Min(this System.Single self, System.Single threshold) => Math.Max(self, threshold);
 
 		/// <summary>
-		/// 
+		/// Determines and returns the smaller value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1"></param>
-		/// <param name="val2"></param>
-		/// <returns></returns>
-		public static System.Single Max(this System.Single val1, System.Single val2) => Math.Max(val1, val2);
+		/// <param name="self">The current instance of System.Single.</param>
+		/// <param name="threshold">The System.Single number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Single value.
+		/// </returns>
+		public static System.Single Max(this System.Single self, System.Single threshold) => Math.Min(self, threshold);
 	 
 		/// <summary>
-		/// Returns the smaller of two numbers.
+		/// Determines and returns the greater value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1">The first of two numbers to compare.</param>
-		/// <param name="val2">The second of two numbers to compare.</param>
-		/// <returns></returns>
+		/// <param name="self">The current instance of System.Double.</param>
+		/// <param name="threshold">The System.Double number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Double value.
+		/// </returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static System.Double Min(this System.Double val1, System.Double val2) => Math.Min(val1, val2);
+		public static System.Double Min(this System.Double self, System.Double threshold) => Math.Max(self, threshold);
 
 		/// <summary>
-		/// 
+		/// Determines and returns the smaller value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1"></param>
-		/// <param name="val2"></param>
-		/// <returns></returns>
-		public static System.Double Max(this System.Double val1, System.Double val2) => Math.Max(val1, val2);
+		/// <param name="self">The current instance of System.Double.</param>
+		/// <param name="threshold">The System.Double number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided System.Double value.
+		/// </returns>
+		public static System.Double Max(this System.Double self, System.Double threshold) => Math.Min(self, threshold);
 	 
 	}
 

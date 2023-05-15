@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -8,6 +9,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +19,97 @@ namespace Solitons;
 
 public static partial class Extensions
 {
+    [DebuggerNonUserCode]
+    public static IHttpResponseMessageObservable Defer(
+        this HttpClient client,
+        Func<HttpRequestMessage> requestFactory)
+    {
+        return new HttpResponseMessageObservable(client, requestFactory);
+    }
+
+
+    public interface IHttpResponseMessageObservable : IObservable<HttpResponseMessage>
+    {
+        public sealed IHttpResponseMessageObservable WithRetryTrigger<T>(
+            Func<IObservable<HttpResponseMessage>, IObservable<T>> trigger)
+        {
+            var impl = 
+                this as HttpResponseMessageObservable 
+                       ?? throw new InvalidEnumArgumentException();
+            impl.RetryTrigger = GeneralizedTrigger;
+            return this;
+
+            [DebuggerStepThrough]
+            IObservable<Unit> GeneralizedTrigger(IObservable<HttpResponseMessage> responses)
+            {
+                return trigger
+                    .Invoke(responses)
+                    .Select(_ => Unit.Default);
+            }
+        }
+    }
+
+    sealed class HttpResponseMessageObservable : 
+        ObservableBase<HttpResponseMessage>, 
+        IHttpResponseMessageObservable
+    {
+        private readonly HttpClient _client;
+        private readonly Func<HttpRequestMessage> _messageFactory;
+
+        public HttpResponseMessageObservable(
+            HttpClient client, 
+            Func<HttpRequestMessage> messageFactory)
+        {
+            _client = client;
+            _messageFactory = messageFactory;
+            RetryTrigger = DefaultTrigger;
+        }
+
+        private IObservable<Unit> DefaultTrigger(IObservable<HttpResponseMessage> responses)
+        {
+            return responses
+                .Except(_ => _.StatusCode.IsClientError())
+                .Take(3)
+                .Delay(attempt => attempt.Min(1).Max(10) * 100, Cancellation)
+                .Select(_ => Unit.Default);
+        }
+
+        public CancellationToken Cancellation { get; set; } = CancellationToken.None;
+        public Func<IObservable<HttpResponseMessage>, IObservable<Unit>> RetryTrigger { get; set; }
+
+        protected override IDisposable SubscribeCore(IObserver<HttpResponseMessage> observer)
+        {
+            var failures = new Subject<HttpResponseMessage>();
+
+            var retries = RetryTrigger(failures)
+                .Select(_ => Unit.Default);
+
+            var responses = Observable
+                .Return(Unit.Default)
+                .Concat(retries)
+                .SelectMany(_ => Observable.Using(
+                    _messageFactory,
+                    request => _client
+                        .SendAsync(request, Cancellation)
+                        .ToObservable()))
+                .Do(response =>
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        failures.OnCompleted();
+                    }
+                    else
+                    {
+                        failures.OnNext(response);
+                    }
+                });
+
+
+            return responses.Subscribe(observer);
+
+        }
+    }
+
     /// <summary>
     /// Determines whether the specified HTTP status code is a 4xx client error.
     /// </summary>

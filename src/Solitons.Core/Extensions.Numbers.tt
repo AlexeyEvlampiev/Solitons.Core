@@ -33,21 +33,25 @@ namespace Solitons
 	public static partial class Extensions
 	{<# foreach(var type in numericTypes){ #> 
 		/// <summary>
-		/// Returns the smaller of two numbers.
+		/// Determines and returns the greater value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1">The first of two numbers to compare.</param>
-		/// <param name="val2">The second of two numbers to compare.</param>
-		/// <returns></returns>
+		/// <param name="self">The current instance of <#= type #>.</param>
+		/// <param name="threshold">The <#= type #> number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided <#= type #> value.
+		/// </returns>
 		[DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static <#= type #> Min(this <#= type #> val1, <#= type #> val2) => Math.Min(val1, val2);
+		public static <#= type #> Min(this <#= type #> self, <#= type #> threshold) => Math.Max(self, threshold);
 
 		/// <summary>
-		/// 
+		/// Determines and returns the smaller value between the current instance and the provided parameter.
 		/// </summary>
-		/// <param name="val1"></param>
-		/// <param name="val2"></param>
-		/// <returns></returns>
-		public static <#= type #> Max(this <#= type #> val1, <#= type #> val2) => Math.Max(val1, val2);
+		/// <param name="self">The current instance of <#= type #>.</param>
+		/// <param name="threshold">The <#= type #> number to compare with the current instance.</param>
+		/// <returns>
+		/// The greater value between the current instance and the provided <#= type #> value.
+		/// </returns>
+		public static <#= type #> Max(this <#= type #> self, <#= type #> threshold) => Math.Min(self, threshold);
 	<# } #> 
 	}
 
