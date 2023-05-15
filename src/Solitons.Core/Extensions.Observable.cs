@@ -6,12 +6,27 @@ using System.Reactive.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Reactive;
 
 
 namespace Solitons;
 
 public static partial class Extensions
 {
+    /// <summary>
+    /// Creates a new Observable that applies a retry policy to the source Observable.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the sequence.</typeparam>
+    /// <param name="source">The source Observable to apply the retry policy to.</param>
+    /// <param name="handler">The handler that implements the retry policy.</param>
+    /// <returns>A new Observable that applies the retry policy to the source Observable.</returns>
+    public static IObservable<T> CatchAndRetry<T>(
+        this IObservable<T> source,
+        RetryPolicyHandler handler)
+    {
+        return new RetryPolicyObservable<T>(source, handler);
+    }
+
     /// <summary>
     /// Delays the emission of items in an <see cref="IObservable{T}"/> sequence by the specified duration.
     /// </summary>
