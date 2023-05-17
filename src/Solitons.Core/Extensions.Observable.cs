@@ -16,15 +16,21 @@ public static partial class Extensions
     /// <summary>
     /// Creates a new Observable that applies a retry policy to the source Observable.
     /// </summary>
-    /// <typeparam name="T">The type of elements in the sequence.</typeparam>
+    /// <typeparam name="T">The type of elements in the source sequence.</typeparam>
+    /// <typeparam name="TSignal">The type of elements in the signal sequence.</typeparam>
     /// <param name="source">The source Observable to apply the retry policy to.</param>
-    /// <param name="handler">The handler that implements the retry policy.</param>
+    /// <param name="trigger">A function that defines the retry policy in terms of an observable sequence.</param>
     /// <returns>A new Observable that applies the retry policy to the source Observable.</returns>
-    public static IObservable<T> CatchAndRetry<T>(
+    public static IObservable<T> WithRetryPolicy<T, TSignal>(
         this IObservable<T> source,
-        RetryPolicyHandler handler)
+        Func<IObservable<RetryPolicyArgs>, IObservable<TSignal>> trigger)
     {
-        return new RetryPolicyObservable<T>(source, handler);
+        return new RetryPolicyObservable<T>(source, Handler);
+        [DebuggerStepThrough]
+        Task<bool> Handler(RetryPolicyArgs args) => 
+            trigger(Observable.Return(args))
+                .Any()
+                .ToTask();
     }
 
     /// <summary>

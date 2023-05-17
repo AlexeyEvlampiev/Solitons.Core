@@ -13,7 +13,7 @@ using Xunit;
 namespace Solitons;
 
 // ReSharper disable once InconsistentNaming
-public class IObservable_CatchAndRetry_Should
+public class IObservable_WithRetryPolicy_Should
 {
     [Theory]
     [InlineData(0, "test0")]
@@ -21,13 +21,10 @@ public class IObservable_CatchAndRetry_Should
     [InlineData(3, "test3")]
     public async Task ReturnCorrectValue_AfterSpecifiedFailuresAsync(int timesToThrow, string expected)
     {
-        var faultyService = new FaultyObservable(timesToThrow, expected);
-        var actual = await faultyService
-            .CatchAndRetry(async args =>
-            {
-                Debug.WriteLine(args.AttemptNumber);
-                return args.AttemptNumber < timesToThrow;
-            });
+        var actual = await FaultyObservable
+            .Create(timesToThrow, expected)
+            .WithRetryPolicy(args => args
+                .Where(_ => _.AttemptNumber < timesToThrow));
 
         Assert.Equal(expected, actual);
     }
@@ -35,16 +32,25 @@ public class IObservable_CatchAndRetry_Should
     [Fact]
     public async Task ThrowException_WhenRetryLimitExceededAsync()
     {
-        var faultyService = new FaultyObservable(3, "test");
+        // Task based version
         await Assert.ThrowsAsync<Exception>(async () =>
         {
-            await faultyService
-                .CatchAndRetry(async args =>
-                {
-                    Debug.WriteLine(args.AttemptNumber);
-                    return args.AttemptNumber < 2;
-                });
+            await FaultyObservable
+                .Create(3, "test")
+                .WithRetryPolicy(args => args
+                    .Where(_ => _.AttemptNumber < 2));
         });
+    }
+
+
+    [Fact]
+    public async Task Retry_Until_Successful()
+    {
+        var actual = await FaultyObservable
+            .Create(3, "test")
+            .WithRetryPolicy(args => args
+                .Where(_ => _.AttemptNumber < 3));
+        Assert.Equal("test", actual);
     }
 
     sealed class FaultyObservable : ObservableBase<string>
@@ -53,11 +59,16 @@ public class IObservable_CatchAndRetry_Should
         private readonly int _failuresMaxCount;
         private readonly string _result;
 
-        public FaultyObservable(int timesToThrow, string result)
+        [DebuggerNonUserCode]
+        private FaultyObservable(int timesToThrow, string result)
         {
             _failuresMaxCount = timesToThrow;
             _result = result;
         }
+
+        [DebuggerNonUserCode]
+        public static IObservable<string> Create(int timesToThrow, string result) =>
+            new FaultyObservable(timesToThrow, result);
 
         protected override IDisposable SubscribeCore(IObserver<string> observer)
         {

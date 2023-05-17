@@ -22,7 +22,7 @@ sealed class RetryPolicyObservable<T> : ObservableBase<T>
     /// </summary>
     /// <param name="source">The Observable to apply the retry policy to.</param>
     /// <param name="handler">The handler that implements the retry policy.</param>
-    public RetryPolicyObservable(IObservable<T> source, RetryPolicyHandler handler)
+    public RetryPolicyObservable(IObservable<T> source, Func<RetryPolicyArgs, Task<bool>> handler)
     {
         _source = Observable.Create<T>(async (observer, cancellation) =>
         {
