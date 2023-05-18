@@ -54,6 +54,27 @@ public static partial class Extensions
     }
 
     /// <summary>
+    /// Delays the emission of items in an <see cref="IObservable{T}"/> sequence by the specified duration.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the source sequence.</typeparam>
+    /// <param name="source">The source <see cref="IObservable{T}"/> sequence.</param>
+    /// <param name="span">The duration to delay each item.</param>
+    /// <param name="cancellation">The <see cref="CancellationToken"/> that can be used to cancel the delay.</param>
+    /// <returns>An <see cref="IObservable{T}"/> sequence that delays the emission of items.</returns>
+    public static IObservable<T> Delay<T>(this IObservable<T> source, TimeSpan span, CancellationToken cancellation = default)
+    {
+        return source
+            .SelectMany(async item =>
+            {
+                await Task
+                    .Delay(span, cancellation)
+                    .ConfigureAwait(false);
+                return item;
+            });
+    }
+
+
+    /// <summary>
     /// Delays the emission of items in an <see cref="IObservable{T}"/> sequence based on a delay selector function.
     /// </summary>
     /// <typeparam name="T">The type of elements in the source sequence.</typeparam>
