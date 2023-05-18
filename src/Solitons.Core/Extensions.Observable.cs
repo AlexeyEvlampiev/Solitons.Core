@@ -41,7 +41,7 @@ public static partial class Extensions
     /// <param name="milliseconds">The duration to delay each item in milliseconds.</param>
     /// <param name="cancellation">The <see cref="CancellationToken"/> that can be used to cancel the delay.</param>
     /// <returns>An <see cref="IObservable{T}"/> sequence that delays the emission of items.</returns>
-    public static IObservable<T> Delay<T>(this IObservable<T> source, int milliseconds, CancellationToken cancellation)
+    public static IObservable<T> Delay<T>(this IObservable<T> source, int milliseconds, CancellationToken cancellation = default)
     {
         return source
             .SelectMany(async item =>
