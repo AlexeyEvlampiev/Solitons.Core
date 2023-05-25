@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Data.SQLite;
-using System.Diagnostics;
 using System.Net;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;

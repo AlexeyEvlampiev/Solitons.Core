@@ -19,10 +19,67 @@ namespace Solitons;
 
 public static partial class Extensions
 {
+    /// <summary>
+    /// Scales a TimeSpan duration by a specified factor raised to a specified power.
+    /// </summary>
+    /// <param name="originalDuration">The original TimeSpan duration to be scaled.</param>
+    /// <param name="scaleFactor">The factor by which to scale the duration. Must be non-negative.</param>
+    /// <param name="scaleFactorExponent">The exponent to which to raise the scale factor. Must be non-negative.</param>
+    /// <returns>A new TimeSpan representing the original duration scaled by the scale factor to the power of the exponent.</returns>
+    /// <exception cref="ArgumentException">Thrown when scaleFactor or scaleFactorExponent are negative.</exception>
+    public static TimeSpan ScaleByFactor(this TimeSpan originalDuration, double scaleFactor, int scaleFactorExponent)
+    {
+        if (scaleFactor < 0d)
+            throw new ArgumentException("Scale factor cannot be negative.", nameof(scaleFactor));
+
+        if (scaleFactorExponent < 0)
+            throw new ArgumentException("Exponent cannot be negative.", nameof(scaleFactorExponent));
+
+        double scaleFactorToThePower;
+
+        switch (scaleFactorExponent)
+        {
+            case 0:
+                scaleFactorToThePower = 1;
+                break;
+            case 1:
+                scaleFactorToThePower = scaleFactor;
+                break;
+            case 2:
+                scaleFactorToThePower = scaleFactor * scaleFactor;
+                break;
+            default:
+                scaleFactorToThePower = Math.Pow(scaleFactor, scaleFactorExponent);
+                break;
+        }
+
+        double milliseconds = originalDuration.TotalMilliseconds * scaleFactorToThePower;
+        return TimeSpan.FromMilliseconds(milliseconds);
+    }
+
+    /// <summary>
+    /// Gets the extension of the specified file.
+    /// </summary>
+    /// <param name="file">The <see cref="FileInfo"/> representing the file.</param>
+    /// <returns>The extension of the file.</returns>
+    [DebuggerNonUserCode]
     public static string GetExtension(this FileInfo file) => Path.GetExtension(file.Name);
 
+    /// <summary>
+    /// Gets the file name without the extension from the specified file.
+    /// </summary>
+    /// <param name="file">The <see cref="FileInfo"/> representing the file.</param>
+    /// <returns>The file name without the extension.</returns>
+    [DebuggerNonUserCode]
     public static string GetFileNameWithoutExtension(this FileInfo file) => Path.GetFileNameWithoutExtension(file.Name);
 
+    /// <summary>
+    /// Gets the relative path of the specified file or directory with respect to the specified base directory.
+    /// </summary>
+    /// <param name="target">The target <see cref="FileSystemInfo"/> representing the file or directory.</param>
+    /// <param name="relativeTo">The <see cref="DirectoryInfo"/> representing the base directory.</param>
+    /// <param name="delimiter">The delimiter character to use for the path (default is '/').</param>
+    /// <returns>The relative path of the target file or directory with respect to the base directory.</returns>
     public static string GetRelativePath(this FileSystemInfo target, DirectoryInfo relativeTo, char delimiter = '/')
     {
         var path = Path

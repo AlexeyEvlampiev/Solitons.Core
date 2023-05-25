@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Solitons
@@ -27,6 +29,10 @@ namespace Solitons
 
             public DateTimeOffset Now { get; init; }
             public DateTimeOffset UtcNow { get; init; }
+            public Task DelayAsync(TimeSpan duration, CancellationToken cancellation)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

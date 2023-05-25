@@ -34,6 +34,22 @@ public static partial class Extensions
     }
 
     /// <summary>
+    /// Creates a new Observable that applies a retry policy to the source Observable using a specified handler function.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the source sequence.</typeparam>
+    /// <param name="source">The source Observable to apply the retry policy to.</param>
+    /// <param name="handler">The function to use as a retry policy handler.</param>
+    /// <returns>A new Observable that applies the retry policy to the source Observable.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<T> WithRetryPolicyHandler<T>(
+        this IObservable<T> source,
+        Func<RetryPolicyArgs, Task<bool>> handler)
+    {
+        return new RetryPolicyObservable<T>(source, handler);
+    }
+
+
+    /// <summary>
     /// Delays the emission of items in an <see cref="IObservable{T}"/> sequence by the specified duration.
     /// </summary>
     /// <typeparam name="T">The type of elements in the source sequence.</typeparam>

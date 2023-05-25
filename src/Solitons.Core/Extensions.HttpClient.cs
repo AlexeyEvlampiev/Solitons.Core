@@ -1,24 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Solitons.Net.Http;
 
 namespace Solitons;
 
 public static partial class Extensions
 {
+    /// <summary>
+    /// Unrolls the chain of nested HttpMessageHandlers into a flat IEnumerable of HttpMessageHandlers.
+    /// </summary>
+    /// <param name="self">The HttpMessageHandler instance to start unrolling from.</param>
+    /// <returns>An IEnumerable of HttpMessageHandler representing the unrolled chain of handlers.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the HttpMessageHandler instance is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when a cycle is detected in the handler chain.</exception>
+    public static IEnumerable<HttpMessageHandler> UnrollHandlerChain(
+        this HttpMessageHandler self)
+    {
+        var seenHandlers = new HashSet<HttpMessageHandler>();
+        var handler = self;
+
+        while (handler != null)
+        {
+            if (!seenHandlers.Add(handler))
+            {
+                throw new InvalidOperationException("Cycle detected in handler chain.");
+            }
+
+            yield return handler;
+
+            if (handler is DelegatingHandler delegatedHandler)
+            {
+                handler = delegatedHandler.InnerHandler;
+            }
+            else
+            {
+                handler = null;
+            }
+        }
+    }
+
+
+
     /// <summary>
     /// Determines whether the specified HTTP status code is a 4xx client error.
     /// </summary>
