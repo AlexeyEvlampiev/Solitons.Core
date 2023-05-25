@@ -1,6 +1,8 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
+using System.Net;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Npgsql;
@@ -15,12 +17,28 @@ sealed class Program
     private readonly DatabaseConnectionOption _databaseConnectionOption = new DatabaseConnectionOption();
     private readonly TestSelectorOption _testSelectorOption = new TestSelectorOption();
 
+
     private async Task<int> RunAsync(string[] args)
     {
+        Observable
+            .Return(10)
+            .WithRetryPolicy(attempts => attempts
+                .Where(_ => _.AttemptNumber < 10)
+                .Delay(attempt => TimeSpan
+                    .FromSeconds(1)
+                    .ScaleByFactor(1.1, attempt)));
+
         var client = new PgHttpClient(
             "host=localhost;database=webappdb;port=5430;username=postgres;password=postgres");
         var response = await client.GetAsync("");
 
+
+        await client.SendAsync(new DbHttpRequestMessage(HttpMethod.Get, "")
+            .WithCommitApproval(async (response, token) =>
+            {
+
+                return true;
+            }));
 
         Console.WriteLine(response.StatusCode);
         response = await client.PostAsync("/actions?v=1.0", new StringContent("{}"));

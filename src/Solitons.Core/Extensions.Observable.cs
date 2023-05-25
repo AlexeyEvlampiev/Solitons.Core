@@ -98,6 +98,7 @@ public static partial class Extensions
     /// <param name="delaySelector">A function that provides the delay duration based on the sequence number of each item.</param>
     /// <param name="cancellation">The <see cref="CancellationToken"/> that can be used to cancel the delay.</param>
     /// <returns>An <see cref="IObservable{T}"/> sequence that delays the emission of items.</returns>
+    [DebuggerStepThrough]
     public static IObservable<T> Delay<T>(this IObservable<T> source, Func<int, int> delaySelector, CancellationToken cancellation = default)
     {
         return source
@@ -106,6 +107,28 @@ public static partial class Extensions
                 var delayDuration = delaySelector(sequenceNumber);
                 await Task
                     .Delay(delayDuration , cancellation)
+                    .ConfigureAwait(false);
+                return item;
+            });
+    }
+
+    /// <summary>
+    /// Delays the emission of items in an <see cref="IObservable{T}"/> sequence based on a delay selector function.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the source sequence.</typeparam>
+    /// <param name="source">The source <see cref="IObservable{T}"/> sequence.</param>
+    /// <param name="delaySelector">A function that provides the delay duration based on the sequence number of each item.</param>
+    /// <param name="cancellation">The <see cref="CancellationToken"/> that can be used to cancel the delay.</param>
+    /// <returns>An <see cref="IObservable{T}"/> sequence that delays the emission of items.</returns>
+    [DebuggerStepThrough]
+    public static IObservable<T> Delay<T>(this IObservable<T> source, Func<int, TimeSpan> delaySelector, CancellationToken cancellation = default)
+    {
+        return source
+            .SelectMany(async (item, sequenceNumber) =>
+            {
+                var delayDuration = delaySelector(sequenceNumber);
+                await Task
+                    .Delay(delayDuration, cancellation)
                     .ConfigureAwait(false);
                 return item;
             });
