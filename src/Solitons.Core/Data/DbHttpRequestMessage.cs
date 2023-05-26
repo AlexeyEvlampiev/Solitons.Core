@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,8 +25,15 @@ public sealed class DbHttpRequestMessage : HttpRequestMessage
     /// </summary>
     public const int DefaultMaxRetryAttemptNumber = 3;
 
-    private Func<HttpResponseMessage, CancellationToken, Task<bool>> _commitApprovalCallback =
-        (request, cancellation) => Task.FromResult(true);
+    /// <summary>
+    /// Represents a method that will handle committing or rolling back database transactions.
+    /// </summary>
+    /// <param name="response">The HTTP response message related to the transaction.</param>
+    /// <param name="cancellation">The token that allows for the operation to be cancelled.</param>
+    /// <returns>A Task representing the asynchronous operation with a result indicating whether the transaction was successfully committed or not.</returns>
+    public delegate Task<bool> CommitApprovalHandler(HttpResponseMessage response, CancellationToken cancellation);
+
+    private CommitApprovalHandler? _commitApprovalHandler;
     private Func<RetryPolicyArgs, CancellationToken, Task<bool>> _retryPolicyCallback;
 
     /// <summary>
@@ -97,7 +105,28 @@ public sealed class DbHttpRequestMessage : HttpRequestMessage
     /// <param name="response">The received <see cref="HttpResponseMessage"/>.</param>
     /// <param name="cancellation">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Task{TResult}"/> that represents the asynchronous operation. The task result contains a boolean indicating the commit eligibility of the transaction associated with this HTTP request.</returns>
-    internal Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) => _commitApprovalCallback.Invoke(response, cancellation);
+    internal async Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation)
+    {
+        if (_commitApprovalHandler is null)
+        {
+            return true;
+        }
+
+        var tasks = _commitApprovalHandler
+            .GetInvocationList()
+            .Cast<CommitApprovalHandler>()
+            .Select(handler => handler.Invoke(response, cancellation))
+            .ToList();
+        foreach (var task in tasks)
+        {
+            if (false == await task)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /// <summary>
     /// Determines whether the operation should be retried given the specified retry policy arguments.
@@ -121,9 +150,9 @@ public sealed class DbHttpRequestMessage : HttpRequestMessage
     /// <returns>The current <see cref="DbHttpRequestMessage"/> instance.</returns>
     [DebuggerNonUserCode]
     public DbHttpRequestMessage WithCommitApproval(
-        Func<HttpResponseMessage, CancellationToken, Task<bool>> callback)
+        CommitApprovalHandler callback)
     {
-        _commitApprovalCallback = callback;
+        _commitApprovalHandler += callback;
         return this;
     }
 
