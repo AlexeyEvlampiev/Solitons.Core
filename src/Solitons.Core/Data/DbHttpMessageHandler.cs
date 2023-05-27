@@ -131,7 +131,7 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
 
             await FluentObservable
                 .Defer([DebuggerStepThrough]() => ExecuteAsync(connection, request, response, cancellation))
-                .WithRetryPolicyHandler(policy.Invoke);
+                .WithRetryPolicy(policy.Invoke);
             
             if (request is DbHttpRequestMessage dbRequest)
             {

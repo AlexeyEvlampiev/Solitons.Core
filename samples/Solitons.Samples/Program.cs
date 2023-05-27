@@ -20,13 +20,15 @@ sealed class Program
 
     private async Task<int> RunAsync(string[] args)
     {
+
+
         Observable
             .Return(10)
-            .WithRetryPolicy(attempts => attempts
-                .Where(_ => _.AttemptNumber < 10)
-                .Delay(attempt => TimeSpan
+            .WithRetryPolicy(attempt => attempt
+                .SignalNextAttempt(attempt.AttemptNumber < 10)
+                .Delay(TimeSpan
                     .FromSeconds(1)
-                    .ScaleByFactor(1.1, attempt)));
+                    .ScaleByFactor(1.1, attempt.AttemptNumber)));
 
         var client = new PgHttpClient(
             "host=localhost;database=webappdb;port=5430;username=postgres;password=postgres");
