@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using Solitons.Reactive;
 namespace Solitons;
 
 public static partial class AsyncFunc
@@ -1436,40 +1437,25 @@ public static partial class AsyncFunc
 }
 
 public static partial class Extensions
-{ 
-
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, Task<TResult>> WithRetryOnResult<T1, T2, TResult, TSignal>(
-        this Func<T1, T2, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
+{
+	[DebuggerStepThrough]
+    public static Func<T, Task<TResult>> WithRetryPolicy<T,TResult, TSignal>(
+        this Func<T, Task<TResult>>  self,
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
+		async Task<TResult> Invoke(T arg)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg))
+				.WithRetryPolicy(policy);
+		}
     }
-	
+
+
+ 
+
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -1484,40 +1470,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, Task<TResult>> WithRetryOnError<T1, T2, TResult, TSignal>(
+    public static Func<T1, T2, Task<TResult>> WithRetryPolicy<T1, T2, TResult, TSignal>(
         this Func<T1, T2, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, Task> WithRetryOnError<T1, T2, TSignal>(
-        this Func<T1, T2, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -1566,42 +1536,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, Task<TResult>> WithRetryOnResult<T1, T2, T3, TResult, TSignal>(
-        this Func<T1, T2, T3, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -1620,40 +1555,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, Task<TResult>> WithRetryOnError<T1, T2, T3, TResult, TSignal>(
+    public static Func<T1, T2, T3, Task<TResult>> WithRetryPolicy<T1, T2, T3, TResult, TSignal>(
         this Func<T1, T2, T3, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, Task> WithRetryOnError<T1, T2, T3, TSignal>(
-        this Func<T1, T2, T3, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -1712,46 +1631,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -1774,40 +1654,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, TResult, TSignal>(
         this Func<T1, T2, T3, T4, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, Task> WithRetryOnError<T1, T2, T3, T4, TSignal>(
-        this Func<T1, T2, T3, T4, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -1876,50 +1740,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -1946,40 +1767,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, Task> WithRetryOnError<T1, T2, T3, T4, T5, TSignal>(
-        this Func<T1, T2, T3, T4, T5, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -2058,54 +1863,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -2136,40 +1894,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -2258,58 +2000,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -2344,40 +2035,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -2476,62 +2151,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -2570,40 +2190,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -2712,66 +2316,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -2814,40 +2359,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -2966,70 +2495,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T10">
-	/// The type of the tenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -3076,40 +2542,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -3238,74 +2688,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T10">
-	/// The type of the tenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T11">
-	/// The type of the eleventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -3356,40 +2739,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -3528,78 +2895,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T10">
-	/// The type of the tenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T11">
-	/// The type of the eleventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T12">
-	/// The type of the twelfth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -3654,40 +2950,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -3836,82 +3116,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T10">
-	/// The type of the tenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T11">
-	/// The type of the eleventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T12">
-	/// The type of the twelfth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T13">
-	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -3970,40 +3175,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -4162,86 +3351,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T10">
-	/// The type of the tenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T11">
-	/// The type of the eleventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T12">
-	/// The type of the twelfth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T13">
-	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T14">
-	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -4304,40 +3414,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -4506,90 +3600,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T10">
-	/// The type of the tenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T11">
-	/// The type of the eleventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T12">
-	/// The type of the twelfth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T13">
-	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T14">
-	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T15">
-	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -4656,40 +3667,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
@@ -4868,94 +3863,7 @@ public static partial class Extensions
 	
 	 
 
-	/// <summary>
-	/// 
-	/// </summary> 
-	/// <typeparam name="T1">
-	/// The type of the first parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T2">
-	/// The type of the second parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T3">
-	/// The type of the third parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T4">
-	/// The type of the fourth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T5">
-	/// The type of the fifth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T6">
-	/// The type of the sixth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T7">
-	/// The type of the seventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T8">
-	/// The type of the eighth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T9">
-	/// The type of the ninth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T10">
-	/// The type of the tenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T11">
-	/// The type of the eleventh parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T12">
-	/// The type of the twelfth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T13">
-	/// The type of the thirteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T14">
-	/// The type of the fourteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T15">
-	/// The type of the fifteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="T16">
-	/// The type of the sixteenth parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<TResult>> WithRetryOnResult<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary> 
@@ -5026,40 +3934,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<TResult>> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult, TSignal>(
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<TResult>> WithRetryPolicy<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult, TSignal>(
         this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task> WithRetryOnError<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TSignal>(
-        this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, T9 arg9, T10 arg10, T11 arg11, T12 arg12, T13 arg13, T14 arg14, T15 arg15, T16 arg16)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 

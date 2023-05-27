@@ -32,6 +32,7 @@ using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using Solitons.Reactive;
 namespace Solitons;
 
 public static partial class AsyncFunc
@@ -80,7 +81,23 @@ public static partial class AsyncFunc
 }
 
 public static partial class Extensions
-{<# foreach(var argsNumber in argNumbers) { 
+{
+	[DebuggerStepThrough]
+    public static Func<T, Task<TResult>> WithRetryPolicy<T,TResult, TSignal>(
+        this Func<T, Task<TResult>>  self,
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
+    {
+        return Invoke;
+		async Task<TResult> Invoke(T arg)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(arg))
+				.WithRetryPolicy(policy);
+		}
+    }
+
+
+<# foreach(var argsNumber in argNumbers) { 
 	var argTypesDecl = string.Join(", ", Enumerable
 		.Range(1, argsNumber)
 		.Select(i => $"T{i}"));
@@ -92,34 +109,7 @@ public static partial class Extensions
 		.Select(i => $"arg{i}"));
 #> 
 
-	/// <summary>
-	/// 
-	/// </summary><# foreach(var ordinal in Enumerable.Range(1, argsNumber)){ #> 
-	/// <typeparam name="T<#= ordinal #>">
-	/// The type of the <#= ordinals[ordinal] #> parameter of the method that this delegate encapsulates.
-	/// This type parameter is contravariant. That is, you can use either the type you specified or any type that is less derived.
-	///</typeparam><# } #> 
-	/// <typeparam name="TResult">The return value of the method that the casted delegate encapsulates.</typeparam>
-	/// <typeparam name="TSignal"></typeparam>
-	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
-	/// <returns></returns>
-	[DebuggerNonUserCode]
-	public static Func<<#= argTypesDecl #>, Task<TResult>> WithRetryOnResult<<#= argTypesDecl #>, TResult, TSignal>(
-        this Func<<#= argTypesDecl #>, Task<TResult>> self,
-        Func<IObservable<TResult>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(<#= methodArgs #>)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(<#= argsCsv #>))
-                .WithRetryOnResult(signalFactory)
-                .Invoke();
-        }
-    }
-	
+
 	/// <summary>
 	/// 
 	/// </summary><# foreach(var ordinal in Enumerable.Range(1, argsNumber)){ #> 
@@ -130,40 +120,24 @@ public static partial class Extensions
 	/// <typeparam name="TResult"></typeparam>
 	/// <typeparam name="TSignal"></typeparam>
 	/// <param name="self"></param>
-	/// <param name="signalFactory"></param>
+	/// <param name="policy"></param>
 	/// <returns></returns>
 	[DebuggerStepThrough]
-    public static Func<<#= argTypesDecl #>, Task<TResult>> WithRetryOnError<<#= argTypesDecl #>, TResult, TSignal>(
+    public static Func<<#= argTypesDecl #>, Task<TResult>> WithRetryPolicy<<#= argTypesDecl #>, TResult, TSignal>(
         this Func<<#= argTypesDecl #>, Task<TResult>>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
+        Func<RetryPolicyArgs, IObservable<TSignal>> policy)
     {
         return Invoke;
-        [DebuggerStepThrough]
-        Task<TResult> Invoke(<#= methodArgs #>)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(<#= argsCsv #>))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
+		[DebuggerStepThrough]
+		async Task<TResult> Invoke(<#= methodArgs #>)
+		{
+			return await FluentObservable
+				.Defer(() => self.Invoke(<#= argsCsv #>))
+				.WithRetryPolicy(policy);
+		}
     }
 
 
-	[DebuggerStepThrough]
-    public static Func<<#= argTypesDecl #>, Task> WithRetryOnError<<#= argTypesDecl #>, TSignal>(
-        this Func<<#= argTypesDecl #>, Task>  self,
-        Func<IObservable<Exception>, IObservable<TSignal>> signalFactory)
-    {
-        return Invoke;
-        [DebuggerStepThrough]
-        Task Invoke(<#= methodArgs #>)
-        {
-            return AsyncFunc
-                .Wrap([DebuggerStepThrough]() => self.Invoke(<#= argsCsv #>))
-                .WithRetryOnError(signalFactory)
-                .Invoke();
-        }
-    }
 	
 	/// <summary>
 	/// 
