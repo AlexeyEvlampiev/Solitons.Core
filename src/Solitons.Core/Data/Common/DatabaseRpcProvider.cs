@@ -1,50 +1,55 @@
 ﻿using System;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Reactive;
 
 namespace Solitons.Data.Common;
 
 /// <summary>
-/// 
+/// Provides a base for interacting with a remote procedure call (RPC) for a database.
 /// </summary>
 public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
 {
     private IDatabaseRpcProviderCallback _callback = new DatabaseRpcProviderCallback();
 
     /// <summary>
-    /// 
+    /// Specifies the type of the database operation to be performed.
     /// </summary>
     protected enum OperationType
     {
         /// <summary>
-        /// 
+        /// Specifies that an invocation operation is to be performed. 
+        /// This involves executing a procedure on the database and waiting for its response.
         /// </summary>
         Invocation,
 
         /// <summary>
-        /// 
+        /// Specifies that a 'WhatIf' operation is to be performed.
+        /// This typically involves simulating a procedure execution on the database without affecting the data.
         /// </summary>
         WhatIf,
 
         /// <summary>
-        /// 
+        /// Specifies that a send operation is to be performed.
+        /// This involves sending a request to a database internal queue without waiting for its response.
         /// </summary>
         Send,
     }
 
     /// <summary>
-    /// 
+    /// Asynchronously invokes a database operation.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="metadata"></param>
-    /// <param name="request"></param>
-    /// <param name="callback"></param>
-    /// <param name="cancellation"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The type of the expected return value.</typeparam>
+    /// <param name="metadata">Metadata about the RPC command to be invoked.</param>
+    /// <param name="request">The request to be sent to the database.</param>
+    /// <param name="callback">The callback to be executed after the operation is complete.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>The task object representing the asynchronous operation, with the return type of the RPC command.</returns>
     protected abstract Task<T> InvokeAsync<T>(
         DatabaseRpcCommandMetadata metadata,
         string request,
@@ -52,14 +57,14 @@ public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
         CancellationToken cancellation);
 
     /// <summary>
-    /// 
+    /// Asynchronously performs a "what if" database operation, simulating the operation without affecting the data.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="metadata"></param>
-    /// <param name="request"></param>
-    /// <param name="callback"></param>
-    /// <param name="cancellation"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">The type of the expected return value.</typeparam>
+    /// <param name="metadata">Metadata about the RPC command to be invoked.</param>
+    /// <param name="request">The request to be sent to the database.</param>
+    /// <param name="callback">The callback to be executed after the operation is complete.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>The task object representing the asynchronous operation, with the return type of the RPC command.</returns>
     protected abstract Task<T> WhatIfAsync<T>(
         DatabaseRpcCommandMetadata metadata,
         string request,
@@ -67,37 +72,44 @@ public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
         CancellationToken cancellation);
 
     /// <summary>
-    /// 
+    /// Asynchronously sends a request to the database internal queue without waiting for a response.
     /// </summary>
-    /// <param name="metadata"></param>
-    /// <param name="request"></param>
-    /// <param name="cancellation"></param>
-    /// <returns></returns>
-    protected abstract Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, CancellationToken cancellation);
+    /// <param name="metadata">Metadata about the RPC command to be invoked.</param>
+    /// <param name="request">The request to be sent to the database.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>The task object representing the asynchronous operation.</returns>
+    protected abstract Task SendAsync(
+        DatabaseRpcCommandMetadata metadata, 
+        string request, 
+        CancellationToken cancellation);
 
     /// <summary>
-    /// 
+    /// Asynchronously sends a request to the database internal queue without waiting for a response and executes a callback function after sending the request.
     /// </summary>
-    /// <param name="metadata"></param>
-    /// <param name="request"></param>
-    /// <param name="callback"></param>
-    /// <param name="cancellation"></param>
-    /// <returns></returns>
-    protected abstract Task SendAsync(DatabaseRpcCommandMetadata metadata, string request, Func<Task> callback, CancellationToken cancellation);
+    /// <param name="metadata">Metadata about the RPC command to be invoked.</param>
+    /// <param name="request">The request to be sent to the database.</param>
+    /// <param name="callback">The callback function to be executed after the request is sent.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>The task object representing the asynchronous operation.</returns>
+    protected abstract Task SendAsync(
+        DatabaseRpcCommandMetadata metadata, 
+        string request, 
+        Func<Task> callback, 
+        CancellationToken cancellation);
 
     /// <summary>
-    /// 
+    /// Asynchronously processes a specified queue in the database.
     /// </summary>
-    /// <param name="queueName"></param>
-    /// <param name="cancellation"></param>
-    /// <returns></returns>
+    /// <param name="queueName">The name of the queue to be processed.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>The task object representing the asynchronous operation.</returns>
     protected abstract Task ProcessQueueAsync(string queueName, CancellationToken cancellation);
 
     /// <summary>
-    /// 
+    /// Returns a new instance of IDatabaseRpcProvider with the specified callback.
     /// </summary>
-    /// <param name="callback"></param>
-    /// <returns></returns>
+    /// <param name="callback">The callback to be used in the new instance of IDatabaseRpcProvider.</param>
+    /// <returns>A new instance of IDatabaseRpcProvider with the specified callback.</returns>
     public IDatabaseRpcProvider With(IDatabaseRpcProviderCallback callback)
     {
         var clone = (DatabaseRpcProvider)MemberwiseClone();
@@ -105,12 +117,6 @@ public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
         return clone;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="exception"></param>
-    /// <returns></returns>
-    protected virtual bool IsTransientError(Exception exception) => false;
 
 
     [DebuggerStepThrough]
@@ -171,7 +177,7 @@ public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
             var result = await Observable
                 .Defer(() =>
                     InvokeAsync(metadata, request, CaptureAndParseResponseAsync, cancellation).ToObservable())
-                .RetryWhen(exceptions => this.GetRetries(OperationType.Invocation, metadata, request, exceptions))
+                .WithRetryPolicy(GetRetryPolicy(cancellation))
                 .FirstAsync()
                 .ToTask(cancellation);
             await _callback
@@ -188,6 +194,43 @@ public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
                 .OnErrorResumeNext(Observable.Empty<Unit>());
             throw;
         }
+    }
+
+    /// <summary>
+    /// Returns a function that determines the retry policy for database operations.
+    /// </summary>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A function that takes a <see cref="RetryPolicyArgs"/> object and returns a task representing the asynchronous operation that indicates whether the operation should be retried.</returns>
+    [DebuggerNonUserCode]
+    protected Func<RetryPolicyArgs, Task<bool>> GetRetryPolicy(CancellationToken cancellation = default)
+    {
+        return Capture;
+        [DebuggerStepThrough]
+        Task<bool> Capture(RetryPolicyArgs args)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            return ShouldRetryAsync(args, cancellation);
+        }
+    }
+
+    /// <summary>
+    /// Determines whether a failed operation should be retried based on the provided retry policy arguments.
+    /// </summary>
+    /// <param name="args">The arguments that encapsulate data about the retry attempt.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a boolean value 
+    /// indicating whether the operation should be retried (true) or not (false).
+    /// </returns>
+    protected virtual async Task<bool> ShouldRetryAsync(RetryPolicyArgs args, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        if (args.AttemptNumber < 3 && args.Exception is DbException { IsTransient: true })
+        {
+            await Task.Delay(100, cancellation);
+            return true;
+        }
+        return false;
     }
 
     [DebuggerStepThrough]
@@ -220,7 +263,7 @@ public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
             var result = await Observable
                 .Defer(() =>
                     WhatIfAsync(metadata, request, CaptureAndParseResponseAsync, cancellation).ToObservable())
-                .RetryWhen(exceptions => this.GetRetries(OperationType.WhatIf, metadata, request, exceptions))
+                .WithRetryPolicy(GetRetryPolicy(cancellation))
                 .FirstAsync()
                 .ToTask(cancellation);
 
@@ -240,29 +283,7 @@ public abstract class DatabaseRpcProvider : IDatabaseRpcProvider
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="operationType"></param>
-    /// <param name="metadata"></param>
-    /// <param name="request"></param>
-    /// <param name="exceptions"></param>
-    /// <returns></returns>
-    [DebuggerStepThrough]
-    protected virtual IObservable<int> GetRetries(
-        OperationType operationType,
-        DatabaseRpcCommandMetadata metadata,
-        string request,
-        IObservable<Exception> exceptions)
-    {
-        return exceptions
-            .Where(IsTransientError)
-            .Take(3)
-            .SelectMany((exception, attempt) => Task
-                .Delay((++attempt * 100).Min(100).Max(3000))
-                .ToObservable()
-                .Select(_ => attempt));
-    }
+    
 
 
     [DebuggerStepThrough]
