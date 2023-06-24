@@ -12,8 +12,9 @@ DECLARE
 	v_client_version text := substring(address from '(?:(?:api-?)?version|v)=(\S+)');
 	v_identity data.identity;	
 	v_route api.http_route;
-	v_request api.http_request;
-	v_response api.http_response;
+	v_response_status_code int;
+	v_response_headers hstore;
+	v_response_content jsonb;
 	v_sql text;
 BEGIN
 
@@ -56,11 +57,19 @@ BEGIN
 	LIMIT 1;
 	
 	IF FOUND THEN	
-		SELECT FORMAT('SELECT api.%s($1, $2, $3, $4)', 
-			v_route.handler) 
+
+		SELECT FORMAT('SELECT api.%s($1, $2, $3, $4);', v_route.handler) 
 		INTO v_sql;
-		EXECUTE v_sql INTO v_response USING $1, $2, $3, $4;
-		RETURN v_response;
+
+		RAISE NOTICE 'SQL: %', v_sql;
+
+		EXECUTE v_sql 
+		INTO v_response_status_code, v_response_headers, v_response_content 
+		USING $1, $2, $3, $4;
+		RETURN api.http_response_build(
+			v_response_status_code, 
+			v_response_headers, 
+			v_response_content);
 	END IF;
 		
 	RETURN api.http_response_build(401, '', jsonb_build_object(

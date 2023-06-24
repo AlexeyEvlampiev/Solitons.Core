@@ -1,27 +1,31 @@
 ﻿CREATE OR REPLACE FUNCTION api.image_get(
-	"method" text,
-	address text, 
-	headers hstore,
-	content jsonb)
-RETURNS api.http_response
+	p_method text,
+	p_address text, 
+	p_headers hstore,
+	p_content jsonb)
+RETURNS TABLE (status INT, headers HSTORE, content JSONB)
 AS
 $$
 DECLARE
 	v_oid_text text = substring($2 from 'images/([^/?&]+)');
 	v_object_id uuid := system.as_uuid(v_oid_text);
-	v_content jsonb;
 BEGIN
 	SELECT jsonb_build_object('oid', object_id)
-	INTO v_content
+	INTO content
 	FROM data.image 
 	WHERE object_id = v_object_id
 	AND deleted_utc IS NULL;
 	
+	status := 200;
+	headers := hstore('');
 	IF FOUND THEN
-		RETURN api.http_response_build(200, '', v_content);
+		RETURN NEXT;
 	END IF;
 	
-	RETURN api.http_response_build(400, '', '{}');
+	status := 200;
+	headers := '';
+	content := jsonb_build_object();
+	RETURN NEXT;
 END;
 $$ LANGUAGE 'plpgsql';
 
