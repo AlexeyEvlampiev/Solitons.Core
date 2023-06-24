@@ -23,6 +23,7 @@ public sealed class SkyNetDbScriptPriorityComparer : Comparer<AssemblyEmbeddedSc
                 @"reference-data",
                 @"\bsystem\b",
                 @"\bdata\b",
+                @"\bapi\.http_invoke\b",
                 @"\bapi\b");
     }
 
