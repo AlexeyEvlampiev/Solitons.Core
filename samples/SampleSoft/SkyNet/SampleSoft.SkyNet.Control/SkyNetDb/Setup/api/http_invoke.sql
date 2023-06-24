@@ -15,6 +15,7 @@ DECLARE
 	v_response_status_code int;
 	v_response_headers hstore;
 	v_response_content jsonb;
+	v_response api.http_response;
 	v_sql text;
 BEGIN
 
@@ -58,13 +59,13 @@ BEGIN
 	
 	IF FOUND THEN	
 
-		SELECT FORMAT('SELECT api.%s($1, $2, $3, $4);', v_route.handler) 
+		SELECT FORMAT('SELECT * FROM api.%s($1, $2, $3, $4);', v_route.handler) 
 		INTO v_sql;
 
 		RAISE NOTICE 'SQL: %', v_sql;
 
 		EXECUTE v_sql 
-		INTO v_response_status_code, v_response_headers, v_response_content 
+		INTO v_response 
 		USING $1, $2, $3, $4;
 		RETURN api.http_response_build(
 			v_response_status_code, 

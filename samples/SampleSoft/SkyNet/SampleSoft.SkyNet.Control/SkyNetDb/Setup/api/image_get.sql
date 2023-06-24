@@ -3,29 +3,31 @@
 	p_address text, 
 	p_headers hstore,
 	p_content jsonb)
-RETURNS TABLE (status INT, headers HSTORE, content JSONB)
+RETURNS api.http_response
 AS
 $$
 DECLARE
 	v_oid_text text = substring($2 from 'images/([^/?&]+)');
 	v_object_id uuid := system.as_uuid(v_oid_text);
+	v_result api.http_response;
 BEGIN
 	SELECT jsonb_build_object('oid', object_id)
-	INTO content
+	INTO v_result.content
 	FROM data.image 
 	WHERE object_id = v_object_id
 	AND deleted_utc IS NULL;
 	
-	status := 200;
-	headers := hstore('');
+	v_result.status_code := 200;
+	v_result.headers := hstore('');
+
 	IF FOUND THEN
-		RETURN NEXT;
+		RETURN v_result;
 	END IF;
 	
-	status := 200;
-	headers := '';
-	content := jsonb_build_object();
-	RETURN NEXT;
+	v_result.status_code := 400;
+	v_result.headers := hstore('');
+	v_result.content := jsonb_build_object();
+	RETURN v_result;
 END;
 $$ LANGUAGE 'plpgsql';
 
