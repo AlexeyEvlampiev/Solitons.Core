@@ -44,6 +44,8 @@ CREATE TABLE data.email
 	CONSTRAINT id_should_be_of_lower_case CHECK(LOWER("id") = "id")
 ) INHERITS(data.identity);
 
+CREATE INDEX ix_email_lower_id ON data.email (lower("id"));
+CREATE INDEX ix_email_upper_id ON data.email (upper("id"));
 
 CREATE TABLE api.http_route
 (

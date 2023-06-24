@@ -6,6 +6,5 @@ ON CONFLICT(object_id) DO UPDATE SET
 	"description" = EXCLUDED.description;
 
 
-
-INSERT INTO data.email(account_object_id, "id")
-VALUES ('5840573e-9786-4cae-bd2e-201976dc1555', 'l.v.beethoven@skynet.com');
+INSERT INTO data.email(account_object_id, "id") VALUES 
+('5840573e-9786-4cae-bd2e-201976dc1555', 'l.v.beethoven@skynet.com');
