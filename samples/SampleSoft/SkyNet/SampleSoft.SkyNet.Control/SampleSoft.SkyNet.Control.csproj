@@ -22,7 +22,7 @@
     <EmbeddedResource Include="SkyNetDb\Setup\data\vw_identity.sql" />
     <EmbeddedResource Include="SkyNetDb\Setup\system\vw_function.sql" />
     <EmbeddedResource Include="SkyNetDb\Setup\api\vw_http_route.sql" />
-    <EmbeddedResource Include="SkyNetDb\Setup\data\reference-data.sql" />
+    <EmbeddedResource Include="SkyNetDb\Setup\reference-data.sql" />
   </ItemGroup>
 
   <ItemGroup>

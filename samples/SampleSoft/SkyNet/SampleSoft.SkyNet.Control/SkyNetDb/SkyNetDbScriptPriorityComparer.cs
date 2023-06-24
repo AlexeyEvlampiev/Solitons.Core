@@ -20,9 +20,8 @@ public sealed class SkyNetDbScriptPriorityComparer : Comparer<AssemblyEmbeddedSc
     {
         _setupScriptExpressions = RegexCollection
             .FromPatterns(
-                @"reference-data",
+                @"\breference-data\b",
                 @"\bsystem\b",
-                @"\bdata\.reference-data\b",
                 @"\bdata\b",
                 @"\bapi\.http_invoke\b",
                 @"\bapi\b");
