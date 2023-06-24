@@ -24,9 +24,9 @@ BEGIN
 		RETURN v_result;
 	END IF;
 	
-	v_result.status_code := 400;
+	v_result.status_code := 404;
 	v_result.headers := hstore('');
-	v_result.content := jsonb_build_object();
+	v_result.content := jsonb_build_object('message', 'Image not found');
 	RETURN v_result;
 END;
 $$ LANGUAGE 'plpgsql';
@@ -46,7 +46,7 @@ VALUES(
 	'^GET$',
 	'(?i)(^|\W)images/([^?&])+',
 	false,
-	0.01,
+	0.10,
 	'image_get')
 ON CONFLICT(object_id) DO UPDATE SET 
 	version_regexp = EXCLUDED.version_regexp, 

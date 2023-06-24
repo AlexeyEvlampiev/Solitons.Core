@@ -13,6 +13,9 @@ DECLARE
 	v_identity data.identity;	
 	v_route api.http_route;
 	v_response api.http_response;
+	v_payment NUMERIC(10, 2);
+	v_balance NUMERIC(10, 2);	
+	v_std_headers hstore := 'Content-Type=>application/json';
 	v_sql text;
 BEGIN
 
@@ -64,6 +67,25 @@ BEGIN
 		EXECUTE v_sql 
 		INTO v_response 
 		USING $1, $2, $3, $4;
+
+		v_payment := (CASE WHEN v_response.status_code < 400 THEN v_route.price ELSE 0.01 END);
+
+		UPDATE data.account
+		SET balance = balance - v_payment
+		WHERE object_id = (
+		  SELECT c_account.object_id
+		  FROM data.identity AS c_identity
+		  INNER JOIN data.account AS c_account 
+			ON c_account.object_id = c_identity.account_object_id
+			AND LOWER(v_client_external_id) = LOWER(c_identity.id)
+		)
+		RETURNING balance INTO v_balance;
+
+
+		v_response.headers = v_response.headers||
+			hstore(FORMAT('Payment=>%s,Balance=>%s', v_payment, v_balance))||
+			v_std_headers;
+
 		RETURN v_response;
 	END IF;
 		
