@@ -8,6 +8,18 @@ COMMENT ON SCHEMA api IS 'SkyNet api layer objects';
 
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA api FROM PUBLIC;
 
+
+CREATE OR REPLACE FUNCTION system.as_uuid(input TEXT)
+RETURNS UUID
+LANGUAGE sql AS
+$$
+SELECT 
+    CASE 
+        WHEN $1 ~ '^[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$' THEN $1::UUID
+        ELSE NULL
+    END
+$$;
+
 CREATE TABLE IF NOT EXISTS system.gcobject(
 	object_id uuid  NOT NULL  DEFAULT extensions.gen_random_uuid()
 	,created_utc timestamp NOT NULL DEFAULT now()	
@@ -39,6 +51,7 @@ CREATE TABLE data.identity
 CREATE TABLE data.email
 (
 	PRIMARY KEY(object_id),
+	UNIQUE("id"),
 	account_object_id uuid NOT NULL REFERENCES data.account(object_id),
 	CONSTRAINT id_is_valid_email CHECK (LOWER("id") ~ '^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$'),
 	CONSTRAINT id_should_be_of_lower_case CHECK(LOWER("id") = "id")
@@ -46,6 +59,12 @@ CREATE TABLE data.email
 
 CREATE INDEX ix_email_lower_id ON data.email (lower("id"));
 CREATE INDEX ix_email_upper_id ON data.email (upper("id"));
+
+
+CREATE TABLE data.image
+(
+	PRIMARY KEY(object_id)
+) INHERITS(system.gcobject);
 
 CREATE TABLE api.http_route
 (

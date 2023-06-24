@@ -27,12 +27,13 @@ BEGIN
 			'message', 'The client version is required but was not provided in the request.'));
 	END IF;
 	
-	SELECT c_route INTO v_route
+	--RAISE NOTICE 'Searching%', '';
+	SELECT c_route.* INTO v_route
 	FROM 
 		data.identity AS c_identity
 	INNER JOIN
 		data.account AS c_account 
-			ON c_account.object_id = c_identity.object_id
+			ON c_account.object_id = c_identity.account_object_id
 			AND c_account.deleted_utc IS NULL
 	INNER JOIN
 		api.http_route AS c_route
@@ -55,9 +56,10 @@ BEGIN
 	LIMIT 1;
 	
 	IF FOUND THEN	
-		SELECT FORMAT('SELECT api.%s($1::%s)', c_route.handler,'jsonb') INTO v_sql;
-		v_request := api.http_request_build($1, $2, $3, $4);
-		EXECUTE v_sql INTO v_response USING v_request;
+		SELECT FORMAT('SELECT api.%s($1, $2, $3, $4)', 
+			v_route.handler) 
+		INTO v_sql;
+		EXECUTE v_sql INTO v_response USING $1, $2, $3, $4;
 		RETURN v_response;
 	END IF;
 		
