@@ -12,9 +12,6 @@ DECLARE
 	v_client_version text := substring(address from '(?:(?:api-?)?version|v)=(\S+)');
 	v_identity data.identity;	
 	v_route api.http_route;
-	v_response_status_code int;
-	v_response_headers hstore;
-	v_response_content jsonb;
 	v_response api.http_response;
 	v_sql text;
 BEGIN
@@ -67,10 +64,7 @@ BEGIN
 		EXECUTE v_sql 
 		INTO v_response 
 		USING $1, $2, $3, $4;
-		RETURN api.http_response_build(
-			v_response_status_code, 
-			v_response_headers, 
-			v_response_content);
+		RETURN v_response;
 	END IF;
 		
 	RETURN api.http_response_build(401, '', jsonb_build_object(
