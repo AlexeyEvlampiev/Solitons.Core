@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "localhost: skynetdb create": {
+      "commandName": "Project",
+      "commandLineArgs": "skynetdb create %SKYNET_LOCALHOST%"
+    },
+    "localhost: skynetdb drop and recreate": {
+      "commandName": "Project",
+      "commandLineArgs": "skynetdb drop %SKYNET_LOCALHOST% --recreate"
+    }
+  }
+}

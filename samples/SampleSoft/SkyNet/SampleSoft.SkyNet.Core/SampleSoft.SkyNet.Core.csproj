@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Core",""))</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Solitons.Core\Solitons.Core.csproj" />
+    <ProjectReference Include="..\SampleSoft.SkyNet\SampleSoft.SkyNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Azure\" />
+    <Folder Include="Control\" />
+    <Folder Include="AdminConsole\" />
+    <Folder Include="Data\" />
+    <Folder Include="WebApi\" />
+    <Folder Include="Portal\" />
+  </ItemGroup>
+
+</Project>

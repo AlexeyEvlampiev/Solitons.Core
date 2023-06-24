@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -18,9 +19,10 @@ sealed class RetryPolicyObservable<T> : ObservableBase<T>
     /// </summary>
     /// <param name="source">The Observable to apply the retry policy to.</param>
     /// <param name="handler">The handler that implements the retry policy.</param>
+    [DebuggerStepThrough]
     public RetryPolicyObservable(IObservable<T> source, Func<RetryPolicyArgs, Task<bool>> handler)
     {
-        _source = Observable.Create<T>(async (observer, cancellation) =>
+        _source = Observable.Create<T>([DebuggerStepThrough] async (observer, cancellation) =>
         {
             var start = DateTimeOffset.UtcNow;
             for (int counter = 0;; ++counter)
@@ -28,7 +30,8 @@ sealed class RetryPolicyObservable<T> : ObservableBase<T>
                 try
                 {
                     await source
-                        .Do(observer.OnNext);
+                        .Do(observer.OnNext)
+                        .LastOrDefaultAsync();
                     observer.OnCompleted();
                     return;
                 }

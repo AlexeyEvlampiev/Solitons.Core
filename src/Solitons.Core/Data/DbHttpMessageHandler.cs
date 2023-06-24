@@ -129,8 +129,8 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
                 ? args => dbr.ShouldRetryAsync(args, cancellation)
                 : args => Data.DbHttpRequestMessage.DefaultRetryPolicy(args, cancellation);
 
-            await FluentObservable
-                .Defer([DebuggerStepThrough]() => ExecuteAsync(connection, request, response, cancellation))
+            await Observable
+                .FromAsync([DebuggerStepThrough]() => ExecuteAsync(connection, request, response, cancellation))
                 .WithRetryPolicy(policy.Invoke);
             
             if (request is DbHttpRequestMessage dbRequest)

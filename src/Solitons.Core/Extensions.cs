@@ -867,6 +867,37 @@ public static partial class Extensions
     }
 
     /// <summary>
+    /// Creates a CancellationToken that is linked to a set of provided CancellationTokens.
+    /// </summary>
+    /// <param name="token">The original CancellationToken to which the others will be linked.</param>
+    /// <param name="others">An array of CancellationTokens to link to the original token.</param>
+    /// <returns>A new CancellationToken linked to the original and other tokens. Cancelling any of the input tokens will result in the returned token being cancelled.</returns>
+    /// <remarks>
+    /// This extension method allows multiple CancellationTokens to be handled as if they were a single token. 
+    /// The CancellationTokenSource created internally is disposed of when the original token is cancelled. 
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static CancellationToken Join(this CancellationToken token, params CancellationToken[] others)
+    {
+        var allTokens = new List<CancellationToken> { token };
+        allTokens.AddRange(others);
+        var source = CancellationTokenSource.CreateLinkedTokenSource(allTokens.ToArray());
+
+        token.Register([DebuggerNonUserCode] () =>
+        {
+            if (source != null)
+            {
+                source.Dispose();
+                source = null;
+            }
+        });
+
+        return source.Token;
+    }
+
+
+
+    /// <summary>
     /// Converts an instance of <typeparamref name="TSource"/> by applying the specified transform <see cref="Action{T}"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the object to convert.</typeparam>

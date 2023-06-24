@@ -93,11 +93,15 @@ namespace Solitons.Text
                 typeof(IFormatProvider)});
             if ((method == null))
             {
-                return objectToConvert.ToString();
+                return objectToConvert.ToString() ?? string.Empty;
             }
 
-            return ((string)(method.Invoke(objectToConvert, new object[] {
-                FormatProvider })));
+            return method
+                .Invoke(objectToConvert, new object[]
+                {
+                    FormatProvider
+                })
+                .Convert(_ => _?.ToString() ?? string.Empty);
         }
 
 

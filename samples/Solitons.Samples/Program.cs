@@ -20,9 +20,6 @@ sealed class Program
 
     private async Task<int> RunAsync(string[] args)
     {
-        AsyncFunc
-            .Wrap(async (double xxx) => xxx * 123)
-            .WithRetryPolicy(attempt => attempt.SignalNextAttempt(true));
 
         Observable
             .Return(10)

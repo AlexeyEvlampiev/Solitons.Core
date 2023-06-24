@@ -25,7 +25,7 @@ public sealed class PgSampleDbManager : PgManager
     }
 
     protected override async Task<string?> GetSecretIfExistsAsync(
-        string role, 
+        string secretKey, 
         CancellationToken cancellation)
     {
         throw new NotImplementedException();

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
@@ -21,6 +23,7 @@ public static partial class Extensions
     /// <param name="source">The source Observable to apply the retry policy to.</param>
     /// <param name="trigger">A function that defines the retry policy in terms of an observable sequence.</param>
     /// <returns>A new Observable that applies the retry policy to the source Observable.</returns>
+    [DebuggerStepThrough]
     public static IObservable<T> WithRetryPolicy<T, TSignal>(
         this IObservable<T> source,
         Func<RetryPolicyArgs, IObservable<TSignal>> trigger)
@@ -200,7 +203,6 @@ public static partial class Extensions
         var signals = monitor
             .Convert(toSignal);
 
-        int attempt = 0;
         return source
             .SelectMany(item => item
                 .Convert(Observable.Return)
@@ -213,4 +215,90 @@ public static partial class Extensions
                 }))
             .Select(i=> i.Item);
     }
+
+    /// <summary>
+    /// Converts an <see cref="IAsyncEnumerable{T}"/> to an <see cref="IObservable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to observe.</typeparam>
+    /// <param name="source">The <see cref="IAsyncEnumerable{T}"/> source.</param>
+    /// <returns>An <see cref="IObservable{T}"/> that observers can subscribe to.</returns>
+    /// <remarks>
+    /// If an exception occurs during the iteration over the IAsyncEnumerable, the exception will be passed to the observer.
+    /// </remarks>
+    [DebuggerStepThrough]
+    public static IObservable<T> ToObservable<T>(this IAsyncEnumerable<T> source)
+    {
+        return Observable.Create<T>(async (observer, cancellation) =>
+        {
+            try
+            {
+                await foreach (var item in source.WithCancellation(cancellation))
+                {
+                    observer.OnNext(item);
+                }
+                observer.OnCompleted();
+            }
+            catch (Exception e)
+            {
+                observer.OnError(e);
+            }
+        });
+    }
+
+    /// <summary>
+    /// Converts an <see cref="IAsyncEnumerable{T}"/> to an <see cref="IObservable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to observe.</typeparam>
+    /// <param name="source">The <see cref="IAsyncEnumerable{T}"/> source.</param>
+    /// <param name="cancellation">A <see cref="CancellationToken"/> used to signal cancellation of the iteration over the source.</param>
+    /// <returns>An <see cref="IObservable{T}"/> that observers can subscribe to.</returns>
+    /// <remarks>
+    /// If an exception occurs during the iteration over the <see cref="IAsyncEnumerable{T}"/>, the exception will be passed to the observer.
+    /// The iteration can be cancelled by the provided <see cref="CancellationToken"/> or by the observer's cancellation token.
+    /// </remarks>
+    [DebuggerStepThrough]
+    public static IObservable<T> ToObservable<T>(
+        this IAsyncEnumerable<T> source, 
+        CancellationToken cancellation)
+    {
+        
+        return Observable.Create<T>(async (observer, token) =>
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(token, cancellation);
+            try
+            {
+                await foreach (var item in source.WithCancellation(cts.Token))
+                {
+                    observer.OnNext(item);
+                }
+                observer.OnCompleted();
+            }
+            catch (Exception e)
+            {
+                observer.OnError(e);
+            }
+        });
+    }
+
+    /// <summary>
+    /// Returns an observable sequence that produces a single <see cref="Unit"/> value 
+    /// when the source sequence either emits any items or does not emit any items 
+    /// based on the provided value parameter.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements in the source sequence.</typeparam>
+    /// <param name="source">The source observable sequence.</param>
+    /// <param name="value">
+    /// If true, the resulting sequence emits a <see cref="Unit"/> value when the source sequence emits any items.
+    /// If false, the resulting sequence emits a <see cref="Unit"/> value when the source sequence does not emit any items.
+    /// The default value is true.
+    /// </param>
+    /// <returns>
+    /// An observable sequence that produces a single <see cref="Unit"/> value when the source sequence's emissions 
+    /// match the provided value parameter.
+    /// </returns>
+    [DebuggerStepThrough]
+    public static IObservable<Unit> WhenAnyIs<T>(this IObservable<T> source, bool value = true) => source
+        .Any()
+        .Where(_ => _ == value)
+        .Select(_ => Unit.Default);
 }

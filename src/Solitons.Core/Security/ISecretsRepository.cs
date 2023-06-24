@@ -180,8 +180,8 @@ public partial interface ISecretsRepository
     /// <returns>An observable that emits the key-value pair of the specified secret name and its value in the repository.</returns>
     public sealed IObservable<KeyValuePair<string, string>> Get(string key)
     {
-        return FluentObservable
-            .Defer(() => GetSecretAsync(key))
+        return Observable
+            .FromAsync(() => GetSecretAsync(key))
             .Select(value => KeyValuePair.Create(key, value));
     }
 
@@ -195,8 +195,8 @@ public partial interface ISecretsRepository
     [DebuggerStepThrough]
     public sealed IObservable<KeyValuePair<string, string>> GetIfExists(string key)
     {
-        return FluentObservable
-            .Defer(() => GetSecretIfExistsAsync(key))
+        return Observable
+            .FromAsync(() => GetSecretIfExistsAsync(key))
             .Where(value => value.IsPrintable())
             .Select(value => KeyValuePair.Create(key, value!));
     }
@@ -210,8 +210,8 @@ public partial interface ISecretsRepository
     [DebuggerStepThrough]
     public sealed IObservable<Dictionary<string, string>> GetAll(StringComparer comparer)
     {
-        return FluentObservable
-            .Defer(() => ListSecretNamesAsync(CancellationToken.None))
+        return Observable
+            .FromAsync(() => ListSecretNamesAsync(CancellationToken.None))
             .SelectMany(_ => _)
             .SelectMany(Get)
             .ToList()
