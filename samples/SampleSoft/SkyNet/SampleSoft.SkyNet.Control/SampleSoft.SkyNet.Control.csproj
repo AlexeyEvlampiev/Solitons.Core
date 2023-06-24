@@ -11,18 +11,18 @@
     <None Remove="SkyNetDb\Migrations\000-000-000.sql" />
     <None Remove="SkyNetDb\Setup\api.http_invoke.sql" />
     <None Remove="SkyNetDb\Setup\api.vw_http_route.sql" />
+    <None Remove="SkyNetDb\Setup\data.reference-data.sql" />
     <None Remove="SkyNetDb\Setup\data.vw_identity.sql" />
-    <None Remove="SkyNetDb\Setup\reference-data.sql" />
     <None Remove="SkyNetDb\Setup\system.vw_function.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="SkyNetDb\Migrations\000-000-000.sql" />
-    <EmbeddedResource Include="SkyNetDb\Setup\api.http_invoke.sql" />
-    <EmbeddedResource Include="SkyNetDb\Setup\data.vw_identity.sql" />
-    <EmbeddedResource Include="SkyNetDb\Setup\system.vw_function.sql" />
-    <EmbeddedResource Include="SkyNetDb\Setup\api.vw_http_route.sql" />
-    <EmbeddedResource Include="SkyNetDb\Setup\reference-data.sql" />
+    <EmbeddedResource Include="SkyNetDb\Setup\api\http_invoke.sql" />
+    <EmbeddedResource Include="SkyNetDb\Setup\data\vw_identity.sql" />
+    <EmbeddedResource Include="SkyNetDb\Setup\system\vw_function.sql" />
+    <EmbeddedResource Include="SkyNetDb\Setup\api\vw_http_route.sql" />
+    <EmbeddedResource Include="SkyNetDb\Setup\data\reference-data.sql" />
   </ItemGroup>
 
   <ItemGroup>
