@@ -1,24 +1,22 @@
-﻿CREATE OR REPLACE FUNCTION api.image_get(
-	p_method text,
-	p_address text, 
-	p_headers hstore,
-	p_content jsonb)
+﻿CREATE OR REPLACE FUNCTION api.image_get(request api.http_request)
 RETURNS api.http_response
 AS
 $$
 DECLARE
-	v_oid_text text = substring($2 from 'images/([^/?&]+)');
+	v_oid_text text = substring($1.address from 'images/([^/?&]+)');
 	v_object_id uuid := system.as_uuid(v_oid_text);
 	v_result api.http_response;
 BEGIN
+	v_result.status_code := 200;
+	v_result.headers := hstore('');
+	
 	SELECT jsonb_build_object('oid', object_id)
 	INTO v_result.content
 	FROM data.image 
 	WHERE object_id = v_object_id
 	AND deleted_utc IS NULL;
 	
-	v_result.status_code := 200;
-	v_result.headers := hstore('');
+	
 
 	IF FOUND THEN
 		RETURN v_result;
@@ -43,7 +41,7 @@ INSERT INTO api.http_route(
 VALUES(
 	'10ed331b-b08d-459d-8dc2-a5b365d4825d',
 	'^',
-	'^GET$',
+	'GET',
 	'(?i)(^|\W)images/([^?&])+',
 	false,
 	0.10,

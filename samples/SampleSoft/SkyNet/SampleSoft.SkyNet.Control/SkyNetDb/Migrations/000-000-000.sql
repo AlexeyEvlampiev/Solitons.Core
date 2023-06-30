@@ -9,7 +9,7 @@ COMMENT ON SCHEMA api IS 'SkyNet api layer objects';
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA api FROM PUBLIC;
 
 
-CREATE OR REPLACE FUNCTION system.as_uuid(input TEXT)
+CREATE OR REPLACE FUNCTION system.as_uuid("input" TEXT)
 RETURNS UUID
 LANGUAGE sql AS
 $$
@@ -19,6 +19,7 @@ SELECT
         ELSE NULL
     END
 $$;
+
 
 CREATE TABLE IF NOT EXISTS system.gcobject(
 	object_id uuid  NOT NULL  DEFAULT extensions.gen_random_uuid()
@@ -78,6 +79,7 @@ CREATE TABLE api.http_route
 	"handler" text NOT NULL
 ) INHERITS(system.gcobject);
 CREATE INDEX ix_httproute_sequencenumber ON api.http_route(sequence_number)
+INCLUDE(address_regexp)
 WHERE deleted_utc IS NULL;
 
 
@@ -148,7 +150,7 @@ CREATE OR REPLACE FUNCTION api.http_request_build(
 	"method" text,
 	address text,
 	headers hstore,
-	"content" jsonb
+	"content" jsonb DEFAULT('{}')
 ) RETURNS api.http_request AS $$
 SELECT ROW($1, $2, $3, $4)::api.http_request;
 $$ LANGUAGE sql;
@@ -160,4 +162,13 @@ CREATE OR REPLACE FUNCTION api.http_response_build(
     "content" jsonb
 ) RETURNS api.http_response AS $$
 SELECT ROW($1, $2, $3)::api.http_response;
+$$ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION api.http_response_build(
+    status_code int,
+    headers hstore,
+    "message" text
+) RETURNS api.http_response AS $$
+SELECT ROW($1, $2, jsonb_build_object('message', $3))::api.http_response;
 $$ LANGUAGE sql;
