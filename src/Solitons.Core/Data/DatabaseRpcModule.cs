@@ -52,7 +52,9 @@ sealed class DatabaseRpcModule : IDatabaseRpcModule
         ThrowIf.ArgumentNullOrEmpty(commandId);
         if (_commandTypes.TryGetValue(commandId, out var commandType))
         {
-            var command = _provider.GetService(commandType);
+            var command = ThrowIf.NullReference(
+                _provider.GetService(commandType),
+                $"{commandType} command could not be created. The dependency injection provider returned null.");
             return (IDatabaseRpcCommand)command!;
         }
 

@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION api.http_invoke(
 	headers hstore,
 	content jsonb DEFAULT('{}'::JSONB)) RETURNS api.http_response
 AS
-$$
+$body$
 DECLARE
 	v_client_external_id text := NULLIF(TRIM(headers->'SKYNET-IDENTITY'), '');
 	v_client_version text := substring(address from '(?:(?:api-?)?version|v)=(\S+)');
@@ -64,7 +64,9 @@ BEGIN
 		c_route.deleted_utc IS NULL
 	AND $2 ~* c_route.address_regexp
 	ORDER BY 
-		c_route.sequence_number DESC
+		c_route.sequence_number DESC,
+		(CASE $1 ~* v_route.method_regexp WHEN true THEN 0 ELSE 1 END),
+		(CASE v_client_version ~* v_route.version_regexp WHEN true THEN 0 ELSE 1 END)
 	LIMIT 1;
 
 
@@ -72,7 +74,6 @@ BEGIN
 	IF NOT FOUND THEN
 		RETURN api.http_response_build(404, v_std_headers, 
 		'Not Found. The requested resource could not be located.');
-
 	END IF;
 	
 	IF NOT $1 ~* v_route.method_regexp THEN
@@ -92,10 +93,10 @@ BEGIN
 
 	v_std_headers := v_std_headers||hstore('SKYNET-handler=>api.'||v_route.handler);
 	
-	SELECT FORMAT('SELECT * FROM api.%s(api.http_request_build($1, $2, $3, $4));', v_route.handler) 
+	SELECT FORMAT($$ SELECT * FROM api.%s(api.http_request_build($1, $2, $3, $4)); $$, v_route.handler) 
 	INTO v_sql;
 
-	RAISE NOTICE 'SQL: %', v_sql;
+	--RAISE NOTICE 'SQL: %', v_sql;
 
 	EXECUTE v_sql 
 	INTO v_response 
@@ -120,4 +121,4 @@ BEGIN
 	RETURN v_response;
 
 END;
-$$ LANGUAGE 'plpgsql';
+$body$ LANGUAGE 'plpgsql';
