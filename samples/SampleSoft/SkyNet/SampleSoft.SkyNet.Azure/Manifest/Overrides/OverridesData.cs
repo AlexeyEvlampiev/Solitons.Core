@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Npgsql;
-using SampleSoft.SkyNet.Azure.SQLite;
+using SampleSoft.SkyNet.Azure.Security;
 using Solitons;
 using Solitons.Data;
 using Solitons.Security;
@@ -27,9 +27,9 @@ public sealed class OverridesData : BasicJsonDataTransferObject
             return null;
         }
 
-        if (SQLiteSecretsRepository.IsScopeConnectionString(SecretsConnectionString!))
+        if (SQLiteSecretsStore.IsScopeConnectionString(SecretsConnectionString!, out var _, out var _))
         {
-            return SQLiteSecretsRepository.Create(SecretsConnectionString!);
+            return SQLiteSecretsStore.Create(SecretsConnectionString!);
         }
 
         throw new NotImplementedException();
