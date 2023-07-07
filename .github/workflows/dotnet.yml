@@ -33,7 +33,7 @@ jobs:
     - name: Test
       env:
        AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
-      run: dotnet Solitons.Core.sln --no-build --verbosity normal   
+      run: dotnet test Solitons.Core.sln --no-build --verbosity normal   
     - name: Pack
       env:
        versionsuffix: 'alpha.${{env.runId}}'
