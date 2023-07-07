@@ -3,11 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +19,7 @@ public abstract partial class PgManager : IPgManager
     private readonly PgManagerConfig _config;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Management.PgManager"/> class.
+    /// Initializes a new instance of the <see cref="PgManager"/> class.
     /// </summary>
     /// <param name="connectionString">The maintenance database connection string for the Postgres database.</param>
     /// <param name="config">The configuration for the Postgres database.</param>
@@ -236,6 +234,8 @@ public abstract partial class PgManager : IPgManager
         await command.ExecuteNonQueryAsync(cancellation);
     }
 
+
+
     /// <summary>
     /// Saves the specified secret value with the specified key.
     /// </summary>
@@ -243,6 +243,10 @@ public abstract partial class PgManager : IPgManager
     /// <param name="secretValue">The secret value to save.</param>
     /// <param name="cancellation">The cancellation token to use.</param>
     protected abstract Task SaveSecretAsync(string secretKey, string secretValue, CancellationToken cancellation);
+
+
+
+    protected virtual Task RunTestAsync(CancellationToken cancellation) => Task.CompletedTask;
 
     /// <summary>
     /// Generates a random password.
@@ -319,6 +323,18 @@ public abstract partial class PgManager : IPgManager
             .WithRetryPolicy(args => DropDbRetryPolicy(args, cancellation))
             .ToTask(cancellation);
 
+    [DebuggerStepThrough]
+    async Task IPgManager.RunTestAsync(CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        await Observable
+            .FromAsync(()=>RunTestAsync(cancellation))
+            .WithRetryPolicy(args => TestRetryPolicy(args, cancellation))
+            .ToTask(cancellation);
+    }
+
+
+
     /// <summary>
     /// Defines the retry policy for dropping a database.
     /// </summary>
@@ -329,6 +345,19 @@ public abstract partial class PgManager : IPgManager
     /// This method will delay the next attempt by a number of seconds equal to the current attempt number, up to a maximum of 10 seconds.
     /// </remarks>
     protected virtual IObservable<RetryPolicyArgs> DropDbRetryPolicy(RetryPolicyArgs arg, CancellationToken cancellation)
+    {
+        return arg
+            .SignalNextAttempt(arg is
+            {
+                Exception: DbException { IsTransient: true },
+                AttemptNumber: < 10
+            })
+            .Delay(1000 * arg.AttemptNumber.Max(10));
+    }
+
+    protected virtual IObservable<RetryPolicyArgs> TestRetryPolicy(
+        RetryPolicyArgs arg, 
+        CancellationToken cancellation)
     {
         return arg
             .SignalNextAttempt(arg is

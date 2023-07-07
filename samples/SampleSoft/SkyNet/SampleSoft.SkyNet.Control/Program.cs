@@ -72,6 +72,7 @@ sealed class Program : ProgramBase
         };
         var manager = await SkyNetDbManager.CreateAsync(secrets, config);
         await manager.CreateDbAsync(cancellation);
+        await manager.RunTestAsync(cancellation);
         return 0;
     }
 
@@ -128,6 +129,7 @@ sealed class Program : ProgramBase
         if (recreate)
         {
             await manager.DropAndRecreateAsync(cancellation);
+            await manager.RunTestAsync(cancellation);
         }
         else
         {

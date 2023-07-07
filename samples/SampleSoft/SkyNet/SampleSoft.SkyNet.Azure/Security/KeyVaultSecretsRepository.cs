@@ -13,7 +13,7 @@ using Solitons.Security.Common;
 
 namespace SampleSoft.SkyNet.Azure.Security;
 
-public sealed class KeyVaultSecretsRepository : SecretsRepository
+public sealed class KeyVaultSecretsRepository : SecretsRepository, ISecretsRepository
 {
     private readonly SecretClient _nativeClient;
 

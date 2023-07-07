@@ -87,10 +87,10 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
     /// <param name="connection">The database connection to use for the transaction.</param>
     /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result is the begun database transaction.</returns>
-    protected abstract Task<DbTransaction> BeginTransactionAsync(
-        HttpRequestMessage request, 
-        DbConnection connection, 
-        CancellationToken cancellation);
+    protected virtual ValueTask<DbTransaction> BeginTransactionAsync(
+        HttpRequestMessage request,
+        DbConnection connection,
+        CancellationToken cancellation) => connection.BeginTransactionAsync(cancellation);
 
     /// <summary>
     /// Creates a new connection to the database.
@@ -278,7 +278,7 @@ public abstract class DbHttpMessageHandler<T> : DbHttpMessageHandler where T : D
     /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result is the started database transaction.</returns>
     /// <remarks>This method should be overridden in a derived class with the specific logic to begin a database transaction.</remarks>
-    protected abstract Task<DbTransaction> BeginTransactionAsync(
+    protected abstract ValueTask<DbTransaction> BeginTransactionAsync(
         HttpRequestMessage request,
         T connection,
         CancellationToken cancellation);
@@ -302,7 +302,7 @@ public abstract class DbHttpMessageHandler<T> : DbHttpMessageHandler where T : D
     /// It ensures that the type-specific <see cref="BeginTransactionAsync(HttpRequestMessage, T, CancellationToken)"/> is called with the correct type of connection.
     /// </remarks>
     [DebuggerStepThrough]
-    protected sealed override Task<DbTransaction> BeginTransactionAsync(
+    protected sealed override ValueTask<DbTransaction> BeginTransactionAsync(
         HttpRequestMessage request,
         DbConnection connection,
         CancellationToken cancellation)

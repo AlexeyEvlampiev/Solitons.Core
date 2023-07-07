@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Npgsql;
 using SampleSoft.SkyNet.Azure;
 using SampleSoft.SkyNet.Azure.Postgres;
@@ -11,17 +11,14 @@ using Solitons;
 using Solitons.Data.Management;
 using Solitons.Data.Management.Postgres;
 using Solitons.Data.Management.Postgres.Common;
+using Solitons.Diagnostics;
 using Solitons.Security;
-using Solitons.Text;
 
 namespace SampleSoft.SkyNet.Control.SkyNetDb;
 
 public sealed class SkyNetDbManager : NpgsqlManager
 {
     private readonly ISecretsRepository _secrets;
-    private static readonly Regex MigrationScriptIdRegex = new Regex(@"(?i)\.skynetdb\.migrations?\.");
-    private static readonly Regex SetupScriptIdRegex = new Regex(@"(?i)\.skynetdb\.setups?\.");
-
 
     [DebuggerStepThrough]
     private SkyNetDbManager(
@@ -96,7 +93,10 @@ public sealed class SkyNetDbManager : NpgsqlManager
                 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA extensions;
 
                 ALTER DATABASE skynetdb SET search_path = data, extensions, public;
-                ALTER DATABASE skynetdb OWNER TO skynetdb_admin;";
+                ALTER DATABASE skynetdb OWNER TO skynetdb_admin;
+
+                GRANT skynetdb_api TO skynetdb_admin WITH ADMIN OPTION;";
+
         await command.ExecuteNonQueryAsync(cancellation);
     }
 
@@ -133,12 +133,11 @@ public sealed class SkyNetDbManager : NpgsqlManager
 
         await command.ExecuteNonQueryAsync(cancellation);
 
-        if (MigrationScriptIdRegex.IsMatch(script.Path))
+        if (SkyNetDbScriptPriorityComparer.IsMigrationScript(script))
         {
             command.CommandText = @$"INSERT INTO system.migration_log(script_id) VALUES('{script.Id}')";
             await command.ExecuteNonQueryAsync(cancellation);
         }
-        
 
         return true;
     }
@@ -186,4 +185,11 @@ public sealed class SkyNetDbManager : NpgsqlManager
             .ToArray();
         return scripts;
     }
+
+    [DebuggerStepThrough]
+    protected override Task RunTestAsync(CancellationToken cancellation) => IntegrationTest
+        .RunAllAsync(
+            GetType().Assembly, 
+            _secrets.ReadThroughCache(Observable.Empty<Unit>()), 
+            cancellation: cancellation);
 }

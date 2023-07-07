@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Solitons;
 using SampleSoft.SkyNet.Azure.Manifest;
 
 namespace SampleSoft.SkyNet.Control.Options;

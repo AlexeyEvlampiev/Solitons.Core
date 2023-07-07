@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Linq;
-using System.Text;
+﻿using System.Data.SQLite;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Solitons;
 using Solitons.Security;
 using Solitons.Security.Common;

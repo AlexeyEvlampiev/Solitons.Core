@@ -19,7 +19,7 @@ public sealed class FakeDbHttpMessageHandler : DbHttpMessageHandler
     /// </summary>
     public interface ICallback
     {
-        Task<DbTransaction> BeginTransactionAsync(HttpRequestMessage request, DbConnection connection, CancellationToken cancellation);
+        ValueTask<DbTransaction> BeginTransactionAsync(HttpRequestMessage request, DbConnection connection, CancellationToken cancellation);
         DbConnection CreateConnection(string connectionString);
         void ExecuteAsync(DbConnection connection, HttpRequestMessage request, HttpResponseMessage response, CancellationToken cancellation);
     }
@@ -50,11 +50,11 @@ public sealed class FakeDbHttpMessageHandler : DbHttpMessageHandler
 
         public ISetup<ICallback> EveryExecuteAsync { get; }
 
-        Task<DbTransaction> DefaultBeginTransactionAsync(
+        ValueTask<DbTransaction> DefaultBeginTransactionAsync(
             HttpRequestMessage request, 
             DbConnection connection,
             CancellationToken cancellation) => 
-            Task.FromResult(connection.BeginTransaction());
+            ValueTask.FromResult(connection.BeginTransaction());
         
         void DefaultExecuteHandler(
             DbConnection connection, 
@@ -103,7 +103,7 @@ public sealed class FakeDbHttpMessageHandler : DbHttpMessageHandler
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    protected override Task<DbTransaction> BeginTransactionAsync(
+    protected override ValueTask<DbTransaction> BeginTransactionAsync(
         HttpRequestMessage request,
         DbConnection connection,
         CancellationToken cancellation) => Mock.Object.BeginTransactionAsync(request, connection, cancellation);

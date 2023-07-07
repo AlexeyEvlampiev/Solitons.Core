@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Solitons;
 using Solitons.Collections.Specialized;
 using Solitons.Data.Management;
@@ -20,6 +15,7 @@ public sealed class SkyNetDbScriptPriorityComparer : Comparer<AssemblyEmbeddedSc
     {
         _setupScriptExpressions = RegexCollection
             .FromPatterns(
+                @"\bpermissions\b",
                 @"\breference-data\b",
                 @"\bsystem\b",
                 @"\bdata\b",

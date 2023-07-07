@@ -24,7 +24,8 @@ BEGIN
 	
 	v_result.status_code := 404;
 	v_result.headers := hstore('');
-	v_result.content := jsonb_build_object('message', 'Image not found');
+	v_result.content := jsonb_build_object('message', FORMAT('Image with object ID %L not found', v_object_id));
+
 	RETURN v_result;
 END;
 $$ LANGUAGE 'plpgsql';

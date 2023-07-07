@@ -14,6 +14,7 @@
     <None Remove="SkyNetDb\Setup\api\image_get.sql" />
     <None Remove="SkyNetDb\Setup\data.reference-data.sql" />
     <None Remove="SkyNetDb\Setup\data.vw_identity.sql" />
+    <None Remove="SkyNetDb\Setup\permissions.sql" />
     <None Remove="SkyNetDb\Setup\system.vw_function.sql" />
   </ItemGroup>
 
@@ -22,9 +23,14 @@
     <EmbeddedResource Include="SkyNetDb\Setup\api\http_invoke.sql" />
     <EmbeddedResource Include="SkyNetDb\Setup\api\image_get.sql" />
     <EmbeddedResource Include="SkyNetDb\Setup\data\vw_identity.sql" />
+    <EmbeddedResource Include="SkyNetDb\Setup\permissions.sql" />
     <EmbeddedResource Include="SkyNetDb\Setup\system\vw_function.sql" />
     <EmbeddedResource Include="SkyNetDb\Setup\api\vw_http_route.sql" />
     <EmbeddedResource Include="SkyNetDb\Setup\reference-data.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup>

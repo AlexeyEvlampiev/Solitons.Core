@@ -28,6 +28,8 @@ public interface IPgManager
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task DropDbAsync(CancellationToken cancellation = default);
 
+    Task RunTestAsync(CancellationToken cancellation = default);
+
     /// <summary>
     /// Drops and recreates the database asynchronously.
     /// </summary>
