@@ -7,6 +7,7 @@ using Solitons;
 using Solitons.Security;
 using SampleSoft.SkyNet.Azure.Diagnostics;
 using SampleSoft.SkyNet.Azure.Postgres;
+using Solitons.Data;
 
 namespace SampleSoft.SkyNet.Control.SkyNetDb.Test;
 
@@ -47,11 +48,17 @@ public abstract class SkyNetDbTest : SkyNetIntegrationTest
             .GetRequiredService<NpgsqlTransaction>()
             .Convert(tx => new SkyNetDbHttpMessageHandler(tx)));
 
-        services.AddScoped<HttpClient>(provider => provider
+        services.AddScoped<DbHttpClient>(provider => provider
             .GetRequiredService<SkyNetDbHttpMessageHandler>()
-            .Convert(handler => new HttpClient(handler)
+            .Convert(handler => new DbHttpClient(handler)
             {
                 BaseAddress = new Uri("postgres://skynet/api")
             }));
+    }
+
+    protected override void OnTestStarting(MethodInfo test)
+    {
+        ConsoleColor.Green.AsForegroundColor(() => 
+            Console.WriteLine($"{test.DeclaringType?.Name}.{test.Name}"));
     }
 }

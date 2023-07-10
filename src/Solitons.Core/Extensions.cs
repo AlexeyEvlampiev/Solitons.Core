@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -153,10 +154,329 @@ public static partial class Extensions
     /// <param name="callback">The <see cref="Func{T, TResult}"/> to execute with the created <see cref="DbCommand"/> object.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous execution of the <paramref name="callback"/> and containing the result of the execution.</returns>
     /// <remarks>The <see cref="DbCommand"/> object is disposed automatically after the <paramref name="callback"/> has completed.</remarks>
+    [DebuggerStepThrough]
     public static async Task<T> DoAsync<T>(this DbConnection self, Func<DbCommand, Task<T>> callback)
     {
         await using var command = self.CreateCommand();
         return await callback.Invoke(command);
+    }
+
+
+    /// <summary>
+    /// Executes a non-query command (e.g., INSERT, UPDATE, DELETE) asynchronously on a database.
+    /// </summary>
+    /// <param name="self">The DbConnection to execute the command on.</param>
+    /// <param name="commandText">The text of the command to be executed.</param>
+    /// <param name="cancellation">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    [DebuggerNonUserCode]
+    public static async Task<int> ExecuteNonQueryAsync(
+        this DbConnection self, 
+        string commandText, 
+        CancellationToken cancellation = default)
+    {
+        await using var command = self.CreateCommand();
+        command.CommandText = commandText;
+        return await command.ExecuteNonQueryAsync(cancellation);
+    }
+
+    
+
+
+
+    /// <summary>
+    /// Executes a command that returns a single scalar value, converts the result to a specified type <typeparamref name="T"/>, 
+    /// and returns that value asynchronously.
+    /// </summary>
+    /// <param name="self">The DbConnection to execute the command on.</param>
+    /// <param name="commandText">The text of the command to be executed.</param>
+    /// <param name="cancellation">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <typeparam name="T">The type to convert the result to.</typeparam>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the first column of the first row in the result set, or a default value if the result set is empty.</returns>
+    [DebuggerNonUserCode]
+    public static async Task<T?> ExecuteScalarAsync<T>(
+        this DbConnection self,
+        string commandText,
+        CancellationToken cancellation = default)
+    {
+        await using var command = self.CreateCommand();
+        command.CommandText = commandText;
+        var response = await command.ExecuteScalarAsync(cancellation) ?? DBNull.Value;
+        return response is not DBNull ? (T)response! : default(T?);
+    }
+
+    /// <summary>
+    /// Executes a SQL command asynchronously that returns a single value, and returns the first column of the first row in the result set cast to the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type to cast the result to.</typeparam>
+    /// <param name="self">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="parameters">A dictionary of parameter names and values to include in the command.</param>
+    /// <param name="cancellation">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>A Task representing the asynchronous operation, with a result of the first column of the first row in the result set cast to the specified type, or null if the result set is empty.</returns>
+    /// <remarks>
+    /// This method uses parameterized queries to help protect against SQL injection attacks.
+    /// Each key-value pair in the parameters dictionary is added as a parameter to the command.
+    /// The key is the parameter name and the value is the parameter value.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static async Task<T?> ExecuteScalarAsync<T>(
+        this DbConnection self,
+        string commandText,
+        Dictionary<string, object> parameters,
+        CancellationToken cancellation = default)
+    {
+        await using var command = self.CreateCommand();
+        command.CommandText = commandText;
+        foreach (var param in parameters)
+        {
+            var dbParameter = command.CreateParameter();
+            dbParameter.ParameterName = param.Key;
+            dbParameter.Value = param.Value;
+            command.Parameters.Add(dbParameter);
+        }
+        var response = await command.ExecuteScalarAsync(cancellation) ?? DBNull.Value;
+        return response is not DBNull ? (T)response! : default(T?);
+    }
+
+
+    /// <summary>
+    /// Executes a SQL command asynchronously and returns the first column of the first row in the result set returned by the query.
+    /// Additional columns or rows are ignored.
+    /// </summary>
+    /// <param name="connection">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="cancellationToken">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result is the first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+    /// <remarks>
+    /// This method is typically used when a command returns a single value. If the command results in a result set with multiple rows or columns, only the first column of the first row is returned.
+    /// The command is executed using the Connection, Transaction, and CommandTimeout property values of the command. If you wish to use different property values, you should use the other overload of the ExecuteScalarAsync method.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static async Task<object> ExecuteScalarAsync(
+        this DbConnection connection, 
+        string commandText, 
+        CancellationToken cancellationToken = default)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = commandText;
+        return await command.ExecuteScalarAsync(cancellationToken) ?? DBNull.Value;
+    }
+
+    /// <summary>
+    /// Executes a SQL command asynchronously that returns a single value, and returns the first column of the first row in the result set.
+    /// </summary>
+    /// <param name="connection">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="parameters">A dictionary of parameter names and values to include in the command.</param>
+    /// <param name="cancellationToken">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>A Task representing the asynchronous operation, with a result of the first column of the first row in the result set, or DBNull.Value if the result set is empty.</returns>
+    /// <remarks>
+    /// This method uses parameterized queries to help protect against SQL injection attacks.
+    /// Each key-value pair in the parameters dictionary is added as a parameter to the command.
+    /// The key is the parameter name and the value is the parameter value.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static async Task<object> ExecuteScalarAsync(
+        this DbConnection connection,
+        string commandText,
+        Dictionary<string, object> parameters,
+        CancellationToken cancellationToken = default)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = commandText;
+        foreach (var param in parameters)
+        {
+            var dbParameter = command.CreateParameter();
+            dbParameter.ParameterName = param.Key;
+            dbParameter.Value = param.Value;
+            command.Parameters.Add(dbParameter);
+        }
+        return await command.ExecuteScalarAsync(cancellationToken) ?? DBNull.Value;
+    }
+
+
+
+    /// <summary>
+    /// Executes a SQL command asynchronously that does not return any data (e.g., INSERT, UPDATE, DELETE), and returns the number of rows affected.
+    /// </summary>
+    /// <param name="connection">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="parameters">A dictionary of parameter names and values to include in the command.</param>
+    /// <param name="cancellationToken">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>A Task representing the asynchronous operation, with a result of the number of rows affected by the command.</returns>
+    /// <remarks>
+    /// This method uses parameterized queries to help protect against SQL injection attacks.
+    /// Each key-value pair in the parameters dictionary is added as a parameter to the command.
+    /// The key is the parameter name and the value is the parameter value.
+    /// </remarks>
+    [DebuggerStepThrough]
+    public static async Task<int> ExecuteNonQueryAsync(
+        this DbConnection connection, 
+        string commandText, 
+        Dictionary<string, object> parameters, 
+        CancellationToken cancellationToken = default)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = commandText;
+        foreach (var param in parameters)
+        {
+            var dbParameter = command.CreateParameter();
+            dbParameter.ParameterName = param.Key;
+            dbParameter.Value = param.Value;
+            command.Parameters.Add(dbParameter);
+        }
+        return await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+
+
+    /// <summary>
+    /// Executes a SQL command asynchronously and returns the results as an IAsyncEnumerable of IDataRecord.
+    /// </summary>
+    /// <param name="self">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="cancellation">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>An IAsyncEnumerable of IDataRecord objects representing the rows in the result set.</returns>
+    /// <remarks>
+    /// The consumer of this method needs to understand the lifetime of the IDataRecord objects that are returned.
+    /// Each IDataRecord object is only valid until the next one is retrieved or until the IAsyncEnumerator is disposed.
+    /// Therefore, if you need to keep data from an IDataRecord object around for longer, you should copy it out of the IDataRecord into your own objects or variables.
+    /// Also, this method only supports commands that return a single result set. If your command returns multiple result sets, you will need to handle this differently.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static async IAsyncEnumerable<IDataRecord> ExecuteReaderAsync(
+        this DbConnection self,
+        string commandText,
+        [EnumeratorCancellation] CancellationToken cancellation = default)
+    {
+        await using var command = self.CreateCommand();
+        command.CommandText = commandText;
+        await using var reader = await command.ExecuteReaderAsync(cancellation);
+        
+        while (await reader.ReadAsync(cancellation))
+        {
+            yield return reader;
+        }
+    }
+
+    /// <summary>
+    /// Executes a SQL command asynchronously and returns the results as an IAsyncEnumerable of type T.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to return.</typeparam>
+    /// <param name="self">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="factory">A function that creates an object of type T from an IDataRecord.</param>
+    /// <param name="cancellation">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>An IAsyncEnumerable of objects of type T representing the rows in the result set.</returns>
+    /// <remarks>
+    /// This method uses the provided factory function to create an object of type T from each IDataRecord in the result set.
+    /// The consumer of this method needs to understand the lifetime of the IDataRecord objects that are passed to the factory function.
+    /// Each IDataRecord object is only valid until the next one is retrieved or until the IAsyncEnumerator is disposed.
+    /// Therefore, the factory function should not keep a reference to the IDataRecord object and should instead copy out any data it needs.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static async IAsyncEnumerable<T> ExecuteReaderAsync<T>(
+        this DbConnection self,
+        string commandText,
+        Func<IDataRecord, T> factory,
+        [EnumeratorCancellation] CancellationToken cancellation = default)
+    {
+        await using var command = self.CreateCommand();
+        command.CommandText = commandText;
+        await using var reader = await command.ExecuteReaderAsync(cancellation);
+
+        while (await reader.ReadAsync(cancellation))
+        {
+            yield return factory(reader);
+        }
+    }
+
+
+    /// <summary>
+    /// Executes a SQL command asynchronously and returns the results as an IAsyncEnumerable of type T.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to return.</typeparam>
+    /// <param name="self">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="parameters">A dictionary of parameter names and values to include in the command.</param>
+    /// <param name="factory">A function that creates an object of type T from an IDataRecord.</param>
+    /// <param name="cancellation">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>An IAsyncEnumerable of objects of type T representing the rows in the result set.</returns>
+    /// <remarks>
+    /// This method uses parameterized queries to help protect against SQL injection attacks.
+    /// Each key-value pair in the parameters dictionary is added as a parameter to the command.
+    /// The key is the parameter name and the value is the parameter value.
+    /// This method uses the provided factory function to create an object of type T from each IDataRecord in the result set.
+    /// The consumer of this method needs to understand the lifetime of the IDataRecord objects that are passed to the factory function.
+    /// Each IDataRecord object is only valid until the next one is retrieved or until the IAsyncEnumerator is disposed.
+    /// Therefore, the factory function should not keep a reference to the IDataRecord object and should instead copy out any data it needs.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static async IAsyncEnumerable<T> ExecuteReaderAsync<T>(
+        this DbConnection self,
+        string commandText,
+        Dictionary<string, object> parameters,
+        Func<IDataRecord, T> factory,
+        [EnumeratorCancellation] CancellationToken cancellation = default)
+    {
+        await using var command = self.CreateCommand();
+        command.CommandText = commandText;
+        foreach (var param in parameters)
+        {
+            var dbParameter = command.CreateParameter();
+            dbParameter.ParameterName = param.Key;
+            dbParameter.Value = param.Value;
+            command.Parameters.Add(dbParameter);
+        }
+        await using var reader = await command.ExecuteReaderAsync(cancellation);
+
+        while (await reader.ReadAsync(cancellation))
+        {
+            yield return factory(reader);
+        }
+    }
+
+
+
+    /// <summary>
+    /// Executes a SQL command asynchronously and returns the results as an IAsyncEnumerable of IDataRecord.
+    /// </summary>
+    /// <param name="self">The DbConnection object this method extends.</param>
+    /// <param name="commandText">The SQL command to execute.</param>
+    /// <param name="parameters">A dictionary of parameter names and values to include in the command.</param>
+    /// <param name="cancellation">An optional CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>An IAsyncEnumerable of IDataRecord objects representing the rows in the result set.</returns>
+    /// <remarks>
+    /// This method uses parameterized queries to help protect against SQL injection attacks.
+    /// Each key-value pair in the parameters dictionary is added as a parameter to the command.
+    /// The key is the parameter name and the value is the parameter value.
+    /// The consumer of this method needs to understand the lifetime of the IDataRecord objects that are returned.
+    /// Each IDataRecord object is only valid until the next one is retrieved or until the IAsyncEnumerator is disposed.
+    /// Therefore, if you need to keep data from an IDataRecord object around for longer, you should copy it out of the IDataRecord into your own objects or variables.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static async IAsyncEnumerable<IDataRecord> ExecuteReaderAsync(
+        this DbConnection self,
+        string commandText,
+        Dictionary<string, object> parameters,
+        [EnumeratorCancellation] CancellationToken cancellation = default)
+    {
+        await using var command = self.CreateCommand();
+        command.CommandText = commandText;
+        foreach (var param in parameters)
+        {
+            var dbParameter = command.CreateParameter();
+            dbParameter.ParameterName = param.Key;
+            dbParameter.Value = param.Value;
+            command.Parameters.Add(dbParameter);
+        }
+        await using var reader = await command.ExecuteReaderAsync(cancellation);
+
+        while (await reader.ReadAsync(cancellation))
+        {
+            yield return reader;
+        }
     }
 
 
