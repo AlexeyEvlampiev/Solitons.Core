@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Reactive;
 
 namespace Solitons.Security.Common;
 
@@ -113,11 +114,12 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
     /// Asynchronously gets the value of a secret with the specified name.
     /// </summary>
     /// <param name="secretName">The name of the secret.</param>
+    /// <param name="cancellation">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>A Task representing the asynchronous operation. The Task's result is the value of the secret.</returns>
     /// <exception cref="SecretNotFoundException">Throws when the secret does not exist.</exception>
-    protected override async Task<string> GetSecretAsync(string secretName)
+    protected override async Task<string> GetSecretAsync(string secretName, CancellationToken cancellation)
     {
-        var value = await GetSecretIfExistsAsync(secretName);
+        var value = await GetSecretIfExistsAsync(secretName, cancellation);
         return (value.IsPrintable() ? value : throw new SecretNotFoundException())!;
     }
 
@@ -125,8 +127,9 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
     /// Asynchronously gets the value of a secret if it exists.
     /// </summary>
     /// <param name="secretName">The name of the secret.</param>
+    /// <param name="cancellation">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>A Task representing the asynchronous operation. The Task's result is the value of the secret, or null if the secret does not exist.</returns>
-    protected override async Task<string?> GetSecretIfExistsAsync(string secretName)
+    protected override async Task<string?> GetSecretIfExistsAsync(string secretName, CancellationToken cancellation)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await using var command = connection.CreateCommand();
@@ -145,8 +148,8 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
         command.Parameters.Add(scopeParameter);
         command.Parameters.Add(keyParameter);
 
-        await connection.OpenAsync();
-        var result = await command.ExecuteScalarAsync();
+        await connection.OpenAsync(cancellation);
+        var result = await command.ExecuteScalarAsync(cancellation);
         if (result is DBNull || result == null)
         {
             return null;
@@ -160,12 +163,13 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
     /// </summary>
     /// <param name="secretName">The name of the secret.</param>
     /// <param name="defaultValue">The default value to set if the secret does not exist.</param>
+    /// <param name="cancellation">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>A Task representing the asynchronous operation. The Task's result is the value of the secret, or the default value if the secret did not exist.</returns>
-    protected override async Task<string> GetOrSetSecretAsync(string secretName, string defaultValue)
+    protected override async Task<string> GetOrSetSecretAsync(string secretName, string defaultValue, CancellationToken cancellation)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
-        await connection.OpenAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await connection.OpenAsync(cancellation);
+        await using var transaction = await connection.BeginTransactionAsync(cancellation);
 
         // Check if secret already exists
         var command = connection.CreateCommand();
@@ -186,11 +190,11 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
 
         command.Transaction = transaction;
 
-        var result = await command.ExecuteScalarAsync();
+        var result = await command.ExecuteScalarAsync(cancellation);
         if (result != null && !(result is DBNull))
         {
             // Secret exists, so return it
-            await transaction.CommitAsync();
+            await transaction.CommitAsync(cancellation);
             return result.ToString()!;
         }
 
@@ -213,9 +217,9 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
 
         command.Transaction = transaction;
 
-        await command.ExecuteNonQueryAsync();
+        await command.ExecuteNonQueryAsync(cancellation);
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(cancellation);
 
         return defaultValue;
     }
@@ -225,8 +229,9 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
     /// </summary>
     /// <param name="secretName">The name of the secret to be set.</param>
     /// <param name="secretValue">The value to be set for the specified secret.</param>
+    /// <param name="cancellation">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    protected override async Task SetSecretAsync(string secretName, string secretValue)
+    protected override async Task SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await using var command = connection.CreateCommand();
@@ -254,8 +259,8 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
         command.Parameters.Add(keyParameter);
         command.Parameters.Add(valueParameter);
 
-        await connection.OpenAsync();
-        await command.ExecuteNonQueryAsync();
+        await connection.OpenAsync(cancellation);
+        await command.ExecuteNonQueryAsync(cancellation);
     }
 
     /// <summary>
@@ -270,6 +275,12 @@ public abstract class SQLiteSecretsRepository : SecretsRepository
         return exception is SecretNotFoundException;
     }
 
+
+    /// <inheritdoc />
+    protected override bool ShouldRetry(RetryPolicyArgs args)
+    {
+        return args.Exception is DbException {IsTransient: true};
+    }
 
     /// <summary>
     /// Checks if the provided string is a valid scope connection string.

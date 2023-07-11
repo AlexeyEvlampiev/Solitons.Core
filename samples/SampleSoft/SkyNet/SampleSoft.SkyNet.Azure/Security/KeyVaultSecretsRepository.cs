@@ -92,20 +92,20 @@ public sealed class KeyVaultSecretsRepository : SecretsRepository, ISecretsRepos
             .Invoke();
     }
 
-    protected override async Task<string> GetSecretAsync(string secretName)
+    protected override async Task<string> GetSecretAsync(string secretName, CancellationToken cancellation)
     {
-        var secret = await _nativeClient.GetSecretAsync(secretName);
+        var secret = await _nativeClient.GetSecretAsync(secretName, cancellationToken: cancellation);
         return secret.Value.Value;
     }
 
-    protected override async Task<string?> GetSecretIfExistsAsync(string secretName)
+    protected override async Task<string?> GetSecretIfExistsAsync(string secretName, CancellationToken cancellation)
     {
         try
         {
             var secret = await Policy
                 .Handle<RequestFailedException>(ex => ex.Status != (int)HttpStatusCode.NotFound)
                 .WaitAndRetryAsync(3, (attempt) => TimeSpan.FromMilliseconds(100 + 100 * attempt))
-                .ExecuteAsync(() => _nativeClient.GetSecretAsync(secretName));
+                .ExecuteAsync(() => _nativeClient.GetSecretAsync(secretName, cancellationToken: cancellation));
 
             return secret.Value.Value;
         }
@@ -115,23 +115,23 @@ public sealed class KeyVaultSecretsRepository : SecretsRepository, ISecretsRepos
         }
     }
 
-    protected override async Task<string> GetOrSetSecretAsync(string secretName, string defaultValue)
+    protected override async Task<string> GetOrSetSecretAsync(string secretName, string defaultValue, CancellationToken cancellation)
     {
         try
         {
-            var bundle = await _nativeClient.GetSecretAsync(secretName);
+            var bundle = await _nativeClient.GetSecretAsync(secretName, cancellationToken: cancellation);
             return bundle.Value.Value;
         }
         catch (Exception ex) when (IsSecretNotFoundError(ex))
         {
-            var bundle = await _nativeClient.SetSecretAsync(secretName, defaultValue);
+            var bundle = await _nativeClient.SetSecretAsync(secretName, defaultValue, cancellation);
             return bundle.Value.Value;
         }
     }
 
-    protected override Task SetSecretAsync(string secretName, string secretValue)
+    protected override Task SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation)
     {
-        return _nativeClient.SetSecretAsync(secretName, secretValue);
+        return _nativeClient.SetSecretAsync(secretName, secretValue, cancellation);
     }
 
     protected override bool IsSecretNotFoundError(Exception exception)

@@ -16,7 +16,7 @@ public class HttpRetryOnExceptionHandler : DelegatingHandler
     private const int DelayMultiplierLowerThreshold = 1;
     private const int MaxAttempts = 10;
 
-    private readonly SendAsyncHandler _baseSendAsync;
+    private readonly HttpMessageSendHandler _baseHttpMessageSend;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HttpRetryOnExceptionHandler"/> class.
@@ -26,7 +26,7 @@ public class HttpRetryOnExceptionHandler : DelegatingHandler
     public HttpRetryOnExceptionHandler(HttpMessageHandler innerHandler)
         : base(innerHandler)
     {
-        _baseSendAsync = base.SendAsync;
+        _baseHttpMessageSend = base.SendAsync;
     }
 
 
@@ -45,7 +45,7 @@ public class HttpRetryOnExceptionHandler : DelegatingHandler
             cancellation.ThrowIfCancellationRequested();
             try
             {
-                return await _baseSendAsync(request, cancellation).ConfigureAwait(false);
+                return await _baseHttpMessageSend(request, cancellation).ConfigureAwait(false);
             }
             catch (HttpRequestException ex)
             {

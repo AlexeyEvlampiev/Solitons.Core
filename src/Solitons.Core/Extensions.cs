@@ -21,6 +21,27 @@ namespace Solitons;
 public static partial class Extensions
 {
     /// <summary>
+    /// Flattens the hierarchy of an exception and its inner exceptions into a linear sequence.
+    /// This allows you to examine all the exceptions, in the order they were thrown, that contributed to the final exception.
+    /// </summary>
+    /// <param name="exception">The root exception to flatten.</param>
+    /// <returns>An IEnumerable of Exception that includes the root exception and all inner exceptions.</returns>
+    public static IEnumerable<Exception> FlattenHierarchy(this Exception exception)
+    {
+        Exception? current = exception;
+        if (exception == null)
+        {
+            throw new ArgumentNullException(nameof(exception));
+        }
+
+        while (current != null)
+        {
+            yield return current;
+            current = current.InnerException;
+        }
+    }
+
+    /// <summary>
     /// Scales a TimeSpan duration by a specified factor raised to a specified power.
     /// </summary>
     /// <param name="originalDuration">The original TimeSpan duration to be scaled.</param>

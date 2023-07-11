@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
 using Solitons.Security.Common;
 
@@ -48,7 +49,7 @@ namespace Solitons.Security
         }
 
         [DebuggerStepThrough]
-        public override async Task<string> GetSecretAsync(string secretName)
+        public override async Task<string> GetSecretAsync(string secretName, CancellationToken cancellation = default)
         {
             if (_secrets.TryGetValue(secretName, out string? value))
             {
@@ -65,7 +66,7 @@ namespace Solitons.Security
 
             try
             {
-                value = await base.GetSecretAsync(secretName);
+                value = await base.GetSecretAsync(secretName, cancellation);
                 _secrets.TryAdd(secretName, value);
                 return value;
             }
@@ -95,7 +96,7 @@ namespace Solitons.Security
         }
 
         [DebuggerStepThrough]
-        public override async Task<string> GetOrSetSecretAsync(string secretName, string defaultValue)
+        public override async Task<string> GetOrSetSecretAsync(string secretName, string defaultValue, CancellationToken cancellation = default)
         {
             if (_secrets.TryGetValue(secretName, out var value) && 
                 value != null)
@@ -103,13 +104,13 @@ namespace Solitons.Security
                 return value!;
             }
 
-            value = await base.GetOrSetSecretAsync(secretName, defaultValue);
+            value = await base.GetOrSetSecretAsync(secretName, defaultValue, cancellation);
             _secrets.TryAdd(secretName, value);
             return value;
         }
 
         [DebuggerStepThrough]
-        public override async Task<string?> GetSecretIfExistsAsync(string secretName)
+        public override async Task<string?> GetSecretIfExistsAsync(string secretName, CancellationToken cancellation = default)
         {
             if (_secrets.TryGetValue(secretName, out var value) &&
                 value != null)
@@ -117,15 +118,15 @@ namespace Solitons.Security
                 return value!;
             }
 
-            value = await base.GetSecretIfExistsAsync(secretName);
+            value = await base.GetSecretIfExistsAsync(secretName, cancellation);
             _secrets.TryAdd(secretName, value);
             return value;
         }
 
         [DebuggerStepThrough]
-        public override async Task SetSecretAsync(string secretName, string secretValue)
+        public override async Task SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation = default)
         {
-            await base.SetSecretAsync(secretName, secretValue);
+            await base.SetSecretAsync(secretName, secretValue, cancellation);
             _secrets.TryAdd(secretName, secretValue);
         }
     }

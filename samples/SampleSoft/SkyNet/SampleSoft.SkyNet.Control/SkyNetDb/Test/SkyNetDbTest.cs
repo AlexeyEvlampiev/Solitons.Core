@@ -24,7 +24,7 @@ public abstract class SkyNetDbTest : SkyNetIntegrationTest
             .GetCustomAttribute<SkyNetConnectionStringSecretAttribute>()
             .Convert(att => att?.SecretName)
             .Convert(sn => sn.DefaultIfNullOrWhiteSpace(KeyVaultSecretNames.SkyNetDbAdminConnectionString))
-            .Convert(secrets.GetSecretAsync);
+            .Convert(sn => secrets.GetSecretAsync(sn, cancellation));
 
         services.AddScoped<NpgsqlConnection>(provider => provider.GetRequiredService<NpgsqlTransaction>().Connection!);
 

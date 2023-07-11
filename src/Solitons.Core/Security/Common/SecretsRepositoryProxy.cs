@@ -3,111 +3,85 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Solitons.Security.Common
+namespace Solitons.Security.Common;
+
+/// <summary>
+/// A proxy for <see cref="ISecretsRepository"/> that delegates all calls to an underlying inner repository.
+/// It can be extended to add additional behaviors, such as read-through caching, while keeping the original repository intact.
+/// </summary>
+public abstract class SecretsRepositoryProxy : ISecretsRepository
 {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    private readonly ISecretsRepository _innerRepository;
+
     /// <summary>
-    /// 
+    /// Constructs a new instance of <see cref="SecretsRepositoryProxy"/> with the provided inner repository.
     /// </summary>
-    public class SecretsRepositoryProxy : ISecretsRepository
+    /// <param name="innerRepository">The underlying repository that the proxy delegates to.</param>
+    [DebuggerNonUserCode]
+    protected SecretsRepositoryProxy(ISecretsRepository innerRepository)
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        private readonly ISecretsRepository _innerRepository;
+        _innerRepository = innerRepository;
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="innerRepository"></param>
-        [DebuggerNonUserCode]
-        protected SecretsRepositoryProxy(ISecretsRepository innerRepository)
-        {
-            _innerRepository = innerRepository;
-        }
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public sealed override string ToString() => _innerRepository.ToString()!;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public sealed override string ToString() => _innerRepository.ToString()!;
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public sealed override bool Equals(object? obj)
+    {
+        if (obj == null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj is SecretsRepositoryProxy other)
+            return _innerRepository.Equals(other._innerRepository);
+        return _innerRepository.Equals(obj);
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public sealed override bool Equals(object? obj)
-        {
-            if(obj == null)return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj is SecretsRepositoryProxy other) 
-                return _innerRepository.Equals(other._innerRepository);
-            return _innerRepository.Equals(obj);
-        }
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public sealed override int GetHashCode() => _innerRepository.GetHashCode();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public sealed override int GetHashCode() => _innerRepository.GetHashCode();
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public virtual Task<string[]> ListSecretNamesAsync(CancellationToken cancellation = default)
+    {
+        return _innerRepository.ListSecretNamesAsync(cancellation);
+    }
 
-        [DebuggerStepThrough]
-        public virtual Task<string[]> ListSecretNamesAsync(CancellationToken cancellation = default)
-        {
-            return _innerRepository.ListSecretNamesAsync(cancellation);
-        }
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public virtual Task<string> GetSecretAsync(string secretName, CancellationToken cancellation = default)
+    {
+        return _innerRepository.GetSecretAsync(secretName, cancellation);
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="secretName"></param>
-        /// <returns></returns>
-        public virtual Task<string> GetSecretAsync(string secretName)
-        {
-            return _innerRepository.GetSecretAsync(secretName);
-        }
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public virtual Task<string?> GetSecretIfExistsAsync(string secretName, CancellationToken cancellation = default)
+    {
+        return _innerRepository.GetSecretIfExistsAsync(secretName, cancellation);
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="secretName"></param>
-        /// <returns></returns>
-        public virtual Task<string?> GetSecretIfExistsAsync(string secretName)
-        {
-            return _innerRepository.GetSecretIfExistsAsync(secretName);
-        }
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public virtual Task<string> GetOrSetSecretAsync(string secretName, string defaultValue, CancellationToken cancellation = default)
+    {
+        return _innerRepository.GetOrSetSecretAsync(secretName, defaultValue, cancellation);
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="secretName"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public virtual Task<string> GetOrSetSecretAsync(string secretName, string defaultValue)
-        {
-            return _innerRepository.GetOrSetSecretAsync(secretName, defaultValue);
-        }
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public virtual Task SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation = default)
+    {
+        return _innerRepository.SetSecretAsync(secretName, secretValue, cancellation);
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="secretName"></param>
-        /// <param name="secretValue"></param>
-        /// <returns></returns>
-        public virtual Task SetSecretAsync(string secretName, string secretValue)
-        {
-            return _innerRepository.SetSecretAsync(secretName, secretValue);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exception"></param>
-        /// <returns></returns>
-        public virtual bool IsSecretNotFoundError(Exception exception)
-        {
-            return _innerRepository.IsSecretNotFoundError(exception);
-        }
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public virtual bool IsSecretNotFoundError(Exception exception)
+    {
+        return _innerRepository.IsSecretNotFoundError(exception);
     }
 }

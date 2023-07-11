@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Solitons.Security;
 
@@ -20,32 +21,35 @@ public partial interface ISecretsRepository
     /// Asynchronously returns the value of the secret with the specified name.
     /// </summary>
     /// <param name="secretName">The name of the secret.</param>
+    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
     /// <returns>The value of the secret with the specified name.</returns>
-    Task<string> GetSecretAsync(string secretName);
+    Task<string> GetSecretAsync(string secretName, CancellationToken cancellation = default);
 
     /// <summary>
     /// Asynchronously returns the value of the secret with the specified name, if it exists in the repository.
     /// </summary>
     /// <param name="secretName">The name of the secret.</param>
+    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
     /// <returns>The value of the secret with the specified name, or <c>null</c> if it does not exist in the repository.</returns>
-    Task<string?> GetSecretIfExistsAsync(string secretName);
-
+    Task<string?> GetSecretIfExistsAsync(string secretName, CancellationToken cancellation = default);
 
     /// <summary>
     /// Asynchronously returns the value of the secret with the specified name, or sets it to the specified default value if it does not exist in the repository.
     /// </summary>
     /// <param name="secretName">The name of the secret.</param>
     /// <param name="defaultValue">The default value to set if the secret does not exist.</param>
+    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
     /// <returns>The value of the secret with the specified name, or the default value if it does not exist in the repository.</returns>
-    Task<string> GetOrSetSecretAsync(string secretName, string defaultValue);
+    Task<string> GetOrSetSecretAsync(string secretName, string defaultValue, CancellationToken cancellation = default);
 
     /// <summary>
     /// Asynchronously sets the value of the secret with the specified name.
     /// </summary>
     /// <param name="secretName">The name of the secret.</param>
     /// <param name="secretValue">The value of the secret.</param>
+    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task SetSecretAsync(string secretName, string secretValue);
+    Task SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation = default);
 
     /// <summary>
     /// Determines if the specified exception is a "secret not found" error.
