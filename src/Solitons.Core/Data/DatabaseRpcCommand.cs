@@ -67,12 +67,12 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    bool IDatabaseRpcCommand.CanAccept(MediaContent request) => _serializer
+    bool IDatabaseRpcCommand.CanAccept(TextMediaContent request) => _serializer
         .CanDeserialize(Metadata.Request.DtoType, request.ContentType);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    Task<MediaContent> IDatabaseRpcCommand.InvokeAsync(MediaContent request, CancellationToken cancellation)
+    Task<TextMediaContent> IDatabaseRpcCommand.InvokeAsync(TextMediaContent request, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         return InvokeAsync(request, cancellation);
@@ -80,7 +80,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    Task<MediaContent> IDatabaseRpcCommand.WhatIfAsync(MediaContent request, CancellationToken cancellation)
+    Task<TextMediaContent> IDatabaseRpcCommand.WhatIfAsync(TextMediaContent request, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         return WhatIfAsync(request, cancellation);
@@ -88,7 +88,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    Task IDatabaseRpcCommand.SendAsync(MediaContent request, CancellationToken cancellation)
+    Task IDatabaseRpcCommand.SendAsync(TextMediaContent request, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         return SendAsync(request, cancellation);
@@ -135,8 +135,8 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <exception cref="InvalidOperationException">
     /// Thrown when the <see cref="OnInvokedAsync(object, object, CancellationToken)"/> override is missing.
     /// </exception>
-    protected virtual async Task<MediaContent> InvokeAsync(
-        MediaContent request, 
+    protected virtual async Task<TextMediaContent> InvokeAsync(
+        TextMediaContent request, 
         CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
@@ -182,7 +182,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 
 
         [DebuggerStepThrough]
-        async Task<MediaContent> ParseResponseAsync(string content)
+        async Task<TextMediaContent> ParseResponseAsync(string content)
         {
             ThrowIf.Cancelled(cancellation);
             content = await TransformResponseAsync(content, cancellation);
@@ -195,7 +195,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
             content = await TransformResponseAsync(content, cancellation);
             // Override the committed- callback
             onCommittedAsync = () => OnInvokedAsync(requestDto, responseDto, cancellation);
-            return new MediaContent(content, Metadata.Response.ContentType);
+            return new TextMediaContent(content, Metadata.Response.ContentType);
         }
     }
 
@@ -211,7 +211,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <exception cref="InvalidOperationException">
     /// Thrown when the <see cref="OnRevertedAsync(object, object, CancellationToken)"/> override is missing.
     /// </exception>
-    protected virtual async Task<MediaContent> WhatIfAsync(MediaContent request, CancellationToken cancellation)
+    protected virtual async Task<TextMediaContent> WhatIfAsync(TextMediaContent request, CancellationToken cancellation)
     {
         ThrowIf.Cancelled(cancellation);
         if (false == _serializer.CanDeserialize(Metadata.Request.DtoType, Metadata.Request.ContentType) ||
@@ -254,7 +254,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
 
 
         [DebuggerStepThrough]
-        async Task<MediaContent> ParseResponseAsync(string content)
+        async Task<TextMediaContent> ParseResponseAsync(string content)
         {
             ThrowIf.Cancelled(cancellation);
             content = await TransformResponseAsync(content, cancellation);
@@ -267,7 +267,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
             content = await TransformResponseAsync(content, cancellation);
             // Override the committed- callback
             onCommittedAsync = () => OnRevertedAsync(requestDto, responseDto, cancellation);
-            return new MediaContent(content, Metadata.Response.ContentType);
+            return new TextMediaContent(content, Metadata.Response.ContentType);
         }
     }
 
@@ -281,7 +281,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown when the deserialization of the request message fails.
     /// </exception>
-    protected virtual async Task SendAsync(MediaContent request, CancellationToken cancellation)
+    protected virtual async Task SendAsync(TextMediaContent request, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         if (false == _serializer.CanDeserialize(Metadata.Request.DtoType, request.ContentType))
@@ -320,7 +320,7 @@ public abstract class DatabaseRpcCommand : IDatabaseRpcCommand
         ThrowIf.Cancelled(cancellation);
         var request = _serializer
             .Serialize(requestDto, Metadata.Request.ContentType)
-            .Convert(c => new MediaContent(c, Metadata.Request.ContentType));
+            .Convert(c => new TextMediaContent(c, Metadata.Request.ContentType));
 
         request = request
             .WithContent(await TransformRequestAsync(request.Content, cancellation));

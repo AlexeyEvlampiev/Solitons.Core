@@ -24,7 +24,7 @@ sealed class DatabaseRpcModule : IDatabaseRpcModule
     public bool Contains(Guid commandId) => _commandTypes.ContainsKey(commandId);
 
     [DebuggerStepThrough]
-    public Task<MediaContent> InvokeAsync(Guid commandId, MediaContent request, CancellationToken cancellation = default)
+    public Task<TextMediaContent> InvokeAsync(Guid commandId, TextMediaContent request, CancellationToken cancellation = default)
     {
         cancellation.ThrowIfCancellationRequested();
         return GetCommand(commandId)
@@ -32,7 +32,7 @@ sealed class DatabaseRpcModule : IDatabaseRpcModule
     }
 
     [DebuggerStepThrough]
-    public Task SendAsync(Guid commandId, MediaContent content, CancellationToken cancellation)
+    public Task SendAsync(Guid commandId, TextMediaContent content, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         return GetCommand(commandId)

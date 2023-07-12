@@ -12,40 +12,40 @@ public interface IDatabaseRpcCommand
     /// <summary>
     /// Determines whether this command can accept the specified request.
     /// </summary>
-    /// <param name="request">The <see cref="MediaContent"/> object to be evaluated.</param>
+    /// <param name="request">The <see cref="TextMediaContent"/> object to be evaluated.</param>
     /// <returns><c>true</c> if the command can accept the request; otherwise, <c>false</c>.</returns>
-    bool CanAccept(MediaContent request);
+    bool CanAccept(TextMediaContent request);
 
     /// <summary>
     /// Executes this command asynchronously with the specified <paramref name="request"/> and optional <paramref name="cancellation"/> token.
     /// </summary>
-    /// <param name="request">The <see cref="MediaContent"/> object to be processed.</param>
+    /// <param name="request">The <see cref="TextMediaContent"/> object to be processed.</param>
     /// <param name="cancellation">The optional <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation. The task result contains the response <see cref="MediaContent"/> object.</returns>
+    /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation. The task result contains the response <see cref="TextMediaContent"/> object.</returns>
     /// <exception cref="TaskCanceledException">Thrown if the cancellation token is triggered.</exception>
-    Task<MediaContent> InvokeAsync(
-        MediaContent request, 
+    Task<TextMediaContent> InvokeAsync(
+        TextMediaContent request, 
         CancellationToken cancellation = default);
 
     /// <summary>
     /// Sends the specified <paramref name="request"/> asynchronously and optionally observes a <paramref name="cancellation"/> token.
     /// </summary>
-    /// <param name="request">The <see cref="MediaContent"/> object to be sent.</param>
+    /// <param name="request">The <see cref="TextMediaContent"/> object to be sent.</param>
     /// <param name="cancellation">The optional <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A <see cref="Task"/> object that represents the asynchronous operation.</returns>
     /// <exception cref="TaskCanceledException">Thrown if the cancellation token is triggered.</exception>
     Task SendAsync(
-        MediaContent request, 
+        TextMediaContent request, 
         CancellationToken cancellation = default);
 
     /// <summary>
-    /// Evaluates the specified <paramref name="request"/> and returns the <see cref="MediaContent"/> object that represents what would happen if the request was executed.
+    /// Evaluates the specified <paramref name="request"/> and returns the <see cref="TextMediaContent"/> object that represents what would happen if the request was executed.
     /// </summary>
-    /// <param name="request">The <see cref="MediaContent"/> object to be evaluated.</param>
+    /// <param name="request">The <see cref="TextMediaContent"/> object to be evaluated.</param>
     /// <param name="cancellation">The optional <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation. The task result contains the response <see cref="MediaContent"/> object.</returns>
-    Task<MediaContent> WhatIfAsync(
-        MediaContent request, 
+    /// <returns>A <see cref="Task{TResult}"/> object that represents the asynchronous operation. The task result contains the response <see cref="TextMediaContent"/> object.</returns>
+    Task<TextMediaContent> WhatIfAsync(
+        TextMediaContent request, 
         CancellationToken cancellation = default);
 
     /// <summary>

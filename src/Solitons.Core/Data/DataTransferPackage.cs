@@ -98,7 +98,7 @@ public sealed class DataTransferPackage
     /// <param name="encoding">The encoding of the media content.</param>
     /// <exception cref="ArgumentNullException">Thrown when the content or encoding parameter is null.</exception>
     [DebuggerStepThrough]
-    public DataTransferPackage(Guid typeId, MediaContent mediaContent, Encoding encoding) 
+    public DataTransferPackage(Guid typeId, TextMediaContent mediaContent, Encoding encoding) 
         : this(typeId, mediaContent.Content, mediaContent.ContentType, encoding)
     {
 
@@ -422,14 +422,14 @@ public sealed class DataTransferPackage
     public static implicit operator string(DataTransferPackage package) => package.ToString();
 
     /// <summary>
-    /// Implicitly converts the specified <see cref="DataTransferPackage"/> instance to a <see cref="MediaContent"/> instance.
+    /// Implicitly converts the specified <see cref="DataTransferPackage"/> instance to a <see cref="TextMediaContent"/> instance.
     /// </summary>
     /// <param name="package">The <see cref="DataTransferPackage"/> instance to convert.</param>
-    /// <returns>A <see cref="MediaContent"/> instance that contains the content and content type of the specified <see cref="DataTransferPackage"/> instance.</returns>
-    public static implicit operator MediaContent(DataTransferPackage package)
+    /// <returns>A <see cref="TextMediaContent"/> instance that contains the content and content type of the specified <see cref="DataTransferPackage"/> instance.</returns>
+    public static implicit operator TextMediaContent(DataTransferPackage package)
     {
         var content = package.Encoding.GetString(package.Content.ToArray());
-        return new MediaContent(content, package.ContentType);
+        return new TextMediaContent(content, package.ContentType);
     }
 
 }

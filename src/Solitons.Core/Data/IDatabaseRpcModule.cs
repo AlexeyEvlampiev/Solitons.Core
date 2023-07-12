@@ -34,7 +34,7 @@ public partial interface IDatabaseRpcModule
     /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A <see cref="Task{TResult}"/> that represents the asynchronous operation. The task result contains the response content returned by the command.</returns>
     /// <exception cref="KeyNotFoundException">The command identifier is not found in the module.</exception>
-    Task<MediaContent> InvokeAsync(Guid commandId, MediaContent request, CancellationToken cancellation = default);
+    Task<TextMediaContent> InvokeAsync(Guid commandId, TextMediaContent request, CancellationToken cancellation = default);
 
     /// <summary>
     /// Sends the specified request content to the database RPC command with the provided command identifier.
@@ -44,7 +44,7 @@ public partial interface IDatabaseRpcModule
     /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
     /// <exception cref="KeyNotFoundException">The command identifier is not found in the module.</exception>
-    Task SendAsync(Guid commandId, MediaContent content, CancellationToken cancellation = default);
+    Task SendAsync(Guid commandId, TextMediaContent content, CancellationToken cancellation = default);
 }
 
 public partial interface IDatabaseRpcModule

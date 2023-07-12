@@ -55,7 +55,7 @@ sealed class DataContractSerializer : IDataContractSerializer
         {
             DataContractType = dataContractType;
             DefaultSerializer = defaultSerializer;
-            SupportedContentTypes = new HashSet<string>(MediaContentTypeEqualityComparer.Instance);
+            SupportedContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         public Type DataContractType { get; }
@@ -80,7 +80,7 @@ sealed class DataContractSerializer : IDataContractSerializer
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Dictionary<string, string> _contentTypeNames
-        = new Dictionary<string, string>(MediaContentTypeEqualityComparer.Instance)
+        = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["application/json"] = "application/json",
             ["application/xml"] = "application/xml",
@@ -106,7 +106,7 @@ sealed class DataContractSerializer : IDataContractSerializer
     {
         _registeredContentTypesCsv = new Lazy<string>(() => _metadata.Values
             .SelectMany(v => v.SupportedContentTypes)
-            .Distinct(MediaContentTypeEqualityComparer.Instance)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(_ => _, StringComparer.OrdinalIgnoreCase)
             .Join(", "));
     }
@@ -262,7 +262,7 @@ sealed class DataContractSerializer : IDataContractSerializer
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public MediaContent Serialize(object obj, string contentType)
+    public TextMediaContent Serialize(object obj, string contentType)
     {
         obj = ThrowIf
             .ArgumentNull(obj, nameof(obj))
@@ -296,7 +296,7 @@ sealed class DataContractSerializer : IDataContractSerializer
         {
             var content = value.Serializer.Serialize(obj);
 
-            return new MediaContent(content, contentType);
+            return new TextMediaContent(content, contentType);
         }
 
         string message = BuildContentTypeOutOfRangeMessage(obj.GetType(), contentType);
@@ -310,14 +310,14 @@ sealed class DataContractSerializer : IDataContractSerializer
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public MediaContent Serialize(object obj)
+    public TextMediaContent Serialize(object obj)
     {
         obj = ThrowIf.ArgumentNull(obj, nameof(obj));
         if (_metadata.TryGetValue(obj.GetType().GUID, out var metadata))
         {
             var contentType = _contentTypeNames[metadata.DefaultSerializer.TargetContentType];
             var content = metadata.DefaultSerializer.Serialize(obj);
-            return new MediaContent(content, contentType);
+            return new TextMediaContent(content, contentType);
         }
 
         var message = BuildDataTypeOutOfRangeMessage(obj.GetType());
@@ -332,7 +332,7 @@ sealed class DataContractSerializer : IDataContractSerializer
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public object Deserialize(Guid typeId, MediaContent mediaContent)
+    public object Deserialize(Guid typeId, TextMediaContent mediaContent)
     {
         typeId = ThrowIf.ArgumentNullOrEmpty(typeId, nameof(typeId));
         if (_metadata.TryGetValue(typeId, out var metadata) == false)
@@ -348,7 +348,7 @@ sealed class DataContractSerializer : IDataContractSerializer
             {
                 if (_contentTypeNames.TryGetValue(md.ContentType, out var actualContentType))
                 {
-                    return new MediaContent(md.Content, actualContentType);
+                    return new TextMediaContent(md.Content, actualContentType);
                 }
 
                 var message = BuildContentTypeOutOfRangeMessage(md.ContentType);

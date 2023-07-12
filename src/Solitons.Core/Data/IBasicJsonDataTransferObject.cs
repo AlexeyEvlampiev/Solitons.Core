@@ -21,110 +21,107 @@ public interface IBasicJsonDataTransferObject
     /// After serialization, this method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface.
     /// </remarks>
     [DebuggerStepThrough]
-    public sealed string ToJsonString()
-    {
-        var callback = this as ISerializationCallback;
-        callback?.OnSerializing(null);
-        var json = JsonSerializer.Serialize(this, this.GetType());
-        callback?.OnSerialized(null);
-        return json;
-    }
-
-    /// <summary>
-    /// Converts this instance to its JSON UTF-8 encoded byte array representation using the default <see cref="JsonSerializerOptions"/>.
-    /// </summary>
-    /// <returns>The JSON UTF-8 encoded byte array representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public sealed byte[] ToJsonUtf8Bytes()
-    {
-        var callback = this as ISerializationCallback;
-        callback?.OnSerializing(null);
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(this, this.GetType());
-        callback?.OnSerialized(null);
-        return bytes;
-    }
-
-    /// <summary>
-    /// Converts this instance to its JSON UTF-8 encoded byte array representation using the specified <see cref="JsonSerializerOptions"/>.
-    /// </summary>
-    /// <param name="options">The <see cref="JsonSerializerOptions"/> used to customize the serialization process.</param>
-    /// <returns>The JSON UTF-8 encoded byte array representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public sealed byte[] ToJsonUtf8Bytes(JsonSerializerOptions options)
-    {
-        var callback = this as ISerializationCallback;
-        callback?.OnSerializing(null);
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(this, this.GetType(), options);
-        callback?.OnSerialized(null);
-        return bytes;
-    }
-
-    /// <summary>
-    /// Converts this instance to its JSON UTF-8 encoded byte array representation using the specified <see cref="JsonSerializerContext"/>.
-    /// </summary>
-    /// <param name="context">The <see cref="JsonSerializerContext"/> used to customize the serialization process.</param>
-    /// <returns>The JSON UTF-8 encoded byte array representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public sealed byte[] ToJsonUtf8Bytes(JsonSerializerContext context)
-    {
-        var callback = this as ISerializationCallback;
-        callback?.OnSerializing(null);
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(this, this.GetType(), context);
-        callback?.OnSerialized(null);
-        return bytes;
-    }
+    public sealed TextMediaContent ToJsonMediaContent() => BasicJsonDataTransferObject.Serialize(this);
 
     /// <summary>
     /// Converts this instance to its JSON string representation using the specified <see cref="JsonSerializerOptions"/>.
     /// </summary>
-    /// <param name="options">The <see cref="JsonSerializerOptions"/> used to customize the serialization process.</param>
+    /// <param name="options">The options to use during serialization.</param>
     /// <returns>The JSON string representation of this instance.</returns>
-    /// <remarks>
-    /// This method serializes the object to a JSON string using the specified <see cref="JsonSerializerOptions"/>.
-    /// Before serialization, this method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface.
-    /// After serialization, this method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface.
-    /// </remarks>
     [DebuggerStepThrough]
-    public sealed string ToJsonString(JsonSerializerOptions options)
-    {
-        var callback = this as ISerializationCallback;
-        callback?.OnSerializing(null);
-        var json = JsonSerializer.Serialize(this, this.GetType(), options);
-        callback?.OnSerialized(null);
-        return json;
-    }
+    public sealed TextMediaContent ToJsonMediaContent(JsonSerializerOptions options) => BasicJsonDataTransferObject.Serialize(this, options);
 
     /// <summary>
     /// Converts this instance to its JSON string representation using the specified <see cref="JsonSerializerContext"/>.
     /// </summary>
-    /// <param name="context">The <see cref="JsonSerializerContext"/> used to customize the serialization process.</param>
+    /// <param name="context">The context to use during serialization.</param>
     /// <returns>The JSON string representation of this instance.</returns>
-    /// <remarks>
-    /// This method serializes the object to a JSON string using the specified <see cref="JsonSerializerContext"/>.
-    /// Before serialization, this method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface.
-    /// After serialization, this method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface.
-    /// </remarks>
     [DebuggerStepThrough]
-    public sealed string ToJsonString(JsonSerializerContext context)
-    {
-        var callback = this as ISerializationCallback;
-        callback?.OnSerializing(null);
-        var json = JsonSerializer.Serialize(this, this.GetType(), context);
-        callback?.OnSerialized(null);
-        return json;
-    }
+    public sealed TextMediaContent ToJsonMediaContent(JsonSerializerContext context) => BasicJsonDataTransferObject.Serialize(this, context);
+
+    /// <summary>
+    /// Converts this instance to its JSON string representation using the specified input type.
+    /// </summary>
+    /// <param name="inputType">The input type to use during serialization.</param>
+    /// <returns>The JSON string representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed TextMediaContent ToJsonMediaContent(Type inputType) => BasicJsonDataTransferObject.Serialize(this, inputType);
+
+    /// <summary>
+    /// Converts this instance to its JSON string representation using the specified input type and <see cref="JsonSerializerOptions"/>.
+    /// </summary>
+    /// <param name="inputType">The input type to use during serialization.</param>
+    /// <param name="options">The options to use during serialization.</param>
+    /// <returns>The JSON string representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed TextMediaContent ToJsonMediaContent(Type inputType, JsonSerializerOptions options) => BasicJsonDataTransferObject.Serialize(this, inputType, options);
+
+
+    /// <summary>
+    /// Converts this instance to its JSON string representation using the specified input type and <see cref="JsonSerializerContext"/>.
+    /// </summary>
+    /// <param name="inputType">The input type to use during serialization.</param>
+    /// <param name="context">The context to use during serialization.</param>
+    /// <returns>The JSON string representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed TextMediaContent ToJsonMediaContent(Type inputType, JsonSerializerContext context) => BasicJsonDataTransferObject.Serialize(this, inputType, context);
+
+    /// <summary>
+    /// Converts this instance to its UTF-8 encoded JSON byte array representation using the default <see cref="JsonSerializerOptions"/>.
+    /// </summary>
+    /// <returns>The UTF-8 encoded JSON byte array representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed byte[] ToUtf8Bytes() => BasicJsonDataTransferObject.SerializeToUtf8Bytes(this);
+
+
+    /// <summary>
+    /// Converts this instance to its UTF-8 encoded JSON byte array representation using the specified <see cref="JsonSerializerOptions"/>.
+    /// </summary>
+    /// <param name="options">The options to use during serialization.</param>
+    /// <returns>The UTF-8 encoded JSON byte array representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed byte[] ToUtf8Bytes(JsonSerializerOptions options) => BasicJsonDataTransferObject.SerializeToUtf8Bytes(this, options);
+
+    /// <summary>
+    /// Converts this instance to its UTF-8 encoded JSON byte array representation using the specified <see cref="JsonSerializerContext"/>.
+    /// </summary>
+    /// <param name="context">The context to use during serialization.</param>
+    /// <returns>The UTF-8 encoded JSON byte array representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed byte[] ToUtf8Bytes(JsonSerializerContext context) => BasicJsonDataTransferObject.SerializeToUtf8Bytes(this, context);
+
+
+
+    /// <summary>
+    /// Converts this instance to its UTF-8 encoded JSON byte array representation using the specified input type.
+    /// </summary>
+    /// <param name="inputType">The input type to use during serialization.</param>
+    /// <returns>The UTF-8 encoded JSON byte array representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed byte[] ToUtf8Bytes(Type inputType) => BasicJsonDataTransferObject.SerializeToUtf8Bytes(this, inputType);
+
+
+    /// <summary>
+    /// Converts this instance to its UTF-8 encoded JSON byte array representation using the specified input type and <see cref="JsonSerializerOptions"/>.
+    /// </summary>
+    /// <param name="inputType">The input type to use during serialization.</param>
+    /// <param name="options">The options to use during serialization.</param>
+    /// <returns>The UTF-8 encoded JSON byte array representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed byte[] ToUtf8Bytes(Type inputType, JsonSerializerOptions options) =>
+        BasicJsonDataTransferObject.SerializeToUtf8Bytes(this, inputType, options);
+
+
+    /// <summary>
+    /// Converts this instance to its UTF-8 encoded JSON byte array representation using the specified input type and <see cref="JsonSerializerContext"/>.
+    /// </summary>
+    /// <param name="inputType">The input type to use during serialization.</param>
+    /// <param name="context">The context to use during serialization.</param>
+    /// <returns>The UTF-8 encoded JSON byte array representation of this instance.</returns>
+    [DebuggerStepThrough]
+    public sealed byte[] ToUtf8Bytes(Type inputType, JsonSerializerContext context) =>
+        BasicJsonDataTransferObject.SerializeToUtf8Bytes(this, inputType, context);
+
 
     /// <summary>
     /// Deserializes the specified JSON string to an object of type <typeparamref name="T"/>.
@@ -245,78 +242,18 @@ public interface IBasicJsonDataTransferObject
 public static partial class Extensions
 {
     /// <summary>
-    /// Converts this instance to its JSON string representation using the default <see cref="JsonSerializerOptions"/>.
+    /// Converts the object implementing the <see cref="IBasicJsonDataTransferObject"/> interface to a <see cref="TextMediaContent"/> object with JSON content.
     /// </summary>
-    /// <param name="self">The object to serialize.</param>
-    /// <returns>The JSON string representation of this instance.</returns>
+    /// <param name="self">The object implementing the <see cref="IBasicJsonDataTransferObject"/> interface.</param>
+    /// <returns>A <see cref="TextMediaContent"/> object with JSON content.</returns>
     /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
+    /// This extension method converts the object to its JSON string representation using the <see cref="IBasicJsonDataTransferObject.ToJsonString"/> method.
+    /// The JSON string is then used to create a new <see cref="TextMediaContent"/> object with "application/json" as the content type using the <see cref="TextMediaContent.CreateJson"/> method.
     /// </remarks>
     [DebuggerStepThrough]
-    public static string ToJsonString(this IBasicJsonDataTransferObject self) => self.ToJsonString();
-
-    /// <summary>
-    /// Converts this instance to its JSON string representation using the specified <see cref="JsonSerializerOptions"/>.
-    /// </summary>
-    /// <param name="self">The object to serialize.</param>
-    /// <param name="options">The <see cref="JsonSerializerOptions"/> used to customize the serialization process.</param>
-    /// <returns>The JSON string representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public static string ToJsonString(this IBasicJsonDataTransferObject self, JsonSerializerOptions options) => self.ToJsonString(options);
-
-    /// <summary>
-    /// Converts this instance to its JSON string representation using the specified <see cref="JsonSerializerContext"/>.
-    /// </summary>
-    /// <param name="self">The object to serialize.</param>
-    /// <param name="context">The <see cref="JsonSerializerContext"/> used to customize the serialization process.</param>
-    /// <returns>The JSON string representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public static string ToJsonString(this IBasicJsonDataTransferObject self, JsonSerializerContext context) => self.ToJsonString(context);
-
-    /// <summary>
-    /// Converts this instance to its JSON UTF-8 encoded byte array representation using the default <see cref="JsonSerializerOptions"/>.
-    /// </summary>
-    /// <param name="self">The object to serialize.</param>
-    /// <returns>The JSON UTF-8 encoded byte array representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public static byte[] ToJsonUtf8Bytes(this IBasicJsonDataTransferObject self) => self.ToJsonUtf8Bytes();
-
-    /// <summary>
-    /// Converts this instance to its JSON UTF-8 encoded byte array representation using the specified <see cref="JsonSerializerOptions"/>.
-    /// </summary>
-    /// <param name="self">The object to serialize.</param>
-    /// <param name="options">The <see cref="JsonSerializerOptions"/> used to customize the serialization process.</param>
-    /// <returns>The JSON UTF-8 encoded byte array representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public static byte[] ToJsonUtf8Bytes(this IBasicJsonDataTransferObject self, JsonSerializerOptions options) => self.ToJsonUtf8Bytes(options);
-
-    /// <summary>
-    /// Converts this instance to its JSON UTF-8 encoded byte array representation using the specified <see cref="JsonSerializerContext"/>.
-    /// </summary>
-    /// <param name="self">The object to serialize.</param>
-    /// <param name="context">The <see cref="JsonSerializerContext"/> used to customize the serialization process.</param>
-    /// <returns>The JSON UTF-8 encoded byte array representation of this instance.</returns>
-    /// <remarks>
-    /// This method calls the <see cref="ISerializationCallback.OnSerializing"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, before serialization.
-    /// This method calls the <see cref="ISerializationCallback.OnSerialized"/> method of the object, if it implements the <see cref="ISerializationCallback"/> interface, after serialization.
-    /// </remarks>
-    [DebuggerStepThrough]
-    public static byte[] ToJsonUtf8Bytes(this IBasicJsonDataTransferObject self, JsonSerializerContext context) => self.ToJsonUtf8Bytes(context);
+    public static TextMediaContent AsJsonMediaContent(this IBasicJsonDataTransferObject self)
+    {
+        string jsonString = self.ToJsonMediaContent();
+        return TextMediaContent.CreateJson(jsonString);
+    }
 }

@@ -65,17 +65,17 @@ public partial interface IDataContractSerializer
     /// <exception cref="ArgumentException">The content type is not supported.</exception>
     /// <exception cref="ArgumentNullException">The object to serialize is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The content type is null or empty.</exception>
-    MediaContent Serialize(object obj, string contentType);
+    TextMediaContent Serialize(object obj, string contentType);
 
     /// <summary>
-    /// Serializes the specified object to a new instance of the <see cref="MediaContent"/> class, using the default content type.
+    /// Serializes the specified object to a new instance of the <see cref="TextMediaContent"/> class, using the default content type.
     /// </summary>
     /// <param name="obj">The object to be serialized.</param>
-    /// <returns>A new instance of the <see cref="MediaContent"/> class containing the serialized data.</returns>
+    /// <returns>A new instance of the <see cref="TextMediaContent"/> class containing the serialized data.</returns>
     /// <exception cref="ArgumentException">Thrown when the specified object cannot be serialized.</exception>
     /// <exception cref="ArgumentNullException">Thrown when the specified object is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the serialized data exceeds the maximum length allowed for the content.</exception>
-    MediaContent Serialize(object obj);
+    TextMediaContent Serialize(object obj);
 
 
     /// <summary>
@@ -100,7 +100,7 @@ public partial interface IDataContractSerializer
     /// <exception cref="ArgumentException">Thrown when the provided <paramref name="typeId"/> is not registered.</exception>
     /// <exception cref="ArgumentNullException">Thrown when the provided <paramref name="content"/> is null.</exception>
     /// <exception cref="SerializationException">Thrown when an error occurs during the deserialization process.</exception>
-    object Deserialize(Guid typeId, MediaContent content);
+    object Deserialize(Guid typeId, TextMediaContent content);
 
     /// <summary>
     /// Serializes an object into a DataTransferPackage.
@@ -167,7 +167,7 @@ public partial interface IDataContractSerializer
     /// <returns>The deserialized object.</returns>
     [DebuggerStepThrough]
     public object Deserialize(Guid typeId, string content, string contentType) => 
-        Deserialize(typeId, new MediaContent(content, contentType));
+        Deserialize(typeId, new TextMediaContent(content, contentType));
 
     /// <summary>
     /// Deserializes an object from the provided serialized content and content type identified by its type.
@@ -178,7 +178,7 @@ public partial interface IDataContractSerializer
     /// <returns>The deserialized object.</returns>
     [DebuggerStepThrough]
     public object Deserialize(Type type, string content, string contentType) =>
-        Deserialize(type.GUID, new MediaContent(content, contentType));
+        Deserialize(type.GUID, new TextMediaContent(content, contentType));
 
     /// <summary>
     /// Deserializes an object from the provided serialized content identified by its type.
@@ -187,7 +187,7 @@ public partial interface IDataContractSerializer
     /// <param name="content">The serialized content to be deserialized.</param>
     /// <returns>The deserialized object.</returns>
     [DebuggerStepThrough]
-    object Deserialize(Type type, MediaContent content) => Deserialize(type.GUID, content);
+    object Deserialize(Type type, TextMediaContent content) => Deserialize(type.GUID, content);
 
     /// <summary>
     /// Transforms the provided serialized content of an object to a new content type identified by its GUID.
@@ -196,14 +196,14 @@ public partial interface IDataContractSerializer
     /// <param name="input">The serialized content to be transformed.</param>
     /// <param name="contentType">The new content type of the transformed content.</param>
     /// <returns>The transformed serialized content.</returns>
-    public MediaContent Transform(
+    public TextMediaContent Transform(
         Guid typeId, 
-        MediaContent input, 
+        TextMediaContent input, 
         string contentType)
     {
         var dto = Deserialize(typeId, input);
         var content = Serialize(dto, contentType);
-        return new MediaContent(content, contentType);
+        return new TextMediaContent(content, contentType);
     }
 
 
@@ -214,7 +214,7 @@ public partial interface IDataContractSerializer
     /// <param name="mediaContent">The serialized content to be deserialized.</param>
     /// <returns>The deserialized object.</returns>
     [DebuggerStepThrough]
-    public T Deserialize<T>(MediaContent mediaContent) =>
+    public T Deserialize<T>(TextMediaContent mediaContent) =>
         (T)Deserialize(typeof(T), mediaContent.Content, mediaContent.ContentType);
 
 

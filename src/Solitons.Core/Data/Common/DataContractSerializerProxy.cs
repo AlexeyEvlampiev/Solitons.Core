@@ -81,7 +81,7 @@ public abstract class DataContractSerializerProxy : IDataContractSerializer
     /// <param name="contentType"></param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public MediaContent Serialize(object obj, string contentType) => _innerSerializer.Serialize(obj, contentType);
+    public TextMediaContent Serialize(object obj, string contentType) => _innerSerializer.Serialize(obj, contentType);
 
     /// <summary>
     /// 
@@ -89,7 +89,7 @@ public abstract class DataContractSerializerProxy : IDataContractSerializer
     /// <param name="obj"></param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public MediaContent Serialize(object obj) => _innerSerializer.Serialize(obj);
+    public TextMediaContent Serialize(object obj) => _innerSerializer.Serialize(obj);
 
     /// <summary>
     /// 
@@ -98,7 +98,7 @@ public abstract class DataContractSerializerProxy : IDataContractSerializer
     /// <param name="content"></param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public object Deserialize(Guid typeId, MediaContent content) => _innerSerializer.Deserialize(typeId, content);
+    public object Deserialize(Guid typeId, TextMediaContent content) => _innerSerializer.Deserialize(typeId, content);
 
     /// <summary>
     /// 
