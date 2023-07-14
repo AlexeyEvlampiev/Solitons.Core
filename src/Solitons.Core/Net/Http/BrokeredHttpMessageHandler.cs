@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -57,6 +58,11 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
             .Subscribe();
     }
 
+    /// <summary>
+    /// Handles the response from the server.
+    /// </summary>
+    /// <param name="brokeredResponse">The brokered response received from the server.</param>
+
     private void OnResponse(IBrokeredResponse brokeredResponse)
     {
         if (_sessionListeners.TryGetValue(brokeredResponse.HttpSessionId, out var observer))
@@ -74,11 +80,20 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
         }
     }
 
+    /// <summary>
+    /// Handles any error that occurs while processing the responses.
+    /// </summary>
+    /// <param name="ex">The exception that occurred.</param>
+
     private void OnError(Exception ex)
     {
         Error ??= ex;
         OnCompleted();
     }
+
+    /// <summary>
+    /// Handles the completion of the responses processing.
+    /// </summary>
 
     private void OnCompleted()
     {
@@ -115,7 +130,21 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
     {
         cancellation.ThrowIfCancellationRequested();
 
-        var brokeredRequest = await CreateBrokeredRequestAsync(request, cancellation);
+        using var memory = new MemoryStream();
+        if (request.Content != null)
+        {
+            await request.Content.CopyToAsync(memory, cancellation);
+        }
+
+        var brokeredRequest = CreateBrokeredRequest(
+            request.Method, 
+            request.RequestUri, 
+            request.Headers, 
+            request.Content?.Headers,
+            memory.ToArray(), 
+            request.Version);
+        ;
+
         var correlationId = ThrowIf.NullOrEmpty(brokeredRequest.HttpSessionId, "HTTP session ID is required.");
         var adjustedRequestTimeout = AdjustRequestTimeout(brokeredRequest.RequestTimeout);
 
@@ -154,7 +183,7 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
         return await Observable
             .Create<IBrokeredResponse>(SubscribeAsync)
             .SubscribeOn(_scheduler)
-            .SelectMany(brokeredResponse => CreateHttpResponseAsync(brokeredResponse, cancellation))
+            .Select(CreateHttpResponse)
             .Catch<HttpResponseMessage, Exception>(ex => Observable.FromAsync(() => CreateHttpErrorResponseAsync(request, ex, cancellation)))
             .FirstAsync()
             .ToTask(cancellation);
@@ -229,38 +258,39 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
         .Convert(TimeSpan.FromTicks);
 
 
-
     /// <summary>
-    /// When overridden in a derived class, converts the provided brokered response to an HTTP response message.
+    /// Creates an HTTP response message based on the brokered response.
     /// </summary>
-    /// <param name="brokeredResponse">The brokered response to be converted.</param>
-    /// <param name="cancellation">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-    /// <returns>An observable sequence of HTTP response messages created from the provided brokered response.</returns>
-    /// <remarks>
-    /// This method is expected to be overridden in a derived class to provide the specific logic for converting a brokered response 
-    /// (a response received over a brokered messaging system) into an HTTP response message. The resulting HTTP response message is 
-    /// then returned to the client that sent the original HTTP request.
-    /// This method provides a way for derived classes to handle any specific requirements or protocols that are used in the brokered 
-    /// messaging system. The default implementation in the base class simply converts the brokered response to an HTTP response 
-    /// without any additional processing.
-    /// </remarks>
-    protected abstract IObservable<HttpResponseMessage> CreateHttpResponseAsync(IBrokeredResponse brokeredResponse, CancellationToken cancellation);
+    /// <param name="brokeredResponse">The brokered response to be used for creating the HTTP response message.</param>
+    /// <returns>Returns an HTTP response message created based on the provided brokered response.</returns>
+    protected abstract HttpResponseMessage CreateHttpResponse(IBrokeredResponse brokeredResponse);
 
     /// <summary>
     /// Publishes the outgoing message.
     /// </summary>
-    /// <param name="outgoingMsg">The outgoing brokered request message.</param>
+    /// <param name="request">The outgoing brokered request message.</param>
     /// <param name="cancellation">A cancellation token to cancel operation.</param>
     /// <returns>Returns a <see cref="Task"/> representing the asynchronous operation.</returns>
-    protected abstract Task PublishAsync(IBrokeredRequest outgoingMsg, CancellationToken cancellation);
+    protected abstract Task PublishAsync(IBrokeredRequest request, CancellationToken cancellation);
 
     /// <summary>
-    /// Creates a brokered request from the HTTP request message.
+    /// Creates a brokered request based on the HTTP request details.
     /// </summary>
-    /// <param name="request">The HTTP request message.</param>
-    /// <param name="cancellation">A cancellation token to cancel operation.</param>
-    /// <returns>Returns a <see cref="Task"/> that yields the brokered request.</returns>
-    protected abstract Task<IBrokeredRequest> CreateBrokeredRequestAsync(HttpRequestMessage request, CancellationToken cancellation);
+    /// <param name="statusCode">The HTTP method used for the request.</param>
+    /// <param name="requestUri">The URI of the HTTP request.</param>
+    /// <param name="headers">The headers of the HTTP request.</param>
+    /// <param name="trailingHeaders">The trailing headers of the HTTP request, if any.</param>
+    /// <param name="content">The content of the HTTP request.</param>
+    /// <param name="version">The version of the HTTP request.</param>
+    /// <returns>Returns a brokered request created based on the provided HTTP request details.</returns>
+
+    protected abstract IBrokeredRequest CreateBrokeredRequest(
+        HttpMethod statusCode,
+        Uri? requestUri,
+        HttpHeaders headers,
+        HttpHeaders? trailingHeaders,
+        byte[] content,
+        Version version);
 
     /// <summary>
     /// Releases the unmanaged resources used by the BrokeredHttpMessageHandler and optionally releases the managed resources.
@@ -336,20 +366,26 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
     /// <summary>
     /// Represents a brokered request in the context of an HTTP session.
     /// </summary>
-    protected abstract class BrokeredMessage : IBrokeredRequest
+    protected abstract class BrokeredRequest : IBrokeredRequest
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private TimeSpan _requestTimeout;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BrokeredMessage"/> class with a unique HTTP session ID and a default request timeout of 30 seconds.
+        /// Initializes a new instance of the <see cref="BrokeredRequest"/> class with a unique HTTP session ID and a default request timeout of 30 seconds.
         /// </summary>
-        protected BrokeredMessage()
+        protected BrokeredRequest()
         {
             RequestTimeout = TimeSpan.FromSeconds(30);
         }
 
-        Guid IBrokeredMessage.HttpSessionId { get; } = Guid.NewGuid();
+        /// <summary>
+        /// Gets the unique identifier for the HTTP session.
+        /// </summary>
+        /// <value>
+        /// The unique identifier for the HTTP session.
+        /// </value>
+        public Guid HttpSessionId { get; } = Guid.NewGuid();
 
         /// <summary>
         /// Gets or sets the requested timeout for the request.

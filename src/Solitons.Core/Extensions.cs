@@ -1252,4 +1252,88 @@ public static partial class Extensions
         transform.Invoke(self);
         return self;
     }
+
+    /// <summary>
+    /// Determines and returns the greater value between the current instance and the provided parameter.
+    /// </summary>
+    /// <param name="self">The current instance of System.TimeSpan.</param>
+    /// <param name="threshold">The System.TimeSpan value to compare with the current instance.</param>
+    /// <returns>
+    /// The greater value between the current instance and the provided System.TimeSpan value.
+    /// </returns>
+    [DebuggerNonUserCode]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static TimeSpan Min(this TimeSpan self, TimeSpan threshold)
+    {
+        return self > threshold ? self : threshold;
+    }
+
+    /// <summary>
+    /// Determines and returns the smaller value between the current instance and the provided parameter.
+    /// </summary>
+    /// <param name="self">The current instance of System.TimeSpan.</param>
+    /// <param name="threshold">The System.TimeSpan value to compare with the current instance.</param>
+    /// <returns>
+    /// The smaller value between the current instance and the provided System.TimeSpan value.
+    /// </returns>
+    public static TimeSpan Max(this TimeSpan self, TimeSpan threshold)
+    {
+        return self < threshold ? self : threshold;
+    }
+
+    /// <summary>
+    /// Determines and returns the greater value between the current instance and the provided parameter.
+    /// </summary>
+    /// <param name="self">The current instance of System.DateTime.</param>
+    /// <param name="threshold">The System.DateTime value to compare with the current instance.</param>
+    /// <returns>
+    /// The greater value between the current instance and the provided System.DateTime value.
+    /// </returns>
+    [DebuggerNonUserCode]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DateTime Min(this DateTime self, DateTime threshold)
+    {
+        return self > threshold ? self : threshold;
+    }
+
+    /// <summary>
+    /// Determines and returns the smaller value between the current instance and the provided parameter.
+    /// </summary>
+    /// <param name="self">The current instance of System.DateTime.</param>
+    /// <param name="threshold">The System.DateTime value to compare with the current instance.</param>
+    /// <returns>
+    /// The smaller value between the current instance and the provided System.DateTime value.
+    /// </returns>
+    public static DateTime Max(this DateTime self, DateTime threshold)
+    {
+        return self < threshold ? self : threshold;
+    }
+
+    /// <summary>
+    /// Determines and returns the greater value between the current instance and the provided parameter.
+    /// </summary>
+    /// <param name="self">The current instance of System.DateTimeOffset.</param>
+    /// <param name="threshold">The System.DateTimeOffset value to compare with the current instance.</param>
+    /// <returns>
+    /// The greater value between the current instance and the provided System.DateTimeOffset value.
+    /// </returns>
+    [DebuggerNonUserCode]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static DateTimeOffset Min(this DateTimeOffset self, DateTimeOffset threshold)
+    {
+        return self > threshold ? self : threshold;
+    }
+
+    /// <summary>
+    /// Determines and returns the smaller value between the current instance and the provided parameter.
+    /// </summary>
+    /// <param name="self">The current instance of System.DateTimeOffset.</param>
+    /// <param name="threshold">The System.DateTimeOffset value to compare with the current instance.</param>
+    /// <returns>
+    /// The smaller value between the current instance and the provided System.DateTimeOffset value.
+    /// </returns>
+    public static DateTimeOffset Max(this DateTimeOffset self, DateTimeOffset threshold)
+    {
+        return self < threshold ? self : threshold;
+    }
 }
