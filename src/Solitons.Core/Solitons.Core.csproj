@@ -29,6 +29,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Net\Http\Common\**" />
+    <EmbeddedResource Remove="Net\Http\Common\**" />
+    <None Remove="Net\Http\Common\**" />
+  </ItemGroup>
+
+  <ItemGroup>
 	  <PackageReference Include="System.Reactive" Version="6.0.0" />
   </ItemGroup>
 
@@ -128,7 +134,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Web\Common\" />
-    <Folder Include="Net\Http\Common\" />
   </ItemGroup>
 
 </Project>

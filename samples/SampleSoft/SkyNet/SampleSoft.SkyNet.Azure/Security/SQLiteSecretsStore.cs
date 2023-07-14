@@ -2,7 +2,6 @@
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 using Solitons;
 using Solitons.Security;
 using Solitons.Security.Common;

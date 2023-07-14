@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Data.Common;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
