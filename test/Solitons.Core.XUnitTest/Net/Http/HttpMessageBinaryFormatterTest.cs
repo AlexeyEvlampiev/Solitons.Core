@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Solitons.Net.Http;
 
-public sealed class HttpMessageSerializerTest
+public sealed class HttpMessageBinaryFormatterTest
 {
     [Fact]
     public async Task SerializeDeserializeRequestTest()
@@ -25,9 +25,9 @@ public sealed class HttpMessageSerializerTest
         var stream = new MemoryStream();
 
         // Act
-        await HttpMessageSerializer.SerializeAsync(originalRequest, stream);
+        await HttpMessageBinaryFormatter.WriteAsync(originalRequest, stream);
         stream.Position = 0;
-        var deserializedRequest = await HttpMessageSerializer.DeserializeRequestAsync(stream);
+        var deserializedRequest = await HttpMessageBinaryFormatter.ReadRequestAsync(stream);
 
         // Assert
         Assert.Equal(originalRequest.Method, deserializedRequest.Method);
@@ -51,9 +51,9 @@ public sealed class HttpMessageSerializerTest
         var stream = new MemoryStream();
 
         // Act
-        await HttpMessageSerializer.SerializeAsync(originalResponse, stream);
+        await HttpMessageBinaryFormatter.WriteAsync(originalResponse, stream);
         stream.Position = 0;
-        var deserializedResponse = await HttpMessageSerializer.DeserializeResponseAsync(stream);
+        var deserializedResponse = await HttpMessageBinaryFormatter.ReadResponseAsync(stream);
 
         // Assert
         Assert.Equal(originalResponse.StatusCode, deserializedResponse.StatusCode);
@@ -71,9 +71,9 @@ public sealed class HttpMessageSerializerTest
         var stream = new MemoryStream();
 
         // Act
-        await HttpMessageSerializer.SerializeAsync(emptyRequest, stream);
+        await HttpMessageBinaryFormatter.WriteAsync(emptyRequest, stream);
         stream.Position = 0;
-        var deserializedRequest = await HttpMessageSerializer.DeserializeRequestAsync(stream);
+        var deserializedRequest = await HttpMessageBinaryFormatter.ReadRequestAsync(stream);
 
         // Assert
         Assert.Equal(emptyRequest.Method, deserializedRequest.Method);
@@ -90,9 +90,9 @@ public sealed class HttpMessageSerializerTest
         var stream = new MemoryStream();
 
         // Act
-        await HttpMessageSerializer.SerializeAsync(emptyResponse, stream);
+        await HttpMessageBinaryFormatter.WriteAsync(emptyResponse, stream);
         stream.Position = 0;
-        var deserializedResponse = await HttpMessageSerializer.DeserializeResponseAsync(stream);
+        var deserializedResponse = await HttpMessageBinaryFormatter.ReadResponseAsync(stream);
 
         // Assert
         Assert.Equal(emptyResponse.StatusCode, deserializedResponse.StatusCode);
@@ -110,9 +110,9 @@ public sealed class HttpMessageSerializerTest
         var stream = new MemoryStream();
 
         // Act
-        await HttpMessageSerializer.SerializeAsync(originalRequest, stream);
+        await HttpMessageBinaryFormatter.WriteAsync(originalRequest, stream);
         stream.Position = 0;
-        var deserializedRequest = await HttpMessageSerializer.DeserializeRequestAsync(stream);
+        var deserializedRequest = await HttpMessageBinaryFormatter.ReadRequestAsync(stream);
 
         // Assert
         Assert.Equal(originalRequest.Headers.Count(), deserializedRequest.Headers.Count());
@@ -130,9 +130,9 @@ public sealed class HttpMessageSerializerTest
         var stream = new MemoryStream();
 
         // Act
-        await HttpMessageSerializer.SerializeAsync(originalResponse, stream);
+        await HttpMessageBinaryFormatter.WriteAsync(originalResponse, stream);
         stream.Position = 0;
-        var deserializedResponse = await HttpMessageSerializer.DeserializeResponseAsync(stream);
+        var deserializedResponse = await HttpMessageBinaryFormatter.ReadResponseAsync(stream);
 
         // Assert
         Assert.Equal(originalResponse.Headers.Count(), deserializedResponse.Headers.Count());
@@ -150,6 +150,6 @@ public sealed class HttpMessageSerializerTest
         stream.Position = 0;
 
         // Act & Assert
-        await Assert.ThrowsAsync<HttpMessageSerializationException>(() => HttpMessageSerializer.DeserializeRequestAsync(stream));
+        await Assert.ThrowsAsync<HttpMessageSerializationException>(() => HttpMessageBinaryFormatter.ReadRequestAsync(stream));
     }
 }
