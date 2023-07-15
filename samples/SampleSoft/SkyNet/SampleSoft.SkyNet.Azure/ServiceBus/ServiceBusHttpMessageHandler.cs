@@ -39,7 +39,6 @@ public sealed class ServiceBusHttpMessageHandler : BrokeredHttpMessageHandler
         _responses = responses.AsObserver();
     }
 
-
     protected override Task PublishAsync(
         IBrokeredRequest request, 
         CancellationToken cancellation)
@@ -48,53 +47,36 @@ public sealed class ServiceBusHttpMessageHandler : BrokeredHttpMessageHandler
         return _sender.SendMessageAsync(serviceBusRequest.ServiceBusMessage, cancellation);
     }
 
-    protected override IBrokeredRequest CreateBrokeredRequest(
-        HttpMethod statusCode, 
-        Uri? requestUri, 
-        HttpHeaders headers,
-        HttpHeaders? trailingHeaders, 
-        byte[] content, 
-        Version version)
+    protected override async Task<IBrokeredRequest> CreateBrokeredRequestAsync(
+        HttpRequestMessage httpRequest, 
+        CancellationToken cancellation)
     {
-        throw new NotImplementedException();
+        var httpRequestBytes = await HttpMessageBinaryFormatter.ToByteArrayAsync(
+            httpRequest, 
+            cancellation);
+
+        return new ServiceBusBrokeredRequest(httpRequestBytes, _serviceBusSessionId);
     }
 
-    protected override HttpResponseMessage CreateHttpResponse(IBrokeredResponse brokeredResponse)
+    protected override Task<HttpResponseMessage> CreateHttpResponseAsync(
+        IBrokeredResponse brokeredResponse,
+        CancellationToken cancellation)
     {
-        throw new NotImplementedException();
+        var serviceBusBrokeredResponse = (ServiceBusBrokeredResponse)brokeredResponse;
+        var serviceBusMessage = serviceBusBrokeredResponse.ServiceBusMessage;
+        var body = serviceBusMessage.Body.ToArray();
+        return HttpMessageBinaryFormatter.ToResponseAsync(body, cancellation);
     }
 
     sealed class ServiceBusBrokeredRequest : BrokeredRequest
     {
-        public static async Task<ServiceBusBrokeredRequest> CreateAsync(
-            HttpRequestMessage request, 
-            string serviceBusSessionId,
-            CancellationToken cancellation)
+        public ServiceBusBrokeredRequest(byte[] body, string replyToSessionId)
         {
-            var content = Array.Empty<byte>();
-            if (request?.Content != null)
+            ServiceBusMessage = new ServiceBusMessage(body)
             {
-                content = await request.Content.ReadAsByteArrayAsync(cancellation);
-            }
-
-            var serviceBusMessage = new ServiceBusMessage(content)
-            {
-                ReplyToSessionId = serviceBusSessionId
+                CorrelationId = base.HttpSessionId.ToString("N"),
+                ReplyToSessionId = replyToSessionId
             };
-
-            foreach (var httpRequestHeader in request!.Headers)
-            {
-                var value = httpRequestHeader.Value.Join(",");
-                serviceBusMessage.ApplicationProperties.Add(httpRequestHeader.Key, value);
-            }
-            
-
-            return new ServiceBusBrokeredRequest(serviceBusMessage);
-        }
-        public ServiceBusBrokeredRequest(ServiceBusMessage request)
-        {
-            ServiceBusMessage = request;
-            request.CorrelationId = base.HttpSessionId.ToString("N");
         }
 
         public ServiceBusMessage ServiceBusMessage { get; }
@@ -102,6 +84,14 @@ public sealed class ServiceBusHttpMessageHandler : BrokeredHttpMessageHandler
 
     sealed class ServiceBusBrokeredResponse : IBrokeredResponse
     {
-        public Guid HttpSessionId => throw new NotImplementedException();
+        public ServiceBusBrokeredResponse(ServiceBusMessage serviceBusMessage)
+        {
+            ServiceBusMessage = serviceBusMessage;
+            HttpSessionId = Guid.Parse(serviceBusMessage.CorrelationId);
+        }
+
+        public Guid HttpSessionId { get; }
+
+        public ServiceBusMessage ServiceBusMessage { get; }
     }
 }

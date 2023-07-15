@@ -121,28 +121,22 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
     /// <summary>
     /// Handles the HTTP request.
     /// </summary>
-    /// <param name="request">The HTTP request message to send.</param>
+    /// <param name="httpRequest">The HTTP request message to send.</param>
     /// <param name="cancellation">A cancellation token to cancel operation.</param>
     /// <returns>Returns the HTTP response message from the server.</returns>
     protected sealed override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request, 
+        HttpRequestMessage httpRequest, 
         CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
 
         using var memory = new MemoryStream();
-        if (request.Content != null)
+        if (httpRequest.Content != null)
         {
-            await request.Content.CopyToAsync(memory, cancellation);
+            await httpRequest.Content.CopyToAsync(memory, cancellation);
         }
 
-        var brokeredRequest = CreateBrokeredRequest(
-            request.Method, 
-            request.RequestUri, 
-            request.Headers, 
-            request.Content?.Headers,
-            memory.ToArray(), 
-            request.Version);
+        var brokeredRequest = await CreateBrokeredRequestAsync(httpRequest, cancellation);
         ;
 
         var correlationId = ThrowIf.NullOrEmpty(brokeredRequest.HttpSessionId, "HTTP session ID is required.");
@@ -183,8 +177,8 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
         return await Observable
             .Create<IBrokeredResponse>(SubscribeAsync)
             .SubscribeOn(_scheduler)
-            .Select(CreateHttpResponse)
-            .Catch<HttpResponseMessage, Exception>(ex => Observable.FromAsync(() => CreateHttpErrorResponseAsync(request, ex, cancellation)))
+            .SelectMany(msg => CreateHttpResponseAsync(msg, cancellation))
+            .Catch<HttpResponseMessage, Exception>(ex => Observable.FromAsync(() => CreateHttpErrorResponseAsync(httpRequest, ex, cancellation)))
             .FirstAsync()
             .ToTask(cancellation);
     }
@@ -258,12 +252,18 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
         .Convert(TimeSpan.FromTicks);
 
 
+
     /// <summary>
-    /// Creates an HTTP response message based on the brokered response.
+    /// Asynchronously creates an HTTP response message from a brokered response.
     /// </summary>
-    /// <param name="brokeredResponse">The brokered response to be used for creating the HTTP response message.</param>
-    /// <returns>Returns an HTTP response message created based on the provided brokered response.</returns>
-    protected abstract HttpResponseMessage CreateHttpResponse(IBrokeredResponse brokeredResponse);
+    /// <param name="brokeredResponse">The brokered response.</param>
+    /// <param name="cancellation">A cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous create operation. The value of the TResult parameter contains the created HttpResponseMessage.</returns>
+    /// <remarks>
+    /// This method should be implemented in a derived class to create an HTTP response specific to the service being called.
+    /// This could include setting specific headers, body content, status codes, or other setup necessary for the specific service.
+    /// </remarks>
+    protected abstract Task<HttpResponseMessage> CreateHttpResponseAsync(IBrokeredResponse brokeredResponse, CancellationToken cancellation);
 
     /// <summary>
     /// Publishes the outgoing message.
@@ -274,23 +274,18 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
     protected abstract Task PublishAsync(IBrokeredRequest request, CancellationToken cancellation);
 
     /// <summary>
-    /// Creates a brokered request based on the HTTP request details.
+    /// Asynchronously creates a brokered request from an HTTP request message.
     /// </summary>
-    /// <param name="statusCode">The HTTP method used for the request.</param>
-    /// <param name="requestUri">The URI of the HTTP request.</param>
-    /// <param name="headers">The headers of the HTTP request.</param>
-    /// <param name="trailingHeaders">The trailing headers of the HTTP request, if any.</param>
-    /// <param name="content">The content of the HTTP request.</param>
-    /// <param name="version">The version of the HTTP request.</param>
-    /// <returns>Returns a brokered request created based on the provided HTTP request details.</returns>
-
-    protected abstract IBrokeredRequest CreateBrokeredRequest(
-        HttpMethod statusCode,
-        Uri? requestUri,
-        HttpHeaders headers,
-        HttpHeaders? trailingHeaders,
-        byte[] content,
-        Version version);
+    /// <param name="httpRequest">The HTTP request message.</param>
+    /// <param name="cancellation">A cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous create operation. The value of the TResult parameter contains the created IBrokeredRequest.</returns>
+    /// <remarks>
+    /// This method should be implemented in a derived class to create a brokered request specific to the service being called.
+    /// This could include setting specific headers, parameters, or other setup necessary for the specific service.
+    /// </remarks>
+    protected abstract Task<IBrokeredRequest> CreateBrokeredRequestAsync(
+        HttpRequestMessage httpRequest,
+        CancellationToken cancellation);
 
     /// <summary>
     /// Releases the unmanaged resources used by the BrokeredHttpMessageHandler and optionally releases the managed resources.

@@ -150,6 +150,6 @@ public sealed class HttpMessageBinaryFormatterTest
         stream.Position = 0;
 
         // Act & Assert
-        await Assert.ThrowsAsync<HttpMessageSerializationException>(() => HttpMessageBinaryFormatter.ReadRequestAsync(stream));
+        await Assert.ThrowsAsync<HttpMessageBinaryFormatterException>(() => HttpMessageBinaryFormatter.ReadRequestAsync(stream));
     }
 }
