@@ -72,6 +72,7 @@ public sealed class ServiceBusHttpMessageHandler : BrokeredHttpMessageHandler
                     MaxRetries = 2
                 }
             });
+
         var sender = client.CreateSender("rpc", new ServiceBusSenderOptions()
         {
             Identifier = subscriptionName
