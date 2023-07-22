@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -71,6 +70,7 @@ public static class HttpMessageBinaryFormatter
         CancellationToken cancellation = default)
     {
         await using var memoryStream = new MemoryStream(bytes);
+        memoryStream.Position = 0;
         return await ReadRequestAsync(memoryStream, cancellation);
     }
 

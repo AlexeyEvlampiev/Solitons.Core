@@ -27,6 +27,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.Portal", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.AdminConsole", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.AdminConsole\SampleSoft.SkyNet.AdminConsole.csproj", "{70340BEA-866D-47EF-9763-D7B36F4B3520}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleSoft.SkyNet.WebService", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.WebService\SampleSoft.SkyNet.WebService.csproj", "{6E20C12C-49AA-438A-93C4-F6888D0BCA70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleSoft.SkyNet.Backend", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.Backend\SampleSoft.SkyNet.Backend.csproj", "{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{70340BEA-866D-47EF-9763-D7B36F4B3520}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70340BEA-866D-47EF-9763-D7B36F4B3520}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70340BEA-866D-47EF-9763-D7B36F4B3520}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E20C12C-49AA-438A-93C4-F6888D0BCA70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E20C12C-49AA-438A-93C4-F6888D0BCA70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E20C12C-49AA-438A-93C4-F6888D0BCA70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E20C12C-49AA-438A-93C4-F6888D0BCA70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +95,8 @@ Global
 		{811AF405-1521-4645-88B4-5F2D19A46A4F} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
 		{48497A82-4E31-42D2-91B8-80F97D7E3355} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
 		{70340BEA-866D-47EF-9763-D7B36F4B3520} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
+		{6E20C12C-49AA-438A-93C4-F6888D0BCA70} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
+		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {593115E7-87DB-44E7-8F3B-0D2FDF30FB0F}

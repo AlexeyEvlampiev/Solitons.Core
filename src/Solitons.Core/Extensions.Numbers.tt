@@ -49,7 +49,7 @@ namespace Solitons
 		/// <param name="self">The current instance of <#= type #>.</param>
 		/// <param name="threshold">The <#= type #> number to compare with the current instance.</param>
 		/// <returns>
-		/// The greater value between the current instance and the provided <#= type #> value.
+		/// The lesser value between the current instance and the provided <#= type #> value.
 		/// </returns>
 		public static <#= type #> Max(this <#= type #> self, <#= type #> threshold) => Math.Min(self, threshold);
 	<# } #> 

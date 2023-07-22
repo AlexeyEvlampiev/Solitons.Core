@@ -202,10 +202,11 @@ public sealed class DbHttpMessageHandler_SendAsync_Should
                 };
             });
 
-        var client = new HttpClient(target
-            .WithLogger(logger));
+        var client = new HttpClient(target);
         var request = new HttpRequestMessage(HttpMethod.Get, "db://api/test");
-        var response = await client.GetAsync("db://api/test");
+        request.Options.Set(new HttpRequestOptionsKey<IAsyncLogger>("logger"), logger);
+        
+        var response = await client.SendAsync(request);
         Assert.Equal(1, errorLoggedCount);
     }
 

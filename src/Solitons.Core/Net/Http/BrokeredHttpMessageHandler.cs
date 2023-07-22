@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +26,7 @@ namespace Solitons.Net.Http;
 public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
 {
     private const int DefaultActiveRequestsThreshold = 8000;
+    private readonly IObservable<IBrokeredResponse> _responses;
     private readonly EventLoopScheduler _scheduler;
     private readonly Dictionary<Guid, IObserver<IBrokeredResponse>> _sessionListeners = new();
     private readonly IDisposable _responsesSubscription;
@@ -51,12 +51,16 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
         IObservable<IBrokeredResponse> responses,  
         EventLoopScheduler scheduler)
     {
+        IsActive = true;
+        _responses = responses;
         _scheduler = scheduler;
         _responsesSubscription = responses
             .ObserveOn(scheduler)
             .Do(OnResponse, OnError, OnCompleted)
             .Subscribe();
     }
+
+    public IObservable<Unit> AsObservable() => _responses.Select(_ => Unit.Default);
 
     /// <summary>
     /// Handles the response from the server.
@@ -130,14 +134,7 @@ public abstract class BrokeredHttpMessageHandler : HttpMessageHandler
     {
         cancellation.ThrowIfCancellationRequested();
 
-        using var memory = new MemoryStream();
-        if (httpRequest.Content != null)
-        {
-            await httpRequest.Content.CopyToAsync(memory, cancellation);
-        }
-
         var brokeredRequest = await CreateBrokeredRequestAsync(httpRequest, cancellation);
-        ;
 
         var correlationId = ThrowIf.NullOrEmpty(brokeredRequest.HttpSessionId, "HTTP session ID is required.");
         var adjustedRequestTimeout = AdjustRequestTimeout(brokeredRequest.RequestTimeout);

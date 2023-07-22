@@ -1,60 +1,117 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Solitons
+namespace Solitons;
+
+/// <summary>
+/// Represents a class that provides a mechanism for releasing unmanaged resources asynchronously.
+/// </summary>
+/// <remarks>
+/// To release resources synchronously, implement the IDisposable interface.
+/// </remarks>
+public abstract class AsyncDisposable : IAsyncDisposable
 {
+    private int _disposed = 0;
+
     /// <summary>
-    /// Represents an object that can be asynchronously disposed of, releasing any resources it holds.
+    /// Provides an instance of an <see cref="AsyncDisposable"/> that does nothing when disposed.
     /// </summary>
-    public abstract class AsyncDisposable : IAsyncDisposable
+    /// <value>
+    /// The instance of an empty <see cref="AsyncDisposable"/>.
+    /// </value>
+    public static IAsyncDisposable Empty => new AsyncDisposableNullObject();
+
+    /// <summary>
+    /// Creates a new instance of an <see cref="AsyncDisposable"/> using the specified dispose callback.
+    /// </summary>
+    /// <param name="callback">A callback that represents the dispose operation to execute when the <see cref="AsyncDisposable"/> object is disposed of.</param>
+    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
+    public static IAsyncDisposable Create(Func<Task> callback) => new RelayAsyncDisposable(callback);
+
+    public static IAsyncDisposable Create(Func<ValueTask> callback)
     {
-        private int _disposed = 0;
+        return Create(() => callback.Invoke().AsTask());
+    }
 
-        /// <summary>
-        /// Returns an empty <see cref="AsyncDisposable"/> instance.
-        /// </summary>
-        public static IAsyncDisposable Empty => new AsyncDisposableNullObject();
+    public static IAsyncDisposable Create(Action callback) => new RelayAsyncDisposable(() =>
+    {
+        callback.Invoke();
+        return Task.CompletedTask;
+    });
 
-        /// <summary>
-        /// Creates a new <see cref="AsyncDisposable"/> instance with the specified dispose callback.
-        /// </summary>
-        /// <param name="callback">The dispose callback to execute when the object is disposed of.</param>
-        /// <returns>A new <see cref="AsyncDisposable"/> instance.</returns>
-        public static IAsyncDisposable Create(Func<Task> callback) => new RelayAsyncDisposable(callback);
+    public static IAsyncDisposable Create(IDisposable disposable)
+    {
+        return disposable is IAsyncDisposable ad ? ad : Create(disposable.Dispose);
+    }
 
-        /// <summary>
-        /// Releases any resources held by the object in an asynchronous manner.
-        /// </summary>
-        /// <returns>A <see cref="ValueTask"/> representing the asynchronous dispose operation.</returns>
-        protected abstract ValueTask DisposeAsync();
-
-        /// <summary>
-        /// Disposes of the object asynchronously, releasing any resources it holds.
-        /// </summary>
-        /// <returns>A <see cref="ValueTask"/> representing the asynchronous dispose operation.</returns>
+    /// <summary>
+    /// Creates a new instance of an <see cref="AsyncDisposable"/> from a sequence of <see cref="IAsyncDisposable"/> instances.
+    /// </summary>
+    /// <param name="disposables">A sequence of <see cref="IAsyncDisposable"/> instances.</param>
+    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
+    /// <remarks>
+    /// The created <see cref="AsyncDisposable"/> will dispose of the <see cref="IAsyncDisposable"/> instances in the order they appear in the sequence.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static IAsyncDisposable Create(IEnumerable<IAsyncDisposable> disposables)
+    {
         [DebuggerStepThrough]
-        async ValueTask IAsyncDisposable.DisposeAsync()
+        async Task Callback()
         {
-            if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
+            foreach (var disposable in disposables)
             {
-                await DisposeAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                throw new ObjectDisposedException(GetType().FullName);
+                await disposable.DisposeAsync().ConfigureAwait(false);
             }
         }
 
-        private sealed class AsyncDisposableNullObject : IAsyncDisposable
+        return Create(Callback);
+    }
+
+    /// <summary>
+    /// Creates a new instance of an <see cref="AsyncDisposable"/> from an array of <see cref="IAsyncDisposable"/> instances.
+    /// </summary>
+    /// <param name="disposables">An array of <see cref="IAsyncDisposable"/> instances.</param>
+    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
+    /// <seealso cref="Create(IEnumerable{IAsyncDisposable})"/>
+    [DebuggerNonUserCode]
+    public static IAsyncDisposable Create(params IAsyncDisposable[] disposables) => Create(disposables.AsEnumerable());
+
+
+    /// <summary>
+    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    protected abstract ValueTask DisposeAsync();
+
+    /// <summary>
+    /// Releases the unmanaged resources used by the <see cref="AsyncDisposable"/> and optionally releases the managed resources.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    /// <exception cref="ObjectDisposedException">The object has already been disposed.</exception>
+    [DebuggerStepThrough]
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
         {
-            /// <summary>
-            /// Does nothing and completes immediately.
-            /// </summary>
-            /// <returns>A <see cref="ValueTask"/> that completes immediately.</returns>
-            [DebuggerNonUserCode]
-            public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+            await DisposeAsync().ConfigureAwait(false);
         }
+        else
+        {
+            throw new ObjectDisposedException(GetType().FullName);
+        }
+    }
+
+    private sealed class AsyncDisposableNullObject : IAsyncDisposable
+    {
+        /// <summary>
+        /// A no-operation method that completes immediately when disposing an object.
+        /// </summary>
+        /// <returns>A completed task, indicating the completion of the disposal operation.</returns>
+        [DebuggerNonUserCode]
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 }

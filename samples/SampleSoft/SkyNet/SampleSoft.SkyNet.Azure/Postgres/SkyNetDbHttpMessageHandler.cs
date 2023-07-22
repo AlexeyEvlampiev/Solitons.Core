@@ -11,14 +11,17 @@ namespace SampleSoft.SkyNet.Azure.Postgres;
 /// A specialized HttpMessageHandler designed to process HTTP requests via Postgres using the Npgsql .NET data provider.
 /// It is intended to be used within an HTTP request pipeline where incoming requests are handled and processed by a Postgres database.
 /// </summary>
-public sealed class SkyNetDbHttpMessageHandler : NpgsqlHttpMessageHandler
+public sealed class SkyNetDbHttpMessageHandler : NpgsqlHttpMessageHandler, IAwaitable
 {
+    private readonly TaskCompletionSource _completionSource = new();
+
     public SkyNetDbHttpMessageHandler(NpgsqlTransaction transaction) : base(transaction)
     {
     }
 
     public SkyNetDbHttpMessageHandler(string connectionString) : base(connectionString)
     {
+        
     }
 
     protected override async Task PgExecAsync(
@@ -72,4 +75,10 @@ public sealed class SkyNetDbHttpMessageHandler : NpgsqlHttpMessageHandler
 
         
     }
+
+    protected override Task RunAsync(CancellationToken cancellation)
+    {
+        return _completionSource.Task;
+    }
+
 }

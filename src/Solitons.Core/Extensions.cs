@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -19,6 +20,67 @@ namespace Solitons;
 
 public static partial class Extensions
 {
+    /// <summary>
+    /// Returns a new <see cref="System.Guid"/> that is a copy of the specified Guid, 
+    /// except that the last 32 bits are replaced with the specified Int32 value.
+    /// </summary>
+    /// <param name="guid">The Guid to copy.</param>
+    /// <param name="value">The Int32 value to use for the last 32 bits of the returned Guid.</param>
+    /// <param name="useLittleEndian">Optional parameter indicating whether to reverse the endianness of the Int32 value. Defaults to true.</param>
+    /// <returns>
+    /// A new <see cref="System.Guid"/> that is a copy of the <paramref name="guid"/>, 
+    /// except that the last 32 bits are replaced with the specified <paramref name="value"/>.
+    /// </returns>
+    /// <remarks>
+    /// GUIDs are meant to be globally unique identifiers. Altering them in this way 
+    /// could potentially violate their uniqueness, especially if the same Int32 value is used multiple times.
+    /// </remarks>
+    public static Guid ReplaceLast32Bits(this Guid guid, int value, bool useLittleEndian = true)
+    {
+        byte[] bytes = guid.ToByteArray();
+        int finalValue = useLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
+        Buffer.BlockCopy(BitConverter.GetBytes(finalValue), 0, bytes, 12, 4);
+        return new Guid(bytes);
+    }
+
+    /// <summary>
+    /// Returns a new <see cref="System.Guid"/> that is a copy of the specified Guid,
+    /// except that the last 16 bits are replaced with the specified Int16 value.
+    /// </summary>
+    /// <param name="guid">The Guid to copy.</param>
+    /// <param name="value">The Int16 value to use for the last 16 bits of the returned Guid.</param>
+    /// <param name="useLittleEndian">Optional parameter indicating whether to reverse the endianness of the Int16 value. Defaults to true.</param>
+    /// <returns>
+    /// A new <see cref="System.Guid"/> that is a copy of the <paramref name="guid"/>,
+    /// except that the last 16 bits are replaced with the specified <paramref name="value"/>.
+    /// </returns>
+    public static Guid ReplaceLast16Bits(this Guid guid, short value, bool useLittleEndian = true)
+    {
+        byte[] bytes = guid.ToByteArray();
+        short finalValue = useLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
+        Buffer.BlockCopy(BitConverter.GetBytes(finalValue), 0, bytes, 14, 2);
+        return new Guid(bytes);
+    }
+
+    /// <summary>
+    /// Returns a new <see cref="System.Guid"/> that is a copy of the specified Guid,
+    /// except that the last 64 bits are replaced with the specified Int64 value.
+    /// </summary>
+    /// <param name="guid">The Guid to copy.</param>
+    /// <param name="value">The Int64 value to use for the last 64 bits of the returned Guid.</param>
+    /// <param name="useLittleEndian">Optional parameter indicating whether to reverse the endianness of the Int64 value. Defaults to true.</param>
+    /// <returns>
+    /// A new <see cref="System.Guid"/> that is a copy of the <paramref name="guid"/>,
+    /// except that the last 64 bits are replaced with the specified <paramref name="value"/>.
+    /// </returns>
+    public static Guid ReplaceLast64Bits(this Guid guid, long value, bool useLittleEndian = true)
+    {
+        byte[] bytes = guid.ToByteArray();
+        long finalValue = useLittleEndian ? BinaryPrimitives.ReverseEndianness(value) : value;
+        Buffer.BlockCopy(BitConverter.GetBytes(finalValue), 0, bytes, 8, 8);
+        return new Guid(bytes);
+    }
+
     /// <summary>
     /// Flattens the hierarchy of an exception and its inner exceptions into a linear sequence.
     /// This allows you to examine all the exceptions, in the order they were thrown, that contributed to the final exception.

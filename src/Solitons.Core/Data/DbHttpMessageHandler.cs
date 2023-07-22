@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Solitons.Diagnostics;
+using Solitons.Net.Http;
 using Solitons.Reactive;
 
 namespace Solitons.Data;
@@ -17,7 +18,7 @@ namespace Solitons.Data;
 /// Abstract base class for a handler that handles HTTP request messages and manages database transactions associated with them.
 /// This class extends <see cref="HttpMessageHandler"/>.
 /// </summary>
-public abstract class DbHttpMessageHandler : HttpMessageHandler
+public abstract class DbHttpMessageHandler : AwaitableConnectedHttpMessageHandler
 {
     private readonly Func<HttpRequestMessage, CancellationToken, Task<DbTransaction>> _beginTransactionAsync;
 
@@ -69,15 +70,6 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
         }
     }
 
-    protected IAsyncLogger Logger { get; private set; } = IAsyncLogger.Null;
-
-    [DebuggerNonUserCode]
-    public DbHttpMessageHandler WithLogger(IAsyncLogger logger)
-    {
-        var clone = (DbHttpMessageHandler)MemberwiseClone();
-        clone.Logger = logger;
-        return clone;
-    }
 
 
     /// <summary>
@@ -112,7 +104,13 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
         CancellationToken cancellation)
     {
         var response = new HttpResponseMessage();
-        var logger = ConfigLogger(Logger, request);
+
+        if (false == request.Options.TryGetValue(new HttpRequestOptionsKey<IAsyncLogger>("logger"), out var logger))
+        {
+            logger = IAsyncLogger.Null;
+        };
+
+
         try
         {
             cancellation.ThrowIfCancellationRequested();

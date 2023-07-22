@@ -2,6 +2,9 @@
 using System.Data.Common;
 using System.Diagnostics;
 using System.Net.Http;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -117,4 +120,9 @@ public sealed class FakeDbHttpMessageHandler : DbHttpMessageHandler
         HttpRequestMessage request,
         HttpResponseMessage response,
         CancellationToken cancellation) => Mock.Object.ExecuteAsync(connection, request, response, cancellation);
+
+    protected override Task RunAsync(CancellationToken cancellation) =>
+        Observable
+            .Never<Unit>()
+            .ToTask(cancellation);
 }

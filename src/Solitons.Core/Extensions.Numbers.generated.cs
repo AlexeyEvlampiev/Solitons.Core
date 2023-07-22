@@ -23,7 +23,7 @@
 		/// <param name="self">The current instance of System.Int32.</param>
 		/// <param name="threshold">The System.Int32 number to compare with the current instance.</param>
 		/// <returns>
-		/// The greater value between the current instance and the provided System.Int32 value.
+		/// The lesser value between the current instance and the provided System.Int32 value.
 		/// </returns>
 		public static System.Int32 Max(this System.Int32 self, System.Int32 threshold) => Math.Min(self, threshold);
 	 
@@ -44,7 +44,7 @@
 		/// <param name="self">The current instance of System.Byte.</param>
 		/// <param name="threshold">The System.Byte number to compare with the current instance.</param>
 		/// <returns>
-		/// The greater value between the current instance and the provided System.Byte value.
+		/// The lesser value between the current instance and the provided System.Byte value.
 		/// </returns>
 		public static System.Byte Max(this System.Byte self, System.Byte threshold) => Math.Min(self, threshold);
 	 
@@ -65,7 +65,7 @@
 		/// <param name="self">The current instance of System.Int64.</param>
 		/// <param name="threshold">The System.Int64 number to compare with the current instance.</param>
 		/// <returns>
-		/// The greater value between the current instance and the provided System.Int64 value.
+		/// The lesser value between the current instance and the provided System.Int64 value.
 		/// </returns>
 		public static System.Int64 Max(this System.Int64 self, System.Int64 threshold) => Math.Min(self, threshold);
 	 
@@ -86,7 +86,7 @@
 		/// <param name="self">The current instance of System.Decimal.</param>
 		/// <param name="threshold">The System.Decimal number to compare with the current instance.</param>
 		/// <returns>
-		/// The greater value between the current instance and the provided System.Decimal value.
+		/// The lesser value between the current instance and the provided System.Decimal value.
 		/// </returns>
 		public static System.Decimal Max(this System.Decimal self, System.Decimal threshold) => Math.Min(self, threshold);
 	 
@@ -107,7 +107,7 @@
 		/// <param name="self">The current instance of System.Single.</param>
 		/// <param name="threshold">The System.Single number to compare with the current instance.</param>
 		/// <returns>
-		/// The greater value between the current instance and the provided System.Single value.
+		/// The lesser value between the current instance and the provided System.Single value.
 		/// </returns>
 		public static System.Single Max(this System.Single self, System.Single threshold) => Math.Min(self, threshold);
 	 
@@ -128,7 +128,7 @@
 		/// <param name="self">The current instance of System.Double.</param>
 		/// <param name="threshold">The System.Double number to compare with the current instance.</param>
 		/// <returns>
-		/// The greater value between the current instance and the provided System.Double value.
+		/// The lesser value between the current instance and the provided System.Double value.
 		/// </returns>
 		public static System.Double Max(this System.Double self, System.Double threshold) => Math.Min(self, threshold);
 	 
