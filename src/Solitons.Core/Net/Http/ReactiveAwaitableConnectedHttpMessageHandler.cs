@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Solitons.Net.Http;
 
-public abstract class ReactiveAwaitableConnectedHttpMessageHandler : AwaitableConnectedHttpMessageHandler
+public abstract class ReactiveAwaitableConnectedHttpMessageHandler : HttpMessageHandler
 {
 
     protected abstract void OnHttpRequest(HttpTriggerEventArgs args);

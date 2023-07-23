@@ -120,9 +120,4 @@ public sealed class FakeDbHttpMessageHandler : DbHttpMessageHandler
         HttpRequestMessage request,
         HttpResponseMessage response,
         CancellationToken cancellation) => Mock.Object.ExecuteAsync(connection, request, response, cancellation);
-
-    protected override Task RunAsync(CancellationToken cancellation) =>
-        Observable
-            .Never<Unit>()
-            .ToTask(cancellation);
 }

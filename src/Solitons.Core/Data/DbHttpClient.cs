@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
+using Solitons.Net.Http;
 
 namespace Solitons.Data;
 
@@ -9,7 +10,7 @@ namespace Solitons.Data;
 /// Represents a specialized HttpClient designed to work with database operations. 
 /// This class ensures the last handler in the chain is of type DbHttpMessageHandler. 
 /// </summary>
-public class DbHttpClient : HttpClient
+public class DbHttpClient : AwaitableHttpClient
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DbHttpClient"/> class.

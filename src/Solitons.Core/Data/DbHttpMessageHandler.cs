@@ -18,7 +18,7 @@ namespace Solitons.Data;
 /// Abstract base class for a handler that handles HTTP request messages and manages database transactions associated with them.
 /// This class extends <see cref="HttpMessageHandler"/>.
 /// </summary>
-public abstract class DbHttpMessageHandler : AwaitableConnectedHttpMessageHandler
+public abstract class DbHttpMessageHandler : HttpMessageHandler
 {
     private readonly Func<HttpRequestMessage, CancellationToken, Task<DbTransaction>> _beginTransactionAsync;
 
@@ -105,10 +105,7 @@ public abstract class DbHttpMessageHandler : AwaitableConnectedHttpMessageHandle
     {
         var response = new HttpResponseMessage();
 
-        if (false == request.Options.TryGetValue(new HttpRequestOptionsKey<IAsyncLogger>("logger"), out var logger))
-        {
-            logger = IAsyncLogger.Null;
-        };
+        var logger = request.GetLogger();
 
 
         try
@@ -224,6 +221,7 @@ public abstract class DbHttpMessageHandler : AwaitableConnectedHttpMessageHandle
         response.StatusCode = HttpStatusCode.InternalServerError;
         return Task.CompletedTask;
     }
+
 }
 
 /// <summary>

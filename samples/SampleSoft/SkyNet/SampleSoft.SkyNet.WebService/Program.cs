@@ -46,24 +46,18 @@ public sealed class Program : ProgramBase
         builder.Services.AddAuthorization();
 
 
+
         var app = builder.Build();
 
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
 
-        var logger = IAsyncLogger.Null;
+        var rootLogger = IAsyncLogger.Null;
 
         if (app.Environment.IsDevelopment())
         {
-            logger
-                .AsObservable()
-                .Subscribe(arg =>
-                {
-                    if (arg.Level == LogLevel.Error) { app.Logger.LogError(arg.Message); }
-                    else if (arg.Level == LogLevel.Warning) { app.Logger.LogWarning(arg.Message); }
-                    else { app.Logger.LogInformation(arg.Message); }
-                });
+
         }
 
 
@@ -73,37 +67,40 @@ public sealed class Program : ProgramBase
         disposer.AddResource((IAsyncDisposable)client);
 
 
-        app.Map("/{*resource}", async (HttpContext aspNetContext) =>
+        app.Map("/{*resource}", async (
+            HttpContext aspNetContext, 
+            IAsyncLogger logger) =>
         {
             Trace.WriteLine(aspNetContext.Request.GetDisplayUrl());
             using var httpRequest = HttpConverter.Convert(aspNetContext.Request);
+            httpRequest.AddLogger(logger);
             using var response = await client.SendAsync(httpRequest, cancellation);
             await HttpConverter.PopulateAsync(aspNetContext.Response, response);
         });
 
         var startedUtc = DateTimeOffset.UtcNow;
-        logger = logger.WithProperty("startedAt", startedUtc);
+        rootLogger = rootLogger.WithProperty("startedAt", startedUtc);
         try
         {
             await Task.WhenAny(
                 client.RunAsync(cancellation),
                 app.RunAsync(cancellation));
 
-            await logger
+            await rootLogger
                 .InfoAsync("Execution completed.", log => log
                 .WithProperty("totalDuration", (DateTime.UtcNow) - startedUtc));
             return 0;
         }
         catch (OperationCanceledException ex)
         {
-            await logger
+            await rootLogger
                 .InfoAsync("Execution cancelled.", log => log
                 .WithProperty("totalDuration", (DateTime.UtcNow) - startedUtc));
             return 0;
         }
         catch (Exception e)
         {
-            await logger
+            await rootLogger
                 .ErrorAsync(e, log => log
                 .WithProperty("totalDuration", (DateTime.UtcNow) - startedUtc));
             return 1;

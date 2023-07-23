@@ -3,17 +3,17 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using Solitons;
+using Solitons.Net.Http;
 
 namespace SampleSoft.SkyNet.Azure.Postgres;
 
-public sealed class SkyNetDbHttpClient : HttpClient, 
-    IAsyncDisposable,
-    IAwaitable
+public sealed class SkyNetDbHttpClient : AwaitableHttpClient, 
+    IAsyncDisposable
 {
     private readonly SkyNetDbHttpMessageHandler _databaseHttpMessageHandler;
     private readonly DelegatingHandler[] _delegatingHandlers;
     private readonly AsyncStackAutoDisposer _disposer = new();
-    private readonly IAwaitable[] _awaitables;
+
 
     [DebuggerStepThrough]
     public SkyNetDbHttpClient(
@@ -24,16 +24,6 @@ public sealed class SkyNetDbHttpClient : HttpClient,
         BaseAddress = new Uri("skynetdb://api");
         _databaseHttpMessageHandler = handler;
         _delegatingHandlers = delegatingHandlers;
-        var awaitables = new List<IAwaitable>() { handler };
-        foreach (var middleware in delegatingHandlers)
-        {
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            if (middleware is IAwaitable awaitable)
-            {
-                awaitables.Add(awaitable);
-            }
-        }
-        _awaitables = awaitables.ToArray();
         _disposer.AddResource((IDisposable)this);
     }
 
@@ -100,25 +90,8 @@ public sealed class SkyNetDbHttpClient : HttpClient,
         return handler;
     }
 
-    public async Task RunAsync(CancellationToken cancellation = default)
-    {
-        try
-        {
-            await IAwaitable
-                .WhenAny(_awaitables)
-                .AsTask(cancellation);
-        }
-        finally
-        {
-            if (false == cancellation.IsCancellationRequested)
-            {
-                await this.DisposeAsync();
-            }
-        }
-    }
-
-    Task IAwaitable.AsTask(CancellationToken cancellation) => RunAsync(cancellation);
 
     [DebuggerStepThrough]
     public ValueTask DisposeAsync() => _disposer.DisposeAsync();
+
 }
