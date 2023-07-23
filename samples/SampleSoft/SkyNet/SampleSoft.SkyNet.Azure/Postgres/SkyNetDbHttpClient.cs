@@ -7,8 +7,7 @@ using Solitons.Net.Http;
 
 namespace SampleSoft.SkyNet.Azure.Postgres;
 
-public sealed class SkyNetDbHttpClient : AwaitableHttpClient, 
-    IAsyncDisposable
+public sealed class SkyNetDbHttpClient : AwaitableHttpClient
 {
     private readonly SkyNetDbHttpMessageHandler _databaseHttpMessageHandler;
     private readonly DelegatingHandler[] _delegatingHandlers;
@@ -92,6 +91,5 @@ public sealed class SkyNetDbHttpClient : AwaitableHttpClient,
 
 
     [DebuggerStepThrough]
-    public ValueTask DisposeAsync() => _disposer.DisposeAsync();
-
+    protected override ValueTask DisposeAsync() => _disposer.DisposeAsync();
 }

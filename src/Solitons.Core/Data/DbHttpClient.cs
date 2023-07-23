@@ -10,14 +10,14 @@ namespace Solitons.Data;
 /// Represents a specialized HttpClient designed to work with database operations. 
 /// This class ensures the last handler in the chain is of type DbHttpMessageHandler. 
 /// </summary>
-public class DbHttpClient : AwaitableHttpClient
+public abstract class DbHttpClient : AwaitableHttpClient
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DbHttpClient"/> class.
     /// </summary>
     /// <param name="handler">An <see cref="HttpMessageHandler"/> that will handle sending HTTP requests and receiving HTTP responses.</param>
     /// <exception cref="ArgumentException">Thrown when the last handler in the chain is not of type DbHttpMessageHandler.</exception>
-    public DbHttpClient(HttpMessageHandler handler) 
+    protected DbHttpClient(HttpMessageHandler handler) 
         : base(handler)
     {
         var last = handler
