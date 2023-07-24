@@ -11,12 +11,12 @@ using Xunit;
 namespace SampleSoft.SkyNet.Control.SkyNetDb.Test.Images;
 using static KeyVaultSecretNames;
 
-public sealed class ImageResourceTest : SkyNetDbTest
+public sealed class ImageGetTest : SkyNetDbTest
 {
     [SkyNetConnectionStringSecret(SkyNetDbAdminConnectionString)]
     public async Task TestAsync(
         NpgsqlConnection connection,
-        SkyNetDbHttpClient client,
+        HttpClient client,
         CancellationToken cancellation)
     {
         

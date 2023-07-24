@@ -47,6 +47,9 @@ public abstract class SkyNetDbTest : SkyNetIntegrationTest
         services.AddScoped<SkyNetDbHttpClient>(provider => provider
             .GetRequiredService<NpgsqlTransaction>()
             .Convert(transaction => new SkyNetDbHttpClient(transaction)));
+
+        services.AddScoped<HttpClient>(provider => provider
+            .GetRequiredService<SkyNetDbHttpClient>());
     }
 
     protected override void OnTestStarting(MethodInfo test)
