@@ -79,6 +79,9 @@ public sealed class Program : ProgramBase
             Trace.WriteLine(aspNetContext.Request.GetDisplayUrl());
             using var httpRequest = HttpConverter.Convert(aspNetContext.Request);
             IAsyncLogger.Set(httpRequest.Options, logger);
+
+            httpRequest.Headers.Add("SKYNET-IDENTITY", "l.v.beethoven@skynet.com");
+
             using var response = await client.SendAsync(httpRequest, cancellation);
             await HttpConverter.PopulateAsync(aspNetContext.Response, response);
         });
