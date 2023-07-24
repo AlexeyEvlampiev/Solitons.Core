@@ -9,11 +9,42 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using Solitons.Diagnostics;
 
 namespace Solitons;
 
 public static partial class Extensions
 {
+    private const string AsyncLoggerHttpRequestOptionsKey = "logger";
+
+    /// <summary>
+    /// Sets an IAsyncLogger instance in the HttpRequestOptions.
+    /// </summary>
+    /// <param name="options">The HttpRequestOptions instance to which the logger is to be added.</param>
+    /// <param name="logger">The IAsyncLogger instance to be added.</param>
+    /// <returns>The HttpRequestOptions instance with the added logger.</returns>
+    [DebuggerNonUserCode]
+    public static HttpRequestOptions SetAsyncLogger(this HttpRequestOptions options, IAsyncLogger logger)
+    {
+        var key = new HttpRequestOptionsKey<IAsyncLogger>(AsyncLoggerHttpRequestOptionsKey);
+        options.Set(key, logger);
+        return options;
+    }
+
+    /// <summary>
+    /// Retrieves the IAsyncLogger instance from the HttpRequestOptions.
+    /// </summary>
+    /// <param name="options">The HttpRequestOptions instance from which the logger is to be retrieved.</param>
+    /// <returns>The IAsyncLogger instance if found; otherwise, IAsyncLogger.Null.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when options is null.</exception>
+    [DebuggerNonUserCode]
+    public static IAsyncLogger GetAsyncLogger(this HttpRequestOptions options)
+    {
+        var key = new HttpRequestOptionsKey<IAsyncLogger>(AsyncLoggerHttpRequestOptionsKey);
+        options.TryGetValue(key, out var logger);
+        return logger ?? IAsyncLogger.Null;
+    }
+
     /// <summary>
     /// Unrolls the chain of nested HttpMessageHandlers into a flat IEnumerable of HttpMessageHandlers.
     /// </summary>

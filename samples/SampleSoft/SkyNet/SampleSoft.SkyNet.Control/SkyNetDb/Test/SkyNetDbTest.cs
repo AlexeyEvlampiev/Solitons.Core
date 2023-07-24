@@ -48,9 +48,9 @@ public abstract class SkyNetDbTest : SkyNetIntegrationTest
             .GetRequiredService<NpgsqlTransaction>()
             .Convert(tx => new SkyNetDbHttpMessageHandler(tx)));
 
-        services.AddScoped<DbHttpClient>(provider => provider
+        services.AddScoped<HttpClient>(provider => provider
             .GetRequiredService<SkyNetDbHttpMessageHandler>()
-            .Convert(handler => new DbHttpClient(handler)
+            .Convert(handler => new HttpClient(handler)
             {
                 BaseAddress = new Uri("postgres://skynet/api")
             }));

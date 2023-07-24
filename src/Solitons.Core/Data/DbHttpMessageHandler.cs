@@ -105,7 +105,7 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
     {
         var response = new HttpResponseMessage();
 
-        var logger = request.GetLogger();
+        var logger = request.Options.GetAsyncLogger();
 
 
         try

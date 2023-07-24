@@ -15,7 +15,7 @@ public sealed class ImageResourceTest : SkyNetDbTest
     [SkyNetConnectionStringSecret(SkyNetDbAdminConnectionString)]
     public async Task TestAsync(
         NpgsqlConnection connection,
-        DbHttpClient client,
+        HttpClient client,
         CancellationToken cancellation)
     {
         
