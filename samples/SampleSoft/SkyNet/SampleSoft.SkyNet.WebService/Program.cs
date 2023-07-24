@@ -7,9 +7,11 @@ using System.Reactive.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Extensions;
 using SampleSoft.SkyNet.Azure.Http;
 using SampleSoft.SkyNet.Azure.Postgres;
+using SampleSoft.SkyNet.Azure.Security;
 using Solitons;
 using Solitons.Common;
 using Solitons.Diagnostics;
+using Solitons.Security.Common;
 using LogLevel = Solitons.Diagnostics.LogLevel;
 
 namespace SampleSoft.SkyNet.WebService;
@@ -36,6 +38,7 @@ public sealed class Program : ProgramBase
     {
         var cancellation = CancellationToken.None;
 
+
         //var amqpTransportType = context.ParseResult.GetValueForOption(_amqpTransportOption);
 
 
@@ -45,6 +48,8 @@ public sealed class Program : ProgramBase
         // Add services to the container.
         builder.Services.AddAuthorization();
 
+        var rootLogger = IAsyncLogger.Null;
+        builder.Services.AddScoped<IAsyncLogger>(provider => rootLogger);
 
 
         var app = builder.Build();
@@ -53,7 +58,7 @@ public sealed class Program : ProgramBase
 
         app.UseAuthorization();
 
-        var rootLogger = IAsyncLogger.Null;
+        
 
         if (app.Environment.IsDevelopment())
         {
@@ -63,7 +68,7 @@ public sealed class Program : ProgramBase
 
         await using var disposer = new AsyncStackAutoDisposer();
 
-        var client = new SkyNetDbHttpClient("Database connection string goes here");
+        var client = new SkyNetDbHttpClient("Host=localhost;Port=5433;Username=skynetdb_api;Password=skynet;Database=skynetdb");
 
 
 

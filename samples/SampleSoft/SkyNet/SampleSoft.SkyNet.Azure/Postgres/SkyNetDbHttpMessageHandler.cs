@@ -40,6 +40,7 @@ sealed class SkyNetDbHttpMessageHandler : NpgsqlHttpMessageHandler
 
 
         var content = await (request.Content?.ReadAsStringAsync(cancellation) ?? Task.FromResult("{}"));
+        content = content.DefaultIfNullOrWhiteSpace("{}");
         await using var command = connection.CreateCommand();
         command.CommandText = @$"
         SET LOCAL rpc.caller TO '{identity.ToLowerInvariant()}'; 
