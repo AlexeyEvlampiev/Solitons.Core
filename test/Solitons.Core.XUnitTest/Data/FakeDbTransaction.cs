@@ -1,6 +1,8 @@
 ﻿using Moq;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Data;
@@ -61,7 +63,18 @@ public sealed class FakeDbTransaction : DbTransaction
     public Callback Mock { get; } = new Callback();
 
     /// <inheritdoc />
-    public override void Commit() => Mock.Object.Commit();
+    public override void Commit()
+    {
+        Debug.Write($"Commiting via {nameof(Commit)}");
+        Mock.Object.Commit();
+    }
+
+    public override Task CommitAsync(CancellationToken cancellationToken = new CancellationToken())
+    {
+        Debug.Write($"Commiting via {nameof(CommitAsync)}");
+        Mock.Object.Commit();
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
     public override void Rollback() => Mock.Object.Rollback();

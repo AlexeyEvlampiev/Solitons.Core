@@ -60,19 +60,18 @@ public sealed class DbHttpMessageHandler_SendAsync_Should
         transaction.Mock.SetupGet(_ => _.DbConnection).Returns(connection);
         connection.Mock.Setup(_ => _.BeginDbTransaction(It.IsAny<IsolationLevel>())).Returns(transaction);
 
-        var target = new FakeDbHttpMessageHandler("Fake connection string");
-        target.Mock.Setup(_ => _.CreateConnection("Fake connection string")).Returns(connection);
+        var handler = new FakeDbHttpMessageHandler("Fake connection string");
+        handler.Mock.Setup(_ => _.CreateConnection("Fake connection string")).Returns(connection);
 
 
-
-        var client = new HttpClient(target);
+        var client = new HttpClient(handler);
         var request = new HttpRequestMessage(HttpMethod.Get, "db://test");
         var response = await client.SendAsync(request);
 
         response.EnsureSuccessStatusCode();
 
-        target.Mock.Verify(_ => _.CreateConnection(It.IsAny<string>()), Times.Once);
-        target.Mock.Verify(_ => _.BeginTransactionAsync(
+        handler.Mock.Verify(_ => _.CreateConnection(It.IsAny<string>()), Times.Once);
+        handler.Mock.Verify(_ => _.BeginTransactionAsync(
             request,
             connection,
             It.IsAny<CancellationToken>()), Times.Once);
@@ -90,14 +89,14 @@ public sealed class DbHttpMessageHandler_SendAsync_Should
     public async Task RetryOnTransientErrorsWithDefaultPolicy()
     {
         int attemptNumber = 0;
-        var maxAttemptNumber = DbHttpRequestMessage
+        var maxAttemptNumber = DbHttpMessageHandler
             .DefaultMaxRetryAttemptNumber
             .Max(3);
         var target = new FakeDbHttpMessageHandler("Fake connection string");
         target.Mock.EveryExecuteAsync
             .Callback(delegate
             {
-                if (attemptNumber < DbHttpRequestMessage.DefaultMaxRetryAttemptNumber)
+                if (attemptNumber < DbHttpMessageHandler.DefaultMaxRetryAttemptNumber)
                 {
                     attemptNumber++;
                     throw new FakeDbException(isTransient: true);
@@ -127,33 +126,6 @@ public sealed class DbHttpMessageHandler_SendAsync_Should
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
-    public async Task RetryOnTransientErrorsWithCustomPolicy()
-    {
-        int attemptNumber = 0;
-        int policyInvocationsCount = 0;
-        var target = new FakeDbHttpMessageHandler("Fake connection string");
-        target.Mock.EveryExecuteAsync
-            .Callback(delegate
-            {
-                if (attemptNumber < 5)
-                {
-                    attemptNumber++;
-                    throw new FakeDbException(isTransient: true);
-                }
-            });
-        var client = new HttpClient(target);
-        var request = new DbHttpRequestMessage(HttpMethod.Get, "db://api/test")
-            .WithRetryPolicy((args, token) =>
-            {
-                policyInvocationsCount++;
-                return Task.FromResult(args.AttemptNumber < 5);
-            });
-        var response = await client.SendAsync(request);
-        Assert.True(response.IsSuccessStatusCode);
-        Assert.Equal(5, attemptNumber);
-        Assert.Equal(5, policyInvocationsCount);
-    }
 
     [Fact]
     public async Task NeverThrow()
@@ -204,7 +176,7 @@ public sealed class DbHttpMessageHandler_SendAsync_Should
 
         var client = new HttpClient(target);
         var request = new HttpRequestMessage(HttpMethod.Get, "db://api/test");
-        request.Options.SetAsyncLogger(logger);
+        IAsyncLogger.Set(request.Options, logger);
         
         var response = await client.SendAsync(request);
         Assert.Equal(1, errorLoggedCount);

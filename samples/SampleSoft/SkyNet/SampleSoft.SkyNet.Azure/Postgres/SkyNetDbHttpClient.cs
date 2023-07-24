@@ -2,94 +2,60 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using Npgsql;
 using Solitons;
 using Solitons.Net.Http;
 
 namespace SampleSoft.SkyNet.Azure.Postgres;
 
-public sealed class SkyNetDbHttpClient : AwaitableHttpClient
+public sealed class SkyNetDbHttpClient : HttpClient
 {
-    private readonly SkyNetDbHttpMessageHandler _databaseHttpMessageHandler;
-    private readonly DelegatingHandler[] _delegatingHandlers;
-    private readonly AsyncStackAutoDisposer _disposer = new();
-
+    private readonly Stack<IDisposable> _disposables = new();
 
     [DebuggerStepThrough]
-    public SkyNetDbHttpClient(
-        SkyNetDbHttpMessageHandler handler,
-        DelegatingHandler[] delegatingHandlers)
-        : base(BuildHandler(handler, delegatingHandlers))
+    public SkyNetDbHttpClient(string connectionString, Action<SkyNetDbHttpClientOptions>? config = default)
+        : this(BuildHandler(connectionString, config))
+    {
+    }
+
+    [DebuggerStepThrough]
+    public SkyNetDbHttpClient(NpgsqlTransaction transaction) 
+        : this(new SkyNetDbHttpMessageHandler(transaction))
+    {
+    }
+
+    private SkyNetDbHttpClient(HttpMessageHandler handler) : base(handler)
     {
         BaseAddress = new Uri("skynetdb://api");
-        _databaseHttpMessageHandler = handler;
-        _delegatingHandlers = delegatingHandlers;
-        _disposer.AddResource((IDisposable)this);
-    }
-
-    [DebuggerStepThrough]
-    public SkyNetDbHttpClient(
-        SkyNetDbHttpMessageHandler handler,
-        IEnumerable<DelegatingHandler> delegatingHandlers)
-        : this(handler, delegatingHandlers.ToArray())
-    {
-    }
-
-    [DebuggerStepThrough]
-    public SkyNetDbHttpClient(
-        SkyNetDbHttpMessageHandler handler)
-        : this(handler, Enumerable.Empty<DelegatingHandler>())
-    {
-    }
-
-
-    [DebuggerStepThrough]
-    public SkyNetDbHttpClient(
-        string connectionString,
-        IEnumerable<DelegatingHandler> delegatingHandlers)
-        : this(new SkyNetDbHttpMessageHandler(connectionString), delegatingHandlers)
-    {
-        // The database handler is owned by this client, so will be disposed accordingly
-        _disposer.AddResource(_databaseHttpMessageHandler);
-    }
-
-    [DebuggerStepThrough]
-    public SkyNetDbHttpClient(
-        string connectionString)
-        : this(new SkyNetDbHttpMessageHandler(connectionString), Enumerable.Empty<DelegatingHandler>())
-    {
-        // The database handler is owned by this client, so will be disposed accordingly
-        _disposer.AddResource(_databaseHttpMessageHandler);
-    }
-
-    [DebuggerStepThrough]
-    public SkyNetDbHttpClient(
-        string connectionString,
-        Func<DelegatingHandler[]> middlewareFactory)
-        : this(new SkyNetDbHttpMessageHandler(connectionString), middlewareFactory.Invoke())
-    {
-        // All the http handlers are owned by this client, so will be disposed accordingly
-        _disposer.AddResource(_databaseHttpMessageHandler);
-        foreach (var middleware in _delegatingHandlers)
+        foreach (var item in handler.UnrollHandlerChain())
         {
-            _disposer.AddResource(middleware);
+            _disposables.Push(item);
         }
     }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            while (_disposables.Count > 0)
+            {
+                var item = _disposables.Pop();
+                item.Dispose();
+            }
+        }
+        base.Dispose(disposing);
+    }
+
 
     private static HttpMessageHandler BuildHandler(
-        SkyNetDbHttpMessageHandler innerHandler,
-        IEnumerable<DelegatingHandler> delegatingHandlers)
+        string connectionString,
+        Action<SkyNetDbHttpClientOptions>? config)
     {
-        HttpMessageHandler handler = innerHandler;
-        foreach (var middleware in delegatingHandlers)
-        {
-            middleware.InnerHandler = handler;
-            handler = middleware;
-        }
-
+        var options  = new SkyNetDbHttpClientOptions();
+        config?.Invoke(options);
+        var handler = new SemaphoreDelegatingHandler(options.SemaphoreInitCount, options.SemaphoreWaitTimeout);
+        handler.InnerHandler = new SkyNetDbHttpMessageHandler(connectionString);
         return handler;
     }
 
-
-    [DebuggerStepThrough]
-    protected override ValueTask DisposeAsync() => _disposer.DisposeAsync();
 }

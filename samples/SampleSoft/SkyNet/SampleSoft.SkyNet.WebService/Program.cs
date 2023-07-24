@@ -64,7 +64,7 @@ public sealed class Program : ProgramBase
         await using var disposer = new AsyncStackAutoDisposer();
 
         var client = new SkyNetDbHttpClient("Database connection string goes here");
-        disposer.AddResource((IAsyncDisposable)client);
+
 
 
         app.Map("/{*resource}", async (
@@ -73,7 +73,7 @@ public sealed class Program : ProgramBase
         {
             Trace.WriteLine(aspNetContext.Request.GetDisplayUrl());
             using var httpRequest = HttpConverter.Convert(aspNetContext.Request);
-            httpRequest.Options.SetAsyncLogger(logger);
+            IAsyncLogger.Set(httpRequest.Options, logger);
             using var response = await client.SendAsync(httpRequest, cancellation);
             await HttpConverter.PopulateAsync(aspNetContext.Response, response);
         });
@@ -82,9 +82,7 @@ public sealed class Program : ProgramBase
         rootLogger = rootLogger.WithProperty("startedAt", startedUtc);
         try
         {
-            await Task.WhenAny(
-                client.RunAsync(cancellation),
-                app.RunAsync(cancellation));
+            await app.RunAsync(cancellation);
 
             await rootLogger
                 .InfoAsync("Execution completed.", log => log

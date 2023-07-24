@@ -20,7 +20,15 @@ namespace Solitons.Data;
 /// </summary>
 public abstract class DbHttpMessageHandler : HttpMessageHandler
 {
+    private const string TransactionApprovalOptionsKey = "2c2cc6ed61f84192a2f73afe1320d04f";
+
+    /// <summary>
+    /// The default maximum number of retry attempts.
+    /// </summary>
+    internal const int DefaultMaxRetryAttemptNumber = 3;
+
     private readonly Func<HttpRequestMessage, CancellationToken, Task<DbTransaction>> _beginTransactionAsync;
+    private readonly IClock _clock = IClock.System;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DbHttpMessageHandler"/> class with the provided database transaction.
@@ -105,7 +113,7 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
     {
         var response = new HttpResponseMessage();
 
-        var logger = request.Options.GetAsyncLogger();
+        var logger = IAsyncLogger.Get(request.Options);
 
 
         try
@@ -120,29 +128,21 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
 
             var connection = ThrowIf.NullReference(transaction.Connection);
 
-            Func<RetryPolicyArgs, Task<bool>> policy = request is DbHttpRequestMessage dbr 
-                ? args => dbr.ShouldRetryAsync(args, cancellation)
-                : args => Data.DbHttpRequestMessage.DefaultRetryPolicy(args, cancellation);
 
             await Observable
-                .FromAsync([DebuggerStepThrough]() => ExecuteAsync(connection, request, response, cancellation))
-                .WithRetryPolicy(policy.Invoke);
-            
-            if (request is DbHttpRequestMessage dbRequest)
+                .FromAsync([DebuggerStepThrough] () => ExecuteAsync(connection, request, response, cancellation))
+                .WithRetryPolicy([DebuggerStepThrough](args) =>CanRetryAsync(args, cancellation));
+
+
+            if (transaction is not ManagedDbTransaction)
             {
-                if (await dbRequest.CanCommitAsync(response, cancellation) &&
-                    transaction is not ManagedDbTransaction)
+                if (await CanCommitAsync(response, cancellation))
                 {
                     await transaction.CommitAsync(cancellation);
                 }
-            }
-            
-            if(transaction is not ManagedDbTransaction)
-            {
-                await transaction.CommitAsync(cancellation);
+
                 await connection.CloseAsync();
             }
-            
         }
         catch (Exception e) when(e is TimeoutException ||
                                  e is DbException { InnerException: TimeoutException })
@@ -173,6 +173,28 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
         return logger
             .WithProperty("requestUrl", request.RequestUri?.ToString() ?? String.Empty);
     }
+
+
+    protected virtual Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) =>
+        Task.FromResult(true);
+
+    protected virtual async Task<bool> CanRetryAsync(RetryPolicyArgs args, CancellationToken cancellation)
+    {
+        if (args is
+            {
+                Exception: DbException { IsTransient: true },
+                AttemptNumber: < DefaultMaxRetryAttemptNumber
+            })
+        {
+            var sleepInterval = TimeSpan
+                .FromMilliseconds(100)
+                .ScaleByFactor(1.5, args.AttemptNumber);
+            await _clock.DelayAsync(sleepInterval, cancellation);
+            return true;
+        }
+        return false;
+    }
+
 
     /// <summary>
     /// Executes a database command created from the given HTTP request.
@@ -222,6 +244,88 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
         return Task.CompletedTask;
     }
 
+
+    /// <summary>
+    /// Sets the <see cref="HttpTransactionCallback"/> for the request.
+    /// </summary>
+    /// <param name="options">The options for the HTTP request.</param>
+    /// <param name="callback">The callback to be invoked when the HTTP request completes.</param>
+    /// <returns>The modified request options.</returns>
+    /// <remarks>
+    /// This extension method allows developers to include custom commit/rollback logic in the HTTP request pipeline.
+    /// The callback is invoked when the HTTP request completes and is used to decide whether to commit or rollback the transaction based on the HTTP response.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static HttpRequestOptions SetTransactionCallback(
+        HttpRequestOptions options,
+        HttpTransactionCallback callback)
+    {
+        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
+        options.Set(key, callback);
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the transaction callback for the request.
+    /// </summary>
+    /// <param name="options">The options for the HTTP request.</param>
+    /// <param name="callback">A function that returns a task that completes when the HTTP request completes.</param>
+    /// <returns>The modified request options.</returns>
+    /// <remarks>
+    /// This version of the SetTransactionCallback extension method accepts a function that returns a <see cref="Task"/> representing the transaction commit/rollback decision.
+    /// This allows developers to perform asynchronous operations in the callback.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static HttpRequestOptions SetTransactionCallback(
+        HttpRequestOptions options,
+        Func<HttpResponseMessage, Task<bool>> callback)
+    {
+        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
+        options.Set(key, CanCommitAsync);
+        return options;
+        [DebuggerNonUserCode]
+        Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) => callback(response);
+    }
+
+    /// <summary>
+    /// Sets the transaction callback for the request.
+    /// </summary>
+    /// <param name="options">The options for the HTTP request.</param>
+    /// <param name="callback">A function that returns a boolean indicating whether to commit or rollback the transaction.</param>
+    /// <returns>The modified request options.</returns>
+    /// <remarks>
+    /// This version of the SetTransactionCallback extension method accepts a function that synchronously returns the transaction commit/rollback decision.
+    /// This can be useful in scenarios where the decision does not rely on asynchronous operations.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static HttpRequestOptions SetTransactionCallback(
+        HttpRequestOptions options,
+        Func<HttpResponseMessage, bool> callback)
+    {
+        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
+        options.Set(key, CanCommitAsync);
+        return options;
+        [DebuggerNonUserCode]
+        Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) => Task.FromResult(callback(response));
+    }
+
+    /// <summary>
+    /// Retrieves the transaction callback from the request options.
+    /// </summary>
+    /// <param name="options">The options for the HTTP request.</param>
+    /// <returns>The transaction callback for the request.</returns>
+    /// <remarks>
+    /// If no callback has been set, a default callback that always returns true is provided, indicating that the transaction should always be committed.
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static HttpTransactionCallback GetTransactionCallback(HttpRequestOptions options)
+    {
+        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
+        options.TryGetValue(key, out var callback);
+        return callback ?? new HttpTransactionCallback(CanCommitAsync);
+        [DebuggerNonUserCode]
+        Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) => Task.FromResult(true);
+    }
 }
 
 /// <summary>

@@ -44,16 +44,9 @@ public abstract class SkyNetDbTest : SkyNetIntegrationTest
             return connection.BeginTransaction();
         });
 
-        services.AddScoped<SkyNetDbHttpMessageHandler>(provider => provider
+        services.AddScoped<SkyNetDbHttpClient>(provider => provider
             .GetRequiredService<NpgsqlTransaction>()
-            .Convert(tx => new SkyNetDbHttpMessageHandler(tx)));
-
-        services.AddScoped<HttpClient>(provider => provider
-            .GetRequiredService<SkyNetDbHttpMessageHandler>()
-            .Convert(handler => new HttpClient(handler)
-            {
-                BaseAddress = new Uri("postgres://skynet/api")
-            }));
+            .Convert(transaction => new SkyNetDbHttpClient(transaction)));
     }
 
     protected override void OnTestStarting(MethodInfo test)

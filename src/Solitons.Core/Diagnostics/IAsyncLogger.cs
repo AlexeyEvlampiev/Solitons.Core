@@ -55,6 +55,7 @@ public partial interface IAsyncLogger
 
 public partial interface IAsyncLogger
 {
+    private const string AsyncLoggerHttpRequestOptionsKey = "2c2cc6ed61f84192a2f73afe1320d04f";
     /// <summary>
     /// Creates a new instance of <see cref="IAsyncLogger"/> that automatically associates a principal object to every log entry.
     /// </summary>
@@ -260,5 +261,33 @@ public partial interface IAsyncLogger
             callerFilePath,
             callerLineNumber,
             config);
+    }
+
+
+    /// <summary>
+    /// Sets an <see cref="IAsyncLogger"/> instance in the <see cref="HttpRequestOptions"/>.
+    /// </summary>
+    /// <param name="options">The HttpRequestOptions instance to which the logger is to be added.</param>
+    /// <param name="logger">The IAsyncLogger instance to be added.</param>
+    /// <returns>The HttpRequestOptions instance with the added logger.</returns>
+    [DebuggerNonUserCode]
+    public static void Set(HttpRequestOptions options, IAsyncLogger logger)
+    {
+        var key = new HttpRequestOptionsKey<IAsyncLogger>(AsyncLoggerHttpRequestOptionsKey);
+        options.Set(key, logger);
+    }
+
+    /// <summary>
+    /// Retrieves the <see cref="IAsyncLogger"/> instance from the <see cref="HttpRequestOptions"/>.
+    /// </summary>
+    /// <param name="options">The HttpRequestOptions instance from which the logger is to be retrieved.</param>
+    /// <returns>The IAsyncLogger instance if found; otherwise, IAsyncLogger.Null.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when options is null.</exception>
+    [DebuggerNonUserCode]
+    public static IAsyncLogger Get(HttpRequestOptions options)
+    {
+        var key = new HttpRequestOptionsKey<IAsyncLogger>(AsyncLoggerHttpRequestOptionsKey);
+        options.TryGetValue(key, out var logger);
+        return logger ?? IAsyncLogger.Null;
     }
 }
