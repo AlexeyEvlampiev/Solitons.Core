@@ -15,7 +15,8 @@ LANGUAGE sql AS
 $$
 SELECT 
     CASE 
-        WHEN $1 ~ '^[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$' THEN $1::UUID
+        WHEN $1 ~* '^[A-F0-9]{8}-?[A-F0-9]{4}-?[A-F0-9]{4}-?[A-F0-9]{4}-?[A-F0-9]{12}$' THEN 
+            "input"::UUID
         ELSE NULL
     END
 $$;

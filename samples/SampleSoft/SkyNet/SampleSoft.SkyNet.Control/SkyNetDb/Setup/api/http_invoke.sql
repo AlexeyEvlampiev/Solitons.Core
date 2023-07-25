@@ -9,7 +9,7 @@ AS
 $body$
 DECLARE
 	v_client_external_id text := NULLIF(TRIM(headers->'SKYNET-IDENTITY'), '');
-	v_client_version text := substring(address from '(?:(?:api-?)?version|v)=(\S+)');
+	v_client_version text := substring(address from '(?i)(?:(?:api-?)?version|v)=(\S+)');
 	v_identity data.identity;
 	v_account data.account;	
 	v_route api.http_route;
@@ -17,6 +17,7 @@ DECLARE
 	v_payment NUMERIC(10, 2);
 	v_balance NUMERIC(10, 2);	
 	v_std_headers hstore := 'Content-Type=>application/json';
+	v_current_version text := '1.0';
 	v_sql text;
 BEGIN
 
@@ -91,7 +92,9 @@ BEGIN
 		'Payment Required. Your account balance is insufficient to cover the cost of this request.');
 	END IF;
 
-	v_std_headers := v_std_headers||hstore('SKYNET-handler=>api.'||v_route.handler);
+	v_std_headers := v_std_headers||
+	hstore('SKYNET-ROUTE=>'||v_route.object_id::text)||
+	hstore('CurrentVersion', v_current_version);
 	
 	SELECT FORMAT($$ SELECT * FROM api.%s(api.http_request_build($1, $2, $3, $4)); $$, v_route.handler) 
 	INTO v_sql;
