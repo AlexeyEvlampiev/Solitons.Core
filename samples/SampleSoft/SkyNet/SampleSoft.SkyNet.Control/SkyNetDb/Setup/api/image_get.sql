@@ -10,7 +10,9 @@ BEGIN
 	v_result.status_code := 200;
 	v_result.headers := hstore('');
 	
-	SELECT jsonb_build_object('oid', object_id)
+	SELECT jsonb_build_object(
+		'oid', object_id,
+		'createdUtc', created_utc)
 	INTO v_result.content
 	FROM data.image 
 	WHERE object_id = v_object_id
