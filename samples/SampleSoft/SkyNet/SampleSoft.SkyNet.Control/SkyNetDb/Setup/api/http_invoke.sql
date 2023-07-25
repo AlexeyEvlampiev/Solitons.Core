@@ -16,8 +16,7 @@ DECLARE
 	v_response api.http_response;
 	v_payment NUMERIC(10, 2);
 	v_balance NUMERIC(10, 2);	
-	v_std_headers hstore := 'Content-Type=>application/json';
-	v_current_version text := '1.0';
+	v_std_headers hstore := 'Current-Version=>1.0, Content-Type=>application/json';
 	v_sql text;
 BEGIN
 
@@ -93,8 +92,7 @@ BEGIN
 	END IF;
 
 	v_std_headers := v_std_headers||
-	hstore('SKYNET-ROUTE=>'||v_route.object_id::text)||
-	hstore('CurrentVersion', v_current_version);
+		hstore('SKYNET-ROUTE=>'||v_route.object_id::text);
 	
 	SELECT FORMAT($$ SELECT * FROM api.%s(api.http_request_build($1, $2, $3, $4)); $$, v_route.handler) 
 	INTO v_sql;

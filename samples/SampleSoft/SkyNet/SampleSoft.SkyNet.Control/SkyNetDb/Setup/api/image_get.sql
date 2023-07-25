@@ -3,7 +3,7 @@ RETURNS api.http_response
 AS
 $$
 DECLARE
-	v_oid_text text = substring($1.address from 'images/([^/?&]+)');
+	v_oid_text text = substring($1.address from '(?i)images/([^/?&]+)');
 	v_object_id uuid := system.as_uuid(v_oid_text);
 	v_result api.http_response;
 BEGIN
@@ -24,7 +24,7 @@ BEGIN
 	
 	v_result.status_code := 404;
 	v_result.headers := hstore('');
-	v_result.content := jsonb_build_object('message', FORMAT('Image with object ID %L not found', v_object_id));
+	v_result.content := jsonb_build_object('message', FORMAT('Image with ID %L not found', v_oid_text));
 
 	RETURN v_result;
 END;
