@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -27,18 +28,22 @@ namespace Solitons.Data.Management.Postgres.Common;
 public abstract partial class PgManager : IPgManager
 {
     private readonly PgManagerConfig _config;
+    private readonly ScriptPriorityComparer _scriptPriorityComparer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PgManager"/> class.
     /// </summary>
     /// <param name="connectionString">The maintenance database connection string for the Postgres database.</param>
     /// <param name="config">The configuration for the Postgres database.</param>
+    /// <param name="scriptPriorityComparer">Determines the order in which the upgrade scripts should be executed.</param>
     protected PgManager(
         string connectionString,
-        PgManagerConfig config)
+        PgManagerConfig config,
+        ScriptPriorityComparer scriptPriorityComparer)
     {
         ConnectionString = connectionString;
         _config = config;
+        _scriptPriorityComparer = scriptPriorityComparer;
     }
 
     /// <summary>
@@ -92,7 +97,11 @@ public abstract partial class PgManager : IPgManager
         await using var transaction = await BeginUpgradeTransactionAsync(cancellation);
         var connection = ThrowIf.NullReference(transaction.Connection);
 
-        foreach (var script in GetUpgradeScripts())
+        var sortedScripts = GetUpgradeScripts()
+            .OrderBy(script => script, _scriptPriorityComparer)
+            .ToList();
+
+        foreach (var script in sortedScripts)
         {
             Debug.WriteLine($"Script: {script}");
             await ExecuteScriptIfApplicableAsync(connection, script, cancellation);
@@ -100,6 +109,7 @@ public abstract partial class PgManager : IPgManager
 
         await OnUpgradedAsync(transaction, cancellation);
     }
+
 
 
     /// <summary>

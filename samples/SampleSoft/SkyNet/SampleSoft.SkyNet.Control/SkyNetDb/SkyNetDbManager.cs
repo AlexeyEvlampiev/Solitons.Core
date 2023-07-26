@@ -25,7 +25,7 @@ public sealed class SkyNetDbManager : NpgsqlManager
         string connectionString,
         ISecretsRepository secrets,
         SkyNetDbManagerConfig config) 
-        : base(connectionString, secrets, config)
+        : base(connectionString, secrets, config, new SkyNetDbScriptPriorityComparer())
     {
         _secrets = secrets;
     }
@@ -181,7 +181,6 @@ public sealed class SkyNetDbManager : NpgsqlManager
             .GetManifestResourceNames()
             .Where(SkyNetDbEmbeddedScript.IsScript)
             .Select(path => SkyNetDbEmbeddedScript.Create(path, assembly))
-            .Order(new SkyNetDbScriptPriorityComparer())
             .ToArray();
         return scripts;
     }
