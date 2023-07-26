@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,9 @@ namespace Solitons.Data.Management.Postgres;
 /// </remarks>
 public interface IPgManager
 {
+    private static readonly Regex DatabaseNameRegex = new Regex(@"^(?i)[a-z_]\w{1,62}$");
+    private static readonly Regex RoleNameRegex = new Regex(@"^(?i)[a-z_][\w$]{0,62}$");
+
     /// <summary>
     /// Gets the name of the database that this instance manages.
     /// </summary>
@@ -76,4 +80,39 @@ public interface IPgManager
         cancellation.ThrowIfCancellationRequested();
         await CreateDbAsync(cancellation);
     }
+
+
+    /// <summary>
+    /// Determines whether the provided string is a valid Postgres database name.
+    /// </summary>
+    /// <param name="databaseName">The name of the database to validate.</param>
+    /// <returns>
+    /// <see langword="true"/> if the provided database name is valid; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// A valid Postgres database name must meet the following criteria:
+    /// - It must start with a letter or an underscore.
+    /// - It can contain letters, digits, and underscores.
+    /// - It cannot be longer than 63 characters.
+    /// This method uses case-insensitive matching (that is, "myDatabase" and "MYDATABASE" are considered the same).
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static bool IsValidDatabaseName(string databaseName) => DatabaseNameRegex.IsMatch(databaseName);
+
+    /// <summary>
+    /// Determines whether the provided string is a valid Postgres role name.
+    /// </summary>
+    /// <param name="roleName">The name of the role to validate.</param>
+    /// <returns>
+    /// <see langword="true"/> if the provided role name is valid; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// A valid Postgres role name must meet the following criteria:
+    /// - It must start with a letter or an underscore.
+    /// - It can contain letters, digits, underscores, and dollar signs.
+    /// - It cannot be longer than 63 bytes.
+    /// This method uses case-insensitive matching (that is, "myRole" and "MYROLE" are considered the same).
+    /// </remarks>
+    [DebuggerNonUserCode]
+    public static bool IsValidRoleName(string roleName) => RoleNameRegex.IsMatch(roleName);
 }
