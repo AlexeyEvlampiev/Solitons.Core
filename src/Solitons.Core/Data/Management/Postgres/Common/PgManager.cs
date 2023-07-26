@@ -53,7 +53,7 @@ public abstract partial class PgManager : IPgManager
         Debug.WriteLine($"Creating {Database} ...");
         await CreateDbIfNotExistsAsync(cancellation);
 
-        foreach (var roleSecretKey in _config.RoleConnectionStringSecretKeys)
+        foreach (var roleSecretKey in _config.RoleConnectionSecretKeys)
         {
             var (roleName, secretName) = (roleSecretKey.Key, roleSecretKey.Value);
             Debug.WriteLine($"Creating {roleName} role with login ...");

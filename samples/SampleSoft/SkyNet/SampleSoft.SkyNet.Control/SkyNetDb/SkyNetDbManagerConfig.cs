@@ -19,7 +19,7 @@ public sealed record SkyNetDbManagerConfig : PgManagerConfig
     public SkyNetDbManagerConfig(string databaseName) 
         : base(databaseName)
     {
-        RoleConnectionStringSecretKeys = FluentDictionary
+        RoleConnectionSecretKeys = FluentDictionary
             .Create<string, string>()
             .Add("skynetdb_admin", KeyVaultSecretNames.SkyNetDbAdminConnectionString)
             .Add("skynetdb_api", KeyVaultSecretNames.SkyNetDbApiConnectionString)
