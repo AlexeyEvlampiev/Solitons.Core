@@ -52,9 +52,20 @@ public abstract partial class PgManager : IPgManager
     public string Database => _config.DatabaseName;
 
     /// <summary>
-    /// Creates a new database if one with the specified name does not already exist.
+    /// Asynchronously creates a database and associated roles if they do not already exist, then upgrades the database using a series of scripts.
     /// </summary>
-    /// <param name="cancellation">The cancellation token to use.</param>
+    /// <param name="cancellation">A CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// This method first creates the database if it does not already exist. It then iterates over the configured role keys, creating each role with 
+    /// login if it does not already exist. Afterward, the method begins the upgrade process by calling the OnUpgradingAsync() method and 
+    /// initializing a database transaction. 
+    /// 
+    /// The upgrade scripts to be executed are retrieved by calling the GetUpgradeScripts() method. Each script is then executed in turn, 
+    /// assuming it should be executed based on the current state of the database.
+    ///
+    /// After all scripts have been executed, the method finalizes the upgrade process by calling the OnUpgradedAsync() method, which commits the transaction.
+    /// </remarks>
     private async Task CreateDbAsync(CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
@@ -381,35 +392,6 @@ public abstract partial class PgManager : IPgManager
             .Delay(1000 * args.AttemptNumber.Max(180), cancellation);
     }
 
-
-
-    [DebuggerStepThrough]
-    Task IPgManager.CreateDbAsync(CancellationToken cancellation) => Observable
-        .FromAsync([DebuggerStepThrough] () => this.CreateDbAsync(cancellation))
-        .WithRetryPolicy([DebuggerStepThrough] (args) => CreateDbRetryPolicy(args, cancellation))
-        .ToTask(cancellation);
-
-
-
-    [DebuggerStepThrough]
-    Task IPgManager.DropDbAsync(CancellationToken cancellation) =>
-        Observable
-            .FromAsync([DebuggerStepThrough] () => this.DropDbAsync(cancellation))
-            .WithRetryPolicy([DebuggerStepThrough] (args) => DropDbRetryPolicy(args, cancellation))
-            .ToTask(cancellation);
-
-    [DebuggerStepThrough]
-    async Task IPgManager.PerformPostUpgradeTestsAsync(CancellationToken cancellation)
-    {
-        cancellation.ThrowIfCancellationRequested();
-        await Observable
-            .FromAsync(()=>PerformPostUpgradeTestsAsync(cancellation))
-            .WithRetryPolicy(args => TestRetryPolicy(args, cancellation))
-            .ToTask(cancellation);
-    }
-
-
-
     /// <summary>
     /// Defines the retry policy for dropping a database.
     /// </summary>
@@ -567,4 +549,30 @@ public abstract partial class PgManager : IPgManager
     /// This abstract method should be implemented in a derived class to provide the specific upgrade scripts needed for the database. These scripts are executed during the upgrade process and could include operations such as data transformations, table alterations, or new data additions. The order of scripts in the returned sequence may influence the upgrade process, thus implementors should ensure their correct order.
     /// </remarks>
     protected abstract IEnumerable<Script> GetUpgradeScripts();
+
+
+    [DebuggerStepThrough]
+    Task IPgManager.CreateDbAsync(CancellationToken cancellation) => Observable
+        .FromAsync([DebuggerStepThrough] () => this.CreateDbAsync(cancellation))
+        .WithRetryPolicy([DebuggerStepThrough] (args) => CreateDbRetryPolicy(args, cancellation))
+        .ToTask(cancellation);
+
+
+
+    [DebuggerStepThrough]
+    Task IPgManager.DropDbAsync(CancellationToken cancellation) =>
+        Observable
+            .FromAsync([DebuggerStepThrough] () => this.DropDbAsync(cancellation))
+            .WithRetryPolicy([DebuggerStepThrough] (args) => DropDbRetryPolicy(args, cancellation))
+            .ToTask(cancellation);
+
+    [DebuggerStepThrough]
+    async Task IPgManager.PerformPostUpgradeTestsAsync(CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        await Observable
+            .FromAsync(() => PerformPostUpgradeTestsAsync(cancellation))
+            .WithRetryPolicy(args => TestRetryPolicy(args, cancellation))
+            .ToTask(cancellation);
+    }
 }
