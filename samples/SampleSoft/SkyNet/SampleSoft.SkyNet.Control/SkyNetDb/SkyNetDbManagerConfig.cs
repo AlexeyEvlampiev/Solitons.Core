@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using SampleSoft.SkyNet.Azure;
 using Solitons.Collections;
-using Solitons.Data.Management.Postgres;
+using Solitons.Data.Management.Postgres.Common;
 
 namespace SampleSoft.SkyNet.Control.SkyNetDb;
 

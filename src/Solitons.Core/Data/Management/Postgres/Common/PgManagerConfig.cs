@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-namespace Solitons.Data.Management.Postgres;
+namespace Solitons.Data.Management.Postgres.Common;
 
 /// <summary>
 /// Configuration options for the Postgres manager.
