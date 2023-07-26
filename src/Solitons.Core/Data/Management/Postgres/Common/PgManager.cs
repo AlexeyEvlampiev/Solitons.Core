@@ -1,4 +1,5 @@
-﻿using Solitons.Reactive;
+﻿using Solitons.Data.Common.Postgres;
+using Solitons.Reactive;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -12,8 +13,17 @@ using System.Threading.Tasks;
 namespace Solitons.Data.Management.Postgres.Common;
 
 /// <summary>
-/// Provides base functionality for managing a Postgres database.
+/// Provides an abstract base for managing Postgres databases, including operations for creating, dropping, and upgrading databases,
+/// and handling secrets and roles. This class implements the <see cref="IPgManager"/> interface.
 /// </summary>
+/// <remarks>
+/// Implementing classes must provide their own logic for database connection creation, extraction of connection information, 
+/// construction of connection strings, execution of database upgrade scripts, managing database upgrade transactions,
+/// retrieval of database upgrade scripts, and managing secret information. 
+/// It also contains robust mechanisms for handling transient database errors via retry policies and leverages the Task Parallel Library 
+/// and Reactive Extensions for managing asynchronous operations and event-based programs, respectively.
+/// </remarks>
+
 public abstract partial class PgManager : IPgManager
 {
     private readonly PgManagerConfig _config;
@@ -68,9 +78,29 @@ public abstract partial class PgManager : IPgManager
         await UpgradeAsync(cancellation);
     }
 
+    /// <summary>
+    /// Called during the upgrade process and can be overridden to implement custom upgrade logic.
+    /// </summary>
+    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A <see cref="Task"/> that represents the completion of this method. This base implementation immediately returns a completed task.</returns>
     [DebuggerStepThrough]
     protected virtual Task OnUpgradingAsync(CancellationToken cancellation) => Task.CompletedTask;
 
+    /// <summary>
+    /// Asynchronously registers a new database login if it doesn't already exist.
+    /// </summary>
+    /// <remarks>
+    /// This method checks the validity of the provided secret. If it is not valid or does not exist, it generates a new secret and creates a new role with the given username and new secret in the database. If the role already exists, it updates the login password of the role with the new secret. 
+    ///
+    /// The newly generated secret is then saved and the method returns whether a new secret was generated.
+    ///
+    /// Note: Exceptions during the secret validity check are caught and logged as a warning. In such cases, the method proceeds to generate a new secret.
+    /// </remarks>
+    /// <param name="maintenanceDbConnectionParams">The connection parameters for the database maintenance operations.</param>
+    /// <param name="username">The username for the new login.</param>
+    /// <param name="secretName">The name of the secret to be stored.</param>
+    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous operation. The task result contains a boolean indicating whether a new secret was generated.</returns>
     protected virtual async Task<bool> RegisterLoginIfNotExistsAsync(
         PgConnectionInfo maintenanceDbConnectionParams,
         string username, 
@@ -152,6 +182,18 @@ public abstract partial class PgManager : IPgManager
         return newSecretGenerated;
     }
 
+    /// <summary>
+    /// Asynchronously creates the database if it doesn't already exist.
+    /// </summary>
+    /// <remarks>
+    /// This method opens a new database connection and checks if the database, as defined by the <see cref="Database"/> property, exists. If it doesn't exist, the method executes a command to create the database.
+    /// 
+    /// Subclasses may override this method to provide custom database creation logic. The override should call this base implementation to ensure that the database exists before executing any additional setup logic.
+    ///
+    /// This could be extended to create schemas, extensions, or to assign roles with specific privileges. Remember, any override should first call the base implementation to ensure the existence of the database.
+    /// </remarks>
+    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     protected virtual async Task CreateDbIfNotExistsAsync(CancellationToken cancellation)
     {
         await Observable

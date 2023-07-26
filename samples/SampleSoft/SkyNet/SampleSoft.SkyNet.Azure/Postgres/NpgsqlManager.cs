@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Npgsql;
 using Solitons;
-using Solitons.Data.Management.Postgres;
+using Solitons.Data.Common.Postgres;
 using Solitons.Data.Management.Postgres.Common;
 using Solitons.Security;
 

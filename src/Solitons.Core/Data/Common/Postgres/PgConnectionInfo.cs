@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Solitons.Data.Management.Postgres;
+namespace Solitons.Data.Common.Postgres;
 
 /// <summary>
 /// Represents connection information for a Postgres database.
@@ -68,7 +68,7 @@ public sealed record PgConnectionInfo
             return false;
         }
 
-        return 
+        return
             Host.Equals(other.Host, StringComparison.Ordinal) &&
             Port.Equals(other.Port) &&
             Database.Equals(other.Database, StringComparison.Ordinal) &&
