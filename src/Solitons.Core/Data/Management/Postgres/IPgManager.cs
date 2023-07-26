@@ -11,7 +11,7 @@ namespace Solitons.Data.Management.Postgres;
 /// <remarks>
 /// This interface defines methods for creating, deleting, and testing a Postgres database. It supports the concept of 'Desired State Configuration' wherein the <see cref="CreateDbAsync"/> method ensures the database is set up according to the desired state. This can include creating necessary roles, registering secrets, setting role permissions, populating the database with reference data, and more.
 /// The <see cref="DropDbAsync"/> method allows for complete removal of the database, useful in scenarios like DevOps and Integration Tests where databases may need to be provisionally created and then removed.
-/// The <see cref="RunTestAsync"/> method encourages a model where the database is treated as software and tests are run to ensure its proper functioning. While this approach may not suit all, the interface provides sufficient flexibility for a wide range of use-cases.
+/// The <see cref="PerformPostUpgradeTestsAsync"/> method encourages a model where the database is treated as software and tests are run to ensure its proper functioning. While this approach may not suit all, the interface provides sufficient flexibility for a wide range of use-cases.
 /// </remarks>
 public interface IPgManager
 {
@@ -58,7 +58,7 @@ public interface IPgManager
     /// </remarks>
     /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task RunTestAsync(CancellationToken cancellation = default);
+    Task PerformPostUpgradeTestsAsync(CancellationToken cancellation = default);
 
     /// <summary>
     /// Drops and recreates the database asynchronously.

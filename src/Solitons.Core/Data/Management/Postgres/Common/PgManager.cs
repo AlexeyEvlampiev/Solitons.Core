@@ -75,8 +75,21 @@ public abstract partial class PgManager : IPgManager
         }
 
         Debug.WriteLine($"Upgrading the {Database} database ...");
-        await UpgradeAsync(cancellation);
+        cancellation.ThrowIfCancellationRequested();
+        await OnUpgradingAsync(cancellation);
+
+        await using var transaction = await BeginUpgradeTransactionAsync(cancellation);
+        var connection = ThrowIf.NullReference(transaction.Connection);
+
+        foreach (var script in GetUpgradeScripts())
+        {
+            Debug.WriteLine($"Script: {script}");
+            await ExecuteScriptIfApplicableAsync(connection, script, cancellation);
+        }
+
+        await OnUpgradedAsync(transaction, cancellation);
     }
+
 
     /// <summary>
     /// Called during the upgrade process and can be overridden to implement custom upgrade logic.
@@ -287,8 +300,16 @@ public abstract partial class PgManager : IPgManager
     protected abstract Task SaveSecretAsync(string secretKey, string secretValue, CancellationToken cancellation);
 
 
-
-    protected virtual Task RunTestAsync(CancellationToken cancellation) => Task.CompletedTask;
+    /// <summary>
+    /// Executes an optional set of tests against the database.
+    /// </summary>
+    /// <param name="cancellation">An instance of <see cref="CancellationToken"/> used to propagate notification that operations should be canceled.</param>
+    /// <returns>An instance of <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// This method provides a hook to perform any necessary tests against the database once the upgrade process has been completed. It is empty by default, and can be overridden in a derived class to implement specific tests. Note that this method is run asynchronously, so any implemented tests should also be asynchronous. 
+    /// If no tests are required, the method can be left as it is, and it will simply return a completed task when called.
+    /// </remarks>
+    protected virtual Task PerformPostUpgradeTestsAsync(CancellationToken cancellation) => Task.CompletedTask;
 
     /// <summary>
     /// Generates a random password.
@@ -320,6 +341,18 @@ public abstract partial class PgManager : IPgManager
     protected abstract Task<string?> GetSecretIfExistsAsync(
         string secretKey, 
         CancellationToken cancellation);
+
+    /// <summary>
+    /// Fetches the value of a secret, such as a password or a connection string, from a secure storage location.
+    /// </summary>
+    /// <param name="secretKey">The unique identifier of the secret to be retrieved.</param>
+    /// <param name="cancellation">A CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>An observable sequence that contains the value of the secret.</returns>
+    /// <remarks>
+    /// This method uses an asynchronous design pattern based on the IObservable&lt;T&gt; interface. It returns immediately with an IObservable&lt;T&gt; 
+    /// that can be used to track the completion of the operation and handle any exceptions that might occur.
+    /// The secret storage location and the mechanism to retrieve the secret are implementation-dependent.
+    /// </remarks>
 
     protected IObservable<string> GetSecret(
         string secretKey,
@@ -353,7 +386,7 @@ public abstract partial class PgManager : IPgManager
     [DebuggerStepThrough]
     Task IPgManager.CreateDbAsync(CancellationToken cancellation) => Observable
         .FromAsync([DebuggerStepThrough] () => this.CreateDbAsync(cancellation))
-        .WithRetryPolicy(args => CreateDbRetryPolicy(args, cancellation))
+        .WithRetryPolicy([DebuggerStepThrough] (args) => CreateDbRetryPolicy(args, cancellation))
         .ToTask(cancellation);
 
 
@@ -362,15 +395,15 @@ public abstract partial class PgManager : IPgManager
     Task IPgManager.DropDbAsync(CancellationToken cancellation) =>
         Observable
             .FromAsync([DebuggerStepThrough] () => this.DropDbAsync(cancellation))
-            .WithRetryPolicy(args => DropDbRetryPolicy(args, cancellation))
+            .WithRetryPolicy([DebuggerStepThrough] (args) => DropDbRetryPolicy(args, cancellation))
             .ToTask(cancellation);
 
     [DebuggerStepThrough]
-    async Task IPgManager.RunTestAsync(CancellationToken cancellation)
+    async Task IPgManager.PerformPostUpgradeTestsAsync(CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         await Observable
-            .FromAsync(()=>RunTestAsync(cancellation))
+            .FromAsync(()=>PerformPostUpgradeTestsAsync(cancellation))
             .WithRetryPolicy(args => TestRetryPolicy(args, cancellation))
             .ToTask(cancellation);
     }
@@ -397,6 +430,18 @@ public abstract partial class PgManager : IPgManager
             .Delay(1000 * arg.AttemptNumber.Max(10));
     }
 
+    /// <summary>
+    /// Defines the retry policy for running post-upgrade tests on the database.
+    /// </summary>
+    /// <param name="arg">The retry policy arguments, which include details about the current retry attempt, such as the current retry count, the exception that caused the retry, and the delay before the next retry.</param>
+    /// <param name="cancellation">A CancellationToken that can be used to cancel the operation.</param>
+    /// <returns>An observable sequence that notifies observers about the retry policy parameters for each new retry attempt.</returns>
+    /// <remarks>
+    /// This method is typically used in conjunction with the <see cref="PerformPostUpgradeTestsAsync"/> method. 
+    /// If <see cref="PerformPostUpgradeTestsAsync"/> encounters an exception, this method determines whether to retry the test, 
+    /// and if so, the delay before the next attempt. 
+    /// By overriding this method in a derived class, you can customize the retry behavior for post-upgrade testing.
+    /// </remarks>
     protected virtual IObservable<RetryPolicyArgs> TestRetryPolicy(
         RetryPolicyArgs arg, 
         CancellationToken cancellation)
@@ -475,33 +520,51 @@ public abstract partial class PgManager : IPgManager
     }
 
 
-    private async Task UpgradeAsync(CancellationToken cancellation)
-    {
-        cancellation.ThrowIfCancellationRequested();
-        await OnUpgradingAsync(cancellation);
 
-        await using var transaction = await BeginUpgradeTransactionAsync(cancellation);
-        var connection = ThrowIf.NullReference(transaction.Connection);
-
-        foreach (var script in GetUpgradeScripts())
-        {
-            Debug.WriteLine($"Script: {script}");
-            await ExecuteIfShouldAsync(connection, script, cancellation);
-        }
-
-        await OnUpgradedAsync(transaction, cancellation);
-    }
-
+    /// <summary>
+    /// Asynchronously handles the post-upgrade actions within a transaction scope.
+    /// </summary>
+    /// <param name="transaction">The <see cref="DbTransaction"/> in which the upgrade has been performed.</param>
+    /// <param name="cancellation">A <see cref="CancellationToken"/> used to propagate notification that operations should be canceled.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous operation. The task result indicates that the transaction has been committed.</returns>
+    /// <remarks>
+    /// This method gets called after the database upgrade is done. By default, it commits the database transaction, finalizing the changes. Override this method to add additional steps after the upgrade process or to alter the default transaction behavior.
+    /// </remarks>
     protected virtual Task OnUpgradedAsync(
         DbTransaction transaction, 
         CancellationToken cancellation)=> transaction.CommitAsync(cancellation);
 
-    protected abstract Task<bool> ExecuteIfShouldAsync(DbConnection connection, Script script, CancellationToken cancellation);
+    /// <summary>
+    /// Executes the provided script against the given database connection if certain conditions are met.
+    /// </summary>
+    /// <remarks>
+    /// This method is designed to ensure the idempotency of setup scripts and one-time execution of migration scripts.
+    /// Setup scripts are idempotent, meaning they can be run multiple times without causing negative effects or changing the result beyond the initial application.
+    /// Migration scripts, on the other hand, are designed to be executed only once.
+    /// The decision of whether or not to execute the script should be implemented in this method.
+    /// </remarks>
+    /// <param name="connection">The database connection on which the script will be executed.</param>
+    /// <param name="script">The script to potentially be executed.</param>
+    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous operation. The result of the task indicates whether the script was executed.</returns>
+    protected abstract Task<bool> ExecuteScriptIfApplicableAsync(DbConnection connection, Script script, CancellationToken cancellation);
 
-
+    /// <summary>
+    /// Begins a new database transaction asynchronously as part of the upgrade process.
+    /// </summary>
+    /// <param name="cancellation">A <see cref="CancellationToken"/> used to propagate notification that operations should be canceled.</param>
+    /// <returns>A <see cref="Task{TResult}"/> that represents the asynchronous operation. The task result contains a new instance of <see cref="DbTransaction"/> that is used to perform the upgrade.</returns>
+    /// <remarks>
+    /// This abstract method must be implemented in a derived class to define the exact transaction behavior during the upgrade process. A transaction represents a unit of work, and in this case, is used for the database upgrade operation to ensure data consistency and recoverability.
+    /// </remarks>
     protected abstract Task<DbTransaction> BeginUpgradeTransactionAsync(CancellationToken cancellation);
 
+    /// <summary>
+    /// Gets the collection of scripts that should be executed for the database upgrade process.
+    /// </summary>
+    /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="Script"/> that represents the set of upgrade scripts.</returns>
+    /// <remarks>
+    /// This abstract method should be implemented in a derived class to provide the specific upgrade scripts needed for the database. These scripts are executed during the upgrade process and could include operations such as data transformations, table alterations, or new data additions. The order of scripts in the returned sequence may influence the upgrade process, thus implementors should ensure their correct order.
+    /// </remarks>
     protected abstract IEnumerable<Script> GetUpgradeScripts();
-
-
 }
