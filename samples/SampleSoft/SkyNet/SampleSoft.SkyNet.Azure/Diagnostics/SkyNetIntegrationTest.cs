@@ -7,19 +7,27 @@ using Solitons.Security;
 namespace SampleSoft.SkyNet.Azure.Diagnostics;
 
 /// <summary>
-/// Provides a base class for integration tests using SkyNet services.
+/// Serves as the abstract base class for integration tests within the SkyNet system.
 /// </summary>
+/// <remarks>
+/// This class extends the <see cref="IntegrationTest"/> class and adds additional setup for tests 
+/// specific to the SkyNet system. It is designed to be subclassed for individual test suites,
+/// where each subclass will provide specific configurations for the service provider through the <see cref="ConfigAsync"/> method.
+/// </remarks>
 public abstract class SkyNetIntegrationTest : IntegrationTest
 {
     /// <summary>
-    /// Configures the services for the test. Override this method to add services to the 
-    /// <see cref="IServiceCollection"/> or to replace existing service registrations.
+    /// Asynchronously configures the services needed for the test.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
-    /// <param name="test">The test method to execute.</param>
-    /// <param name="secrets">The repository to access secrets.</param>
-    /// <param name="cancellation">The cancellation token.</param>
+    /// <param name="test">The test method to be executed.</param>
+    /// <param name="secrets">The secrets repository to be used in the test.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
+    /// <remarks>
+    /// This method is called during the setup phase of each test method, allowing test classes to configure the services 
+    /// required for the test. Override this method to add or replace services in the service collection.
+    /// </remarks>
     protected abstract Task ConfigAsync(
         ServiceCollection services, 
         MethodInfo test,
@@ -27,12 +35,16 @@ public abstract class SkyNetIntegrationTest : IntegrationTest
         CancellationToken cancellation);
 
     /// <summary>
-    /// Builds the service provider for the test.
+    /// Asynchronously builds the service provider for the test.
     /// </summary>
-    /// <param name="testMethod">The test method to execute.</param>
-    /// <param name="secrets">The repository to access secrets.</param>
-    /// <param name="cancellation">The cancellation token.</param>
-    /// <returns>A <see cref="Task"/> that represents the asynchronous operation, containing the service provider.</returns>
+    /// <param name="testMethod">The test method for which the service provider is being created.</param>
+    /// <param name="secrets">The secrets repository to be used in the test.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous operation. The task result contains the created <see cref="ScopedServiceProvider"/>.</returns>
+    /// <remarks>
+    /// This method creates a new service collection, adds basic services to it, and then calls <see cref="ConfigAsync"/> to allow further configuration. 
+    /// Finally, it builds the service provider and wraps it in a <see cref="DotNetCoreScopedServiceProvider"/>.
+    /// </remarks>
     protected sealed override async Task<ScopedServiceProvider> BuildScopedServiceProviderAsync(
         MethodInfo testMethod, 
         ISecretsRepository secrets, 

@@ -11,32 +11,46 @@ using Solitons.Security;
 namespace Solitons.Diagnostics;
 
 /// <summary>
-/// Base class for integration tests.
+/// Serves as the abstract base class for all integration tests.
 /// </summary>
+/// <remarks>
+/// Integration tests are typically used to test interactions between multiple parts of the system,
+/// such as service calls, database operations, or network requests.
+/// </remarks>
 public abstract class IntegrationTest
 {
     /// <summary>
-    /// Builds a scoped service provider for the given test method.
+    /// Asynchronously builds a new service provider for the given test method.
     /// </summary>
-    /// <param name="testMethod">The method to be tested.</param>
-    /// <param name="secrets">Secrets repository for the test.</param>
-    /// <param name="cancellation">Token to observe for cancellation.</param>
-    /// <returns>A scoped service provider.</returns>
+    /// <param name="testMethod">The test method for which the service provider is being created.</param>
+    /// <param name="secrets">The secrets repository to be used in the test.</param>
+    /// <param name="cancellation">The cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the created <see cref="ScopedServiceProvider"/>.</returns>
+    /// <remarks>
+    /// This method is called once for each test method, before the test is run. 
+    /// The returned service provider is used to resolve any services required by the test method.
+    /// </remarks>
     protected abstract Task<ScopedServiceProvider> BuildScopedServiceProviderAsync(
         MethodInfo testMethod, 
         ISecretsRepository secrets, 
         CancellationToken cancellation);
 
     /// <summary>
-    /// Invoked just before each test is run.
+    /// Called just before each test is run.
     /// </summary>
-    /// <param name="test">The test method about to be run.</param>
+    /// <param name="test">The test method that is about to be run.</param>
+    /// <remarks>
+    /// Override this method to perform setup operations before each test is run.
+    /// </remarks>
     protected virtual void OnTestStarting(MethodInfo test){}
 
     /// <summary>
-    /// Invoked just after each test is run.
+    /// Called just after each test is run.
     /// </summary>
-    /// <param name="test">The test method that was run.</param>
+    /// <param name="test">The test method that was just run.</param>
+    /// <remarks>
+    /// Override this method to perform cleanup operations after each test is run.
+    /// </remarks>
     protected virtual void OnTestCompleted(MethodInfo test) {}
 
 
