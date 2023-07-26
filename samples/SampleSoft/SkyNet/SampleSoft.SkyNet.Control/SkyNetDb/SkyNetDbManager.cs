@@ -100,7 +100,7 @@ public sealed class SkyNetDbManager : NpgsqlManager
         await command.ExecuteNonQueryAsync(cancellation);
     }
 
-    protected override async Task<bool> ExecuteIfShouldAsync(DbConnection connection, Script script, CancellationToken cancellation)
+    protected override async Task<bool> ExecuteScriptIfApplicableAsync(DbConnection connection, Script script, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         await using var command = connection.CreateCommand();
@@ -186,8 +186,9 @@ public sealed class SkyNetDbManager : NpgsqlManager
         return scripts;
     }
 
+
     [DebuggerStepThrough]
-    protected override Task RunTestAsync(CancellationToken cancellation) => IntegrationTest
+    protected override Task PerformPostUpgradeTestsAsync(CancellationToken cancellation) => IntegrationTest
         .RunAllAsync(
             GetType().Assembly, 
             _secrets.ReadThroughCache(Observable.Empty<Unit>()), 
