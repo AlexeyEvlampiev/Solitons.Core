@@ -32,53 +32,36 @@ public abstract class AsyncDisposable : IAsyncDisposable
     /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
     public static IAsyncDisposable Create(Func<Task> callback) => new RelayAsyncDisposable(callback);
 
+    /// <summary>
+    /// Creates a new instance of an <see cref="AsyncDisposable"/> using the specified dispose callback.
+    /// </summary>
+    /// <param name="callback">A callback that represents the dispose operation to execute when the <see cref="AsyncDisposable"/> object is disposed of.</param>
+    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
     public static IAsyncDisposable Create(Func<ValueTask> callback)
     {
         return Create(() => callback.Invoke().AsTask());
     }
 
+    /// <summary>
+    /// Creates a new instance of an <see cref="AsyncDisposable"/> using the specified dispose callback.
+    /// </summary>
+    /// <param name="callback">A callback that represents the dispose operation to execute when the <see cref="AsyncDisposable"/> object is disposed of.</param>
+    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
     public static IAsyncDisposable Create(Action callback) => new RelayAsyncDisposable(() =>
     {
         callback.Invoke();
         return Task.CompletedTask;
     });
 
+    /// <summary>
+    /// Creates a new instance of an <see cref="AsyncDisposable"/> using the dispose method of the given <see cref="IDisposable"/> instance.
+    /// </summary>
+    /// <param name="disposable">An object that implements <see cref="IDisposable"/> whose dispose method is used as the dispose operation.</param>
+    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
     public static IAsyncDisposable Create(IDisposable disposable)
     {
         return disposable is IAsyncDisposable ad ? ad : Create(disposable.Dispose);
     }
-
-    /// <summary>
-    /// Creates a new instance of an <see cref="AsyncDisposable"/> from a sequence of <see cref="IAsyncDisposable"/> instances.
-    /// </summary>
-    /// <param name="disposables">A sequence of <see cref="IAsyncDisposable"/> instances.</param>
-    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
-    /// <remarks>
-    /// The created <see cref="AsyncDisposable"/> will dispose of the <see cref="IAsyncDisposable"/> instances in the order they appear in the sequence.
-    /// </remarks>
-    [DebuggerNonUserCode]
-    public static IAsyncDisposable Create(IEnumerable<IAsyncDisposable> disposables)
-    {
-        [DebuggerStepThrough]
-        async Task Callback()
-        {
-            foreach (var disposable in disposables)
-            {
-                await disposable.DisposeAsync().ConfigureAwait(false);
-            }
-        }
-
-        return Create(Callback);
-    }
-
-    /// <summary>
-    /// Creates a new instance of an <see cref="AsyncDisposable"/> from an array of <see cref="IAsyncDisposable"/> instances.
-    /// </summary>
-    /// <param name="disposables">An array of <see cref="IAsyncDisposable"/> instances.</param>
-    /// <returns>An instance of an <see cref="AsyncDisposable"/>.</returns>
-    /// <seealso cref="Create(IEnumerable{IAsyncDisposable})"/>
-    [DebuggerNonUserCode]
-    public static IAsyncDisposable Create(params IAsyncDisposable[] disposables) => Create(disposables.AsEnumerable());
 
 
     /// <summary>

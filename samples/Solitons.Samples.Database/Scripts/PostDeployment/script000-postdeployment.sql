@@ -1,2 +1,0 @@
-﻿
-REFRESH MATERIALIZED VIEW CONCURRENTLY system.mvw_function;

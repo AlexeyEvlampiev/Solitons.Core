@@ -92,6 +92,7 @@ public abstract class IntegrationTest
             {
                 await task;
             }
+
             OnTestCompleted(handler);
         }
 

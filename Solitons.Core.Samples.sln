@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Core", "src\Solito
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Core.XUnitTest", "test\Solitons.Core.XUnitTest\Solitons.Core.XUnitTest.csproj", "{2E80D5AF-6806-47AE-8B91-35C8789C81D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solitons.Azure.XUnitTest", "test\Solitons.Azure.XUnitTest\Solitons.Azure.XUnitTest.csproj", "{903107F9-C45E-4DE8-AEDA-244F3C0D8BFE}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{F6C6FD59-6DF0-4D2A-AA66-8A0CD3DD3D49}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SampleSoft", "SampleSoft", "{8AC650EB-DCEE-4430-A6C2-B9BB94B90319}"
@@ -27,9 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.Portal", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.AdminConsole", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.AdminConsole\SampleSoft.SkyNet.AdminConsole.csproj", "{70340BEA-866D-47EF-9763-D7B36F4B3520}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleSoft.SkyNet.WebService", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.WebService\SampleSoft.SkyNet.WebService.csproj", "{6E20C12C-49AA-438A-93C4-F6888D0BCA70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.WebService", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.WebService\SampleSoft.SkyNet.WebService.csproj", "{6E20C12C-49AA-438A-93C4-F6888D0BCA70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleSoft.SkyNet.Backend", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.Backend\SampleSoft.SkyNet.Backend.csproj", "{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.Backend", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.Backend\SampleSoft.SkyNet.Backend.csproj", "{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,10 +43,6 @@ Global
 		{2E80D5AF-6806-47AE-8B91-35C8789C81D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E80D5AF-6806-47AE-8B91-35C8789C81D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E80D5AF-6806-47AE-8B91-35C8789C81D0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{903107F9-C45E-4DE8-AEDA-244F3C0D8BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{903107F9-C45E-4DE8-AEDA-244F3C0D8BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{903107F9-C45E-4DE8-AEDA-244F3C0D8BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{903107F9-C45E-4DE8-AEDA-244F3C0D8BFE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A6F28118-5E29-4BB5-BAEA-180E936F341C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A6F28118-5E29-4BB5-BAEA-180E936F341C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6F28118-5E29-4BB5-BAEA-180E936F341C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,7 +81,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2E80D5AF-6806-47AE-8B91-35C8789C81D0} = {DB791940-BAE2-4E26-8350-6AD151C512E1}
-		{903107F9-C45E-4DE8-AEDA-244F3C0D8BFE} = {DB791940-BAE2-4E26-8350-6AD151C512E1}
 		{8AC650EB-DCEE-4430-A6C2-B9BB94B90319} = {F6C6FD59-6DF0-4D2A-AA66-8A0CD3DD3D49}
 		{A6F28118-5E29-4BB5-BAEA-180E936F341C} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
 		{FD11BD37-B6E4-477A-A184-6FCF3F224101} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
