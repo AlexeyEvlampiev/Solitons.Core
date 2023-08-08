@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Solitons.Security;
 
-public partial interface ISecretsRepository
+public partial interface ISecretsRepositoryReader
 {
     /// <summary>
     /// Returns an observable that emits the key-value pair of the specified secret name and its value in the repository if it exists,

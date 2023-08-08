@@ -7,7 +7,8 @@ using System.Text.Json.Serialization;
 namespace Solitons.Data;
 
 /// <summary>
-/// Provides methods for serializing and deserializing objects to and from JSON format using the <see cref="System.Text.Json"/> library in .NET.
+/// Facilitates JSON serialization and deserialization via the <see cref="System.Text.Json"/> library in .NET. 
+/// Additionally, serves as a marker for <see cref="IDataContractSerializer"/> serializers to detect and handle data contract classes.
 /// </summary>
 public interface IBasicJsonDataTransferObject
 {

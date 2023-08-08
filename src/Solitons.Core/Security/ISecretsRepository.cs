@@ -5,33 +5,17 @@ using System.Threading.Tasks;
 namespace Solitons.Security;
 
 /// <summary>
-/// Represents a repository of secrets, such as passwords or API keys.
+/// Provides a unified abstraction for reading from and writing to a secrets repository. This interface encapsulates the functionalities 
+/// offered by both <see cref="ISecretsRepositoryReader"/> and <see cref="ISecretsRepositoryWriter"/>, ensuring a comprehensive 
+/// interaction model with secret storage mechanisms, regardless of the underlying cloud provider or storage model.
 /// </summary>
-public partial interface ISecretsRepository
+/// <remarks>
+/// Adhering to the Solitons design principles, this interface streamlines secret management across different environments, 
+/// fostering modularity and portability. Developers can benefit from a consistent set of operations for secret management 
+/// while maintaining the flexibility to adapt to different backend implementations.
+/// </remarks>
+public partial interface ISecretsRepository : ISecretsRepositoryReader, ISecretsRepositoryWriter
 {
-    /// <summary>
-    /// Asynchronously returns an array of names of all secrets in the repository.
-    /// </summary>
-    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
-    /// <returns>An array of names of all secrets in the repository.</returns>
-    Task<string[]> ListSecretNamesAsync(CancellationToken cancellation = default);
-
-    /// <summary>
-    /// Asynchronously returns the value of the secret with the specified name.
-    /// </summary>
-    /// <param name="secretName">The name of the secret.</param>
-    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
-    /// <returns>The value of the secret with the specified name.</returns>
-    Task<string> GetSecretAsync(string secretName, CancellationToken cancellation = default);
-
-    /// <summary>
-    /// Asynchronously returns the value of the secret with the specified name, if it exists in the repository.
-    /// </summary>
-    /// <param name="secretName">The name of the secret.</param>
-    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
-    /// <returns>The value of the secret with the specified name, or <c>null</c> if it does not exist in the repository.</returns>
-    Task<string?> GetSecretIfExistsAsync(string secretName, CancellationToken cancellation = default);
-
     /// <summary>
     /// Asynchronously returns the value of the secret with the specified name, or sets it to the specified default value if it does not exist in the repository.
     /// </summary>
@@ -41,19 +25,4 @@ public partial interface ISecretsRepository
     /// <returns>The value of the secret with the specified name, or the default value if it does not exist in the repository.</returns>
     Task<string> GetOrSetSecretAsync(string secretName, string defaultValue, CancellationToken cancellation = default);
 
-    /// <summary>
-    /// Asynchronously sets the value of the secret with the specified name.
-    /// </summary>
-    /// <param name="secretName">The name of the secret.</param>
-    /// <param name="secretValue">The value of the secret.</param>
-    /// <param name="cancellation">A cancellation token to cancel the operation.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation = default);
-
-    /// <summary>
-    /// Determines if the specified exception is a "secret not found" error.
-    /// </summary>
-    /// <param name="exception">The exception to check.</param>
-    /// <returns><c>true</c> if the exception is a "secret not found" error; otherwise, <c>false</c>.</returns>
-    bool IsSecretNotFoundError(Exception exception);
 }

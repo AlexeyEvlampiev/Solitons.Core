@@ -83,6 +83,15 @@ public partial interface ISecretsRepository
         return new ReadThroughCacheSecretsRepository(this, cacheExpiration, secretNameComparer);
     }
 
+    [DebuggerStepThrough]
+    public ISecretsRepository ReadThroughCache<T>(
+        IObservable<T> cacheExpiration,
+        StringComparer secretNameComparer)
+    {
+        var trigger = cacheExpiration.Select(_ => Unit.Default);
+        return ReadThroughCache(trigger, secretNameComparer);
+    }
+
     /// <summary>
     /// Creates a read-through cache secrets repository with the specified secret name comparer.
     /// </summary>

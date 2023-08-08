@@ -1,0 +1,50 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".md" #>
+<#
+_root = this.Host.ResolvePath("");
+#>
+
+# Solitons.Core
+Solitons.Core is a robust .NET class library, purpose-built to accelerate the development of cutting-edge cloud software systems. This library offers a suite of interfaces, algorithms, and utility functions for streamlined development, focusing on data processing and visualization.
+
+This library acts as a catalyst for constructing contemporary cloud applications by simplifying complex processes. Key features include asynchronous logging, media content type negotiation, serialization, run-time code generation, and cloud database management.
+
+The broad spectrum of features provided by Solitons.Core is aimed at reducing development time and resource consumption, enabling developers to focus on delivering high-quality, modern cloud computing solutions. With its comprehensive set of utilities and its emphasis on efficiency, Solitons.Core is a highly valuable tool for the open source community.
+
+## Guided Serialization: Defining and Managing Unambiguous Data Contracts
+In cloud-based distributed systems development, C#'s distinct advantage is its static safety and robust code integrity, achieved through transactional compilation of multi-project .NET solutions. This approach ensures system components communicate securely and predictably via channels like persisted queues and RPC protocols.
+
+However, evolving contracts present challenges. Disruptive contract changes can destabilize systems. Solitons addresses this by assigning each data contract a unique GUID. Instead of altering an existing contract, a new one, with its own GUID, is introduced, sidestepping traditional semantic versioning. This methodology shields against inadvertent contract mismatches during system evolutions.
+
+A pivotal advantage, unique to Solitons, is the resilience during code refactoring. Typically, renaming data classes risks breaking interoperability in distributed systems. However, with the Solitons approach, because contracts are tied to stable GUIDs rather than mutable class names, such refactoring becomes risk-free. This not only streamlines development and updates but also fortifies the system against unintentional disruptions.
+
+This method is especially beneficial in multi-lingual systems, allowing components in diverse languages to communicate using these distinct GUIDs, eliminating ambiguity. For Solitons, the clear definition of system data contracts is foundational. Upcoming examples will highlight how to define these contracts for .NET cloud systems.
+
+#### Examples: Defining Data Contracts
+<# WriteExample("Data", "ExampleDefiningDataContracts.cs"); #>
+
+## Abstract Secrets Repository
+Managing secrets is essential for cloud applications, but the specifics can vary with cloud providers and deployment strategies. Solitons introduces abstractions for seamless interaction with diverse secrets repositories, ensuring cloud-independence in core development.
+
+While Solitons doesn't offer out-of-the-box implementations for specific cloud providers like Azure's Key Vault, AWS Secrets Manager, or Google Cloud's Secret Manager, it does equip developers with foundational classes. These classes facilitate rapid and efficient crafting of cloud-specific implementations. Coupled with robust cache invalidation techniques for optimized network usage, Solitons presents a balanced blend of adaptability and security.
+#### Example 1: Using ISecretsRepository
+<# WriteExample("Data", "ExampleUsingSecretsRepository.cs"); #>
+
+
+<#+ 
+	private string _root;
+
+	void WriteExample(string dir, string file)
+	{
+		file = Path.Combine(_root, dir, file);
+		var content = File.ReadAllText(file).Trim();
+		WriteLine("```csharp");
+		WriteLine(content);
+		WriteLine("```");
+	}
+#>

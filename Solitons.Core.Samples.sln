@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.WebServic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleSoft.SkyNet.Backend", "samples\SampleSoft\SkyNet\SampleSoft.SkyNet.Backend\SampleSoft.SkyNet.Backend.csproj", "{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsageExamples", "samples\UsageExamples\UsageExamples.csproj", "{F9D8D2C4-6069-44FC-BA73-EF7BC999A251}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9D8D2C4-6069-44FC-BA73-EF7BC999A251}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9D8D2C4-6069-44FC-BA73-EF7BC999A251}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9D8D2C4-6069-44FC-BA73-EF7BC999A251}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9D8D2C4-6069-44FC-BA73-EF7BC999A251}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{70340BEA-866D-47EF-9763-D7B36F4B3520} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
 		{6E20C12C-49AA-438A-93C4-F6888D0BCA70} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
 		{96C184E9-D3A5-41D4-A5F0-DBDCD486B93E} = {8AC650EB-DCEE-4430-A6C2-B9BB94B90319}
+		{F9D8D2C4-6069-44FC-BA73-EF7BC999A251} = {F6C6FD59-6DF0-4D2A-AA66-8A0CD3DD3D49}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {593115E7-87DB-44E7-8F3B-0D2FDF30FB0F}

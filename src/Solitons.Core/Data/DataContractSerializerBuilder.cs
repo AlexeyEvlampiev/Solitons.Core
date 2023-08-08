@@ -16,6 +16,7 @@ sealed class DataContractSerializerBuilder : IDataContractSerializerBuilder
     private bool _ignoreMissingCustomGuidAnnotation = false;
     private readonly HashSet<Registration> _cache = new();
     private readonly List<Registration> _registrations = new();
+    private readonly HashSet<Type> _dataContractTypes = new();
 
     [DebuggerNonUserCode]
     sealed record Registration(Type DtoType, IMediaTypeSerializer Serializer);
@@ -72,10 +73,14 @@ sealed class DataContractSerializerBuilder : IDataContractSerializerBuilder
             _registrations.Add(registration);
         }
 
+        _dataContractTypes.Add(type);
+
         return this;
     }
 
-    public IDataContractSerializerBuilder AddAssemblyTypes(IEnumerable<Assembly> assemblies, Func<Type, IEnumerable<IMediaTypeSerializer>>? mediaTypeSelector)
+    public IDataContractSerializerBuilder AddAssemblyTypes(
+        IEnumerable<Assembly> assemblies, 
+        Func<Type, IEnumerable<IMediaTypeSerializer>>? mediaTypeSelector)
     {
         if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
         mediaTypeSelector ??= (type) => Enumerable.Empty<IMediaTypeSerializer>();
@@ -84,6 +89,7 @@ sealed class DataContractSerializerBuilder : IDataContractSerializerBuilder
             .SkipNulls()
             .Distinct()
             .SelectMany(a => a.GetTypes())
+            .Skip(t => _dataContractTypes.Contains(t))
             .ToList();
 
 

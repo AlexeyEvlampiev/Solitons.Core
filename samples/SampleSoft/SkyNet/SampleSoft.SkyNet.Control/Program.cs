@@ -63,7 +63,7 @@ sealed class Program : ProgramBase
         {
             await secrets.SetSecretAsync(
                 KeyVaultSecretNames.SkyNetPgServerConnectionString,
-                connectionString);
+                connectionString, cancellation);
         }
 
         var config = new SkyNetDbManagerConfig

@@ -98,7 +98,7 @@ public abstract class SecretsRepository : ISecretsRepository
 
 
     [DebuggerStepThrough]
-    async Task<string[]> ISecretsRepository.ListSecretNamesAsync(CancellationToken cancellation)
+    async Task<string[]> ISecretsRepositoryReader.ListSecretNamesAsync(CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         return await Observable
@@ -113,7 +113,7 @@ public abstract class SecretsRepository : ISecretsRepository
 
 
     [DebuggerStepThrough]
-    async Task<string> ISecretsRepository.GetSecretAsync(string secretName, CancellationToken cancellation)
+    async Task<string> ISecretsRepositoryReader.GetSecretAsync(string secretName, CancellationToken cancellation)
     {
         if (false == IsValidSecretName(secretName))
             throw new ArgumentException($"'{secretName}' is not a valid secret name.");
@@ -125,7 +125,7 @@ public abstract class SecretsRepository : ISecretsRepository
     }
 
     [DebuggerStepThrough]
-    async Task<string?> ISecretsRepository.GetSecretIfExistsAsync(string secretName, CancellationToken cancellation)
+    async Task<string?> ISecretsRepositoryReader.GetSecretIfExistsAsync(string secretName, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         if (!IsValidSecretName(secretName))
@@ -152,7 +152,7 @@ public abstract class SecretsRepository : ISecretsRepository
     }
 
     [DebuggerStepThrough]
-    async Task ISecretsRepository.SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation)
+    async Task ISecretsRepositoryWriter.SetSecretAsync(string secretName, string secretValue, CancellationToken cancellation)
     {
         if (false == IsValidSecretName(secretName))
             throw new ArgumentException($"'{secretName}' is not a valid secret name.");
@@ -165,5 +165,5 @@ public abstract class SecretsRepository : ISecretsRepository
     }
 
     [DebuggerStepThrough]
-    bool ISecretsRepository.IsSecretNotFoundError(Exception exception) => IsSecretNotFoundError(exception);
+    bool ISecretsRepositoryReader.IsSecretNotFoundError(Exception exception) => IsSecretNotFoundError(exception);
 }
