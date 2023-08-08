@@ -51,16 +51,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="Data\Common\Postgres\SolitonsPgScriptRttOptions.generated.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SolitonsPgScriptRttOptions.tt</DependentUpon>
-    </None>
-    <None Include="Extensions.Numbers.generated.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Extensions.Numbers.tt</DependentUpon>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -133,6 +123,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Common\Postgres\" />
     <Folder Include="Data\Web\Common\" />
   </ItemGroup>
 
