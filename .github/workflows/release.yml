@@ -35,9 +35,9 @@ jobs:
        AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
       run: dotnet test Solitons.Core.sln --no-build --verbosity normal   
     - name: Pack
-      env:
-       versionsuffix: 'alpha.${{env.runId}}'
-      run: dotnet pack ${projectpath} --configuration ${buildconfiguration} --output ${outputpath} --version-suffix ${versionsuffix} --no-build --no-restore
+      #env:
+      # versionsuffix: 'gamma.${{env.runId}}'
+      run: dotnet pack ${projectpath} --configuration ${buildconfiguration} --output ${outputpath} --no-build --no-restore
     - name: Push
       env:
        NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
