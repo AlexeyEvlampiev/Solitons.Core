@@ -13,92 +13,78 @@ using Solitons.Reactive;
 
 namespace Solitons.Data;
 
-
 /// <summary>
-/// Abstract base class for a handler that handles HTTP request messages and manages database transactions associated with them.
-/// This class extends <see cref="HttpMessageHandler"/>.
+/// Provides a base implementation of an <see cref="HttpMessageHandler"/> that interacts with a database.
+/// This handler is designed to manage HTTP requests and their associated database sessions, 
+/// offering mechanisms for retrying operations in case of transient database errors and handling exceptions.
 /// </summary>
+/// <remarks>
+/// Derived classes are expected to provide specific implementations for executing database commands based on HTTP requests.
+/// </remarks>
 public abstract class DbHttpMessageHandler : HttpMessageHandler
 {
-    private const string TransactionApprovalOptionsKey = "2c2cc6ed61f84192a2f73afe1320d04f";
+    /// <summary>
+    /// Represents a delegate that handles an HTTP request and manages the associated database session.
+    /// </summary>
+    /// <param name="request">The HTTP request message.</param>
+    /// <param name="response">The HTTP response message.</param>
+    /// <param name="cancellation">The cancellation token to cancel the operation.</param>
+    delegate Task CommandHandler(HttpRequestMessage request, HttpResponseMessage response, CancellationToken cancellation);
 
     /// <summary>
     /// The default maximum number of retry attempts.
     /// </summary>
     internal const int DefaultMaxRetryAttemptNumber = 3;
 
-    private readonly Func<HttpRequestMessage, CancellationToken, Task<DbTransaction>> _beginTransactionAsync;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly CommandHandler _commandHandler;
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly IClock _clock = IClock.System;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbHttpMessageHandler"/> class with the provided database transaction.
+    /// Initializes a new instance of the <see cref="DbHttpMessageHandler"/> class with a specified database connection.
     /// </summary>
-    /// <param name="transaction">The externally managed database transaction.</param>
-    /// <exception cref="ArgumentException">Thrown if the connection of the provided transaction is not in an open state.</exception>
-    protected DbHttpMessageHandler(DbTransaction transaction)
+    /// <param name="connection">The database connection to be used by the handler.</param>
+    /// <exception cref="ArgumentException">Thrown when the provided database connection is not in an open state.</exception>
+    protected DbHttpMessageHandler(DbConnection connection)
     {
-        var connection = ThrowIf.NullReference(transaction.Connection);
         if (connection.State != ConnectionState.Open)
         {
-            throw new ArgumentException("The connection must be in an open state.", nameof(transaction));
+            throw new ArgumentException("The provided database connection must be in an open state.");
         }
 
-        var managedTransaction =
-            transaction as ManagedDbTransaction
-            ?? new ManagedDbTransaction(transaction);
-        _beginTransactionAsync = [DebuggerNonUserCode](request, cancellation) => Task.FromResult((DbTransaction)managedTransaction);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DbHttpMessageHandler"/> class with the provided connection string.
-    /// </summary>
-    /// <param name="connectionString">The connection string to the database.</param>
-    /// <exception cref="ArgumentException">Thrown if the provided connection string is null or whitespace.</exception>
-    protected DbHttpMessageHandler(string connectionString)
-    {
-        connectionString = ThrowIf.ArgumentNullOrWhiteSpace(connectionString);
-        _beginTransactionAsync = BeginAsync;
+        _commandHandler = HandleAsync;
 
         [DebuggerStepThrough]
-        async Task<DbTransaction> BeginAsync(HttpRequestMessage request, CancellationToken cancellation)
+        Task HandleAsync(
+            HttpRequestMessage request,
+            HttpResponseMessage response,
+            CancellationToken cancellation)
         {
-            cancellation.ThrowIfCancellationRequested();
-            DbConnection? connection = null;
-            try
-            {
-                connection = CreateConnection(connectionString);
-                await connection.OpenAsync(cancellation);
-                return await BeginTransactionAsync(request, connection, cancellation);
-            }
-            catch (Exception e)
-            {
-                connection?.Dispose();
-                throw;
-            }
+            return ExecuteAsync(connection, request, response, cancellation);
         }
     }
 
-
-
     /// <summary>
-    /// Begins a database transaction asynchronously, associated with the provided HTTP request.
+    /// Initializes a new instance of the <see cref="DbHttpMessageHandler"/> class with a specified database connection factory.
     /// </summary>
-    /// <param name="request">The HTTP request associated with the transaction.</param>
-    /// <param name="connection">The database connection to use for the transaction.</param>
-    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result is the begun database transaction.</returns>
-    protected virtual ValueTask<DbTransaction> BeginTransactionAsync(
-        HttpRequestMessage request,
-        DbConnection connection,
-        CancellationToken cancellation) => connection.BeginTransactionAsync(cancellation);
+    /// <param name="connectionFactory">A factory method that produces a new database connection for each HTTP request.</param>
+    protected DbHttpMessageHandler(Func<DbConnection> connectionFactory)
+    {
+        _commandHandler = HandleAsync;
 
-    /// <summary>
-    /// Creates a new connection to the database.
-    /// </summary>
-    /// <param name="connectionString">The connection string to the database.</param>
-    /// <returns>The created database connection.</returns>
-    protected abstract DbConnection CreateConnection(string connectionString);
-
+        [DebuggerStepThrough]
+        async Task HandleAsync(
+            HttpRequestMessage request,
+            HttpResponseMessage response,
+            CancellationToken cancellation)
+        {
+            await using var connection = connectionFactory.Invoke();
+            await connection.OpenAsync(cancellation);
+            await ExecuteAsync(connection, request, response, cancellation);
+        }
+    }
 
     /// <summary>
     /// Sends an HTTP request with an HTTP completion option and a cancellation token,
@@ -115,34 +101,14 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
 
         var logger = IAsyncLogger.Get(request.Options);
 
-
         try
         {
             cancellation.ThrowIfCancellationRequested();
 
-
-            await using var transaction = await _beginTransactionAsync(request, cancellation);
-            await using var _ = transaction is ManagedDbTransaction
-                ? AsyncDisposable.Empty :
-                transaction.Connection;
-
-            var connection = ThrowIf.NullReference(transaction.Connection);
-
-
             await Observable
-                .FromAsync([DebuggerStepThrough] () => ExecuteAsync(connection, request, response, cancellation))
+                .FromAsync([DebuggerStepThrough] () => _commandHandler(request, response, cancellation))
                 .WithRetryPolicy([DebuggerStepThrough](args) =>CanRetryAsync(args, cancellation));
 
-
-            if (transaction is not ManagedDbTransaction)
-            {
-                if (await CanCommitAsync(response, cancellation))
-                {
-                    await transaction.CommitAsync(cancellation);
-                }
-
-                await connection.CloseAsync();
-            }
         }
         catch (Exception e) when(e is TimeoutException ||
                                  e is DbException { InnerException: TimeoutException })
@@ -166,6 +132,12 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
         return response;
     }
 
+    /// <summary>
+    /// Configures the logger with additional properties.
+    /// </summary>
+    /// <param name="logger">The logger instance to configure.</param>
+    /// <param name="request">The HTTP request message.</param>
+    /// <returns>The configured logger instance.</returns>
     protected virtual IAsyncLogger ConfigLogger(
         IAsyncLogger logger, 
         HttpRequestMessage request)
@@ -174,10 +146,12 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
             .WithProperty("requestUrl", request.RequestUri?.ToString() ?? String.Empty);
     }
 
-
-    protected virtual Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) =>
-        Task.FromResult(true);
-
+    /// <summary>
+    /// Determines whether a retry should be attempted based on the exception type and the number of attempts made so far.
+    /// </summary>
+    /// <param name="args">Arguments related to the retry policy.</param>
+    /// <param name="cancellation">The cancellation token to cancel the operation.</param>
+    /// <returns>True if a retry should be attempted; otherwise, false.</returns>
     protected virtual async Task<bool> CanRetryAsync(RetryPolicyArgs args, CancellationToken cancellation)
     {
         if (args is
@@ -197,13 +171,16 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
 
 
     /// <summary>
-    /// Executes a database command created from the given HTTP request.
+    /// Asynchronously executes a database command based on the provided HTTP request using the specified database connection.
     /// </summary>
-    /// <param name="connection">The database connection.</param>
-    /// <param name="request">The HTTP request message to send.</param>
-    /// <param name="response">The HTTP response message.</param>
-    /// <param name="cancellation">The cancellation token to cancel the operation.</param>
+    /// <param name="connection">The database connection to be used for executing the command.</param>
+    /// <param name="request">The HTTP request message containing the details for formulating the database command.</param>
+    /// <param name="response">The HTTP response message that will be populated based on the result of the database command execution.</param>
+    /// <param name="cancellation">A token that can be used to request the cancellation of the asynchronous operation.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// Derived classes must provide a concrete implementation of this method to define the specific logic for translating the HTTP request into a database command and executing it.
+    /// </remarks>
     protected abstract Task ExecuteAsync(DbConnection connection, HttpRequestMessage request, HttpResponseMessage response, CancellationToken cancellation);
 
     /// <summary>
@@ -243,202 +220,65 @@ public abstract class DbHttpMessageHandler : HttpMessageHandler
         response.StatusCode = HttpStatusCode.InternalServerError;
         return Task.CompletedTask;
     }
-
-
-    /// <summary>
-    /// Sets the <see cref="HttpTransactionCallback"/> for the request.
-    /// </summary>
-    /// <param name="options">The options for the HTTP request.</param>
-    /// <param name="callback">The callback to be invoked when the HTTP request completes.</param>
-    /// <returns>The modified request options.</returns>
-    /// <remarks>
-    /// This extension method allows developers to include custom commit/rollback logic in the HTTP request pipeline.
-    /// The callback is invoked when the HTTP request completes and is used to decide whether to commit or rollback the transaction based on the HTTP response.
-    /// </remarks>
-    [DebuggerNonUserCode]
-    public static HttpRequestOptions SetTransactionCallback(
-        HttpRequestOptions options,
-        HttpTransactionCallback callback)
-    {
-        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
-        options.Set(key, callback);
-        return options;
-    }
-
-    /// <summary>
-    /// Sets the transaction callback for the request.
-    /// </summary>
-    /// <param name="options">The options for the HTTP request.</param>
-    /// <param name="callback">A function that returns a task that completes when the HTTP request completes.</param>
-    /// <returns>The modified request options.</returns>
-    /// <remarks>
-    /// This version of the SetTransactionCallback extension method accepts a function that returns a <see cref="Task"/> representing the transaction commit/rollback decision.
-    /// This allows developers to perform asynchronous operations in the callback.
-    /// </remarks>
-    [DebuggerNonUserCode]
-    public static HttpRequestOptions SetTransactionCallback(
-        HttpRequestOptions options,
-        Func<HttpResponseMessage, Task<bool>> callback)
-    {
-        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
-        options.Set(key, CanCommitAsync);
-        return options;
-        [DebuggerNonUserCode]
-        Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) => callback(response);
-    }
-
-    /// <summary>
-    /// Sets the transaction callback for the request.
-    /// </summary>
-    /// <param name="options">The options for the HTTP request.</param>
-    /// <param name="callback">A function that returns a boolean indicating whether to commit or rollback the transaction.</param>
-    /// <returns>The modified request options.</returns>
-    /// <remarks>
-    /// This version of the SetTransactionCallback extension method accepts a function that synchronously returns the transaction commit/rollback decision.
-    /// This can be useful in scenarios where the decision does not rely on asynchronous operations.
-    /// </remarks>
-    [DebuggerNonUserCode]
-    public static HttpRequestOptions SetTransactionCallback(
-        HttpRequestOptions options,
-        Func<HttpResponseMessage, bool> callback)
-    {
-        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
-        options.Set(key, CanCommitAsync);
-        return options;
-        [DebuggerNonUserCode]
-        Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) => Task.FromResult(callback(response));
-    }
-
-    /// <summary>
-    /// Retrieves the transaction callback from the request options.
-    /// </summary>
-    /// <param name="options">The options for the HTTP request.</param>
-    /// <returns>The transaction callback for the request.</returns>
-    /// <remarks>
-    /// If no callback has been set, a default callback that always returns true is provided, indicating that the transaction should always be committed.
-    /// </remarks>
-    [DebuggerNonUserCode]
-    public static HttpTransactionCallback GetTransactionCallback(HttpRequestOptions options)
-    {
-        var key = new HttpRequestOptionsKey<HttpTransactionCallback>(TransactionApprovalOptionsKey);
-        options.TryGetValue(key, out var callback);
-        return callback ?? new HttpTransactionCallback(CanCommitAsync);
-        [DebuggerNonUserCode]
-        Task<bool> CanCommitAsync(HttpResponseMessage response, CancellationToken cancellation) => Task.FromResult(true);
-    }
 }
 
 /// <summary>
-/// Abstract base class for a handler that handles HTTP request messages and manages database transactions associated with them.
-/// This class extends <see cref="DbHttpMessageHandler"/>, and is intended for use with a specific type of database connection.
+/// Represents a specialized version of the <see cref="DbHttpMessageHandler"/> class that works with a specific type of database connection.
 /// </summary>
-/// <typeparam name="T">The type of the database connection to be used. This must be a subtype of <see cref="DbConnection"/>.</typeparam>
+/// <typeparam name="T">The type of the database connection.</typeparam>
 public abstract class DbHttpMessageHandler<T> : DbHttpMessageHandler where T : DbConnection
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbHttpMessageHandler{T}"/> class using the provided database transaction.
+    /// Initializes a new instance of the <see cref="DbHttpMessageHandler{T}"/> class with a specified database connection.
     /// </summary>
-    /// <param name="transaction">The externally managed database transaction to be used for the HTTP request handling process.</param>
-    /// <remarks>As this constructor directly accepts a <see cref="DbTransaction"/>, it expects the transaction's connection to be in an open state.</remarks>
+    /// <param name="connection">The database connection of type <typeparamref name="T"/> to be used by the handler.</param>
+    /// <exception cref="ArgumentException">Thrown when the provided database connection is not in an open state.</exception>
     [DebuggerStepThrough]
-    protected DbHttpMessageHandler(DbTransaction transaction) : base(transaction)
+    protected DbHttpMessageHandler(T connection) 
+        : base(connection)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbHttpMessageHandler{T}"/> class using the provided connection string.
+    /// Initializes a new instance of the <see cref="DbHttpMessageHandler{T}"/> class with a specified database connection factory.
     /// </summary>
-    /// <param name="connectionString">The connection string to be used for establishing a database connection for the HTTP request handling process.</param>
-    /// <remarks>The connection string should be valid according to the specific database provider's requirements.</remarks>
+    /// <param name="connectionFactory">A factory method that produces a new database connection of type <typeparamref name="T"/> for each HTTP request.</param>
     [DebuggerStepThrough]
-    protected DbHttpMessageHandler(string connectionString) : base(connectionString)
+    protected DbHttpMessageHandler(Func<T> connectionFactory) 
+        : base(connectionFactory)
     {
     }
 
     /// <summary>
-    /// Executes a database transaction for processing the HTTP request asynchronously.
+    /// Executes a database command created from the given HTTP request using a specific type of database connection.
     /// </summary>
-    /// <param name="connection">The database connection to be used in the request handling process.</param>
-    /// <param name="request">The HTTP request to be processed.</param>
-    /// <param name="response">The HTTP response to be sent.</param>
-    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    /// <remarks>This method should be overridden in a derived class with the specific logic to handle the HTTP request.</remarks>
-    protected abstract Task ExecuteAsync(
-        T connection,
-        HttpRequestMessage request,
-        HttpResponseMessage response,
-        CancellationToken cancellation);
-
-    /// <summary>
-    /// Begins a database transaction asynchronously in the context of an HTTP request.
-    /// </summary>
-    /// <param name="request">The HTTP request to be processed.</param>
-    /// <param name="connection">The database connection to be used in the request handling process.</param>
-    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result is the started database transaction.</returns>
-    /// <remarks>This method should be overridden in a derived class with the specific logic to begin a database transaction.</remarks>
-    protected abstract ValueTask<DbTransaction> BeginTransactionAsync(
-        HttpRequestMessage request,
-        T connection,
-        CancellationToken cancellation);
-
-    /// <summary>
-    /// Creates a new provider-specific database connection.
-    /// </summary>
-    /// <param name="connectionString">The connection string to the database.</param>
-    /// <returns>The created database connection.</returns>
-    protected abstract T CreateProviderConnection(string connectionString);
-
-    /// <summary>
-    /// Begins a database transaction asynchronously in the context of an HTTP request. This is a sealed override that casts the provided <see cref="DbConnection"/> to the type-specific connection before invoking the transaction.
-    /// </summary>
-    /// <param name="request">The HTTP request to be processed.</param>
-    /// <param name="connection">The database connection to be used in the request handling process. This connection will be cast to the type-specific connection.</param>
-    /// <param name="cancellation">A cancellation token that can be used to cancel the operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result is the started database transaction.</returns>
-    /// <remarks>
-    /// This method cannot be overridden in a derived class.
-    /// It ensures that the type-specific <see cref="BeginTransactionAsync(HttpRequestMessage, T, CancellationToken)"/> is called with the correct type of connection.
-    /// </remarks>
-    [DebuggerStepThrough]
-    protected sealed override ValueTask<DbTransaction> BeginTransactionAsync(
-        HttpRequestMessage request,
-        DbConnection connection,
-        CancellationToken cancellation)
-    {
-        cancellation.ThrowIfCancellationRequested();
-        return BeginTransactionAsync(request, (T)connection, cancellation);
-    }
-
-    /// <summary>
-    /// Creates a new instance of the type-specific <see cref="DbConnection"/> using the provided connection string. 
-    /// </summary>
-    /// <param name="connectionString">The connection string used to establish the database connection.</param>
-    /// <returns>The newly created type-specific database connection.</returns>
-    /// <remarks>
-    /// This method cannot be overridden in a derived class.
-    /// It ensures that the type-specific <see cref="CreateProviderConnection(string)"/> is used to create the database connection.
-    /// </remarks>
-    [DebuggerStepThrough]
-    protected sealed override DbConnection CreateConnection(string connectionString) => CreateProviderConnection(connectionString);
-
-    /// <summary>
-    /// Executes a database command created for the given HTTP request.
-    /// </summary>
-    /// <param name="connection">The provider-specific database connection.</param>
-    /// <param name="request">The HTTP request message to send.</param>
-    /// <param name="response">The HTTP response message.</param>
+    /// <param name="connection">The database connection of type <see cref="DbConnection"/> to be used for executing the command.</param>
+    /// <param name="request">The HTTP request message containing the details for the database command.</param>
+    /// <param name="response">The HTTP response message that will be returned after executing the command.</param>
     /// <param name="cancellation">The cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    [DebuggerStepThrough]
-    protected override Task ExecuteAsync(
-        DbConnection connection,
-        HttpRequestMessage request,
+    protected sealed override Task ExecuteAsync(
+        DbConnection connection, 
+        HttpRequestMessage request, 
         HttpResponseMessage response,
         CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         return ExecuteAsync((T)connection, request, response, cancellation);
     }
+
+    /// <summary>
+    /// Executes a database command created from the given HTTP request using a specific type of database connection.
+    /// This method is intended to be implemented by derived classes to provide database-specific logic.
+    /// </summary>
+    /// <param name="connection">The database connection of type <typeparamref name="T"/> to be used for executing the command.</param>
+    /// <param name="request">The HTTP request message containing the details for the database command.</param>
+    /// <param name="response">The HTTP response message that will be returned after executing the command.</param>
+    /// <param name="cancellation">The cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    protected abstract Task ExecuteAsync(
+        T connection, 
+        HttpRequestMessage request, 
+        HttpResponseMessage response, 
+        CancellationToken cancellation);
 }

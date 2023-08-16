@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -46,27 +47,18 @@ public abstract class SkyNetDbTest : SkyNetIntegrationTest
             .Convert(sn => sn.DefaultIfNullOrWhiteSpace(KeyVaultSecretNames.SkyNetDbAdminConnectionString))
             .Convert(sn => secrets.GetSecretAsync(sn, cancellation));
 
-        services.AddScoped<NpgsqlConnection>(provider => provider.GetRequiredService<NpgsqlTransaction>().Connection!);
-
-        services.AddScoped<NpgsqlTransaction>(provider =>
+        services.AddScoped<NpgsqlConnection>(provider =>
         {
-            var builder = new NpgsqlConnectionStringBuilder(connectionString)
-            {
-                CommandTimeout = 30,
-                ApplicationName = "SkyNet Database test"
-            };
-            var connection = new NpgsqlConnection(builder.ConnectionString);
+            var connection = new NpgsqlConnection(connectionString);
             connection.Open();
-            connection.StateChange += (sender, args) =>
-            {
-                Debug.WriteLine($"{test.Name} connection status changed: {args.OriginalState} -> {args.CurrentState}");
-            };
-            return connection.BeginTransaction();
+            connection.BeginTransaction(IsolationLevel.RepeatableRead);
+            return connection;
         });
 
+
         services.AddScoped<SkyNetDbHttpClient>(provider => provider
-            .GetRequiredService<NpgsqlTransaction>()
-            .Convert(transaction => new SkyNetDbHttpClient(transaction)));
+            .GetRequiredService<NpgsqlConnection>()
+            .Convert(connection => new SkyNetDbHttpClient(connection)));
 
         services.AddScoped<HttpClient>(provider => provider
             .GetRequiredService<SkyNetDbHttpClient>());

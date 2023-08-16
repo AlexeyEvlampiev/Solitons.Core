@@ -19,8 +19,8 @@ public sealed class SkyNetDbHttpClient : HttpClient
     }
 
     [DebuggerStepThrough]
-    public SkyNetDbHttpClient(NpgsqlTransaction transaction) 
-        : this(new SkyNetDbHttpMessageHandler(transaction))
+    public SkyNetDbHttpClient(NpgsqlConnection connection) 
+        : this(new SkyNetDbHttpMessageHandler(connection))
     {
     }
 

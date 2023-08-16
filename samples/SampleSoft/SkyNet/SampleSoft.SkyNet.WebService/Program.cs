@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Threading.Tasks;
+using System.Transactions;
 using Microsoft.AspNetCore.Http.Extensions;
 using SampleSoft.SkyNet.Azure.Http;
 using SampleSoft.SkyNet.Azure.Postgres;
@@ -81,9 +82,16 @@ public sealed class Program : ProgramBase
             IAsyncLogger.Set(httpRequest.Options, logger);
 
             httpRequest.Headers.Add("SKYNET-IDENTITY", "l.v.beethoven@skynet.com");
-
+            using var transaction = new TransactionScope(
+                TransactionScopeOption.Required, 
+                new TransactionOptions()
+                {
+                    IsolationLevel = IsolationLevel.ReadCommitted
+                }, TransactionScopeAsyncFlowOption.Enabled);
+            
             using var response = await client.SendAsync(httpRequest, cancellation);
             await HttpConverter.PopulateAsync(aspNetContext.Response, response);
+            transaction.Complete();
         });
 
         var startedUtc = DateTimeOffset.UtcNow;

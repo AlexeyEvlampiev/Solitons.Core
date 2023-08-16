@@ -1,9 +1,12 @@
 ﻿using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Net;
+using Microsoft.Identity.Client;
 using Npgsql;
 using NpgsqlTypes;
 using Solitons;
+using Solitons.Data;
 
 namespace SampleSoft.SkyNet.Azure.Postgres;
 
@@ -11,20 +14,20 @@ namespace SampleSoft.SkyNet.Azure.Postgres;
 /// A specialized HttpMessageHandler designed to process HTTP requests via Postgres using the Npgsql .NET data provider.
 /// It is intended to be used within an HTTP request pipeline where incoming requests are handled and processed by a Postgres database.
 /// </summary>
-sealed class SkyNetDbHttpMessageHandler : NpgsqlHttpMessageHandler
+sealed class SkyNetDbHttpMessageHandler : DbHttpMessageHandler<NpgsqlConnection>
 {
-    private readonly TaskCompletionSource _completionSource = new();
-
-    public SkyNetDbHttpMessageHandler(NpgsqlTransaction transaction) : base(transaction)
+    [DebuggerStepThrough]
+    public SkyNetDbHttpMessageHandler(NpgsqlConnection connection) 
+        : base(connection)
     {
     }
 
-    public SkyNetDbHttpMessageHandler(string connectionString) : base(connectionString)
+    public SkyNetDbHttpMessageHandler(string connectionString) 
+        : base(() => new NpgsqlConnection(connectionString))
     {
-        
     }
 
-    protected override async Task PgExecAsync(
+    protected override async Task ExecuteAsync(
         NpgsqlConnection connection, 
         HttpRequestMessage request, 
         HttpResponseMessage response,
@@ -73,7 +76,5 @@ sealed class SkyNetDbHttpMessageHandler : NpgsqlHttpMessageHandler
             bool added = response.Headers.TryAddWithoutValidation(header.Key, header.Value);
             Debug.WriteLine(added ? $"Added {header.Key} header." : $"Could not add {header.Key} header");
         }
-
-        
     }
 }
