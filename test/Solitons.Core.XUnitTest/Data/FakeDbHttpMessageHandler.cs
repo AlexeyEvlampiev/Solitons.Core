@@ -88,11 +88,13 @@ public sealed class FakeDbHttpMessageHandler : DbHttpMessageHandler
 
 
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(
+    protected override Task ExecuteAsync(
         DbConnection connection,
         HttpRequestMessage request,
         HttpResponseMessage response,
-        CancellationToken cancellation) => Mock.Object.ExecuteAsync(connection, request, response, cancellation);
-
-
+        CancellationToken cancellation)
+    {
+        Mock.Object.ExecuteAsync(connection, request, response, cancellation);
+        return Task.CompletedTask;
+    }
 }

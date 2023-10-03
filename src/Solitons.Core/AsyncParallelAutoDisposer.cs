@@ -38,7 +38,6 @@ public class AsyncParallelAutoDisposer : AsyncAutoDisposer
     /// <summary>
     /// Asynchronously disposes all the disposable resources that are present in the collection, 
     /// by invoking each of their DisposeAsync() methods in parallel. 
-    /// If any exception occurs during disposal, the <see cref="_onError"/> delegate is invoked.
     /// </summary>
     protected sealed override async Task DisposeAllAsync()
     {

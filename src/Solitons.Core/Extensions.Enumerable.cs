@@ -366,7 +366,7 @@ public static partial class Extensions
     /// <exception cref="ArgumentNullException">Thrown when the input sequence is null.</exception>
     [DebuggerNonUserCode, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(
-        this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null)
+        this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
     {
         if (self == null) throw new ArgumentNullException(nameof(self));
         comparer ??= EqualityComparer<TKey>.Default;
@@ -383,7 +383,7 @@ public static partial class Extensions
     /// <returns>An observable dictionary that contains the key-value pairs from the input sequence.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the input observable sequence is null.</exception>
     public static IObservable<IDictionary<TKey, TValue>> ToDictionary<TKey, TValue>(
-        this IObservable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null)
+        this IObservable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
     {
         if (self == null) throw new ArgumentNullException(nameof(self));
         comparer ??= EqualityComparer<TKey>.Default;
@@ -400,7 +400,7 @@ public static partial class Extensions
     /// <returns>A dictionary with each key associated with a value that is either a single value or an array of values with that key.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the input sequence is null.</exception>
     public static Dictionary<TKey, object> GroupByKey<TKey, TValue>(
-        this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null)
+        this IEnumerable<KeyValuePair<TKey, TValue>> self, IEqualityComparer<TKey>? comparer = null) where TKey : notnull
     {
         if (self == null) throw new ArgumentNullException(nameof(self));
         comparer ??= EqualityComparer<TKey>.Default;

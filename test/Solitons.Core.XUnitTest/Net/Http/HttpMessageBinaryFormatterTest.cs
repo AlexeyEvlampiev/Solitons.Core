@@ -30,7 +30,7 @@ public sealed class HttpMessageBinaryFormatterTest
         Assert.Equal(originalRequest.Method, deserializedRequest.Method);
         Assert.Equal(originalRequest.RequestUri, deserializedRequest.RequestUri);
         Assert.Equal(originalRequest.Headers.ToString(), deserializedRequest.Headers.ToString());
-        Assert.Equal(await originalRequest.Content.ReadAsStringAsync(), await deserializedRequest.Content.ReadAsStringAsync());
+        Assert.Equal(await originalRequest.Content.ReadAsStringAsync(), await deserializedRequest.Content!.ReadAsStringAsync());
     }
 
     [Fact]

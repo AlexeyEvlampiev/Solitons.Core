@@ -17,7 +17,7 @@ namespace Solitons
             var envValue = Guid.NewGuid().ToString();
             Environment.SetEnvironmentVariable(envKey, envValue);
 
-            var actualArgs = IEnvironment.ParseCommandArgs(commandLine);
+            var actualArgs = IEnvironment.System.ParseCommandArgs(commandLine);
 
             Array.ForEach(expectedArgs, a=> Assert.True(actualArgs.Contains(a)));
             Assert.True(actualArgs.Contains(envValue));

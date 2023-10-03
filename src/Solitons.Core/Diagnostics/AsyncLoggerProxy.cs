@@ -10,7 +10,6 @@ namespace Solitons.Diagnostics
         #region Private Fields
         private readonly IAsyncLogger _innerLogger;
         private readonly Action<ILogStringBuilder> _innerConfig;
-        private readonly IPrincipal? _principal;
         #endregion
 
         [DebuggerNonUserCode]
@@ -22,7 +21,6 @@ namespace Solitons.Diagnostics
             {
                 _innerLogger = other._innerLogger;
                 _innerConfig = other._innerConfig + innerConfig;
-                _principal = other._principal;
             }
             else
             {
@@ -31,20 +29,11 @@ namespace Solitons.Diagnostics
             }
         }
 
-        internal AsyncLoggerProxy(
-            IAsyncLogger innerLogger,
-            Action<ILogStringBuilder> innerConfig,
-            IPrincipal principal) 
-            : this(innerLogger, innerConfig)
-        {
-            _principal = principal;
-        }
 
         Task IAsyncLogger.LogAsync(
             LogLevel level, 
             string message,
-            LogMode mode, 
-            IPrincipal? principal,
+            LogMode mode,
             string callerMemberName,
             string callerFilePath, 
             int callerLineNumber, 
@@ -56,8 +45,7 @@ namespace Solitons.Diagnostics
             return _innerLogger.LogAsync(
                 level,
                 message,
-                mode, 
-                _principal,
+                mode,
                 callerMemberName, 
                 callerFilePath, 
                 callerLineNumber, 

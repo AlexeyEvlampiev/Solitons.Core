@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Solitons.Data;
 using Xunit;
@@ -46,7 +47,7 @@ namespace Solitons
         {
             [JsonPropertyName("txt")]
             [XmlAttribute("Text")]
-            public string Text { get; set; }
+            public string Text { get; set; } = String.Empty;
         }
 
     }

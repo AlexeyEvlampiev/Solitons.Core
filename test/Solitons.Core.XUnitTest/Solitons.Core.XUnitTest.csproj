@@ -10,6 +10,7 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>false</RunAnalyzers>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

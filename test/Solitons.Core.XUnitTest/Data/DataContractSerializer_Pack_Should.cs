@@ -59,7 +59,7 @@ public sealed class DataContractSerializer_Pack_Should
         BasicJsonDataTransferObject,
         IRemoteTriggerArgs
     {
-        public string Text { get; set; }
+        public string Text { get; set; } = String.Empty;
     }
 
     [Guid("b6fd4e7d-140a-44e1-b692-27ba49e92f6f")]

@@ -103,28 +103,18 @@ public abstract class AsyncLogger : IAsyncLogger
     /// </summary>
     /// <param name="level">The log level.</param>
     /// <param name="message">The log message.</param>
-    /// <param name="principal">The <see cref="IPrincipal"/> object associated with the log event.</param>
     /// <param name="sourceInfo">The <see cref="CallerInfo"/> object associated with the log event.</param>
     /// <returns>An instance of the <see cref="ILogStringBuilder"/> interface.</returns>
     [DebuggerNonUserCode]
     protected virtual ILogStringBuilder CreateLogStringBuilder(
         LogLevel level,
         string message,
-        IPrincipal? principal,
         CallerInfo sourceInfo)
     {
         ILogStringBuilder builder = new LogJsonBuilder()
             .WithProperty("level", level.ToString().ToLower())
             .WithProperty("message", message)
             .WithProperty("createdUtc", DateTime.UtcNow.ToString("O"));
-
-        principal ??= Thread.CurrentPrincipal;
-        var identity = principal?.Identity;
-        if (identity != null)
-        {
-            builder
-                .WithProperty("user", identity?.Name ?? "anonymous");
-        }
 
         builder
             .WithProperty("source", sourceInfo);
@@ -137,7 +127,6 @@ public abstract class AsyncLogger : IAsyncLogger
         LogLevel level,
         string message,
         LogMode mode,
-        IPrincipal? principal,
         string callerMemberName,
         string callerFilePath,
         int callerLineNumber,
@@ -149,7 +138,7 @@ public abstract class AsyncLogger : IAsyncLogger
             FilePath = FormatSourceFilePath(callerFilePath),
             LineNumber = callerLineNumber
         };
-        var builder = CreateLogStringBuilder(level, message, principal, sourceInfo);
+        var builder = CreateLogStringBuilder(level, message, sourceInfo);
             
         config?.Invoke(builder);
 
@@ -158,7 +147,6 @@ public abstract class AsyncLogger : IAsyncLogger
         var args = new LogEventArgs(
             level,
             message,
-            principal,
             sourceInfo,
             content);
 

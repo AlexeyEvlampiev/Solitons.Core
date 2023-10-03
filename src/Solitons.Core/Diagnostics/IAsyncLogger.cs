@@ -30,7 +30,6 @@ public partial interface IAsyncLogger
     /// <param name="level">The log level.</param>
     /// <param name="message">The message to be logged.</param>
     /// <param name="mode">The logging mode.</param>
-    /// <param name="principal">The security principal associated with the log entry.</param>
     /// <param name="callerMemberName">The name of the calling member.</param>
     /// <param name="callerFilePath">The path to the source file of the calling member.</param>
     /// <param name="callerLineNumber">The line number in the source file of the calling member.</param>
@@ -40,7 +39,6 @@ public partial interface IAsyncLogger
         LogLevel level,
         string message,
         LogMode mode,
-        IPrincipal? principal,
         string callerMemberName,
         string callerFilePath,
         int callerLineNumber,
@@ -56,19 +54,6 @@ public partial interface IAsyncLogger
 public partial interface IAsyncLogger
 {
     private const string AsyncLoggerHttpRequestOptionsKey = "2c2cc6ed61f84192a2f73afe1320d04f";
-    /// <summary>
-    /// Creates a new instance of <see cref="IAsyncLogger"/> that automatically associates a principal object to every log entry.
-    /// </summary>
-    /// <param name="principal">The principal object.</param>
-    /// <returns>A new instance of <see cref="IAsyncLogger"/> that is associated with the specified principal object.</returns>
-    [DebuggerStepThrough]
-    public sealed IAsyncLogger WithPrincipal(IPrincipal principal)
-    {
-        return new AsyncLoggerProxy(
-            this,
-            builder => { },
-            principal);
-    }
 
     /// <summary>
     /// Creates a new instance of <see cref="IAsyncLogger"/> that automatically adds the specified tag to every log entry.
@@ -161,7 +146,6 @@ public partial interface IAsyncLogger
             LogLevel.Error,
             message,
             mode,
-            Thread.CurrentPrincipal,
             callerMemberName,
             callerFilePath,
             callerLineNumber,
@@ -194,7 +178,6 @@ public partial interface IAsyncLogger
             LogLevel.Error,
             ex.Message,
             mode,
-            Thread.CurrentPrincipal,
             callerMemberName,
             callerFilePath,
             callerLineNumber,
@@ -226,7 +209,6 @@ public partial interface IAsyncLogger
             LogLevel.Warning,
             message,
             mode,
-            Thread.CurrentPrincipal,
             callerMemberName,
             callerFilePath,
             callerLineNumber,
@@ -256,7 +238,6 @@ public partial interface IAsyncLogger
             LogLevel.Info,
             message,
             mode,
-            Thread.CurrentPrincipal,
             callerMemberName,
             callerFilePath,
             callerLineNumber,

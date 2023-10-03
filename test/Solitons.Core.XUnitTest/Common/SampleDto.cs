@@ -1,14 +1,10 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
-namespace Solitons.Common
+namespace Solitons.Common;
+
+[Guid("659e7633-090a-4f1b-be2d-86771e321b57")]
+public sealed class SampleDto
 {
-    [Guid("659e7633-090a-4f1b-be2d-86771e321b57")]
-    public sealed class SampleDto
-    {
-        public string Text
-        {
-            get;
-            set;
-        }
-    }
+    public string Text { get; set; } = String.Empty;
 }

@@ -7,12 +7,10 @@ namespace Solitons.Diagnostics;
 /// </summary>
 /// <param name="Level">The severity level of the log event.</param>
 /// <param name="Message">The message of the log event.</param>
-/// <param name="Principal">The principal associated with the log event, if any.</param>
 /// <param name="SourceInfo">Information about the source of the log event.</param>
 /// <param name="Content">The content associated with the log event.</param>
 public sealed record LogEventArgs(
     LogLevel Level,
     string Message,
-    IPrincipal? Principal,
     CallerInfo SourceInfo,
     string Content);

@@ -166,7 +166,7 @@ public sealed class SkyNetDbManager : NpgsqlManager
             await connection.OpenAsync(cancellation);
             return await connection.BeginTransactionAsync(cancellation);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             await connection.DisposeAsync();
             throw;

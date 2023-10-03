@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Solitons.Collections.Common;
 
@@ -99,7 +100,7 @@ public abstract class DictionaryExplicitProxy<TKey, TValue> : IDictionary<TKey, 
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    bool IDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value)
+    bool IDictionary<TKey, TValue>.TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
         return _innerDictionary.TryGetValue(key, out value);
     }

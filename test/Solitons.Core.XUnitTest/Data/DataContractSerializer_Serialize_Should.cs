@@ -121,20 +121,20 @@ public sealed class DataContractSerializer_Serialize_Should
     public class JsonOnlyDto : BasicJsonDataTransferObject
     {
         [JsonPropertyName("txt")]
-        public string Text { get; set; }
+        public string Text { get; set; } = String.Empty;
     }
 
     public class JsonFirstDto : BasicJsonDataTransferObject, IBasicXmlDataTransferObject
     {
         [JsonPropertyName("txt")]
         [XmlAttribute("Txt")]
-        public string Text { get; set; }
+        public string Text { get; set; } = String.Empty;
     }
 
     public class XmlOnlyDto : BasicXmlDataTransferObject
     {
         [XmlAttribute("Txt")]
-        public string Text { get; set; }
+        public string Text { get; set; } = String.Empty;
     }
 
 
@@ -142,7 +142,7 @@ public sealed class DataContractSerializer_Serialize_Should
     {
         [JsonPropertyName("txt")]
         [XmlAttribute("Txt")]
-        public string Text { get; set; }
+        public string Text { get; set; } = String.Empty;
     }
 
 
