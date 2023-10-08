@@ -1,8 +1,6 @@
 ﻿using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Net;
-using Microsoft.Identity.Client;
 using Npgsql;
 using NpgsqlTypes;
 using Solitons;

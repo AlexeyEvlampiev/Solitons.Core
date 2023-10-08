@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
-using System.Security.Principal;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Solitons.Diagnostics;

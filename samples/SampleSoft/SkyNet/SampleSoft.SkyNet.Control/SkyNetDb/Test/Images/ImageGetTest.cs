@@ -3,9 +3,7 @@ using System.Reactive.Linq;
 using Newtonsoft.Json;
 using Npgsql;
 using SampleSoft.SkyNet.Azure;
-using SampleSoft.SkyNet.Azure.Postgres;
 using Solitons;
-using Solitons.Data;
 using Xunit;
 
 namespace SampleSoft.SkyNet.Control.SkyNetDb.Test.Images;

@@ -1,7 +1,5 @@
-﻿using System.Net;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using Solitons;
-using Solitons.Net.Http;
 
 namespace SampleSoft.SkyNet.Backend
 {

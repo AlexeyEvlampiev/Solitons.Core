@@ -2,18 +2,13 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
-using System.Reactive.Concurrency;
-using System.Reactive.Threading.Tasks;
 using System.Transactions;
 using Microsoft.AspNetCore.Http.Extensions;
 using SampleSoft.SkyNet.Azure.Http;
 using SampleSoft.SkyNet.Azure.Postgres;
-using SampleSoft.SkyNet.Azure.Security;
 using Solitons;
 using Solitons.Common;
 using Solitons.Diagnostics;
-using Solitons.Security.Common;
-using LogLevel = Solitons.Diagnostics.LogLevel;
 
 namespace SampleSoft.SkyNet.WebService;
 

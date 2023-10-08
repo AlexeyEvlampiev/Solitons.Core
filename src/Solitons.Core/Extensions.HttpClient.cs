@@ -9,8 +9,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using Solitons.Diagnostics;
-using Solitons.Net.Http;
 
 namespace Solitons;
 

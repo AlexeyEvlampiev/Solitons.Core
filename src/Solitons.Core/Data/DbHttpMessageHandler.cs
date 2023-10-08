@@ -8,7 +8,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Solitons.Diagnostics;
-using Solitons.Net.Http;
 using Solitons.Reactive;
 
 namespace Solitons.Data;

@@ -1,10 +1,7 @@
 ﻿using System.Data.Common;
 using System.Data.SQLite;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Solitons;
 using Solitons.Security;
 using Solitons.Security.Common;

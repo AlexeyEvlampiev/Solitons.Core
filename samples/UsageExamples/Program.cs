@@ -2,12 +2,9 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
-using System.Reactive.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Solitons;
 using Solitons.Text;
-using UsageExamples.Data;
 
 namespace UsageExamples;
 

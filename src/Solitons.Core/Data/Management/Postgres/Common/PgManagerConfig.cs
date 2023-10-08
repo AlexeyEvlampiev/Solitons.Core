@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace Solitons.Data.Management.Postgres.Common;

@@ -1,6 +1,4 @@
-﻿using System.Security.Principal;
-
-namespace Solitons.Diagnostics;
+﻿namespace Solitons.Diagnostics;
 
 /// <summary>
 /// Represents the event arguments for a logging event.

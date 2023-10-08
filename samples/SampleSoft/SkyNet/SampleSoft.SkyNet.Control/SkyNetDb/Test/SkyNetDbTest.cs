@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -8,7 +7,6 @@ using Solitons;
 using Solitons.Security;
 using SampleSoft.SkyNet.Azure.Diagnostics;
 using SampleSoft.SkyNet.Azure.Postgres;
-using Solitons.Data;
 
 namespace SampleSoft.SkyNet.Control.SkyNetDb.Test;
 
