@@ -8,7 +8,8 @@ using static Solitons.Collections.FluentEnumerable;
 namespace Solitons.Collections.Specialized;
 
 /// <summary>
-/// Represents a collection of interdependent <see cref="ProjectActivity"/> items sorted by the item's longest duration variant.
+/// Represents an ordered collection of interdependent <see cref="ProjectActivity"/> items, 
+/// optimized for critical path analysis using the Critical Path Method (CPM).
 /// </summary>
 public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
 {
@@ -16,13 +17,20 @@ public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
     private readonly HashSet<ProjectActivity> _project = new();
 
     /// <summary>
-    /// Represents a critical path activity.
+    /// Models an activity on the project's critical path,
+    /// encapsulating both its inherent attributes and temporal characteristics.
     /// </summary>
     public sealed class CriticalPathActivity
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly ProjectActivity _innerActivity;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CriticalPathActivity"/> class, 
+        /// associating it with a base project activity and its start date.
+        /// </summary>
+        /// <param name="innerActivity">The underlying project activity.</param>
+        /// <param name="startDate">The earliest start date of the activity in the project schedule.</param>
         internal CriticalPathActivity(ProjectActivity innerActivity, int startDate)
         {
             StartDate = startDate;
@@ -30,7 +38,7 @@ public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
         }
 
         /// <summary>
-        /// Gets the identifier for the activity.
+        /// Gets the unique identifier that distinguishes this activity within the project scope.
         /// </summary>
         public string ActivityId => _innerActivity.Id;
 
@@ -77,13 +85,17 @@ public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
             }
             return criticalPath;
         }
-   
+
+        internal ProjectActivity InnerActivity => _innerActivity;
     };
 
     /// <summary>
-    /// Returns the aggregate critical path for all activities in the collection.
+    /// Retrieves the project's critical path, a sequence of dependent activities with the longest cumulative duration, 
+    /// dictating the minimum time required for project completion.
     /// </summary>
-    /// <returns>An enumerable collection of <see cref="CriticalPathActivity"/> objects representing the aggregate critical path for all activities in the collection.</returns>
+    /// <returns>
+    /// A linearly ordered, enumerable collection of <see cref="CriticalPathActivity"/> objects that constitute the project's critical path.
+    /// </returns>
     public IEnumerable<CriticalPathActivity> GetCriticalPath() => _project
         .Select(activity => activity.CriticalPath)
         .OrderByDescending(criticalPath => criticalPath.Sum(a => a.EffortInDays))
@@ -102,11 +114,14 @@ public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
     }
 
     /// <summary>
-    /// Adds a new <see cref="ProjectActivity"/> object with the specified identifier and effort in days to the collection.
+    /// Incorporates a new <see cref="ProjectActivity"/> into the project schedule, 
+    /// identifying it by a unique identifier and specifying its effort duration in days.
     /// </summary>
-    /// <param name="id">The identifier for the activity.</param>
-    /// <param name="effortInDays">The effort in days required to complete the activity.</param>
-    /// <returns>The new <see cref="ProjectActivity"/> object that was added to the collection.</returns>
+    /// <param name="id">A unique identifier for the activity within the project.</param>
+    /// <param name="effortInDays">The intrinsic duration of the activity, expressed in days.</param>
+    /// <returns>
+    /// A <see cref="ProjectActivity"/> object encapsulating the newly added activity's details.
+    /// </returns>
     [DebuggerStepThrough]
     public ProjectActivity Add(string id, int effortInDays) => Add(id, effortInDays, Enumerable.Empty<ProjectActivity>());
 
@@ -175,4 +190,17 @@ public sealed class ProjectActivityCollection : IEnumerable<ProjectActivity>
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+    /// <summary>
+    /// Determines whether a given <see cref="ProjectActivity"/> is part of the project's critical path.
+    /// </summary>
+    /// <param name="activity">The <see cref="ProjectActivity"/> to check.</param>
+    /// <returns>
+    /// <c>true</c> if the <see cref="ProjectActivity"/> is part of the critical path; otherwise, <c>false</c>.
+    /// </returns>
+    public bool IsCriticalPathActivity(ProjectActivity activity)
+    {
+        var path = GetCriticalPath();
+        return path.Any(cpa => Equals(cpa.InnerActivity, activity));
+    }
 }
