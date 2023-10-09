@@ -1,24 +1,23 @@
 ﻿using Solitons.Diagnostics;
 using Solitons.Diagnostics.Common;
 using System.Data.SQLite;
-using LogEventArgs = Solitons.Diagnostics.LogEventArgs;
 
 namespace UsageExamples.Diagnostics;
 
 /// <summary>
-/// This class demonstrates the usage of asynchronous logging with ColoredConsoleLogger.
+/// Demonstrates the usage of different asynchronous logging mechanisms.
 /// </summary>
 [Example]
 public sealed class ExampleUsingAsyncLogger
 {
     /// <summary>
-    /// Demonstrates different logging operations with metadata and colored console output.
+    /// Showcases logging operations with metadata and console output using <see cref="ColoredConsoleLogger"/>.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task ConsoleExample()
     {
         // Initialize the logger with global properties and tags
-        var logger = ColoredConsoleLogger.Object
+        var logger = ColoredConsoleLogger.Singleton
             .WithProperty("component", "demo-component")
             .WithProperty("user", Environment.UserName)
             .WithTags(Environment.MachineName, Environment.OSVersion.ToString());
@@ -42,10 +41,14 @@ public sealed class ExampleUsingAsyncLogger
             .WithProperty("operation", "Operation 3"));
     }
 
+    /// <summary>
+    /// Illustrates how to perform logging operations with SQLite-based storage using <see cref="SQLiteAsyncLogger"/>.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task SQLiteExample()
     {
         // Initialize the SQLiteAsyncLogger
-        var logger = SQLiteAsyncLogger.Instance
+        var logger = SQLiteAsyncLogger.Singleton
             .WithProperty("component", "ECommerceEngine")
             .WithProperty("user", Environment.UserName)
             .WithTags("E-Commerce", "OrderProcessing");
@@ -74,7 +77,7 @@ public sealed class ExampleUsingAsyncLogger
     }
 
     /// <summary>
-    /// ColoredConsoleLogger provides an asynchronous, colored console logging capability.
+    /// Provides an asynchronous logging capability with colored console output.
     /// </summary>
     sealed class ColoredConsoleLogger : ConsoleAsyncLogger
     {
@@ -82,12 +85,12 @@ public sealed class ExampleUsingAsyncLogger
         private ColoredConsoleLogger() { }
 
         // Singleton instance
-        public static readonly IAsyncLogger Object = new ColoredConsoleLogger();
+        public static readonly IAsyncLogger Singleton = new ColoredConsoleLogger();
 
         /// <summary>
-        /// Changes the console color based on the log level before logging the message.
+        /// Handles pre-logging activities, such as setting the console color based on log level.
         /// </summary>
-        /// <param name="args">Arguments encapsulating the log event details.</param>
+        /// <param name="args">Event arguments containing log details.</param>
         protected override void OnLogging(Solitons.Diagnostics.LogEventArgs args)
         {
             Console.ForegroundColor = args.Level switch
@@ -99,14 +102,14 @@ public sealed class ExampleUsingAsyncLogger
         }
 
         /// <summary>
-        /// Resets the console color back to its original state after logging.
+        /// Handles post-logging activities, such as resetting the console color.
         /// </summary>
-        /// <param name="args">Arguments encapsulating the log event details.</param>
-        protected override void OnLogged(LogEventArgs args) => Console.ResetColor();
+        /// <param name="args">Event arguments containing log details.</param>
+        protected override void OnLogged(Solitons.Diagnostics.LogEventArgs args) => Console.ResetColor();
     }
 
     /// <summary>
-    /// SQLiteAsyncLogger provides an asynchronous SQLite-based logging capability.
+    /// Provides an asynchronous logging capability with SQLite-based storage.
     /// </summary>
     sealed class SQLiteAsyncLogger : AsyncLogger
     {
@@ -118,14 +121,13 @@ public sealed class ExampleUsingAsyncLogger
             InitializeDatabase();
         }
 
-        public static readonly IAsyncLogger Instance = new SQLiteAsyncLogger();
+        public static readonly IAsyncLogger Singleton = new SQLiteAsyncLogger();
 
         private void InitializeDatabase()
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
 
-            // Create tables if they do not exist
             string sql = @"
             CREATE TABLE IF NOT EXISTS source (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,7 +136,7 @@ public sealed class ExampleUsingAsyncLogger
                 line INTEGER,
                 UNIQUE(file, line)
             );
-
+            
             CREATE TABLE IF NOT EXISTS event (
                 source_id INTEGER REFERENCES source(id),
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -147,39 +149,34 @@ public sealed class ExampleUsingAsyncLogger
             cmd.ExecuteNonQuery();
         }
 
-        protected override async Task LogAsync(LogEventArgs args)
+        /// <summary>
+        /// Performs the actual logging operation, inserting log events into the SQLite database.
+        /// </summary>
+        /// <param name="args">Event arguments containing log details.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        protected override async Task LogAsync(Solitons.Diagnostics.LogEventArgs args)
         {
-            var utc = DateTime.UtcNow;
             await using var conn = new SQLiteConnection(_connectionString);
             await conn.OpenAsync();
 
-            await using var transaction = conn.BeginTransaction();
-            // Use INSERT OR IGNORE followed by SELECT to get the id in a single SQL execution
-            string upsertAndFetchIdSql = @"
+            var cmdText = @"
             INSERT OR IGNORE INTO source (name, file, line) VALUES (@name, @file, @line);
-            SELECT id FROM source WHERE file = @file AND line = @line;";
 
-            await using var upsertAndFetchIdCmd = new SQLiteCommand(upsertAndFetchIdSql, conn);
-            upsertAndFetchIdCmd.Parameters.AddWithValue("@name", args.SourceInfo.MemberName);
-            upsertAndFetchIdCmd.Parameters.AddWithValue("@file", args.SourceInfo.FilePath);
-            upsertAndFetchIdCmd.Parameters.AddWithValue("@line", args.SourceInfo.LineNumber);
+            INSERT INTO event (source_id, content, level)
+            SELECT src.id, @content, @level
+            FROM source AS src 
+            WHERE 
+                file = @file 
+            AND line = @line;";
 
-            // Execute the command and fetch the source ID
-            var sourceId = (long)(await upsertAndFetchIdCmd.ExecuteScalarAsync() ?? throw new InvalidOperationException());
+            await using var cmd = new SQLiteCommand(cmdText, conn);
+            cmd.Parameters.AddWithValue("@name", args.SourceInfo.MemberName);
+            cmd.Parameters.AddWithValue("@file", args.SourceInfo.FilePath);
+            cmd.Parameters.AddWithValue("@line", args.SourceInfo.LineNumber);
+            cmd.Parameters.AddWithValue("@content", args.Content);
+            cmd.Parameters.AddWithValue("@level", args.Level.ToString());
 
-            // Insert the log event with a single SQL execution
-            string insertEventSql = @"
-            INSERT INTO event (source_id, content, level, createdUtc)
-            VALUES (@source_id, @content, @level, @createdUtc);";
-
-            await using var insertEventCmd = new SQLiteCommand(insertEventSql, conn, transaction);
-            insertEventCmd.Parameters.AddWithValue("@source_id", sourceId);
-            insertEventCmd.Parameters.AddWithValue("@content", args.Content);
-            insertEventCmd.Parameters.AddWithValue("@level", args.Level.ToString());
-            insertEventCmd.Parameters.AddWithValue("@createdUtc", utc);
-            await insertEventCmd.ExecuteNonQueryAsync();
-
-            transaction.Commit();
+            await cmd.ExecuteNonQueryAsync();
         }
 
     }
