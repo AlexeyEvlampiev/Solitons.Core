@@ -356,39 +356,54 @@ public sealed class ExampleUsingSecretsRepository
 ```
 
 
-## Asynchronous Immutable Logger
-The Asynchronous Immutable Logger is an integral component of the Solitons library, designed to provide robust and scalable logging solutions. Tailored for cloud-native applications, this logger comes with an out-of-the-box capability for asynchronous logging operations, allowing your application to maintain high throughput and responsiveness. Being immutable, it also ensures thread-safety, thus making it ideal for concurrent processing scenarios.
+## Asynchronous Logging in Distributed Cloud Environments with IAsyncLogger
+Introducing IAsyncLogger, an innovative asynchronous logging interface designed for .NET cloud-based distributed systems. This library dramatically enhances logging capabilities, making them more efficient, scalable, and adaptable. Unlike traditional .NET logging mechanisms, IAsyncLogger brings in the advantages of immutability and asynchronous I/O, setting a new standard for logging in cloud ecosystems.
 
-###Advantages
-Asynchronous Operations: Perform non-blocking logging to ensure that your application's performance remains unimpeded.
-Immutable and Thread-Safe: Guarantees that logging operations are safe in multi-threaded environments.
-Customizable: Easily extendable to support various logging targets such as console, file, or databases.
-Metadata Support: Rich support for tagging and property assignment to log entries.
-Cloud-Native Ready: Built to be scalable and resilient, making it ideal for cloud-based applications.
-#### Example 1: Implementing and Using IAsyncLogger Interface
+### Advantages
+#### Immutability
+Immutability is a first-class citizen in IAsyncLogger. It ensures thread-safety without the hassle of manual locking mechanisms. This is crucial for distributed cloud applications where multiple threads or even different services may try to log data concurrently. By leveraging immutability, the library makes sure that once a log entry is created, it cannot be altered, leading to a stable and reliable logging behavior across services.
+
+#### Asynchronous I/O
+In a world where every millisecond counts, IAsyncLogger excels by providing asynchronous logging capabilities. Traditional logging solutions often employ blocking I/O operations that can become a bottleneck in high-throughput applications. With IAsyncLogger, logs are written in a non-blocking fashion, ensuring your application's performance remains at its peak.
+
+#### Observer Pattern
+The AsObservable() method enables reactive programming paradigms, allowing subscribers to be notified of logging events as they occur. This makes it perfect for real-time monitoring or diagnostic solutions.
+
+#### Extensibility
+By using a partial interface design, IAsyncLogger enables users to extend its functionalities. It comes with built-in methods for adding tags and properties (WithTags, WithProperty, WithProperties), making your logs more informative and easier to filter.
+
+#### HttpRequestOptions Integration
+IAsyncLogger incorporates tightly with HttpRequestOptions, providing an easy way to associate logs with specific HTTP requests. This is invaluable for tracing and debugging complex workflows within microservices architectures.
+
+#### Pre-Configured Logging Levels
+The library comes with predefined logging levels such as Error, Warning, and Info, each with its asynchronous method (ErrorAsync, WarningAsync, InfoAsync). This allows for easier categorization and subsequent analysis of logs.
+
+#### Caller Information
+IAsyncLogger automatically captures caller information, such as the name of the calling method, file path, and line number. This is incredibly useful for debugging and provides a rich context for each log entry.
+
+### Example 1: Implementing and Using IAsyncLogger Interface
 In this enhanced example, we implement the IAsyncLogger interface to craft two custom loggers: ColoredConsoleLogger and SQLiteAsyncLogger. The ColoredConsoleLogger enriches the console output with color-coding based on log levels, offering immediate visual feedback. On the other hand, the SQLiteAsyncLogger takes logging to the next level by persistently storing logs in a SQLite database, making it suitable for scenarios requiring long-term log analysis and storage.
 ```csharp
 using Solitons.Diagnostics;
 using Solitons.Diagnostics.Common;
 using System.Data.SQLite;
-using LogEventArgs = Solitons.Diagnostics.LogEventArgs;
 
 namespace UsageExamples.Diagnostics;
 
 /// <summary>
-/// This class demonstrates the usage of asynchronous logging with ColoredConsoleLogger.
+/// Demonstrates the usage of different asynchronous logging mechanisms.
 /// </summary>
 [Example]
 public sealed class ExampleUsingAsyncLogger
 {
     /// <summary>
-    /// Demonstrates different logging operations with metadata and colored console output.
+    /// Showcases logging operations with metadata and console output using <see cref="ColoredConsoleLogger"/>.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task ConsoleExample()
     {
         // Initialize the logger with global properties and tags
-        var logger = ColoredConsoleLogger.Object
+        var logger = ColoredConsoleLogger.Singleton
             .WithProperty("component", "demo-component")
             .WithProperty("user", Environment.UserName)
             .WithTags(Environment.MachineName, Environment.OSVersion.ToString());
@@ -412,10 +427,14 @@ public sealed class ExampleUsingAsyncLogger
             .WithProperty("operation", "Operation 3"));
     }
 
+    /// <summary>
+    /// Illustrates how to perform logging operations with SQLite-based storage using <see cref="SQLiteAsyncLogger"/>.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task SQLiteExample()
     {
         // Initialize the SQLiteAsyncLogger
-        var logger = SQLiteAsyncLogger.Instance
+        var logger = SQLiteAsyncLogger.Singleton
             .WithProperty("component", "ECommerceEngine")
             .WithProperty("user", Environment.UserName)
             .WithTags("E-Commerce", "OrderProcessing");
@@ -444,7 +463,7 @@ public sealed class ExampleUsingAsyncLogger
     }
 
     /// <summary>
-    /// ColoredConsoleLogger provides an asynchronous, colored console logging capability.
+    /// Provides an asynchronous logging capability with colored console output.
     /// </summary>
     sealed class ColoredConsoleLogger : ConsoleAsyncLogger
     {
@@ -452,12 +471,12 @@ public sealed class ExampleUsingAsyncLogger
         private ColoredConsoleLogger() { }
 
         // Singleton instance
-        public static readonly IAsyncLogger Object = new ColoredConsoleLogger();
+        public static readonly IAsyncLogger Singleton = new ColoredConsoleLogger();
 
         /// <summary>
-        /// Changes the console color based on the log level before logging the message.
+        /// Handles pre-logging activities, such as setting the console color based on log level.
         /// </summary>
-        /// <param name="args">Arguments encapsulating the log event details.</param>
+        /// <param name="args">Event arguments containing log details.</param>
         protected override void OnLogging(Solitons.Diagnostics.LogEventArgs args)
         {
             Console.ForegroundColor = args.Level switch
@@ -469,14 +488,15 @@ public sealed class ExampleUsingAsyncLogger
         }
 
         /// <summary>
-        /// Resets the console color back to its original state after logging.
+        /// Handles post-logging activities, such as resetting the console color.
         /// </summary>
-        /// <param name="args">Arguments encapsulating the log event details.</param>
-        protected override void OnLogged(LogEventArgs args) => Console.ResetColor();
+        /// <param name="args">Event arguments containing log details.</param>
+        protected override void OnLogged(Solitons.Diagnostics.LogEventArgs args) => Console.ResetColor();
     }
 
     /// <summary>
-    /// SQLiteAsyncLogger provides an asynchronous SQLite-based logging capability.
+    /// Provides an asynchronous logging capability with SQLite-based storage.
+    /// Log events are stored in an SQLite database, which can be queried for later analysis.
     /// </summary>
     sealed class SQLiteAsyncLogger : AsyncLogger
     {
@@ -488,14 +508,13 @@ public sealed class ExampleUsingAsyncLogger
             InitializeDatabase();
         }
 
-        public static readonly IAsyncLogger Instance = new SQLiteAsyncLogger();
+        public static readonly IAsyncLogger Singleton = new SQLiteAsyncLogger();
 
         private void InitializeDatabase()
         {
             using var conn = new SQLiteConnection(_connectionString);
             conn.Open();
 
-            // Create tables if they do not exist
             string sql = @"
             CREATE TABLE IF NOT EXISTS source (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -504,7 +523,7 @@ public sealed class ExampleUsingAsyncLogger
                 line INTEGER,
                 UNIQUE(file, line)
             );
-
+            
             CREATE TABLE IF NOT EXISTS event (
                 source_id INTEGER REFERENCES source(id),
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -517,39 +536,34 @@ public sealed class ExampleUsingAsyncLogger
             cmd.ExecuteNonQuery();
         }
 
-        protected override async Task LogAsync(LogEventArgs args)
+        /// <summary>
+        /// Performs the actual logging operation, inserting log events into the SQLite database.
+        /// </summary>
+        /// <param name="args">Event arguments containing log details.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        protected override async Task LogAsync(Solitons.Diagnostics.LogEventArgs args)
         {
-            var utc = DateTime.UtcNow;
             await using var conn = new SQLiteConnection(_connectionString);
             await conn.OpenAsync();
 
-            await using var transaction = conn.BeginTransaction();
-            // Use INSERT OR IGNORE followed by SELECT to get the id in a single SQL execution
-            string upsertAndFetchIdSql = @"
+            var cmdText = @"
             INSERT OR IGNORE INTO source (name, file, line) VALUES (@name, @file, @line);
-            SELECT id FROM source WHERE file = @file AND line = @line;";
 
-            await using var upsertAndFetchIdCmd = new SQLiteCommand(upsertAndFetchIdSql, conn);
-            upsertAndFetchIdCmd.Parameters.AddWithValue("@name", args.SourceInfo.MemberName);
-            upsertAndFetchIdCmd.Parameters.AddWithValue("@file", args.SourceInfo.FilePath);
-            upsertAndFetchIdCmd.Parameters.AddWithValue("@line", args.SourceInfo.LineNumber);
+            INSERT INTO event (source_id, content, level)
+            SELECT src.id, @content, @level
+            FROM source AS src 
+            WHERE 
+                file = @file 
+            AND line = @line;";
 
-            // Execute the command and fetch the source ID
-            var sourceId = (long)(await upsertAndFetchIdCmd.ExecuteScalarAsync() ?? throw new InvalidOperationException());
+            await using var cmd = new SQLiteCommand(cmdText, conn);
+            cmd.Parameters.AddWithValue("@name", args.SourceInfo.MemberName);
+            cmd.Parameters.AddWithValue("@file", args.SourceInfo.FilePath);
+            cmd.Parameters.AddWithValue("@line", args.SourceInfo.LineNumber);
+            cmd.Parameters.AddWithValue("@content", args.Content);
+            cmd.Parameters.AddWithValue("@level", args.Level.ToString());
 
-            // Insert the log event with a single SQL execution
-            string insertEventSql = @"
-            INSERT INTO event (source_id, content, level, createdUtc)
-            VALUES (@source_id, @content, @level, @createdUtc);";
-
-            await using var insertEventCmd = new SQLiteCommand(insertEventSql, conn, transaction);
-            insertEventCmd.Parameters.AddWithValue("@source_id", sourceId);
-            insertEventCmd.Parameters.AddWithValue("@content", args.Content);
-            insertEventCmd.Parameters.AddWithValue("@level", args.Level.ToString());
-            insertEventCmd.Parameters.AddWithValue("@createdUtc", utc);
-            await insertEventCmd.ExecuteNonQueryAsync();
-
-            transaction.Commit();
+            await cmd.ExecuteNonQueryAsync();
         }
 
     }
