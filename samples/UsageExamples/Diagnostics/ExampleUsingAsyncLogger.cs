@@ -110,6 +110,7 @@ public sealed class ExampleUsingAsyncLogger
 
     /// <summary>
     /// Provides an asynchronous logging capability with SQLite-based storage.
+    /// Log events are stored in an SQLite database, which can be queried for later analysis.
     /// </summary>
     sealed class SQLiteAsyncLogger : AsyncLogger
     {
