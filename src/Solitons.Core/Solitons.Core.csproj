@@ -21,7 +21,7 @@
     <PackageIconUrl />
     <Nullable>enable</Nullable>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>logging;logger;cloud;asynchronous;common;C#;.net;</PackageTags>
+    <PackageTags>CloudAgnostic;DTO;Serialization;Logging;SecretsManagement;Utility;Extensions;Security;DataProcessing;Middleware;Configuration;API;BestPractices;DevOps</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
