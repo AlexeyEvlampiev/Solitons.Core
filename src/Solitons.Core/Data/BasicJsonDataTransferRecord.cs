@@ -123,7 +123,10 @@ public abstract record BasicJsonDataTransferRecord : IBasicJsonDataTransferObjec
         BasicJsonDataTransferObject.SerializeToUtf8Bytes(this, inputType, context);
 
 
-
+    /// <summary>
+    /// Converts the instance to its JSON representation as a string.
+    /// </summary>
+    /// <returns>A string containing the JSON representation of the instance.</returns>
     public override string ToString() => BasicJsonDataTransferObject.Serialize(this);
 
     /// <summary>

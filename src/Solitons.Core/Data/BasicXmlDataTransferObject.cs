@@ -15,7 +15,7 @@ namespace Solitons.Data;
 /// When derived from, it ensures that the <see cref="object.ToString"/> method returns the XML representation of the object.
 /// </para>
 /// <para>
-/// The <see cref="ToString"/> method is overridden to return the XML string representation of the object using the <see cref="ToXmlString"/> method.
+/// The <see cref="ToString"/> method is overridden to return the XML string representation of the object using the <see cref="ToXmlMediaContent()"/> method.
 /// </para>
 /// <para>
 /// The <see cref="Clone"/> method creates a deep copy of the object by performing XML deserialization on the object's XML representation.

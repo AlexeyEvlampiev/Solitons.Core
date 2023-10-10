@@ -143,9 +143,13 @@ public abstract class BasicJsonDataTransferObject : SerializationCallback, IBasi
         SerializeToUtf8Bytes(this, inputType, context);
 
     /// <summary>
-    /// Creates a clone of the current instance.
+    /// Creates a clone of the current instance using JSON serialization and deserialization.
     /// </summary>
-    /// <returns>A cloned instance of the current object.</returns>
+    /// <returns>A clone of the current instance.</returns>
+    /// <remarks>
+    /// This method creates a clone by serializing the current instance to a JSON string and then
+    /// deserializing it back to a new object of the same type.
+    /// </remarks>
     [DebuggerNonUserCode]
     protected BasicJsonDataTransferObject Clone() => ((BasicJsonDataTransferObject)JsonSerializer.Deserialize(ToString(), GetType())!)!;
 
@@ -203,8 +207,18 @@ public abstract class BasicJsonDataTransferObject : SerializationCallback, IBasi
         return IBasicJsonDataTransferObject.Parse<T>(jsonString, context);
     }
 
+    /// <summary>
+    /// Implicitly converts the instance to a <see cref="TextMediaContent"/> object by serializing it to JSON.
+    /// </summary>
+    /// <param name="dto">The instance of <see cref="BasicJsonDataTransferObject"/> to convert.</param>
+    /// <returns>A <see cref="TextMediaContent"/> object containing the JSON representation of the instance.</returns>
     public static implicit operator TextMediaContent(BasicJsonDataTransferObject dto) => dto.ToJsonMediaContent();
 
+    /// <summary>
+    /// Implicitly converts the instance to a <see cref="HttpContent"/> object by serializing it to JSON and wrapping it in a <see cref="TextMediaContent"/> object.
+    /// </summary>
+    /// <param name="dto">The instance of <see cref="BasicJsonDataTransferObject"/> to convert.</param>
+    /// <returns>An <see cref="HttpContent"/> object containing the JSON representation of the instance.</returns>
     public static implicit operator HttpContent(BasicJsonDataTransferObject dto) => dto
         .ToJsonMediaContent()
         .ToHttpContent();

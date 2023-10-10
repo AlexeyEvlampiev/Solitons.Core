@@ -29,8 +29,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\Web\**" />
     <Compile Remove="Net\Http\Common\**" />
+    <EmbeddedResource Remove="Data\Web\**" />
     <EmbeddedResource Remove="Net\Http\Common\**" />
+    <None Remove="Data\Web\**" />
     <None Remove="Net\Http\Common\**" />
   </ItemGroup>
 
@@ -130,10 +133,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>HttpRequestHeaders.generated.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\Web\Common\" />
   </ItemGroup>
 
 </Project>
