@@ -30,12 +30,14 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y azure-cli
     - name: Upload to Azure Blob
+      env: 
+        AZURE_STORAGE_SOLITONS_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
       run: |
         az storage blob upload-batch \
         --destination docs- \
         --source docfx_project/_site \
         --destination-path alpha- \
-        --connection-string ${{secrets.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
+        --connection-string ${{env.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
 
   build:
     runs-on: ubuntu-latest
