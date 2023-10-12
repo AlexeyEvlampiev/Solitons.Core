@@ -35,7 +35,7 @@ jobs:
         --destination docs- \
         --source docfx_project/_site \
         --destination-path alpha- \
-        --connection-string ${{env.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
+        --connection-string ${{secrets.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
 
   build:
     runs-on: ubuntu-latest
