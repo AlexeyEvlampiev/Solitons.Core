@@ -37,7 +37,7 @@ jobs:
       run: |
         az storage blob upload-batch \
         --destination '$web' \
-        --source docfx_project/_site \
+        --source docfx_project/_site/api \
         --account-key ${{env.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}} \
         --account-name solitons      
         
