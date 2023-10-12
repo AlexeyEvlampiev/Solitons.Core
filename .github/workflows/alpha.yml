@@ -7,38 +7,6 @@ on:
     branches: [ develop ]
 
 jobs:
-  publish-docs:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Cache DocFx tools
-      uses: actions/cache@v2
-      with:
-        path: ~/.dotnet/tools
-        key: docfx-${{ hashFiles('**/docfx.json') }}
-    - name: Dotnet Setup
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 7.x
-    - name: Update DocFx
-      run: dotnet tool update -g docfx
-    - name: Generate Docs
-      run: docfx docfx_project/docfx.json
-    - name: Install Azure CLI
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y azure-cli
-    - name: Upload to Azure Blob
-      env: 
-        AZ_STORAGE_SOLITONS_ACCOUNT_KEY: ${{secrets.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}}
-      run: |
-        az storage blob upload-batch \
-        --destination '$web' \
-        --source docfx_project/_site \
-        --account-key ${{env.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}} \
-        --account-name solitons
-
   build:
     runs-on: ubuntu-latest
     env:
@@ -80,3 +48,34 @@ jobs:
       env:
         NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
       run: dotnet nuget push ${{env.outputpath}}/*.nupkg --api-key ${{env.NUGET_API_KEY}} --source ${{env.nugetsource}} --skip-duplicate
+  publish-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cache DocFx tools
+      uses: actions/cache@v2
+      with:
+        path: ~/.dotnet/tools
+        key: docfx-${{ hashFiles('**/docfx.json') }}
+    - name: Dotnet Setup
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.x
+    - name: Update DocFx
+      run: dotnet tool update -g docfx
+    - name: Generate Docs
+      run: docfx docfx_project/docfx.json
+    - name: Install Azure CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y azure-cli
+    - name: Upload to Azure Blob
+      env: 
+        AZ_STORAGE_SOLITONS_ACCOUNT_KEY: ${{secrets.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}}
+      run: |
+        az storage blob upload-batch \
+        --destination '$web' \
+        --source docfx_project/_site \
+        --account-key ${{env.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}} \
+        --account-name solitons      
