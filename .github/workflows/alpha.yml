@@ -34,7 +34,7 @@ jobs:
         AZ_STORAGE_SOLITONS_ACCOUNT_KEY: ${{secrets.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}}
       run: |
         az storage blob upload-batch \
-        --destination $web \
+        --destination '$web' \
         --source docfx_project/_site \
         --destination-path alpha \
         --account-key ${{env.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}} \
