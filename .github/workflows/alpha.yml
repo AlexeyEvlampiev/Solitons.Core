@@ -37,7 +37,7 @@ jobs:
         --destination docs- \
         --source docfx_project/_site \
         --destination-path alpha- \
-        --account-key ${{ENV.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}}
+        --account-key ${{ENV.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}} \
         --account-name solitons
 
   build:
