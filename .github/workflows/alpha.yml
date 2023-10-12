@@ -31,13 +31,14 @@ jobs:
         sudo apt-get install -y azure-cli
     - name: Upload to Azure Blob
       env: 
-        AZURE_STORAGE_SOLITONS_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
+        AZ_STORAGE_SOLITONS_ACCOUNT_KEY: ${{secrets.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}}
       run: |
         az storage blob upload-batch \
         --destination docs- \
         --source docfx_project/_site \
         --destination-path alpha- \
-        --connection-string ${{env.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
+        --account-key ${{ENV.AZ_STORAGE_SOLITONS_ACCOUNT_KEY}}
+        --account-name solitons
 
   build:
     runs-on: ubuntu-latest
