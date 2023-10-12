@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)&quot; /Y /I" />
+    <Exec Command="xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)&quot; /Y /I&#xD;&#xA;xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)docfx_project\index.md&quot; /Y /I&#xD;&#xA;" />
   </Target>
 
 </Project>

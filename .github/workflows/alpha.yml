@@ -7,17 +7,47 @@ on:
     branches: [ develop ]
 
 jobs:
-  build:
+  publish-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cache DocFx tools
+      uses: actions/cache@v2
+      with:
+        path: ~/.dotnet/tools
+        key: docfx-${{ hashFiles('**/docfx.json') }}
+    - name: Dotnet Setup
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.x
+    - name: Update DocFx
+      run: dotnet tool update -g docfx
+    - name: Generate Docs
+      run: docfx docfx_project/docfx.json
+    - name: Install Azure CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y azure-cli
+    - name: Upload to Azure Blob
+      run: |
+        az storage blob upload-batch \
+        --destination docs- \
+        --source docfx_project/_site \
+        --destination-path alpha- \
+        --connection-string ${{env.AZURE_STORAGE_SOLITONS_CONNECTION_STRING}}
 
+  build:
     runs-on: ubuntu-latest
     env:
-     projectpath: ./src/Solitons.Core/Solitons.Core.csproj
-     buildconfiguration: release
-     outputpath: pkgout
-     runId: ${{github.run_id}}
-     nugetsource: https://api.nuget.org/v3/index.json
+      projectpath: ./src/Solitons.Core/Solitons.Core.csproj
+      buildconfiguration: release
+      outputpath: pkgout
+      runId: ${{github.run_id}}
+      nugetsource: https://api.nuget.org/v3/index.json
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Setup .NET 6
       uses: actions/setup-dotnet@v3
       with:
@@ -25,22 +55,26 @@ jobs:
     - name: Setup .NET 7
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.x        
+        dotnet-version: 7.x
+    - name: Cache NuGet packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: nuget-
     - name: Restore dependencies
       run: dotnet restore Solitons.Core.sln
     - name: Build
-      run: dotnet build Solitons.Core.sln --no-restore --configuration ${buildconfiguration}
+      run: dotnet build Solitons.Core.sln --no-restore --configuration ${{env.buildconfiguration}}
     - name: Test
       env:
-       AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
-      run: dotnet test Solitons.Core.sln --no-build --verbosity normal   
+        AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
+      run: dotnet test Solitons.Core.sln --no-build --verbosity normal
     - name: Pack
       env:
-       versionsuffix: 'alpha.${{env.runId}}'
-      run: dotnet pack ${projectpath} --configuration ${buildconfiguration} --output ${outputpath} --version-suffix ${versionsuffix} --no-build --no-restore
+        versionsuffix: 'alpha.${{env.runId}}'
+      run: dotnet pack ${{env.projectpath}} --configuration ${{env.buildconfiguration}} --output ${{env.outputpath}} --version-suffix ${{env.versionsuffix}} --no-build --no-restore
     - name: Push
       env:
-       NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
-      run: dotnet nuget push ${outputpath}/*.nupkg --api-key ${NUGET_API_KEY} --source ${nugetsource} --skip-duplicate
-
-     
+        NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+      run: dotnet nuget push ${{env.outputpath}}/*.nupkg --api-key ${{env.NUGET_API_KEY}} --source ${{env.nugetsource}} --skip-duplicate
