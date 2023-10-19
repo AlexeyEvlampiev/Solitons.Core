@@ -4,7 +4,7 @@
       "src": [
         {
           "files": [ "Solitons.Core/bin/**/*.dll" ],
-          "cwd": "./../src/"
+          "cwd": "/home/runner/work/Solitons.Core/Solitons.Core/src/"
         }
       ],
       "dest": "api",
