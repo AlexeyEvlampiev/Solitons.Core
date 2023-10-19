@@ -4,16 +4,16 @@
       "src": [
         {
           "files": [ "bin/**/*.dll" ],
-          "src": "../src/Solitons.Core"
+          "src": "../src/Solitons.Core/"
         }
-      ],      
+      ],
       "dest": "api",
       "outputFormat": "mref",
       "includePrivateMembers": false,
-      "disableGitFeatures": false,
+      "disableGitFeatures": true,
       "disableDefaultFilter": false,
       "noRestore": false,
-      "namespaceLayout": "flattened",
+      "namespaceLayout": "nested",
       "memberLayout": "samePage",
       "EnumSortOrder": "alphabetic",
       "allowCompilationErrors": false
