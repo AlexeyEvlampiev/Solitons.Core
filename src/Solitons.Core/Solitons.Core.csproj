@@ -15,7 +15,7 @@
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>false</RunAnalyzers>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <PackageProjectUrl>https://github.com/AlexeyEvlampiev/Solitons.Core</PackageProjectUrl>
+    <PackageProjectUrl>https://solitons.z6.web.core.windows.net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexeyEvlampiev/Solitons.Core</RepositoryUrl>
     <PackageIcon>Solitons.png</PackageIcon>
     <PackageIconUrl />
