@@ -38,7 +38,7 @@ jobs:
         az storage blob upload-batch \
         --destination '$web' \
         --source docfx_project/_site \
-        --connection-string ${{env.AZ_STORAGE_SOLITONS_CONNECTION_STRING}}      
+        --connection-string '${{env.AZ_STORAGE_SOLITONS_CONNECTION_STRING}}'       
 
   build:
     runs-on: ubuntu-latest
