@@ -40,44 +40,44 @@ jobs:
         --source docfx_project/_site \
         --connection-string '${{env.AZ_STORAGE_SOLITONS_CONNECTION_STRING}}'       
 
-  build:
-    runs-on: ubuntu-latest
-    env:
-      projectpath: ./src/Solitons.Core/Solitons.Core.csproj
-      buildconfiguration: release
-      outputpath: pkgout
-      runId: ${{github.run_id}}
-      nugetsource: https://api.nuget.org/v3/index.json
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.x
-    - name: Setup .NET 7
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 7.x
-    - name: Cache NuGet packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.nuget/packages
-        key: nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: nuget-
-    - name: Restore dependencies
-      run: dotnet restore Solitons.Core.sln
-    - name: Build
-      run: dotnet build Solitons.Core.sln --no-restore --configuration ${{env.buildconfiguration}}
-    - name: Test
-      env:
-        AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
-      run: dotnet test Solitons.Core.sln --no-build --verbosity normal
-    - name: Pack
-      env:
-        versionsuffix: 'alpha.${{env.runId}}'
-      run: dotnet pack ${{env.projectpath}} --configuration ${{env.buildconfiguration}} --output ${{env.outputpath}} --version-suffix ${{env.versionsuffix}} --no-build --no-restore
-    - name: Push
-      env:
-        NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
-      run: dotnet nuget push ${{env.outputpath}}/*.nupkg --api-key ${{env.NUGET_API_KEY}} --source ${{env.nugetsource}} --skip-duplicate
+  # build:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     projectpath: ./src/Solitons.Core/Solitons.Core.csproj
+  #     buildconfiguration: release
+  #     outputpath: pkgout
+  #     runId: ${{github.run_id}}
+  #     nugetsource: https://api.nuget.org/v3/index.json
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #   - name: Setup .NET 6
+  #     uses: actions/setup-dotnet@v3
+  #     with:
+  #       dotnet-version: 6.x
+  #   - name: Setup .NET 7
+  #     uses: actions/setup-dotnet@v3
+  #     with:
+  #       dotnet-version: 7.x
+  #   - name: Cache NuGet packages
+  #     uses: actions/cache@v2
+  #     with:
+  #       path: ~/.nuget/packages
+  #       key: nuget-${{ hashFiles('**/*.csproj') }}
+  #       restore-keys: nuget-
+  #   - name: Restore dependencies
+  #     run: dotnet restore Solitons.Core.sln
+  #   - name: Build
+  #     run: dotnet build Solitons.Core.sln --no-restore --configuration ${{env.buildconfiguration}}
+  #   - name: Test
+  #     env:
+  #       AZ_STORAGE_CONNECTION_STRING: ${{secrets.AZ_STORAGE_CONNECTION_STRING}}
+  #     run: dotnet test Solitons.Core.sln --no-build --verbosity normal
+  #   - name: Pack
+  #     env:
+  #       versionsuffix: 'alpha.${{env.runId}}'
+  #     run: dotnet pack ${{env.projectpath}} --configuration ${{env.buildconfiguration}} --output ${{env.outputpath}} --version-suffix ${{env.versionsuffix}} --no-build --no-restore
+  #   - name: Push
+  #     env:
+  #       NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+  #     run: dotnet nuget push ${{env.outputpath}}/*.nupkg --api-key ${{env.NUGET_API_KEY}} --source ${{env.nugetsource}} --skip-duplicate
