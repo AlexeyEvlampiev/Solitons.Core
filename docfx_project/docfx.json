@@ -3,12 +3,8 @@
     {
       "src": [
         {
-          "files": [ "*.dll" ],
-          "cwd": "../src/Solitons.Core/bin/Debug/net7.0/"
-        },
-        {
-          "files": [ "*.dll" ],
-          "cwd": "../src/Solitons.Core/bin/Release/net7.0/"
+          "files": [ "Solitons.Core/bin/**/*.dll" ],
+          "cwd": "../src/"
         }
       ],
       "dest": "api",
