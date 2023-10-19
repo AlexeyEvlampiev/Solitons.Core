@@ -3,10 +3,10 @@
     {
       "src": [
         {
-          "files": [ "Solitons.Core/bin/**/*.dll" ],
-          "cwd": "/home/runner/work/Solitons.Core/Solitons.Core/src/"
+          "files": [ "bin/**/*.dll" ],
+          "src": "../src/Solitons.Core"
         }
-      ],
+      ],      
       "dest": "api",
       "outputFormat": "mref",
       "includePrivateMembers": false,
