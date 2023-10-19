@@ -6,7 +6,7 @@
           "files": [
             "*.dll"
           ],
-          "cwd": "../src/Solitons.Core/bin/*/net7.0/*.dll"
+          "cwd": "../src/Solitons.Core/bin/*/net7.0/"
         }
       ],
       "dest": "api",
