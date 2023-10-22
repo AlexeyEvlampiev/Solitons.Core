@@ -301,9 +301,24 @@ public static class FluentList
 }
 
 /// <summary>
-/// Provides a list implementation that allows for a more fluent and concise syntax when working with lists.
+/// Provides a list implementation that enables a more fluent and concise syntax for working with lists.
 /// </summary>
 /// <typeparam name="T">The type of elements in the list.</typeparam>
+/// <example>
+/// This example demonstrates how to create and use a FluentList instance.
+/// <code>
+/// <![CDATA[
+/// var list = new FluentList<string>()
+///     .Add("Alice")
+///     .Add("Bob", "Charlie")
+///     .AddRange(new [] { "David", "Eve" });
+/// foreach (var name in list)
+/// {
+///     Console.WriteLine(name);
+/// }
+/// ]]>
+/// </code>
+/// </example>
 public sealed class FluentList<T> : IList<T>
 {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
@@ -312,6 +327,10 @@ public sealed class FluentList<T> : IList<T>
     /// <summary>
     /// Initializes a new instance of the FluentList class that is empty and has the default initial capacity.
     /// </summary>
+    /// <remarks>
+    /// This constructor initializes a new FluentList instance with default capacity. Use this constructor when you know
+    /// the list will grow to require the default capacity, to minimize reallocations.
+    /// </remarks>
     [DebuggerNonUserCode]
     internal FluentList()
     {
@@ -350,12 +369,15 @@ public sealed class FluentList<T> : IList<T>
     }
 
     /// <summary>
-    /// Explicit conversion operator from List to FluentList.
+    /// Explicitly converts a List to a FluentList.
     /// </summary>
     /// <param name="list">The list to convert.</param>
-    /// <returns>The new FluentList instance.</returns>
+    /// <returns>A new FluentList instance containing the elements of the specified list.</returns>
+    /// <remarks>
+    /// This operator creates a new FluentList instance and populates it with the elements of the specified list.
+    /// </remarks>
     [DebuggerNonUserCode]
-    public static explicit operator FluentList<T>(List<T> list) => new FluentList<T>();
+    public static explicit operator FluentList<T>(List<T> list) => new();
 
 
 
@@ -372,10 +394,28 @@ public sealed class FluentList<T> : IList<T>
     void ICollection<T>.Add(T item) => _list.Add(item);
 
     /// <summary>
-    /// Adds an item to the end of the list and returns the list itself.
+    /// Adds an item to the end of the list and returns the list itself, enabling a fluent syntax.
     /// </summary>
     /// <param name="item">The item to add to the list.</param>
-    /// <returns>The list itself.</returns>
+    /// <returns>The current FluentList instance.</returns>
+    /// <remarks>
+    /// Use this method to add a single item to the list and continue method chaining.
+    /// </remarks>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="Add(T)"/> method to add an item to the list.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string>();
+    /// list.Add("Alice")
+    ///     .Add("Bob")
+    ///     .Add("Charlie");
+    /// foreach(var name in list)
+    /// {
+    ///     Console.WriteLine(name);
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public FluentList<T> Add(T item)
     {
@@ -388,7 +428,20 @@ public sealed class FluentList<T> : IList<T>
     /// </summary>
     /// <param name="item1">The first item to add.</param>
     /// <param name="item2">The second item to add.</param>
-    /// <returns>The current instance of the <see cref="FluentList{T}"/> class.</returns>
+    /// <returns>The current instance of the <see cref="FluentList{T}"/> class, allowing for method chaining.</returns>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="Add(T, T)"/> method to add two items to the list.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string>();
+    /// list.Add("Alice", "Bob");
+    /// foreach(var name in list)
+    /// {
+    ///     Console.WriteLine(name);
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public FluentList<T> Add(T item1, T item2)
     {
@@ -404,6 +457,22 @@ public sealed class FluentList<T> : IList<T>
     /// <param name="item2">The second item to add.</param>
     /// <param name="item3">The third item to add.</param>
     /// <returns>The current instance of the <see cref="FluentList{T}"/> class.</returns>
+    /// <remarks>
+    /// This method provides a fluent way to add multiple items to the list at once.
+    /// </remarks>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="Add(T,T,T)"/> method to add multiple items to the list.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string>();
+    /// list.Add("Alice", "Bob", "Charlie");
+    /// foreach(var name in list)
+    /// {
+    ///     Console.WriteLine(name);
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public FluentList<T> Add(T item1, T item2, T item3)
     {
@@ -414,11 +483,27 @@ public sealed class FluentList<T> : IList<T>
     }
 
     /// <summary>
-    /// Adds the specified items to the end of the list. Allows for chaining.
+    /// Adds the specified items to the end of the list, allowing for a fluent chaining of operations.
     /// </summary>
     /// <param name="items">The items to add to the list.</param>
-    /// <returns>A reference to the current instance of <see cref="FluentList{T}"/> for chaining.</returns>
+    /// <returns>The current instance of <see cref="FluentList{T}"/> for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is null.</exception>
+    /// <remarks>
+    /// This method accepts a parameter array, allowing you to add multiple items to the list in a single call.
+    /// </remarks>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="Add(T[])"/> method to add multiple items to the list.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string>();
+    /// list.Add("Alice", "Bob", "Charlie", "Tom");
+    /// foreach(var name in list)
+    /// {
+    ///     Console.WriteLine(name);
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public FluentList<T> Add(params T[] items)
     {
@@ -433,9 +518,24 @@ public sealed class FluentList<T> : IList<T>
     /// <summary>
     /// Adds the elements of the specified collection to the end of the <see cref="FluentList{T}"/>.
     /// </summary>
-    /// <param name="items">The collection whose elements should be added to the end of the <see cref="FluentList{T}"/>. The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
+    /// <param name="items">The collection whose elements should be added to the end of the <see cref="FluentList{T}"/>. 
+    /// The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
     /// <returns>The <see cref="FluentList{T}"/> after the elements are added.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="items"/> parameter is null.</exception>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="AddRange"/> method to add multiple items to the list.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string>();
+    /// var names = new[] { "Alice", "Bob", "Charlie" };
+    /// list.AddRange(names);
+    /// foreach(var name in list)
+    /// {
+    ///     Console.WriteLine(name);
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public FluentList<T> AddRange(IEnumerable<T> items)
     {
@@ -452,9 +552,26 @@ public sealed class FluentList<T> : IList<T>
     void ICollection<T>.Clear() => _list.Clear();
 
     /// <summary>
-    /// Removes all elements from the <see cref="FluentList{T}"/>.
+    /// Removes all elements from the <see cref="FluentList{T}"/>, and returns the list itself to enable method chaining.
     /// </summary>
     /// <returns>The current <see cref="FluentList{T}"/> instance with all elements removed.</returns>
+    /// <remarks>
+    /// Use this method to clear the list and continue method chaining.
+    /// </remarks>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="Clear"/> method to remove all elements from the list.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string>();
+    /// list.Add("Alice")
+    ///     .Add("Bob")
+    ///     .Add("Charlie");
+    /// // List contains: Alice, Bob, Charlie
+    /// list.Clear();
+    /// // List is now empty
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public FluentList<T> Clear()
     {
@@ -466,7 +583,21 @@ public sealed class FluentList<T> : IList<T>
     /// Determines whether the list contains a specific element.
     /// </summary>
     /// <param name="item">The element to locate in the list.</param>
-    /// <returns>True if the element is found in the list; otherwise, false.</returns>
+    /// <returns>
+    /// True if the element is found in the list; otherwise, false.
+    /// </returns>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="Contains(T)"/> method to check if an item exists in the list.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string> { "Alice", "Bob", "Charlie" };
+    /// var containsBob = list.Contains("Bob");  // returns true
+    /// var containsDave = list.Contains("Dave");  // returns false
+    /// Console.WriteLine(containsBob);  // Outputs: True
+    /// Console.WriteLine(containsDave);  // Outputs: False
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public bool Contains(T item) => _list.Contains(item);
 
@@ -476,6 +607,25 @@ public sealed class FluentList<T> : IList<T>
     /// <param name="item">The object to locate in the list.</param>
     /// <param name="index">When this method returns, contains the index of the first occurrence of the specified element, if found; otherwise, -1.</param>
     /// <returns>true if the list contains the specified element; otherwise, false.</returns>
+    /// <remarks>
+    /// Use this method to not only check the presence of an item, but also to retrieve its index in a single operation.
+    /// </remarks>
+    /// <example>
+    /// This example demonstrates how to use the <see cref="Contains(T, out int)"/> method to check the presence of an item and obtain its index.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string> { "Apple", "Banana", "Cherry" };
+    /// if (list.Contains("Banana", out int index))
+    /// {
+    ///     Console.WriteLine($"Item found at index {index}");
+    /// }
+    /// else
+    /// {
+    ///     Console.WriteLine("Item not found");
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public bool Contains(T item, out int index)
     {
