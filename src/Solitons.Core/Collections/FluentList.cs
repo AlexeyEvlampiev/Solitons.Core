@@ -638,6 +638,20 @@ public sealed class FluentList<T> : IList<T>
     /// </summary>
     /// <param name="array">The one-dimensional array that is the destination of the elements copied from FluentList. The array must have zero-based indexing.</param>
     /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the destination array is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if arrayIndex is negative.</exception>
+    /// <exception cref="ArgumentException">Thrown if there is not enough available space from arrayIndex to the end of the destination array to accommodate all elements.</exception>
+    /// <example>
+    /// This example demonstrates how to copy elements from a FluentList to an array.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<int> { 1, 2, 3, 4, 5 };
+    /// var array = new int[5];
+    /// list.CopyTo(array, 0);
+    /// // array now contains: 1, 2, 3, 4, 5
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
 
@@ -647,11 +661,25 @@ public sealed class FluentList<T> : IList<T>
 
 
     /// <summary>
-    /// Removes the first occurrence of a specific object from the FluentList and returns FluentList instance to allow chaining.
+    /// Removes the first occurrence of a specific object from the FluentList and returns the FluentList instance to allow chaining.
     /// </summary>
     /// <param name="item">The object to remove from the FluentList.</param>
     /// <param name="removed">When this method returns, contains true if item is successfully removed; otherwise, false. This parameter is passed uninitialized.</param>
     /// <returns>The FluentList instance.</returns>
+    /// <remarks>
+    /// This method is useful when you want to remove an item and continue method chaining, while also checking whether the removal was successful.
+    /// </remarks>
+    /// <example>
+    /// This example demonstrates how to use the Remove method to remove an item and check the result.
+    /// <code>
+    /// <![CDATA[
+    /// var list = new FluentList<string> { "Alice", "Bob", "Charlie" };
+    /// bool removed;
+    /// list.Remove("Bob", out removed);
+    /// Console.WriteLine(removed);  // Outputs: True
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public FluentList<T> Remove(T item, out bool removed)
     {
