@@ -64,6 +64,15 @@ public sealed class ProjectActivity
     /// <remarks>
     /// The critical path is determined by evaluating the longest path (in terms of effort in days) among the dependencies leading to this activity. The function is recursive and takes into account the critical path of each dependency.
     /// </remarks>
+    /// <example>
+    /// <![CDATA[
+    /// var criticalPathStack = someActivity.CriticalPath;
+    /// foreach (var activity in criticalPathStack)
+    /// {
+    ///     Console.WriteLine($"{activity.Id} - {activity.EffortInDays} days");
+    /// }
+    /// ]]>
+    /// </example>
     public Stack<ProjectActivity> CriticalPath
     {
         get
@@ -93,6 +102,12 @@ public sealed class ProjectActivity
     /// <param name="dependencyFilter">An optional predicate for filtering dependencies. If provided, only dependencies that satisfy this condition will be considered in the calculation. If null, all dependencies are considered.</param>
     /// <returns>The float time (slack time) for this activity, measured in days.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if projectEndTime or earliestStart is negative.</exception>
+    /// <example>
+    /// <![CDATA[
+    /// int floatTime = someActivity.GetFloatTime(projectEndTime: 100, earliestStart: 10);
+    /// Console.WriteLine($"Float time: {floatTime} days");
+    /// ]]>
+    /// </example>
     public int GetFloatTime(int projectEndTime, int earliestStart, Func<ProjectActivity, bool>? dependencyFilter = null)
     {
         // Validate the input parameters
@@ -117,6 +132,12 @@ public sealed class ProjectActivity
     /// <param name="dependencyFilter">An optional predicate for filtering dependencies. If provided, only dependencies that satisfy this condition will be considered in the calculation. If null, all dependencies are considered.</param>
     /// <returns>A boolean indicating whether the activity is critical.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if projectEndTime or earliestStart is negative.</exception>
+    /// <example>
+    /// <![CDATA[
+    /// bool isCritical = someActivity.IsCritical(projectEndTime: 100, earliestStart: 10);
+    /// Console.WriteLine($"Is activity critical? {isCritical}");
+    /// ]]>
+    /// </example>
     public bool IsCritical(
         int projectEndTime, 
         int earliestStart, 
