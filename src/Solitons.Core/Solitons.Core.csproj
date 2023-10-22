@@ -2,13 +2,19 @@
 
   <PropertyGroup>
     <PackageId>Solitons.Core</PackageId>
-    <VersionPrefix>1.0.4</VersionPrefix>
+    <VersionPrefix>1.0.5</VersionPrefix>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <RootNamespace>Solitons</RootNamespace>
     <Authors>Alexey Evlampiev</Authors>
     <Company>Solitons</Company>
-    <Description>Solitons.Core is a .NET library for cloud software development that offers interfaces, algorithms, and utility functions for efficient data processing and visualization. With its comprehensive features, developers can save time and resources while building scalable and reliable solutions for modern cloud computing..</Description>
+    <Description>
+      Solitons.Core is a robust .NET class library, purpose-built to accelerate the development of cutting-edge cloud software systems. This library offers a suite of interfaces, algorithms, and utility functions for streamlined development, focusing on data processing and visualization.
+
+      This library acts as a catalyst for constructing contemporary cloud applications by simplifying complex processes. Key features include asynchronous logging, media content type negotiation, serialization, run-time code generation, and cloud database management.
+
+      The broad spectrum of features provided by Solitons.Core is aimed at reducing development time and resource consumption, enabling developers to focus on delivering high-quality, modern cloud computing solutions. With its comprehensive set of utilities and its emphasis on efficiency, Solitons.Core is a highly valuable tool for the open source community.
+    </Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
@@ -21,7 +27,10 @@
     <PackageIconUrl />
     <Nullable>enable</Nullable>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>CloudAgnostic;DTO;Serialization;Logging;SecretsManagement;Utility;Extensions;Security;DataProcessing;Middleware;Configuration;API;BestPractices;DevOps</PackageTags>
+    <PackageTags>
+      .NET;.NETCore;C#;CloudIntegration;DataTransfer;ObjectSerialization;ErrorLogging;Authentication;Authorization;DataPipeline;MiddlewareDevelopment;SystemConfiguration;RESTfulAPI;CodingStandards;OperationalExcellence;SoftwareArchitecture;CloudComputing;DataEngineering;SecurityManagement;SolitonsCore;Solitons;Microservices;DevSecOps;AgileDevelopment;ContinuousIntegration;ContinuousDeployment;Cloud;UtilityLibrary;CoreExtensions;DevelopmentTools;OpenSource;CommunityProject;Collaboration;LearningResources;Documentation;SoftwareDevelopment;Programming;CodeLibrary
+    </PackageTags>
+
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
