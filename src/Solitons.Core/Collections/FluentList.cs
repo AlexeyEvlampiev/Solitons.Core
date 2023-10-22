@@ -7,8 +7,20 @@ using System.Linq;
 namespace Solitons.Collections;
 
 /// <summary>
-/// Provides a fluent API for working with a list of elements.
+/// Provides a fluent API for working with a list of elements, enabling developers
+/// to build and manipulate lists in a concise and readable manner.
 /// </summary>
+/// <example>
+/// <code>
+/// <![CDATA[
+/// // Create a new FluentList instance and populate it with elements.
+/// var list = FluentList.Create<int>().Add(1).Add(2, 3).AddRange(new[] { 4, 5, 6 });
+/// 
+/// // Remove an element from the list and then clear the list.
+/// list.Remove(1).Clear();
+/// ]]>
+/// </code>
+/// </example>
 public static class FluentList
 {
     /// <summary>
@@ -39,6 +51,14 @@ public static class FluentList
     /// <typeparam name="T">The type of element in the list.</typeparam>
     /// <param name="item">The element to include in the list.</param>
     /// <returns>A new FluentList instance containing a single element.</returns>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a FluentList instance with a single element.
+    /// var singleItemList = FluentList.Create<int>(42);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> Create<T>(T item) => Wrap(new List<T>(){item});
 
@@ -49,6 +69,14 @@ public static class FluentList
     /// <param name="item1">The first element to include in the list.</param>
     /// <param name="item2">The second element to include in the list.</param>
     /// <returns>A new FluentList instance containing the specified elements.</returns>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a FluentList instance with two elements.
+    /// var doubleItemList = FluentList.Create<int>(7, 42);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> Create<T>(T item1, T item2) => Wrap(new List<T>() { item1, item2});
 
@@ -60,6 +88,14 @@ public static class FluentList
     /// <param name="item2">The second element to include in the list.</param>
     /// <param name="item3">The third element to include in the list.</param>
     /// <returns>A new FluentList instance containing the specified elements.</returns>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a FluentList instance with three elements.
+    /// var tripleItemList = FluentList.Create<int>(7, 42, 100);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> Create<T>(T item1, T item2, T item3) => Wrap(new List<T>() { item1, item2, item3 });
 
@@ -70,50 +106,92 @@ public static class FluentList
     /// <param name="items">The items to add to the list.</param>
     /// <returns>A new <see cref="FluentList{T}"/> instance with the specified <paramref name="items"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="items"/> array is null.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// var list = FluentList.Create<int>(1, 2, 3, 4);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> Create<T>(params T[] items) => Wrap(new List<T>(items));
 
     /// <summary>
-    /// Creates a new <see cref="FluentList{T}"/> instance with the specified initial capacity and an element.
+    /// Creates a new <see cref="FluentList{T}"/> instance with the specified initial capacity and a single element.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the list.</param>
-    /// <param name="item">The element to add to the list.</param>
-    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified initial capacity and an element.</returns>
+    /// <param name="item">The element to include in the list.</param>
+    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified initial capacity and a single element.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than 0.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a new FluentList instance with a specified capacity and a single element
+    /// var list = FluentList.CreateWithCapacity<int>(10, 1);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> CreateWithCapacity<T>(int capacity, T item) => Wrap(new List<T>(capacity) { item });
 
     /// <summary>
-    /// Creates a new instance of <see cref="FluentList{T}"/> with the specified initial capacity and adds the specified items to the list.
+    /// Creates a new <see cref="FluentList{T}"/> instance with the specified initial capacity and two elements.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the list.</param>
-    /// <param name="item1">The first item to add to the list.</param>
-    /// <param name="item2">The second item to add to the list.</param>
-    /// <returns>A new instance of <see cref="FluentList{T}"/> with the specified items and capacity.</returns>
+    /// <param name="item1">The first element to include in the list.</param>
+    /// <param name="item2">The second element to include in the list.</param>
+    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified initial capacity and two elements.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than 0.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a new FluentList instance with a specified capacity and two elements
+    /// var list = FluentList.CreateWithCapacity<int>(10, 1, 2);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> CreateWithCapacity<T>(int capacity, T item1, T item2) => Wrap(new List<T>(capacity) { item1, item2 });
 
     /// <summary>
-    /// Creates a new <see cref="FluentList{T}"/> instance with the specified capacity and initial items.
+    /// Creates a new <see cref="FluentList{T}"/> instance with the specified initial capacity and three elements.
     /// </summary>
-    /// <typeparam name="T">The type of the items in the list.</typeparam>
+    /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the list.</param>
-    /// <param name="item1">The first item to add to the list.</param>
-    /// <param name="item2">The second item to add to the list.</param>
-    /// <param name="item3">The third item to add to the list.</param>
-    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified capacity and initial items.</returns>
+    /// <param name="item1">The first element to include in the list.</param>
+    /// <param name="item2">The second element to include in the list.</param>
+    /// <param name="item3">The third element to include in the list.</param>
+    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified initial capacity and three elements.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than 0.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a new FluentList instance with a specified capacity and three elements
+    /// var list = FluentList.CreateWithCapacity<string>(10, "Alice", "Bob", "Charlie");
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> CreateWithCapacity<T>(int capacity, T item1, T item2, T item3) => Wrap(new List<T>(capacity) { item1, item2, item3 });
 
     /// <summary>
-    /// Creates a new <see cref="FluentList{T}"/> with the specified capacity and items.
+    /// Creates a new <see cref="FluentList{T}"/> instance with the specified initial capacity and elements.
     /// </summary>
-    /// <typeparam name="T">The type of the items in the list.</typeparam>
+    /// <typeparam name="T">The type of the elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the list.</param>
-    /// <param name="items">The items to add to the list.</param>
-    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified capacity and items.</returns>
+    /// <param name="items">The elements to include in the list.</param>
+    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified initial capacity and elements.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than 0.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a new FluentList instance with a specified capacity and elements
+    /// var list = FluentList.CreateWithCapacity<string>(10, "Alice", "Bob", "Charlie");
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> CreateWithCapacity<T>(int capacity, params T[] items)
     {
@@ -123,21 +201,41 @@ public static class FluentList
     }
 
     /// <summary>
-    /// Creates a new <see cref="FluentList{T}"/> instance with the specified capacity.
+    /// Creates a new <see cref="FluentList{T}"/> instance with the specified initial capacity.
     /// </summary>
-    /// <typeparam name="T">The type of the items in the list.</typeparam>
+    /// <typeparam name="T">The type of the elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the list.</param>
-    /// <returns>A new <see cref="FluentList{T}"/> instance.</returns>
+    /// <returns>A new <see cref="FluentList{T}"/> instance with the specified initial capacity.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than 0.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// // Create a new FluentList instance with a specified capacity
+    /// var list = FluentList.CreateWithCapacity<string>(10);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> CreateWithCapacity<T>(int capacity) => new(new List<T>(capacity));
 
     /// <summary>
-    /// Creates a new <see cref="FluentList{T}"/> with the specified initial capacity and copies the elements from the specified collection to the new list.
+    /// Creates a new <see cref="FluentList{T}"/> instance with the specified initial capacity and copies the elements from the specified collection to the new list.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the list.</param>
     /// <param name="collection">The collection whose elements are copied to the new list.</param>
     /// <returns>A new <see cref="FluentList{T}"/> with the specified initial capacity and the elements copied from the specified collection.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="collection"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than 0.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// var sourceCollection = new List<int> { 1, 2, 3, 4, 5 };
+    /// // Create a new FluentList instance with a specified capacity and copy elements from a collection
+    /// var list = FluentList.CreateWithCapacity(10, sourceCollection);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> CreateWithCapacity<T>(int capacity, IEnumerable<T> collection)
     {
@@ -153,6 +251,16 @@ public static class FluentList
     /// <typeparam name="T">The type of items in the list.</typeparam>
     /// <param name="list">The list to wrap.</param>
     /// <returns>A new instance of <see cref="FluentList{T}"/> that wraps the given <paramref name="list"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="list"/> parameter is null.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// var existingList = new List<int> { 1, 2, 3, 4, 5 };
+    /// // Wrap the existing list in a new FluentList instance
+    /// var fluentList = FluentList.Wrap(existingList);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> Wrap<T>(IList<T> list)
     {
@@ -170,6 +278,19 @@ public static class FluentList
     /// <param name="collection">The collection to wrap or create the list from.</param>
     /// <returns>A new instance of <see cref="FluentList{T}"/> containing the elements from the specified collection.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="collection"/> is null.</exception>
+    /// <example>
+    /// <code>
+    /// <![CDATA[
+    /// var existingList = new List<int> { 1, 2, 3, 4, 5 };
+    /// // Wrap an existing list
+    /// var wrappedList = FluentList.WrapOrCreate(existingList);
+    ///
+    /// var newCollection = new [] { 6, 7, 8, 9, 10 };
+    /// // Create a new FluentList from a collection
+    /// var newList = FluentList.WrapOrCreate(newCollection);
+    /// ]]>
+    /// </code>
+    /// </example>
     [DebuggerNonUserCode]
     public static FluentList<T> WrapOrCreate<T>(IEnumerable<T> collection)
     {
