@@ -6,10 +6,32 @@ using System.Diagnostics.CodeAnalysis;
 namespace Solitons.Collections.Common;
 
 /// <summary>
-/// Provides a base implementation for a proxy class that wraps an <see cref="IDictionary{TKey, TValue}"/> instance.
+/// Provides a base implementation for a proxy class that wraps an <see cref="IDictionary{TKey, TValue}"/> instance, enabling developers
+/// to extend dictionary functionality as needed, such as creating a fluent dictionary API or intercepting read or write operations.
 /// </summary>
 /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
 /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
+/// <example>
+/// <code>
+/// <![CDATA[
+/// public class FluentDictionary<TKey, TValue> : DictionaryProxy<TKey, TValue>
+/// {
+///     public FluentDictionary(IDictionary<TKey, TValue> innerDictionary) : base(innerDictionary) { }
+/// 
+///     public new FluentDictionary<TKey, TValue> Add(TKey key, TValue value)
+///     {
+///         this.Add(key, value);
+///         return this;
+///     }
+/// }
+/// 
+/// // Usage:
+/// var dictionary = new Dictionary<string, int>();
+/// var fluentDictionary = new FluentDictionary<string, int>(dictionary);
+/// fluentDictionary.AddItem("One", 1).AddItem("Two", 2);
+/// ]]>
+/// </code>
+/// </example>
 public abstract class DictionaryProxy<TKey, TValue> : IDictionary<TKey, TValue>
 {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
@@ -41,14 +63,14 @@ public abstract class DictionaryProxy<TKey, TValue> : IDictionary<TKey, TValue>
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public void Add(KeyValuePair<TKey, TValue> item)
+    public virtual void Add(KeyValuePair<TKey, TValue> item)
     {
         _innerDictionary.Add(item);
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public void Clear()
+    public virtual void Clear()
     {
         _innerDictionary.Clear();
     }
@@ -62,14 +84,14 @@ public abstract class DictionaryProxy<TKey, TValue> : IDictionary<TKey, TValue>
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+    public virtual void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
         _innerDictionary.CopyTo(array, arrayIndex);
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public bool Remove(KeyValuePair<TKey, TValue> item)
+    public virtual bool Remove(KeyValuePair<TKey, TValue> item)
     {
         return _innerDictionary.Remove(item);
     }
@@ -84,7 +106,7 @@ public abstract class DictionaryProxy<TKey, TValue> : IDictionary<TKey, TValue>
     [DebuggerStepThrough]
     public void Add(TKey key, TValue value)
     {
-        _innerDictionary.Add(key, value);
+        this.Add(KeyValuePair.Create(key, value));
     }
 
     /// <inheritdoc/>
@@ -96,20 +118,20 @@ public abstract class DictionaryProxy<TKey, TValue> : IDictionary<TKey, TValue>
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public bool Remove(TKey key)
+    public virtual  bool Remove(TKey key)
     {
         return _innerDictionary.Remove(key);
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+    public virtual bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
         return _innerDictionary.TryGetValue(key, out value);
     }
 
     /// <inheritdoc/>
-    public TValue this[TKey key]
+    public virtual TValue this[TKey key]
     {
         [DebuggerStepThrough]
         get => _innerDictionary[key];
@@ -118,8 +140,8 @@ public abstract class DictionaryProxy<TKey, TValue> : IDictionary<TKey, TValue>
     }
 
     /// <inheritdoc/>
-    public ICollection<TKey> Keys => _innerDictionary.Keys;
+    public virtual ICollection<TKey> Keys => _innerDictionary.Keys;
 
     /// <inheritdoc/>
-    public ICollection<TValue> Values => _innerDictionary.Values;
+    public virtual ICollection<TValue> Values => _innerDictionary.Values;
 }
