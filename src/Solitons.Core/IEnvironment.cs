@@ -24,19 +24,63 @@ namespace Solitons;
 /// - Facilitating dependency injection by providing a swappable implementation.
 ///
 /// <example>
-/// Here is how you can use an implementation of IEnvironment to get an environment variable:
+/// The following example demonstrates how the IEnvironment interface can be used to check
+/// the operating system platform before executing platform-dependent code:
 /// <code>
-/// IEnvironment env = new CustomEnvironment();
-/// string path = env.GetEnvironmentVariable("PATH");
+/// <![CDATA[
+/// // Defines a Program class that utilizes an IEnvironment interface
+/// // to get information about the environment it's running on.
+/// public sealed class Program
+/// {
+///     // A read-only field to hold an instance of IEnvironment.
+///     private readonly IEnvironment _env;
+///
+///     // A constructor that accepts an IEnvironment implementation.
+///     // This constructor allows dependency injection of custom IEnvironment
+///     // implementations, which can be useful for unit testing.
+///     internal Program(IEnvironment env)
+///     {
+///         _env = env ?? throw new ArgumentNullException(nameof(env));
+///     }
+///
+///     // A default constructor that passes the system's environment
+///     // information to the internal constructor.
+///     // It utilizes a default implementation of IEnvironment.
+///     public Program() : this(IEnvironment.System) { }
+///
+///     // The Run method checks if the current operating system platform is
+///     // supported, and if not, throws a NotSupportedException.
+///     public void Run()
+///     {
+///         // Define an array of supported platforms.
+///         var supportedPlatforms = new[] { PlatformID.MacOSX, PlatformID.Unix };
+///
+///         // Check if the current platform is in the list of supported platforms.
+///         if (!supportedPlatforms.Contains(_env.OSVersion.Platform))
+///         {
+///             // Throw an exception if the current platform is not supported.
+///             throw new NotSupportedException($"{_env.OSVersion} is not supported");
+///         }
+///         
+///         // The rest of the code goes here.
+///     }
+/// }
+/// ]]>
 /// </code>
 /// </example>
 /// </remarks>
 /// <seealso cref="Environment"/>
 public partial interface IEnvironment
 {
+    /// <summary>
+    /// Default (System) implementation
+    /// </summary>
     sealed class SystemEnvironment : IEnvironment
     {
-        public static SystemEnvironment Instance = new SystemEnvironment();
+        /// <summary>
+        /// Default (System) implementation
+        /// </summary>
+        public static SystemEnvironment Instance = new();
 
         private SystemEnvironment()
         {

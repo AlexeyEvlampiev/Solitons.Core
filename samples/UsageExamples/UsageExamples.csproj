@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="protobuf-net" Version="3.2.26" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
@@ -36,7 +37,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)&quot; /Y /I&#xD;&#xA;xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)docfx_project\index.md&quot; /Y /I&#xD;&#xA;" />
+    <Exec Command="xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)&quot; /Y /I&#xD;&#xA;xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)docfx_project\index.md&quot; /Y /I&#xD;&#xA;xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)docfx_project\articles\intro.md&quot; /Y /I&#xD;&#xA;xcopy &quot;$(ProjectDir)README.md&quot; &quot;$(SolutionDir)docfx_project\api\index.md&quot; /Y /I&#xD;&#xA;" />
   </Target>
 
 </Project>

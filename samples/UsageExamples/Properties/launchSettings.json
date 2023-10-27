@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "Serializer": {
+    "All Examples": {
       "commandName": "Project",
-      "commandLineArgs": "--take 10"
+      "commandLineArgs": ""
     }
   }
 }
