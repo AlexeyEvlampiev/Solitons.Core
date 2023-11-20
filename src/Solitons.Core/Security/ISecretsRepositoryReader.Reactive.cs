@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Threading;
-
+using System.Linq;
 namespace Solitons.Security;
 
 public partial interface ISecretsRepositoryReader

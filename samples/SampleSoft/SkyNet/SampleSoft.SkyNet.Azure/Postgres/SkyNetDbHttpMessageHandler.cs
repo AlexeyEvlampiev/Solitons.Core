@@ -5,6 +5,7 @@ using Npgsql;
 using NpgsqlTypes;
 using Solitons;
 using Solitons.Data;
+using System.Collections.Generic;
 
 namespace SampleSoft.SkyNet.Azure.Postgres;
 

@@ -4,7 +4,7 @@
     <PackageId>Solitons.Core</PackageId>
     <VersionPrefix>1.0.6</VersionPrefix>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <RootNamespace>Solitons</RootNamespace>
     <Authors>Alexey Evlampiev</Authors>
     <Company>Solitons</Company>
@@ -36,6 +36,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile></DocumentationFile>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'">
+    <DefineConstants>$(DefineConstants);NET8_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
 
   <ItemGroup>
     <Compile Remove="Data\Web\**" />

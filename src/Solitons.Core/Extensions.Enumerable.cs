@@ -355,6 +355,7 @@ public static partial class Extensions
         }
     }
 
+#if !NET8_OR_GREATER
     /// <summary>
     /// Creates a dictionary from the sequence of key-value pairs.
     /// </summary>
@@ -372,6 +373,7 @@ public static partial class Extensions
         comparer ??= EqualityComparer<TKey>.Default;
         return self.ToDictionary(pair => pair.Key, pair => pair.Value, comparer);
     }
+#endif
 
     /// <summary>
     /// Projects the observable sequence of key-value pairs into an observable dictionary.
@@ -414,6 +416,6 @@ public static partial class Extensions
                 object value = list.Count == 1 ? list[0] : list.ToArray();
                 return KeyValuePair.Create(item.Key, value);
             })
-            .ToDictionary(pair=> pair.Key, p=>p.Value, comparer);
+            .ToDictionary(pair => pair.Key, p => p.Value, comparer);
     }
 }
