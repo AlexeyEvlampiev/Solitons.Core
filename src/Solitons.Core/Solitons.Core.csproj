@@ -46,8 +46,22 @@
     <None Remove="Net\Http\Common\**" />
   </ItemGroup>
 
-  <ItemGroup>
-	  <PackageReference Include="System.Reactive" Version="6.0.0" />
+  <!-- Dependencies for .NET 6 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <!-- Latest stable release for .NET 6 -->
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
+  </ItemGroup>
+
+  <!-- Dependencies for .NET 7 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <!-- Assuming a similar versioning pattern, use the same version for .NET 7 -->
+    <PackageReference Include="System.Reactive" Version="[6,)" />
+  </ItemGroup>
+
+  <!-- Dependencies for .NET 8 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <!-- Placeholder for future .NET 8 compatible version -->
+    <PackageReference Include="System.Reactive" Version="[6,)" />
   </ItemGroup>
 
   <ItemGroup>
