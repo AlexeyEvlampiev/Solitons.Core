@@ -37,11 +37,6 @@
     <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'">
-    <DefineConstants>$(DefineConstants);NET8_OR_GREATER</DefineConstants>
-  </PropertyGroup>
-
-
   <ItemGroup>
     <Compile Remove="Data\Web\**" />
     <Compile Remove="Net\Http\Common\**" />

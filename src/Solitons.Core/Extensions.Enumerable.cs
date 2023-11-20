@@ -355,7 +355,7 @@ public static partial class Extensions
         }
     }
 
-#if !NET8_OR_GREATER
+#if !NET8_0_OR_GREATER
     /// <summary>
     /// Creates a dictionary from the sequence of key-value pairs.
     /// </summary>
