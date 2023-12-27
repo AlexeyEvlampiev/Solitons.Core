@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Solitons.Core</PackageId>
-    <VersionPrefix>1.0.6</VersionPrefix>
+    <VersionPrefix>1.0.7</VersionPrefix>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <RootNamespace>Solitons</RootNamespace>
