@@ -64,6 +64,20 @@ public partial interface ISecretsRepository
     #region Caching
 
     /// <summary>
+    /// Returns a new secrets repository that reads secrets from this repository, but caches them using a custom expiration trigger.
+    /// </summary>
+    /// <typeparam name="T">The type of the items in the cache expiration observable sequence.</typeparam>
+    /// <param name="cacheExpiration">An observable sequence where each item indicates that the cache should be invalidated.</param>
+    /// <returns>A new secrets repository that reads secrets from this repository, but caches them based on the provided observable sequence.</returns>
+    [DebuggerStepThrough]
+    public ISecretsRepository CacheWithExpiration<T>(
+        IObservable<T> cacheExpiration)
+    {
+        var trigger = cacheExpiration.Select(_ => Unit.Default);
+        return CacheWithExpiration(trigger);
+    }
+
+    /// <summary>
     /// Returns a new secrets repository that reads secrets from this repository, but caches them for a limited time period.
     /// </summary>
     /// <param name="cacheExpiration">An observable that signals when the cache should expire.</param>
@@ -71,7 +85,7 @@ public partial interface ISecretsRepository
     /// <returns>A new secrets repository that reads secrets from this repository, but caches them for a limited time period.</returns>
     /// <exception cref="InvalidOperationException">Thrown if this method is called on a secrets repository that is already a part of a multilayered cache.</exception>
     [DebuggerStepThrough]
-    public ISecretsRepository ReadThroughCache(
+    public ISecretsRepository CacheWithExpiration(
         IObservable<Unit> cacheExpiration,
         StringComparer secretNameComparer)
     {
@@ -83,13 +97,20 @@ public partial interface ISecretsRepository
         return new ReadThroughCacheSecretsRepository(this, cacheExpiration, secretNameComparer);
     }
 
+    /// <summary>
+    /// Returns a new secrets repository that reads secrets from this repository, but caches them using a custom expiration trigger and a specific name comparer.
+    /// </summary>
+    /// <typeparam name="T">The type of the items in the cache expiration observable sequence.</typeparam>
+    /// <param name="cacheExpiration">An observable sequence where each item indicates that the cache should be invalidated.</param>
+    /// <param name="secretNameComparer">The comparer to use for comparing secret names.</param>
+    /// <returns>A new secrets repository that reads secrets from this repository, but caches them based on the provided observable sequence and name comparer.</returns>
     [DebuggerStepThrough]
-    public ISecretsRepository ReadThroughCache<T>(
+    public ISecretsRepository CacheWithExpiration<T>(
         IObservable<T> cacheExpiration,
         StringComparer secretNameComparer)
     {
         var trigger = cacheExpiration.Select(_ => Unit.Default);
-        return ReadThroughCache(trigger, secretNameComparer);
+        return CacheWithExpiration(trigger, secretNameComparer);
     }
 
     /// <summary>
@@ -98,9 +119,9 @@ public partial interface ISecretsRepository
     /// <param name="secretNameComparer">The comparer to use for comparing secret names.</param>
     /// <returns>A read-through cache secrets repository with the specified secret name comparer.</returns>
     [DebuggerStepThrough]
-    public ISecretsRepository ReadThroughCache(
+    public ISecretsRepository CacheWithExpiration(
         StringComparer secretNameComparer) =>
-        ReadThroughCache(Observable.Empty<Unit>(), secretNameComparer);
+        CacheWithExpiration(Observable.Empty<Unit>(), secretNameComparer);
 
     /// <summary>
     /// Creates a read-through cache secrets repository with the specified cache expiration observable.
@@ -108,9 +129,9 @@ public partial interface ISecretsRepository
     /// <param name="cacheExpiration">An observable that signals when the cache should be invalidated.</param>
     /// <returns>A read-through cache secrets repository with the specified cache expiration observable.</returns>
     [DebuggerStepThrough]
-    public ISecretsRepository ReadThroughCache(
+    public ISecretsRepository CacheWithExpiration(
         IObservable<Unit> cacheExpiration) =>
-        ReadThroughCache(cacheExpiration, StringComparer.Ordinal);
+        CacheWithExpiration(cacheExpiration, StringComparer.Ordinal);
 
     #endregion
 }

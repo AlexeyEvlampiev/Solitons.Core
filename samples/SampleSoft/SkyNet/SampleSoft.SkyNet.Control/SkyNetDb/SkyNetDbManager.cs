@@ -190,6 +190,6 @@ public sealed class SkyNetDbManager : NpgsqlManager
     protected override Task PerformPostUpgradeTestsAsync(CancellationToken cancellation) => IntegrationTest
         .RunAllAsync(
             GetType().Assembly, 
-            _secrets.ReadThroughCache(Observable.Empty<Unit>()), 
+            _secrets.CacheWithExpiration(Observable.Empty<Unit>()), 
             cancellation: cancellation);
 }

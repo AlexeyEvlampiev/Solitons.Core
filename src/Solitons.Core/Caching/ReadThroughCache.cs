@@ -41,7 +41,7 @@ namespace Solitons.Caching;
 ///             .SelectMany(_ => new HttpClient().GetStringAsync("https://free-api.example.com/exchange-rate/usd/inr").ToObservable())
 ///             .Select(json => JObject.Parse(json)["rate"].Value&lt;decimal&gt;());
 ///
-///         var cachedExchangeRateObservable = ReadThroughCache.Publish(exchangeRateObservable);
+///         var cachedExchangeRateObservable = CacheWithExpiration.Publish(exchangeRateObservable);
 ///         using (var connection = cachedExchangeRateObservable.Connect())
 ///         {
 ///             // Subscribers receive the latest known exchange rate as soon as they subscribe

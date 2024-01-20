@@ -27,11 +27,6 @@ public sealed class OverridesData : BasicJsonDataTransferObject
             return null;
         }
 
-        if (SQLiteSecretsStore.IsScopeConnectionString(SecretsConnectionString!, out var _, out var _))
-        {
-            return SQLiteSecretsStore.Create(SecretsConnectionString!);
-        }
-
         throw new NotImplementedException();
 
     }

@@ -8,6 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -20,6 +22,54 @@ namespace Solitons;
 
 public static partial class Extensions
 {
+    /// <summary>
+    /// Creates a task that will complete after a time delay specified by the TimeSpan.
+    /// </summary>
+    /// <param name="self">The time interval after which the task completes.</param>
+    /// <param name="cancellation">The token to monitor for cancellation requests. The default value is None.</param>
+    /// <returns>A task that represents the delay. This task will complete after the time span specified by <paramref name="self"/> has elapsed.</returns>
+    [DebuggerNonUserCode]
+    public static Task AsDelay(this TimeSpan self, CancellationToken cancellation = default) => Task.Delay(self, cancellation);
+
+
+
+    /// <summary>
+    /// Generates an observable sequence that repeats after each TimeSpan interval.
+    /// </summary>
+    /// <param name="self">The interval between each occurrence in the output sequence.</param>
+    /// <returns>An observable sequence that produces a value after each specified interval.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<long> AsTimer(this TimeSpan self) => Observable.Interval(self);
+
+    /// <summary>
+    /// Generates an observable sequence that repeats after each TimeSpan interval, using the specified scheduler.
+    /// </summary>
+    /// <param name="self">The interval between each occurrence in the output sequence.</param>
+    /// <param name="scheduler">The scheduler to schedule the intervals on.</param>
+    /// <returns>An observable sequence that produces a value after each specified interval on the given scheduler.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<long> AsTimer(this TimeSpan self, IScheduler scheduler) => Observable.Interval(self, scheduler);
+
+    /// <summary>
+    /// Generates an observable sequence that repeats after a specified TimeSpan due time and then after each TimeSpan interval.
+    /// </summary>
+    /// <param name="self">The interval between each occurrence in the output sequence.</param>
+    /// <param name="dueTime">The due time before the first occurrence in the output sequence.</param>
+    /// <returns>An observable sequence that produces a value after the specified due time and then after each interval.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<long> AsTimer(this TimeSpan self, TimeSpan dueTime) => Observable.Timer(dueTime, self);
+
+    /// <summary>
+    /// Generates an observable sequence that repeats after a specified TimeSpan due time and then after each TimeSpan interval, using the specified scheduler.
+    /// </summary>
+    /// <param name="self">The interval between each occurrence in the output sequence.</param>
+    /// <param name="dueTime">The due time before the first occurrence in the output sequence.</param>
+    /// <param name="scheduler">The scheduler to schedule the intervals on.</param>
+    /// <returns>An observable sequence that produces a value after the specified due time and then after each interval on the given scheduler.</returns>
+    [DebuggerNonUserCode]
+    public static IObservable<long> AsTimer(this TimeSpan self, TimeSpan dueTime, IScheduler scheduler) => Observable.Timer(dueTime, self, scheduler);
+
+
     /// <summary>
     /// Returns a new <see cref="System.Guid"/> that is a copy of the specified Guid, 
     /// except that the last 32 bits are replaced with the specified Int32 value.
